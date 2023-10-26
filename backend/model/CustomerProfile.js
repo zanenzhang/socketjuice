@@ -51,106 +51,25 @@ var customerProfileSchema = new Schema({
         type: String,
         maxLength: 50
     },
-    dailyUploads: [{
-        date: {
-            type: Date,
-            default: Date.now
-        },
-        dailyUpload:{
-            type: Number,
-            default: 1
-        }
-    }],
-    relationshipStatus: { 
-        type: String,
-        maxLength: 20
-    },
-    userGroup: { 
-        type: String,
-        maxLength: 50
-    },
-    taggedPosts: [{
-        _postId: { 
-            type: Schema.Types.ObjectId, 
-            ref: 'Post'
-        },
-        count: { 
-            type: Number
-        },
-        createdAt: {
-            type: Date, 
-            default: Date.now
-        } 
-    }],
     birthDate: { 
         type: Date,
         default: "01/01/1980"
     },
-    userPosts: [{  
-        _postId: { 
+    userAppointments: [{  
+        _appointmentId: { 
             type: Schema.Types.ObjectId, 
-            ref: 'Post',
+            ref: 'Appointment',
             index: true
-        },
-        primaryCategory: {
-            type: String,
-            default: "All",
-            maxLength: 50
-        },
-        postClass:{
-            type: Number,
-            default: 0
         },
         createdAt: {
             type: Date, 
             default: Date.now
         }
     }],
-    userOrders: [{  
-        _orderId: { 
-            type: Schema.Types.ObjectId, 
-            ref: 'Order',
-            index: true
-        },
-        _postId:{
-            type: Schema.Types.ObjectId, 
-            ref: 'Post',
-        },
-        PaymentIntentId: {
-            type: String
-        },
-        currency: {
-            type: String,
-            default: "CAD"
-        },
-        paidSubtotalPrice: {
-            type: Number,
-        },
-        totalShippingCost:{
-            type: Number,
-        },
-        totalPaidPrice: {
-            type: Number,
-        },
-        createdAt: {
-            type: Date, 
-            default: Date.now
-        }
-    }],
-    numberOfPosts: {
+    numberOfCustAppointments: {
         type: Number,
         default: 0
     },
-    valueGemCount: {
-        type: Number,
-        default: 0
-    },
-    followRequests: [{ 
-        _RequestedUserId: { 
-            type: Schema.Types.ObjectId, 
-            required: true, ref: 'User' 
-        }
-    }],
     phoneContacts: [{
         contactName: {
             type: String,

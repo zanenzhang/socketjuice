@@ -7,36 +7,6 @@ var flagSchema = new Schema({
         ref: 'User' ,
         index: true
     },
-    postFlags: [{
-        _postId: {
-            type: Schema.Types.ObjectId, 
-            ref: 'Post'
-        },
-        createdAt: { 
-            type: Date, 
-            default: Date.now
-        }
-    }],
-    productFlags: [{
-        _productId: {
-            type: Schema.Types.ObjectId, 
-            ref: 'Product'
-        },
-        createdAt: { 
-            type: Date, 
-            default: Date.now
-        }
-    }],
-    commentFlags: [{
-        _commentId: {
-            type: Schema.Types.ObjectId, 
-            ref: 'Comment'
-        },
-        createdAt: { 
-            type: Date, 
-            default: Date.now
-        }
-    }],
     userFlags: [{
         _userId: {
             type: Schema.Types.ObjectId, 

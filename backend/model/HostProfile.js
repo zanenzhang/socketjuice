@@ -8,7 +8,7 @@ var hostProfileSchema = new Schema({
         required: true, ref: 'User',
         index: true 
     },
-    storename: {
+    username: {
         type: String,
         required: true,
     },
@@ -20,210 +20,21 @@ var hostProfileSchema = new Schema({
         type: String,
         maxLength: 50,
     },
-    website: {
-        type: String,
-        maxLength: 50
-    },
-    announcements: {
-        type: String,
-        maxLength: 200,
-        default: "No announcements"
-    },
-    regularHours: {
-        type: String,
-        default: "Monday-Friday 9:00AM to 9:00PM"
-    },
-    regularHoursMondayStart: {
-        type: String,
-        maxLength: 100,
-        default: "09:00"
-    },
-    regularHoursTuesdayStart: {
-        type: String,
-        maxLength: 100,
-        default: "09:00"
-    },
-    regularHoursWednesdayStart: {
-        type: String,
-        maxLength: 100,
-        default: "09:00"
-    },
-    regularHoursThursdayStart: {
-        type: String,
-        maxLength: 100,
-        default: "09:00"
-    },
-    regularHoursFridayStart: {
-        type: String,
-        maxLength: 100,
-        default: "09:00"
-    },
-    regularHoursSaturdayStart: {
-        type: String,
-        maxLength: 100,
-        default: "09:00"
-    },
-    regularHoursSundayStart: {
-        type: String,
-        maxLength: 100,
-        default: "09:00"
-    },
-    regularHoursMondayFinish: {
-        type: String,
-        maxLength: 100,
-        default: "17:00"
-    },
-    regularHoursTuesdayFinish: {
-        type: String,
-        maxLength: 100,
-        default: "17:00"
-    },
-    regularHoursWednesdayFinish: {
-        type: String,
-        maxLength: 100,
-        default: "17:00"
-    },
-    regularHoursThursdayFinish: {
-        type: String,
-        maxLength: 100,
-        default: "17:00"
-    },
-    regularHoursFridayFinish: {
-        type: String,
-        maxLength: 100,
-        default: "17:00"
-    },
-    regularHoursSaturdayFinish: {
-        type: String,
-        maxLength: 100,
-        default: "17:00"
-    },
-    regularHoursSundayFinish: {
-        type: String,
-        maxLength: 100,
-        default: "17:00"
-    },
-    holidayHours: {
-        type: String,
-        maxLength: 100,
-        default: "9:00AM - 3:00PM"
-    },
-    holidayHoursStart: {
-        type: String,
-        maxLength: 100,
-        default: "10:00"
-    },
-    holidayHoursFinish: {
-        type: String,
-        maxLength: 100,
-        default: "15:00"
-    },
-    closedOnMonday: {
-        type: Boolean,
-        default: false
-    }, 
-    closedOnTuesday: {
-        type: Boolean,
-        default: false
-    },
-    closedOnWednesday: {
-        type: Boolean,
-        default: false
-    },
-    closedOnThursday: {
-        type: Boolean,
-        default: false
-    },
-    closedOnFriday: {
-        type: Boolean,
-        default: false
-    },
-    closedOnSaturday: {
-        type: Boolean,
-        default: false
-    },
-    closedOnSunday: {
-        type: Boolean,
-        default: false
-    },
-    closedOnHolidays: {
-        type: Boolean,
-        default: false
-    },
-    storePosts: [{  
-        _postId: { 
-            type: Schema.Types.ObjectId, 
-            ref: 'Post' 
-        }, //Sort by category name, then post name
-        primaryCategory: {
-            type: String,
-            default: "All"
+    availabilities: [{
+        startDate: {
+            type: Date,
         },
-        postClass:{
-            type: Number,
-            default: 0
-        },
-        createdAt: {
-            type: Date, 
-            default: Date.now
-        } 
-    }],
-    storeOrders: [{  
-        _orderId: { 
-            type: Schema.Types.ObjectId, 
-            ref: 'Order',
-            index: true
-        },
-        _postId:{
-            type: Schema.Types.ObjectId, 
-            ref: 'Post',
-        },
-        PaymentIntentId: {
-            type: String
-        },
-        currency: {
-            type: String,
-            default: "CAD"
-        },
-        paidSubtotalPrice: {
-            type: Number,
-        },
-        totalShippingCost:{
-            type: Number,
-        },
-        totalPaidPrice: {
-            type: Number,
-        },
-        createdAt: {
-            type: Date, 
-            default: Date.now
+        endDate:{
+            type: Date,
         }
     }],
-    taggedPosts: [{
-        _postId: [{ 
-            type: Schema.Types.ObjectId, 
-            ref: 'Post' 
-        }], //Sort by category name, then post name
-        count: { 
-            type: Number
+    bookings: [{
+        startDate: {
+            type: Date,
         },
-        createdAt: {
-            type: Date, 
-            default: Date.now
-        } 
-    }],
-    storeTags: [{
-        tag: { 
-            type: String,
-            maxLength: 50
-        }, 
-        count: { 
-            type: Number
+        endDate:{
+            type: Date,
         }
-    }],
-    storeCategories: [{
-        type: String,
-        maxLength: 100
     }],
     phonePrimary: { 
         type: String,
@@ -233,9 +44,16 @@ var hostProfileSchema = new Schema({
         type: String,
         // match: /^(\()?\d{3}(\))?(-|\s)?\d{3}(-|\s)\d{4}$/
     },
-    totalLikes: {
-        type: Number,
-        default: 0
+    chargingLevel: {
+        type: String,
+    },
+    chargingType: {
+        type: String,
+    },
+    hostComments: {
+        type: String,
+        maxLength: 2000,
+        default: "Welcome! No additional comments!"
     },
     address: {
         type: String,
@@ -268,13 +86,6 @@ var hostProfileSchema = new Schema({
     coverThumbnail: {
         type: String
     },
-    retailerRanking: {
-        type: Number,
-        default: 6
-    },
-    retailerId: {
-        type: Number
-    },
     postalCode: {
         type: String,
         maxLength: 10
@@ -287,29 +98,13 @@ var hostProfileSchema = new Schema({
         type: { type: String, maxLength: 50 },
         coordinates: [Number], //Longitude first, then latitude
     },
-    manager: {
-        type: String,
-        maxLength: 50
-    },
-    chain: {
-        type: String,
-        default: "No"
-    },
-    chainId: {
-        type: String,
-        maxLength: 150
-    },
-    relatedStores: [{
-        type: Schema.Types.ObjectId, 
-        ref: 'User',
-    }],
     lessMotion: { 
         type: Boolean, 
         default: false 
     },
     pushNotifications: { 
         type: Boolean, 
-        default: false 
+        default: true 
     },
     userTheme: { 
         type: String,
@@ -320,19 +115,24 @@ var hostProfileSchema = new Schema({
         type: String,
         maxLength: 50
     },
-    dailyUploads: [{
-        date: {
-            type: Date,
-            default: Date.now
-        },
-        dailyUpload:{
-            type: Number,
-            default: 1
-        }
-    }],
-    verified: { 
+    verifiedHost: { 
         type: Boolean, 
         default: false 
+    },
+    hostAppointments: [{  
+        _appointmentId: { 
+            type: Schema.Types.ObjectId, 
+            ref: 'Appointment',
+            index: true
+        },
+        createdAt: {
+            type: Date, 
+            default: Date.now
+        }
+    }],
+    numberOfHostAppointments: {
+        type: Number,
+        default: 0
     },
     createdAt: { 
         type: Date, 

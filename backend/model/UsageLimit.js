@@ -15,14 +15,6 @@ var usageLimitSchema = new Schema({
         type: Number,
         default: 0
     },
-    numberOfPosts: [{
-        date: { 
-            type: String, 
-        },
-        postsNumber: {
-            type: Number
-        }
-    }],
     numberOfComments: [{
         date: { 
             type: String, 
@@ -60,30 +52,6 @@ var usageLimitSchema = new Schema({
             type: String, 
         },
         bookmarksNumber: {
-            type: Number
-        }
-    }],
-    numberOfShares: [{
-        date: { 
-            type: String, 
-        },
-        sharesNumber: {
-            type: Number
-        }
-    }],
-    numberOfOrders: [{
-        date: { 
-            type: String, 
-        },
-        ordersNumber: {
-            type: Number
-        }
-    }],
-    numberOfValues: [{
-        date: { 
-            type: String, 
-        },
-        valuesNumber: {
             type: Number
         }
     }],

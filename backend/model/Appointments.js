@@ -21,6 +21,14 @@ var appointmentSchema = new Schema({
     appointmentEnd: {
         type: Date,
     },
+    reviewed: {
+        type: Boolean,
+        default: false
+    },
+    rejected: {
+        type: Boolean,
+        default: false
+    },
 });
 
 module.exports = mongoose.model('Appointment', appointmentSchema, 'appointments');

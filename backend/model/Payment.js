@@ -18,6 +18,9 @@ var paymentSchema = new Schema({
     currency: {
         type: String,
         default: "CAD"
+    },
+    paymentToken: {
+        type: String
     }
 });
 
