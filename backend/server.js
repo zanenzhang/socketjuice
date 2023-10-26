@@ -4,11 +4,7 @@ const app = express();
 const path = require('path');
 const cors = require('cors');
 const corsOptions = require('./config/corsOptions');
-const passport = require('passport');
-const passportSetup = require("./config/passportSetup.js");
 const cookieSession = require("cookie-session");
-const socialAuth = require('./socialauthentication.js');
-const elasticClient = require('./elastic/clientsetup.js');
 const { logger } = require('./middleware/logEvents');
 const { errorHandler } = require('./middleware/errorHandler');
 
@@ -16,22 +12,20 @@ const verifyJWT = require('./middleware/verifyJWT');
 const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
 const credentials = require('./middleware/credentials');
-
+const mongoose = require('mongoose');
 const connectDB = require('./config/dbConn');
 const socketioJwt = require('socketio-jwt');
-// const { createAdapter } = require("@socket.io/redis-adapter");
-// const { createClient } = require("redis");
 
 const rateLimiter = require("express-rate-limit");
 const slowDown = require("express-slow-down");
 const helmet = require("helmet");
 const hpp = require("hpp");
 const xss = require("xss-clean");
-var CronJob = require('cron').CronJob;
+const mongoSanitize = require("express-mongo-sanitize");
 
 const http = require('http').createServer(app);
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT_SJ || 5000;
 
 const limiter = rateLimiter({
     windowMs: 15 * 60 * 1000,
@@ -74,10 +68,6 @@ app.use(
     })
   );
 
-// initalize passport
-app.use(passport.initialize());
-// deserialize cookie from the browser
-app.use(passport.session());
 
 app.use(bodyParser.json({ limit: "21mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "21mb", extended: true }));
@@ -108,37 +98,17 @@ app.use('/api/resetpassword', cors(corsOptions), require('./routes/resetpassword
 app.use('/api/inputnewpassword', cors(), require('./routes/inputnewpassword'));
 app.use('/api/userdata', cors(), require('./routes/userdata'));
 
-app.use('/api/posts', cors(corsOptions), require('./routes/postsbyuser'));
-app.use('/api/viewed', cors(corsOptions), require('./routes/viewed'));
-app.use('/api/linkclicks', cors(corsOptions), require('./routes/linkclicks'));
-app.use('/api/advertisements', cors(corsOptions), require('./routes/advertisements'));
-app.use('/api/visited', cors(corsOptions), require('./routes/visited'));
-app.use('/api/reels', cors(corsOptions), require('./routes/reels'));
-app.use('/api/recentusers', cors(corsOptions), require('./routes/recentusers'));
-app.use('/api/singlepost', cors(corsOptions), require('./routes/singlepost'));
 app.use('/api/comments', cors(corsOptions), require('./routes/comments')); 
 app.use('/api/chats', cors(corsOptions), require('./routes/chats')); 
 app.use('/api/singlechat', cors(corsOptions), require('./routes/singlechat')); 
 app.use('/api/messages', cors(corsOptions), require('./routes/messages')); 
 
-app.use('/api/blockedlist', cors(corsOptions), require('./routes/blockedlist'));
-app.use('/api/autocomplete', cors(corsOptions), require('./routes/autocomplete'));
-// app.use('/api/search', cors(corsOptions), require('./routes/search'));
-app.use('/api/elasticsearch', cors(corsOptions), require('./routes/elasticsearch'));
 app.use('/api/profile', cors(corsOptions), require('./routes/profile')); 
-app.use('/api/publicdata', cors(corsOptions), require('./routes/publicdataroutes')); 
 app.use('/api/checkuser', cors(corsOptions), require('./routes/checkuser')); 
-app.use('/api/product', cors(corsOptions), require('./routes/product')); 
-app.use('/api/orders', cors(corsOptions), require('./routes/orders')); 
-app.use('/api/cart', cors(corsOptions), require('./routes/cart')); 
-app.use('/api/cities', cors(corsOptions), require('./routes/cities')); 
-app.use('/api/ownedproduct', cors(corsOptions), require('./routes/ownedproduct')); 
-app.use('/api/avatar', cors(corsOptions), require('./routes/avatar')); 
-app.use('/api/username', cors(corsOptions), require('./routes/username')); 
-app.use('/api/invite', cors(corsOptions), require('./routes/invitation')); 
+
 app.use('/api/emails', cors(corsOptions), require('./routes/emails')); 
-app.use('/api/payments', cors(corsOptions), require('./routes/payments'));
-app.use('/api/paymentsuser', cors(corsOptions), require('./routes/paymentsuser')); 
+// app.use('/api/payments', cors(corsOptions), require('./routes/payments'));
+// app.use('/api/paymentsuser', cors(corsOptions), require('./routes/paymentsuser')); 
 
 app.use('/api/notification', cors(corsOptions), require('./routes/notifications')); 
 
@@ -146,9 +116,6 @@ app.use('/api/s3', cors(corsOptions), require('./routes/s3route'));
 app.use('/api/nsfw', cors(corsOptions), require('./routes/nsfw'));
 app.use('/api/recaptcha', cors(corsOptions), require('./routes/recaptcha'));
 app.use('/api/warnings', cors(corsOptions), require('./routes/warnings'));
-
-app.use('/api/speech', cors(corsOptions), require('./routes/speech'));
-
 
 app.get("/*", (req, res) => { res.sendFile(path.join(__dirname ,'/frontend/public/index.html')); })
 
@@ -180,7 +147,6 @@ const io = require('socket.io')(http,
 )
 
 http.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
 
 io.use(socketioJwt.authorize({
     secret: process.env.ACCESS_TOKEN_SECRET,
@@ -234,30 +200,6 @@ io.on('connection', function(socket){
         socket.leave(data.chatId)
     })
 
-    socket.on("openPost", (data) => {
-        console.log(`Joining post ${data.postId}`);
-        socket.join(data.postId);
-
-        socket.emit("connectedPost")
-    })
-
-    socket.on("closePost", (data) => {
-        console.log(`Leaving post ${data.postId}`)
-        socket.leave(data.postId)
-    })
-
-    socket.on("inStore", (data) => {
-        console.log(`Joining store ${data.storeId}`);
-        socket.join(data.storeId);
-
-        socket.emit("connectedStore")
-    })
-
-    socket.on("leftStore", (data) => {
-        console.log(`Leaving store ${data.storeId}`)
-        socket.leave(data.storeId)
-    })
-
     socket.on("typingStart", (data) => {
         io.to(data.chatId).emit("othersTypingStart", data.username)
     });
@@ -269,4 +211,122 @@ io.on('connection', function(socket){
 
 });
 
+
+const connection = mongoose.connection;
+
+connection.once('open', () => {
     
+    console.log('Connected to MongoDB');
+    console.log("Setting change streams");
+
+    const chatsChangeStream = connection.collection("chats").watch();
+
+    chatsChangeStream.on("change", (change) => {
+        switch (change.operationType) {
+            case "update":
+                const chatUpdate = {
+                    // _chatId: change.fullDocument._id,
+                    // participants: change.fullDocument.participants,
+                    // mostRecentMessage: change.fullDocument.mostRecentMessage,
+                };
+
+                //sends update to chatId room key
+                io.to(change.documentKey._id.toString()).emit("updatedChats", change.documentKey._id);                
+                
+                break;
+            
+            case "insert":
+            
+                console.log(change)
+
+                //For participant in chat.participants, emit update
+
+                change.fullDocument.participants?.forEach(function(participant){
+
+                    io.to(participant._userId).emit("newChat", change.fullDocument);                
+                })
+
+                break;
+        };
+    });
+
+    const messageChangeStream = connection.collection("messages").watch();
+
+    messageChangeStream.on("change", (change) => {
+        switch (change.operationType) {
+            case "insert":
+                // const newMessage = {
+                //     _messageId: change.fullDocument._id,
+                //     _chatId: change.fullDocument._chatId,
+                //     _userId: change.fullDocument._userId,
+                //     content: change.fullDocument.content,
+                //     username: change.fullDocument.username,
+                //     createdAt: change.fullDocument.createdAt,
+                // };
+
+                io.to(change.fullDocument._chatId.toString()).emit("newMessage", change.fullDocument);
+                break;
+        };
+    });
+
+    const commentChangeStream = connection.collection("comments").watch();
+
+    commentChangeStream.on("change", (change) => {
+        switch (change.operationType) {
+            case "update":
+                
+                io.to(change.documentKey._postId.toString()).emit("updatedComment", change.documentKey._id);                
+                break;
+
+            case "insert":
+
+                io.to(change.fullDocument._postId.toString()).emit("newComment", change.fullDocument);
+                break;
+        };
+    });
+
+    const storeVisitorsChangeStream = connection.collection("storevisitors").watch([], { fullDocument: 'updateLookup' });
+
+    storeVisitorsChangeStream.on("change", (change) => {
+        switch (change.operationType) {
+            case "update":
+                
+                io.to(change.fullDocument._userId.toString()).emit("updatedVisitors", change.fullDocument._userId);                    
+                
+                break;
+        }
+    });
+
+
+    const notificationChangeStream = connection.collection("notifications").watch();
+
+    notificationChangeStream.on("change", (change) => {
+        switch (change.operationType) {
+            case "insert":
+                // const newMessage = {
+                //     _messageId: change.fullDocument._id,
+                //     _chatId: change.fullDocument._chatId,
+                //     _userId: change.fullDocument._userId,
+                //     content: change.fullDocument.content,
+                //     username: change.fullDocument.username,
+                //     createdAt: change.fullDocument.createdAt,
+                // };
+
+                io.to(change.fullDocument._userId.toString()).emit("newNotiication", change.fullDocument);
+                break;
+        };
+    });
+
+})
+
+    
+
+
+// // //schedule deletion of thoughts at midnight
+// // cron.schedule("0 0 0 * * *", async () => {
+// //     await connection.collection("thoughts").drop();
+  
+// //     io.of("/api/socket").emit("thoughtsCleared");
+// //   });
+  
+// //   connection.on("error", (error) => console.log("Error: " + error));
