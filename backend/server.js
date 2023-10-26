@@ -1,0 +1,12 @@
+require('dotenv').config();
+const express = require('express');
+const app = express();
+const path = require('path');
+const cors = require('cors');
+const corsOptions = require('./config/corsOptions');
+const passport = require('passport');
+const passportSetup = require("./config/passportSetup.js");
+const cookieSession = require("cookie-session");
+const socialAuth = require('./socialauthentication.js');
+const { logger } = require('./middleware/logEvents');
+const { errorHandler } = require('./middleware/errorHandler');
