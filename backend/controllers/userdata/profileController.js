@@ -1061,7 +1061,8 @@ const editUserReceivePayments = async (req, res) => {
 }
 
 
-module.exports = { getDriverProfile, editSettingsUserProfile, editSettingsUserPass, editSettingsUserGeneral, editProfilePic,
+module.exports = { getDriverProfile, 
+    editSettingsUserProfile, editSettingsUserPass, editSettingsUserGeneral, editProfilePic,
     getUserIdByUsername, getProfilePicByUserId, checkUser, getProfileData, 
     deleteOldProfilePic, addUserBan, removeUserBan, makePrivate, makePublic, 
     editUserReceivePayments }

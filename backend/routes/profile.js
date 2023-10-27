@@ -1,12 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const profileController = require('../controllers/userdata/profileController');
-const hostProfileController = require('../controllers/storedata/hostProfileController');
+const hostProfileController = require('../controllers/hostdata/hostProfileController');
 const citiesController = require('../controllers/userdata/citiesController');
 const verifyJWT = require('../middleware/verifyJWT');
 
 router.use(verifyJWT)
-router.get('/user', profileController.getUserProfile);
+router.get('/user', profileController.getDriverProfile);
+router.get('/host', hostProfileController.getHostProfile);
 
 router.patch('/usersettings', profileController.editSettingsUserProfile);
 router.patch('/userpass', profileController.editSettingsUserPass);
@@ -19,7 +20,6 @@ router.patch('/cities', citiesController.updatePreferences);
 
 router.patch('/storesettings', hostProfileController.editSettingsHostProfile);
 
-router.get('/suggested/:loggedUserId', profileController.getSuggestedProfiles);
 router.delete('/oldpic', profileController.deleteOldProfilePic);
 
 router.post('/ban', profileController.addUserBan);
