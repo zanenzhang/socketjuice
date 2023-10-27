@@ -54,27 +54,10 @@ const getUserProfile = async (req, res) => {
             const bookmarksFound = await Bookmark.findOne({_userId: loggedUserId})
 
             let donePostsData = false;
-            let donePeopleFollowers = false;
-            let doneStoreFollowers = false;
-            let donePeopleFollowing = false;
-            let doneStoreFollowing = false;
-            let doneLoggedBlocked = false;
-            let doneProfileBlocked = false;
             let doneFlags = false;
 
-            let privacySetting = null;
-            let loggedBlocked = null;
             let profilePicURL = null;
             let flaggedProfile = null;
-            let profileBlocked = null;
-            
-            let peopleFollowersCount = null;
-            let peopleFollowingCount = null;
-            let storeFollowersCount = null;
-            let storeFollowingCount = null;
-            let totalGems = null;
-
-            var doneSharedposts = false;
 
             if(flaggedList){
 
@@ -85,7 +68,7 @@ const getUserProfile = async (req, res) => {
                 }
 
                 doneFlags = true;
-            } 
+            }
 
             if(userFound){
 
@@ -93,60 +76,10 @@ const getUserProfile = async (req, res) => {
                     return res.status(403).json({"message":"Operation failed"})
                 }
 
-                privacySetting = userFound.privacySetting;
                 profilePicURL = userFound.profilePicURL;
-                totalGems = userFound.totalGems;
-
-                if(userFound?.blockedUsers){
-
-                    if(userFound.blockedUsers.some(e=>e._userId.toString() === ((loggedUserId)))){
-                        loggedBlocked = 1;        
-                    } else {
-                        loggedBlocked = 0;
-                    }
-
-                } else {
-                    loggedBlocked = 0;
-                }
-                
-                doneLoggedBlocked = true;
             } 
-
-            if(loggedFound){
-
-                if(loggedFound?.blockedUsers){
-
-                    if(loggedFound.blockedUsers.some(e=>e._userId.toString() === ((profileUserId)))){
-                        profileBlocked = 1;        
-                    } else {
-                        profileBlocked = 0;
-                    }
-
-                } else {
-                    profileBlocked = 0;
-                }
-                
-                doneProfileBlocked = true;
-            } 
-
-            if(peopleFollowing){
-                peopleFollowingCount = peopleFollowing.peopleFollowingCount
-                if(peopleFollowing.allPeopleFollowing?.some(e=>e._followingId.toString() === ((loggedUserId)))){
-                    followingLogged = 1
-                } else {
-                    followingLogged = 0
-                }
-                donePeopleFollowing = true;
-            }
-
-            if(storeFollowing){
-                storeFollowingCount = storeFollowing.storeFollowingCount
-                doneStoreFollowing = true;
-            }
 
             if(userPosts?.length > 0){
-
-                foundProducts = await Product.find({_id: {$in: userPosts.map(e=>e._productId)}},{brand_fuzzy: 0, productname_fuzzy:0})
 
                 userPosts?.forEach(async function(item, index){
 
@@ -309,9 +242,7 @@ const getUserProfile = async (req, res) => {
 
                     item.save()
 
-                    if(foundProducts){
-                        donePostsData = true;
-                    }
+                    donePostsData = true;
                 })
 
             } else {
