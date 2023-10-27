@@ -20,6 +20,14 @@ var hostProfileSchema = new Schema({
         type: String,
         maxLength: 50,
     },
+    defaultavailability: [{
+        startDate: {
+            type: Date,
+        },
+        endDate:{
+            type: Date,
+        }
+    }],
     availabilities: [{
         startDate: {
             type: Date,
@@ -47,8 +55,78 @@ var hostProfileSchema = new Schema({
     chargingLevel: {
         type: String,
     },
-    chargingType: {
+    connectionType: {
         type: String,
+    },
+    regularHoursMondayStart: {
+        type: String,
+        maxLength: 100,
+        default: "09:00"
+    },
+    regularHoursTuesdayStart: {
+        type: String,
+        maxLength: 100,
+        default: "09:00"
+    },
+    regularHoursWednesdayStart: {
+        type: String,
+        maxLength: 100,
+        default: "09:00"
+    },
+    regularHoursThursdayStart: {
+        type: String,
+        maxLength: 100,
+        default: "09:00"
+    },
+    regularHoursFridayStart: {
+        type: String,
+        maxLength: 100,
+        default: "09:00"
+    },
+    regularHoursSaturdayStart: {
+        type: String,
+        maxLength: 100,
+        default: "09:00"
+    },
+    regularHoursSundayStart: {
+        type: String,
+        maxLength: 100,
+        default: "09:00"
+    },
+    regularHoursMondayFinish: {
+        type: String,
+        maxLength: 100,
+        default: "17:00"
+    },
+    regularHoursTuesdayFinish: {
+        type: String,
+        maxLength: 100,
+        default: "17:00"
+    },
+    regularHoursWednesdayFinish: {
+        type: String,
+        maxLength: 100,
+        default: "17:00"
+    },
+    regularHoursThursdayFinish: {
+        type: String,
+        maxLength: 100,
+        default: "17:00"
+    },
+    regularHoursFridayFinish: {
+        type: String,
+        maxLength: 100,
+        default: "17:00"
+    },
+    regularHoursSaturdayFinish: {
+        type: String,
+        maxLength: 100,
+        default: "17:00"
+    },
+    regularHoursSundayFinish: {
+        type: String,
+        maxLength: 100,
+        default: "17:00"
     },
     hostComments: {
         type: String,

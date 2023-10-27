@@ -580,10 +580,6 @@ const editSettingsUserGeneral = async (req, res) => {
                 privacySetting === 1 ? foundUser.privacySetting = 1 : foundUser.privacySetting = 2;
                 currency !== '' ? foundUser.currency = currency : foundUser.currency = "USD";
                 language !== '' ? foundUser.language = language : foundUser.language = "English";
-                showFXPriceSetting === 1 ? foundUser.showFXPriceSetting = 1 : foundUser.showFXPriceSetting = 2;
-                gender !== '' ? foundUser.gender = gender : foundUser.gender = "female";
-
-                foundUser.genderSet = true;
 
                 lessMotion ? foundUserProfile.lessMotion = true : foundUserProfile.lessMotion = false;
                 pushNotifications ? foundUserProfile.pushNotifications = true : foundUserProfile.pushNotifications = false;
@@ -610,9 +606,6 @@ const editSettingsUserGeneral = async (req, res) => {
                 privacySetting === 1 ? foundUser.privacySetting = 1 : foundUser.privacySetting = 2;
                 currency !== '' ? foundUser.currency = currency : foundUser.currency = "USD";
                 language !== '' ? foundUser.language = language : foundUser.language = "English";
-                showFXPriceSetting === 1 ? foundUser.showFXPriceSetting = 1 : foundUser.showFXPriceSetting = 2;
-                gender !== '' ? foundUser.gender = gender : foundUser.gender = "female";
-                foundUser.genderSet = true;
 
                 lessMotion ? foundHostProfile.lessMotion = true : foundHostProfile.lessMotion = false;
                 pushNotifications ? foundHostProfile.pushNotifications = true : foundHostProfile.pushNotifications = false;
