@@ -1,16 +1,7 @@
-const StoreProfile = require('../../model/HostProfile');
-const Bookmark = require('../../model/Bookmark');
-const Sharedpost = require('../../model/Sharedpost');
-const OwnedProducts = require('../../model/OwnedProducts');
-const Product = require('../../model/Product');
-const Post = require('../../model/Post')
 const User = require('../../model/User')
+const HostProfile = require('../../model/HostProfile');
+const Bookmark = require('../../model/Bookmark');
 const Flags = require('../../model/Flags')
-
-const Peoplefollowing = require('../../model/Peoplefollowing');
-const Peoplefollowers = require('../../model/Peoplefollowers');
-const Storefollowing = require('../../model/Storefollowing');
-const Storefollowers = require('../../model/Storefollowers');
 
 const languageList = require('../languageCheck');
 const ObjectId  = require('mongodb').ObjectId;
@@ -34,22 +25,22 @@ const s3 = new S3({
     secretAccessKey: wasabiSecretAccessKey,
   })
   
-const getStoreProfile = async (req, res) => {
+const getHostProfile = async (req, res) => {
     
-    const { profileUserId, loggedUserId, userOrStore, ipAddress, language, currency } = req.query
+    const { profileUserId, loggedUserId, driverOrHost, ipAddress, language, currency } = req.query
 
-    if (!profileUserId || !loggedUserId || !userOrStore) {
+    if (!profileUserId || !loggedUserId || !driverOrHost) {
         return res.status(400).json({ message: 'Missing required info' })
     }
 
     try {
 
-        if(userOrStore == 1){
+        if(driverOrHost == 1){
 
             var postsSort = {"productname": 1}
 
             const storePosts = await Post.find({ _userId: profileUserId, "postClass": 1, "promotion": 0 },{"caption_fuzzy": 0, "postViews": 0, "postViews": 0, "additionalProperty": 0}).sort({productname: 1}).limit(8)
-            const storeProfile = await StoreProfile.findOne({_userId: profileUserId})
+            const HostProfile = await HostProfile.findOne({_userId: profileUserId})
             const userFound = await User.findOne({_id: profileUserId})
             const loggedFound = await User.findOne({_id: loggedUserId})
             const flaggedList = await Flags.findOne({_userId: loggedUserId}).select("userFlags postFlags")
@@ -408,11 +399,11 @@ const getStoreProfile = async (req, res) => {
                 donePostsData = true;
             }
 
-            if(donePostsData && storeProfile && profilePicURL && ownedProductsFound && bookmarksFound
+            if(donePostsData && HostProfile && profilePicURL && ownedProductsFound && bookmarksFound
                 && donePeopleFollowers && doneStoreFollowers && donePeopleFollowing && doneSharedposts
                 && doneStoreFollowing && doneLoggedBlocked && doneProfileBlocked && doneFlags ){
                 
-                    return res.status(200).json({storePosts, storeProfile, isFollowing, isRequested, notFollowing, 
+                    return res.status(200).json({storePosts, HostProfile, isFollowing, isRequested, notFollowing, 
                         privacySetting, totalGems, loggedBlocked, profileBlocked, profilePicURL, peopleFollowingCount, 
                         peopleFollowersCount, storeFollowersCount, storeFollowingCount, ownedProductsFound, bookmarksFound, 
                         sharedpostsFound, foundProducts, followingLogged, flaggedProfile, flaggedPosts })
@@ -425,7 +416,7 @@ const getStoreProfile = async (req, res) => {
         } else {
 
             const storePosts = await Post.find({ _userId: profileUserId, "postClass": 1, "promotion": 0 },{"caption_fuzzy": 0, "postViews": 0, "postViews": 0, "additionalProperty": 0}).sort({productname: 1}).limit(8)
-            const storeProfile = await StoreProfile.findOne({_userId: profileUserId}).sort({category: 1})
+            const HostProfile = await HostProfile.findOne({_userId: profileUserId}).sort({category: 1})
             const userFound = await User.findOne({_id: profileUserId})
             const loggedFound = await User.findOne({_id: loggedUserId})
             const flaggedList = await Flags.findOne({_userId: loggedUserId}).select("userFlags postFlags")
@@ -783,11 +774,11 @@ const getStoreProfile = async (req, res) => {
                 donePostsData = true;
             }
 
-            if(donePostsData && storeProfile && profilePicURL && ownedProductsFound && bookmarksFound
+            if(donePostsData && HostProfile && profilePicURL && ownedProductsFound && bookmarksFound
                 && donePeopleFollowers && doneStoreFollowers && donePeopleFollowing && doneSharedposts
                 && doneStoreFollowing && doneLoggedBlocked && doneProfileBlocked && doneFlags){
                 
-                return res.status(200).json({storePosts, storeProfile, isFollowing, isRequested, notFollowing, 
+                return res.status(200).json({storePosts, HostProfile, isFollowing, isRequested, notFollowing, 
                     privacySetting, totalGems, loggedBlocked, profileBlocked, profilePicURL, peopleFollowingCount, 
                     peopleFollowersCount, storeFollowersCount, storeFollowingCount, ownedProductsFound, bookmarksFound, 
                     sharedpostsFound, foundProducts, followingLogged, flaggedProfile, flaggedPosts})
@@ -806,7 +797,7 @@ const getStoreProfile = async (req, res) => {
 }
 
 
-const editSettingsStoreProfile = async (req, res) => {
+const editSettingsHostProfile = async (req, res) => {
     
     const cookies = req.cookies;
 
@@ -858,7 +849,7 @@ const editSettingsStoreProfile = async (req, res) => {
             }
         }
 
-        const foundUserProfile = await StoreProfile.findOne({"_userId": loggedUserId })
+        const foundUserProfile = await HostProfile.findOne({"_userId": loggedUserId })
         
         if(foundUserProfile){
 
@@ -1058,7 +1049,7 @@ const editSettingsStoreGeneral = async (req, res) => {
     }
 
     // Does the user exist to update?
-    StoreProfile.findOne({"_userId": loggedUserId }, async function(err, foundUserProfile){
+    HostProfile.findOne({"_userId": loggedUserId }, async function(err, foundUserProfile){
         if(err){
             return res.status(400).json({ message: 'User not found' })
         }
@@ -1082,4 +1073,4 @@ const editSettingsStoreGeneral = async (req, res) => {
     })
 }
 
-module.exports = { getStoreProfile, editSettingsStoreProfile }
+module.exports = { getHostProfile, editSettingsHostProfile }

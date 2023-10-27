@@ -1,20 +1,14 @@
-const UserProfile = require('../../model/DriverProfile');
+const User = require('../../model/User')
+const DriverProfile = require('../../model/DriverProfile');
 const HostProfile = require('../../model/HostProfile');
 const RecentlyViewed = require('../../model/RecentlyViewed');
 const Bookmark = require('../../model/Bookmark');
-const Sharedpost = require('../../model/Sharedpost');
-const OwnedProducts = require('../../model/OwnedProducts');
-const Product = require('../../model/Product');
+
 const UsageLimit = require('../../model/UsageLimit');
 const Post = require('../../model/Post')
 const Flags = require('../../model/Flags')
-const User = require('../../model/User')
 const BannedUser = require('../../model/BannedUser')
-const Peoplefollowing = require('../../model/Peoplefollowing');
-const Peoplefollowers = require('../../model/Peoplefollowers');
-const Storefollowing = require('../../model/Storefollowing');
-const Storefollowers = require('../../model/Storefollowers');
-const IPPreference = require('../../model/IPPreference');
+
 const { sendPassResetConfirmation } = require('../../middleware/mailer');
 const bcrypt = require('bcrypt');
 const ObjectId  = require('mongodb').ObjectId;
@@ -44,36 +38,20 @@ const s3 = new S3({
 
 const getUserProfile = async (req, res) => {
     
-    const { profileUserId, loggedUserId, userOrStore, ipAddress, language, currency } = req.query
+    const { profileUserId, loggedUserId, driverOrHost, ipAddress, language, currency } = req.query
 
-    if (!profileUserId || !loggedUserId || !userOrStore) {
+    if (!profileUserId || !loggedUserId || !driverOrHost) {
         return res.status(400).json({ message: 'Missing required info' })
     }
 
     try {
 
-        if(userOrStore == 1){
+        if(driverOrHost == 1){
 
-            const userPosts = await Post.find({ _userId: profileUserId, postClass: 1 },{"caption_fuzzy": 0, "postViews": 0, "postViews": 0, "additionalProperty": 0}).sort({createdAt: -1}).limit(8)
-            const userProfile = await UserProfile.findOne({_userId: profileUserId})
+            const userProfile = await DriverProfile.findOne({_userId: profileUserId})
             const userFound = await User.findOne({_id: profileUserId})
-            const loggedFound = await User.findOne({_id: loggedUserId}).select("blockedUsers")
-            const flaggedList = await Flags.findOne({_userId: loggedUserId}).select("userFlags postFlags")
-            const ownedProductsFound = await OwnedProducts.findOne({_userId: loggedUserId})
+            const flaggedList = await Flags.findOne({_userId: loggedUserId}).select("userFlags")
             const bookmarksFound = await Bookmark.findOne({_userId: loggedUserId})
-            const peopleFollowers = await Peoplefollowers.findOne({ _userId: profileUserId }).select("allPeopleFollowers peopleFollowersCount receivedFollowRequests")
-            const peopleFollowing = await Peoplefollowing.findOne({ _userId: profileUserId }).select("peopleFollowingCount allPeopleFollowing submittedFollowRequests")
-            const storeFollowers = await Storefollowers.findOne({ _userId: profileUserId }).select("allStoreFollowers storeFollowersCount receivedFollowRequests")
-            const storeFollowing = await Storefollowing.findOne({ _userId: profileUserId }).select("storeFollowingCount submittedFollowRequests")
-            
-            var sharedpostsFound = await Sharedpost.findOne({_userId: loggedUserId})
-
-            let isFollowing = null;
-            let isRequested = null;
-            let notFollowing = null;
-            let foundProducts = null;
-            let followingLogged = null;
-            let flaggedPosts = null;
 
             let donePostsData = false;
             let donePeopleFollowers = false;
@@ -105,72 +83,9 @@ const getUserProfile = async (req, res) => {
                 } else {
                     flaggedProfile = 0
                 }
-                
-                if(flaggedList.postFlags){
-                    flaggedPosts = flaggedList.postFlags
-                } else {
-                    flaggedPosts = []
-                }
 
                 doneFlags = true;
             } 
-
-
-            if(sharedpostsFound){
-
-                doneSharedposts = true;
-    
-            } else {
-    
-                const newsharedposts = await Sharedpost.create({
-                    _userId: loggedUserId,
-                    sharedposts:[]
-                })
-                if(newsharedposts){
-                    sharedpostsFound = {
-                        _userId: loggedUserId,
-                        sharedposts:[]
-                    }
-                    doneSharedposts = true;
-                }
-            }
-
-            if(peopleFollowers) {
-
-                peopleFollowersCount = peopleFollowers.peopleFollowersCount
-                
-                if(peopleFollowersCount > 0){
-                    if(peopleFollowers.allPeopleFollowers?.some(e => e._followerId.toString() === ((loggedUserId)))){
-                        isFollowing = 1;
-                    } else {
-                        isFollowing = 0;    
-                    }    
-                } else {
-                    isFollowing = 0;
-                }
-
-                if(!isFollowing && peopleFollowers.receivedFollowRequests){
-                    if(peopleFollowers.receivedFollowRequests?.some(e => (e._fromRequestedUser.toString() === ((loggedUserId)) && e.isActiveRequest === true))){
-                        isRequested = 1;    
-                    } else {
-                        isRequested = 0;
-                    }
-                } else {
-                    isRequested = 0;
-                }
-
-                if(!isFollowing && !isRequested){
-                    notFollowing = 1;
-                } else {
-                    notFollowing = 0;
-                }
-                donePeopleFollowers = true;
-            }
-
-            if(storeFollowers) {
-                storeFollowersCount = storeFollowers.storeFollowersCount            
-                doneStoreFollowers = true;
-            }
 
             if(userFound){
 
@@ -421,7 +336,7 @@ const getUserProfile = async (req, res) => {
         } else {
 
             const userPosts = await Post.find({ _userId: profileUserId, postClass: 1 },{"caption_fuzzy": 0, "postViews": 0, "postViews": 0, "additionalProperty": 0}).sort({createdAt: -1}).limit(8)
-            const userProfile = await UserProfile.findOne({_userId: profileUserId})
+            const userProfile = await DriverProfile.findOne({_userId: profileUserId})
             const userFound = await User.findOne({_id: profileUserId})
             const loggedFound = await User.findOne({_id: loggedUserId})
             const flaggedList = await Flags.findOne({_userId: loggedUserId}).select("userFlags")
@@ -894,7 +809,7 @@ const editSettingsUserProfile = async (req, res) => {
             return res.status(400).json({ message: 'Missing required fields!' })
         }
 
-        const foundUserProfile = await UserProfile.findOne({_userId: loggedUserId })
+        const foundUserProfile = await DriverProfile.findOne({_userId: loggedUserId })
         
         if(foundUserProfile){
 
@@ -1132,18 +1047,18 @@ const editSettingsUserGeneral = async (req, res) => {
         )
 
         var { loggedUserId, lessMotion, privacySetting, currency, language, 
-            showFXPriceSetting, pushNotifications, userTheme, userOrStore, gender } = req.body
+            showFXPriceSetting, pushNotifications, userTheme, driverOrHost, gender } = req.body
 
 
         if ( !loggedUserId || ! foundUser._id.toString() === ((loggedUserId)) || lessMotion === null
         || privacySetting === null || pushNotifications === null || !currency || currency?.length > 10  || language?.length > 50
-        || !userTheme || userTheme?.length > 12 || privacySetting > 2 || privacySetting < 0 || !userOrStore ) {
+        || !userTheme || userTheme?.length > 12 || privacySetting > 2 || privacySetting < 0 || !driverOrHost ) {
             return res.status(400).json({ message: 'Missing required fields!' })
         }
 
-        if(userOrStore === 1){
+        if(driverOrHost === 1){
 
-            const foundUserProfile = await UserProfile.findOne({"_userId": loggedUserId })
+            const foundUserProfile = await DriverProfile.findOne({"_userId": loggedUserId })
         
             if(foundUserProfile){
 
@@ -1281,7 +1196,7 @@ const getSuggestedProfiles = async (req, res) => {
                 }
             }
 
-            suggestedPeopleProfiles = await UserProfile.find({$and:[{_userId: {"$ne": loggedUserId}},{_userId:{"$nin": peopleFollowing.allPeopleFollowing.map(c => c._followingId)}},
+            suggestedPeopleProfiles = await DriverProfile.find({$and:[{_userId: {"$ne": loggedUserId}},{_userId:{"$nin": peopleFollowing.allPeopleFollowing.map(c => c._followingId)}},
             {_userId:{"$nin": requestedPeopleProfiles}},{_userId: {"$nin": blockedProfiles.blockedUsers.map(e=>e._userId)}}]}).select("_userId").limit(8)
 
             if(suggestedPeopleProfiles){
@@ -1382,24 +1297,24 @@ const checkUser = async (req, res) => {
 
 const getProfileData = async (req, res) => {
 
-    const {userId, userOrStore} = req.query
+    const {userId, driverOrHost} = req.query
 
-    if (!userId || !userOrStore) {
+    if (!userId || !driverOrHost) {
         return res.status(400).json({ message: 'Missing required info' })
     }
 
     try {
 
-        if(userOrStore == 1){
+        if(driverOrHost == 1){
 
-            const userProfile = await UserProfile.findOne({_userId: userId})
+            const userProfile = await DriverProfile.findOne({_userId: userId})
             const userData = await User.findOne({_id: userId}).select("profilePicKey profilePicURL")
 
             if(userProfile && userData){
                 return res.status(200).json({userProfile, userData})
             }
         
-        } else if (userOrStore == 2) {
+        } else if (driverOrHost == 2) {
 
             const HostProfile = await HostProfile.findOne({_userId: userId})
             const userData = await User.findOne({_id: userId}).select("profilePicKey profilePicURL")
@@ -1580,7 +1495,7 @@ const makePrivate = async (req, res) => {
         }
 
         const profileUser = await User.findOne({_id: profileUserId})
-        const foundProfile = await UserProfile.findOne({_userId:profileUserId})
+        const foundProfile = await DriverProfile.findOne({_userId:profileUserId})
         const foundWishlist = await Bookmark.findOne({_userId:profileUserId})
         const recentViews = await RecentlyViewed.findOne({_id: profileUserId})
 
@@ -1634,7 +1549,7 @@ const makePublic = async (req, res) => {
         }
 
         const profileUser = await User.findOne({_id: profileUserId})
-        const foundProfile = await UserProfile.findOne({_userId:profileUserId})
+        const foundProfile = await DriverProfile.findOne({_userId:profileUserId})
         const foundWishlist = await Bookmark.findOne({_userId:profileUserId})
         const recentViews = await RecentlyViewed.findOne({_id: profileUserId})
 
@@ -1782,7 +1697,7 @@ const editUserReceivePayments = async (req, res) => {
 
             } else {
 
-                const foundUserProfile = await UserProfile.findOne({_userId:profileUserId})
+                const foundUserProfile = await DriverProfile.findOne({_userId:profileUserId})
 
                 if(foundUserProfile && foundWishlist){
 

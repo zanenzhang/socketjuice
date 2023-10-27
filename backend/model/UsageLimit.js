@@ -15,14 +15,6 @@ var usageLimitSchema = new Schema({
         type: Number,
         default: 0
     },
-    numberOfComments: [{
-        date: { 
-            type: String, 
-        },
-        commentsNumber: {
-            type: Number
-        }
-    }],
     numberOfMessages: [{
         date: { 
             type: String, 

@@ -46,7 +46,6 @@ const getCities = async (req, res) => {
             return false
         
         }, {count: 0})
-
         
         if(filtered?.length > 0){
             for(let i=0; i< filtered.length; i++){

@@ -75,12 +75,30 @@ var driverProfileSchema = new Schema({
             type: String,
             maxLength: 20
         },
-        contactNumber:{
+        contactNumber: {
             type: String,
             maxLength: 20,
             // match: /^(\()?\d{3}(\))?(-|\s)?\d{3}(-|\s)\d{4}$/
         }
     }],
+    previewMediaObjectId: { //Just for images
+        type: String
+    },
+    mediaCarouselObjectIds: [{type: String, default: ""}], //For images and covers
+    videoCarouselObjectIds: [{type: String, default: ""}], //Just for videos
+    mediaCarouselObjectTypes: [{type: String, default: ""}], //To track whether media is image or video
+    previewMediaURL: {
+        type: String
+    },
+    previewMediaType: {
+        type: String
+    },
+    coverIndex: {
+        type: Number,
+        default: 0
+    },
+    mediaCarouselURLs: [{type: String, default: ""}], //For images
+    videoCarouselURLs: [{type: String, default: ""}], //For videos
     createdAt: { 
         type: Date, 
         default: Date.now

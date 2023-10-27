@@ -23,28 +23,9 @@ const userSchema = new Schema({
         type: String,
         required: true        
     },
-    twitterId: {
-        type: String,
-    },
-    facebookId: {
-        type: String,
-    },
-    linkedinId: {
-        type: String,
-    },
-    googleId: {
-        type: String,
-    },
-    microsoftId: {
-        type: String,
-    },
     currency: {
         type: String,
         default: "CAD"
-    },
-    showFXPriceSetting: { 
-        type: Number, 
-        default: 2 //1-Show Home Currency Prices, 2-Show Foreign Prices
     },
     active: {
         type: Boolean, //Not verified
@@ -54,7 +35,7 @@ const userSchema = new Schema({
         type: Boolean, //Banned
         default: false
     },
-    isStore: {
+    isHost: {
         type: Boolean,
         default: false
     },
@@ -89,19 +70,9 @@ const userSchema = new Schema({
         default: '/images/avatars/defaultUserPic.svg',
         index: true
     },
-    blockedUsers: [{ 
-        _userId: { 
-            type: Schema.Types.ObjectId,
-            ref: 'User' 
-        }
-    }],
     privacySetting: { 
         type: Number, 
         default: 1 //1-Public, 2-Private 
-    },
-    influencerRating: { 
-        type: Number, 
-        default: 0 //0 - low, 5 - high
     },
     language: {
         type: String,
@@ -113,10 +84,6 @@ const userSchema = new Schema({
     },
     secondaryGeoData: {
         type: Object,
-    },
-    totalGems: {
-        type: Number,
-        default: 0
     },
     preferredCity: {
         type: String,
@@ -145,17 +112,6 @@ const userSchema = new Schema({
             type: Number, 
         } 
     }],
-    gender: {
-        type: String,
-        default: "unisex"
-    },
-    initialRetailers: [{
-        type: String
-    }],
-    genderSet:{
-        type: Boolean,
-        default: false
-    },
     canReceivePayments: { 
         type: Number, 
         default: 0 //0 - No, 1 - Yes
