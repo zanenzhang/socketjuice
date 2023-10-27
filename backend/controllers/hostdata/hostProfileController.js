@@ -96,7 +96,7 @@ const getHostProfile = async (req, res) => {
                             Bucket: wasabiPrivateBucketUSA, 
                             Key: foundHostProfile.videoCarouselObjectIds[i],
                             Expires: 7200
-                            };
+                        };
             
                         var url = s3.getSignedUrl('getObject', signParams);
             
@@ -263,11 +263,11 @@ const editSettingsHostProfile = async (req, res) => {
             }
         )
 
-        const { loggedUserId, phonePrimary, profilePicKey, profilePicURL, displayname, announcements, 
-            regularHoursMondayStart, regularHoursMondayFinish, regularHoursTuesdayStart, regularHoursTuesdayFinish, regularHoursWednesdayStart, regularHoursWednesdayFinish, regularHoursThursdayStart, regularHoursThursdayFinish,
-            regularHoursFridayStart, regularHoursFridayFinish, regularHoursSaturdayStart, regularHoursSaturdayFinish, regularHoursSundayStart, regularHoursSundayFinish,
-            holidayHoursStart, holidayHoursFinish, closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays,
-            address, city, region, regionCode, country, manager, chain, chainId } = req.body
+        const { loggedUserId, phonePrimary, profilePicKey, profilePicURL, displayname, 
+            regularHoursMondayStart, regularHoursMondayFinish, regularHoursTuesdayStart, regularHoursTuesdayFinish, regularHoursWednesdayStart, regularHoursWednesdayFinish, 
+            regularHoursThursdayStart, regularHoursThursdayFinish, regularHoursFridayStart, regularHoursFridayFinish, regularHoursSaturdayStart, regularHoursSaturdayFinish, 
+            regularHoursSundayStart, regularHoursSundayFinish, closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays,
+            address, city, region, regionCode, country } = req.body
         
         if ( !loggedUserId || !phonePrimary || !displayname || !address 
             || !city || !region || !regionCode || !country ) {    
@@ -276,15 +276,11 @@ const editSettingsHostProfile = async (req, res) => {
 
         if( phonePrimary?.length > 48 || displayname?.length > 48 || address?.length > 48 || city?.length > 48
             || region?.length > 48 || regionCode?.length > 48 || country?.length > 48
-            || manager?.length > 48 || chain?.length > 4 || chainId?.length > 48
-            || announcements?.length > 450 || regularHoursMondayStart?.length > 100 
-            || holidayHoursStart?.length > 100){
+            || regularHoursMondayStart?.length > 100 ){
             return res.status(400).json({ 'message': 'Content does not meet requirements' });
         }
     
-        var textToCheck = displayname.concat(" ", announcements, 
-             " ", address, " ", city, " ", region, " ", regionCode, " ", 
-            country, " ", manager, " ", chainId).toLowerCase();
+        var textToCheck = displayname.concat(" ", address, " ", city, " ", region, " ", regionCode, " ", country).toLowerCase();
 
         for(let i=0; i < languageList.length; i++){
             if(textToCheck.indexOf(languageList[i]) !== -1){
@@ -292,56 +288,50 @@ const editSettingsHostProfile = async (req, res) => {
             }
         }
 
-        const foundUserProfile = await HostProfile.findOne({"_userId": loggedUserId })
+        const foundHostProfile = await HostProfile.findOne({"_userId": loggedUserId })
         
-        if(foundUserProfile){
+        if(foundHostProfile){
 
             if(!foundUser.profilePicKey && profilePicKey !== '' && profilePicURL !== ''){
 
                 profilePicKey ? foundUser.profilePicKey = profilePicKey : null;
                 profilePicURL ? foundUser.profilePicURL = profilePicURL : null;
 
-                phonePrimary ? foundUserProfile.phonePrimary = phonePrimary : foundUserProfile.phonePrimary = "";
-                displayname ? foundUserProfile.displayname = displayname : foundUserProfile.displayname = "";
-                announcements ? foundUserProfile.announcements = announcements : foundUserProfile.announcements = "";
+                phonePrimary ? foundHostProfile.phonePrimary = phonePrimary : foundHostProfile.phonePrimary = "";
+                displayname ? foundHostProfile.displayname = displayname : foundHostProfile.displayname = "";
                 
-                regularHoursMondayStart ? foundUserProfile.regularHoursMondayStart = regularHoursMondayStart : foundUserProfile.regularHoursMondayStart = "";
-                regularHoursTuesdayStart ? foundUserProfile.regularHoursTuesdayStart = regularHoursTuesdayStart : foundUserProfile.regularHoursTuesdayStart = "";
-                regularHoursWednesdayStart ? foundUserProfile.regularHoursWednesdayStart = regularHoursWednesdayStart : foundUserProfile.regularHoursWednesdayStart = "";
-                regularHoursThursdayStart ? foundUserProfile.regularHoursThursdayStart = regularHoursThursdayStart : foundUserProfile.regularHoursThursdayStart = "";
-                regularHoursFridayStart ? foundUserProfile.regularHoursFridayStart = regularHoursFridayStart : foundUserProfile.regularHoursFridayStart = "";
-                regularHoursSaturdayStart ? foundUserProfile.regularHoursSaturdayStart = regularHoursSaturdayStart : foundUserProfile.regularHoursSaturdayStart = "";
-                regularHoursSundayStart ? foundUserProfile.regularHoursSundayStart = regularHoursSundayStart : foundUserProfile.regularHoursSundayStart = "";
-                holidayHoursStart ? foundUserProfile.holidayHoursStart = holidayHoursStart : foundUserProfile.holidayHoursStart = "";
+                regularHoursMondayStart ? foundHostProfile.regularHoursMondayStart = regularHoursMondayStart : foundHostProfile.regularHoursMondayStart = "";
+                regularHoursTuesdayStart ? foundHostProfile.regularHoursTuesdayStart = regularHoursTuesdayStart : foundHostProfile.regularHoursTuesdayStart = "";
+                regularHoursWednesdayStart ? foundHostProfile.regularHoursWednesdayStart = regularHoursWednesdayStart : foundHostProfile.regularHoursWednesdayStart = "";
+                regularHoursThursdayStart ? foundHostProfile.regularHoursThursdayStart = regularHoursThursdayStart : foundHostProfile.regularHoursThursdayStart = "";
+                regularHoursFridayStart ? foundHostProfile.regularHoursFridayStart = regularHoursFridayStart : foundHostProfile.regularHoursFridayStart = "";
+                regularHoursSaturdayStart ? foundHostProfile.regularHoursSaturdayStart = regularHoursSaturdayStart : foundHostProfile.regularHoursSaturdayStart = "";
+                regularHoursSundayStart ? foundHostProfile.regularHoursSundayStart = regularHoursSundayStart : foundHostProfile.regularHoursSundayStart = "";
                 
-                closedOnMonday ?  foundUserProfile.closedOnMonday = closedOnMonday : foundUserProfile.closedOnMonday = false;
-                closedOnTuesday ?  foundUserProfile.closedOnTuesday = closedOnTuesday : foundUserProfile.closedOnTuesday = false;
-                closedOnWednesday ?  foundUserProfile.closedOnWednesday = closedOnWednesday : foundUserProfile.closedOnWednesday = false;
-                closedOnThursday ?  foundUserProfile.closedOnThursday = closedOnThursday : foundUserProfile.closedOnThursday = false;
-                closedOnFriday ?  foundUserProfile.closedOnFriday = closedOnFriday : foundUserProfile.closedOnFriday = false;
-                closedOnSaturday ?  foundUserProfile.closedOnSaturday = closedOnSaturday : foundUserProfile.closedOnSaturday = false;
-                closedOnSunday ?  foundUserProfile.closedOnSunday = closedOnSunday : foundUserProfile.closedOnSunday = false;
-                closedOnHolidays ?  foundUserProfile.closedOnHolidays = closedOnHolidays : foundUserProfile.closedOnHolidays = false;
+                closedOnMonday ?  foundHostProfile.closedOnMonday = closedOnMonday : foundHostProfile.closedOnMonday = false;
+                closedOnTuesday ?  foundHostProfile.closedOnTuesday = closedOnTuesday : foundHostProfile.closedOnTuesday = false;
+                closedOnWednesday ?  foundHostProfile.closedOnWednesday = closedOnWednesday : foundHostProfile.closedOnWednesday = false;
+                closedOnThursday ?  foundHostProfile.closedOnThursday = closedOnThursday : foundHostProfile.closedOnThursday = false;
+                closedOnFriday ?  foundHostProfile.closedOnFriday = closedOnFriday : foundHostProfile.closedOnFriday = false;
+                closedOnSaturday ?  foundHostProfile.closedOnSaturday = closedOnSaturday : foundHostProfile.closedOnSaturday = false;
+                closedOnSunday ?  foundHostProfile.closedOnSunday = closedOnSunday : foundHostProfile.closedOnSunday = false;
+                closedOnHolidays ?  foundHostProfile.closedOnHolidays = closedOnHolidays : foundHostProfile.closedOnHolidays = false;
 
-                regularHoursMondayFinish ? foundUserProfile.regularHoursMondayFinish = regularHoursMondayFinish : foundUserProfile.regularHoursMondayFinish = "";
-                regularHoursTuesdayFinish ? foundUserProfile.regularHoursTuesdayFinish = regularHoursTuesdayFinish : foundUserProfile.regularHoursTuesdayFinish = "";
-                regularHoursWednesdayFinish ? foundUserProfile.regularHoursWednesdayFinish = regularHoursWednesdayFinish : foundUserProfile.regularHoursWednesdayFinish = "";
-                regularHoursThursdayFinish ? foundUserProfile.regularHoursThursdayFinish = regularHoursThursdayFinish : foundUserProfile.regularHoursThursdayFinish = "";
-                regularHoursFridayFinish ? foundUserProfile.regularHoursFridayFinish = regularHoursFridayFinish : foundUserProfile.regularHoursFridayFinish = "";
-                regularHoursSaturdayFinish ? foundUserProfile.regularHoursSaturdayFinish = regularHoursSaturdayFinish : foundUserProfile.regularHoursSaturdayFinish = "";
-                regularHoursSundayFinish ? foundUserProfile.regularHoursSundayFinish = regularHoursSundayFinish : foundUserProfile.regularHoursSundayFinish = "";
-                holidayHoursFinish ? foundUserProfile.holidayHoursFinish = holidayHoursFinish : foundUserProfile.holidayHoursFinish = "";
+                regularHoursMondayFinish ? foundHostProfile.regularHoursMondayFinish = regularHoursMondayFinish : foundHostProfile.regularHoursMondayFinish = "";
+                regularHoursTuesdayFinish ? foundHostProfile.regularHoursTuesdayFinish = regularHoursTuesdayFinish : foundHostProfile.regularHoursTuesdayFinish = "";
+                regularHoursWednesdayFinish ? foundHostProfile.regularHoursWednesdayFinish = regularHoursWednesdayFinish : foundHostProfile.regularHoursWednesdayFinish = "";
+                regularHoursThursdayFinish ? foundHostProfile.regularHoursThursdayFinish = regularHoursThursdayFinish : foundHostProfile.regularHoursThursdayFinish = "";
+                regularHoursFridayFinish ? foundHostProfile.regularHoursFridayFinish = regularHoursFridayFinish : foundHostProfile.regularHoursFridayFinish = "";
+                regularHoursSaturdayFinish ? foundHostProfile.regularHoursSaturdayFinish = regularHoursSaturdayFinish : foundHostProfile.regularHoursSaturdayFinish = "";
+                regularHoursSundayFinish ? foundHostProfile.regularHoursSundayFinish = regularHoursSundayFinish : foundHostProfile.regularHoursSundayFinish = "";
                 
-                address ? foundUserProfile.address = address : foundUserProfile.address = "";
-                city ? foundUserProfile.city = city : foundUserProfile.city = "";
-                region ? foundUserProfile.region = region : foundUserProfile.region = "";
-                regionCode ? foundUserProfile.regionCode = regionCode : foundUserProfile.regionCode = "";
-                country ? foundUserProfile.country = country : foundUserProfile.country = "";
-                manager ? foundUserProfile.manager = manager : foundUserProfile.manager = "";
-                chain ? foundUserProfile.chain = chain : foundUserProfile.chain = "";
-                chainId ? foundUserProfile.chainId = chainId : foundUserProfile.chainId = "";
+                address ? foundHostProfile.address = address : foundHostProfile.address = "";
+                city ? foundHostProfile.city = city : foundHostProfile.city = "";
+                region ? foundHostProfile.region = region : foundHostProfile.region = "";
+                regionCode ? foundHostProfile.regionCode = regionCode : foundHostProfile.regionCode = "";
+                country ? foundHostProfile.country = country : foundHostProfile.country = "";
 
-                const savedFoundProfile = await foundUserProfile.save()
+                const savedFoundProfile = await foundHostProfile.save()
             
                 const savedFoundUser = await foundUser.save()
 
@@ -358,47 +348,44 @@ const editSettingsHostProfile = async (req, res) => {
                     profilePicKey ? foundUser.profilePicKey = profilePicKey : null;
                     profilePicURL ? foundUser.profilePicURL = profilePicURL : null;
 
-                    phonePrimary ? foundUserProfile.phonePrimary = phonePrimary : foundUserProfile.phonePrimary = "";
-                    displayname ? foundUserProfile.displayname = displayname : foundUserProfile.displayname = "";
-                    announcements ? foundUserProfile.announcements = announcements : foundUserProfile.announcements = "";
+                    phonePrimary ? foundHostProfile.phonePrimary = phonePrimary : foundHostProfile.phonePrimary = "";
+                    displayname ? foundHostProfile.displayname = displayname : foundHostProfile.displayname = "";
+                    announcements ? foundHostProfile.announcements = announcements : foundHostProfile.announcements = "";
 
-                    regularHoursMondayStart ? foundUserProfile.regularHoursMondayStart = regularHoursMondayStart : foundUserProfile.regularHoursMondayStart = "";
-                    regularHoursTuesdayStart ? foundUserProfile.regularHoursTuesdayStart = regularHoursTuesdayStart : foundUserProfile.regularHoursTuesdayStart = "";
-                    regularHoursWednesdayStart ? foundUserProfile.regularHoursWednesdayStart = regularHoursWednesdayStart : foundUserProfile.regularHoursWednesdayStart = "";
-                    regularHoursThursdayStart ? foundUserProfile.regularHoursThursdayStart = regularHoursThursdayStart : foundUserProfile.regularHoursThursdayStart = "";
-                    regularHoursFridayStart ? foundUserProfile.regularHoursFridayStart = regularHoursFridayStart : foundUserProfile.regularHoursFridayStart = "";
-                    regularHoursSaturdayStart ? foundUserProfile.regularHoursSaturdayStart = regularHoursSaturdayStart : foundUserProfile.regularHoursSaturdayStart = "";
-                    regularHoursSundayStart ? foundUserProfile.regularHoursSundayStart = regularHoursSundayStart : foundUserProfile.regularHoursSundayStart = "";
-                    holidayHoursStart ? foundUserProfile.holidayHoursStart = holidayHoursStart : foundUserProfile.holidayHoursStart = "";
+                    regularHoursMondayStart ? foundHostProfile.regularHoursMondayStart = regularHoursMondayStart : foundHostProfile.regularHoursMondayStart = "";
+                    regularHoursTuesdayStart ? foundHostProfile.regularHoursTuesdayStart = regularHoursTuesdayStart : foundHostProfile.regularHoursTuesdayStart = "";
+                    regularHoursWednesdayStart ? foundHostProfile.regularHoursWednesdayStart = regularHoursWednesdayStart : foundHostProfile.regularHoursWednesdayStart = "";
+                    regularHoursThursdayStart ? foundHostProfile.regularHoursThursdayStart = regularHoursThursdayStart : foundHostProfile.regularHoursThursdayStart = "";
+                    regularHoursFridayStart ? foundHostProfile.regularHoursFridayStart = regularHoursFridayStart : foundHostProfile.regularHoursFridayStart = "";
+                    regularHoursSaturdayStart ? foundHostProfile.regularHoursSaturdayStart = regularHoursSaturdayStart : foundHostProfile.regularHoursSaturdayStart = "";
+                    regularHoursSundayStart ? foundHostProfile.regularHoursSundayStart = regularHoursSundayStart : foundHostProfile.regularHoursSundayStart = "";
+                    holidayHoursStart ? foundHostProfile.holidayHoursStart = holidayHoursStart : foundHostProfile.holidayHoursStart = "";
 
-                    regularHoursMondayFinish ? foundUserProfile.regularHoursMondayFinish = regularHoursMondayFinish : foundUserProfile.regularHoursMondayFinish = "";
-                    regularHoursTuesdayFinish ? foundUserProfile.regularHoursTuesdayFinish = regularHoursTuesdayFinish : foundUserProfile.regularHoursTuesdayFinish = "";
-                    regularHoursWednesdayFinish ? foundUserProfile.regularHoursWednesdayFinish = regularHoursWednesdayFinish : foundUserProfile.regularHoursWednesdayFinish = "";
-                    regularHoursThursdayFinish ? foundUserProfile.regularHoursThursdayFinish = regularHoursThursdayFinish : foundUserProfile.regularHoursThursdayFinish = "";
-                    regularHoursFridayFinish ? foundUserProfile.regularHoursFridayFinish = regularHoursFridayFinish : foundUserProfile.regularHoursFridayFinish = "";
-                    regularHoursSaturdayFinish ? foundUserProfile.regularHoursSaturdayFinish = regularHoursSaturdayFinish : foundUserProfile.regularHoursSaturdayFinish = "";
-                    regularHoursSundayFinish ? foundUserProfile.regularHoursSundayFinish = regularHoursSundayFinish : foundUserProfile.regularHoursSundayFinish = "";
-                    holidayHoursFinish ? foundUserProfile.holidayHoursFinish = holidayHoursFinish : foundUserProfile.holidayHoursFinish = "";
+                    regularHoursMondayFinish ? foundHostProfile.regularHoursMondayFinish = regularHoursMondayFinish : foundHostProfile.regularHoursMondayFinish = "";
+                    regularHoursTuesdayFinish ? foundHostProfile.regularHoursTuesdayFinish = regularHoursTuesdayFinish : foundHostProfile.regularHoursTuesdayFinish = "";
+                    regularHoursWednesdayFinish ? foundHostProfile.regularHoursWednesdayFinish = regularHoursWednesdayFinish : foundHostProfile.regularHoursWednesdayFinish = "";
+                    regularHoursThursdayFinish ? foundHostProfile.regularHoursThursdayFinish = regularHoursThursdayFinish : foundHostProfile.regularHoursThursdayFinish = "";
+                    regularHoursFridayFinish ? foundHostProfile.regularHoursFridayFinish = regularHoursFridayFinish : foundHostProfile.regularHoursFridayFinish = "";
+                    regularHoursSaturdayFinish ? foundHostProfile.regularHoursSaturdayFinish = regularHoursSaturdayFinish : foundHostProfile.regularHoursSaturdayFinish = "";
+                    regularHoursSundayFinish ? foundHostProfile.regularHoursSundayFinish = regularHoursSundayFinish : foundHostProfile.regularHoursSundayFinish = "";
+                    holidayHoursFinish ? foundHostProfile.holidayHoursFinish = holidayHoursFinish : foundHostProfile.holidayHoursFinish = "";
                     
-                    closedOnMonday ?  foundUserProfile.closedOnMonday = closedOnMonday : foundUserProfile.closedOnMonday = false;
-                    closedOnTuesday ?  foundUserProfile.closedOnTuesday = closedOnTuesday : foundUserProfile.closedOnTuesday = false;
-                    closedOnWednesday ?  foundUserProfile.closedOnWednesday = closedOnWednesday : foundUserProfile.closedOnWednesday = false;
-                    closedOnThursday ?  foundUserProfile.closedOnThursday = closedOnThursday : foundUserProfile.closedOnThursday = false;
-                    closedOnFriday ?  foundUserProfile.closedOnFriday = closedOnFriday : foundUserProfile.closedOnFriday = false;
-                    closedOnSaturday ?  foundUserProfile.closedOnSaturday = closedOnSaturday : foundUserProfile.closedOnSaturday = false;
-                    closedOnSunday ?  foundUserProfile.closedOnSunday = closedOnSunday : foundUserProfile.closedOnSunday = false;
-                    closedOnHolidays ?  foundUserProfile.closedOnHolidays = closedOnHolidays : foundUserProfile.closedOnHolidays = false;
+                    closedOnMonday ?  foundHostProfile.closedOnMonday = closedOnMonday : foundHostProfile.closedOnMonday = false;
+                    closedOnTuesday ?  foundHostProfile.closedOnTuesday = closedOnTuesday : foundHostProfile.closedOnTuesday = false;
+                    closedOnWednesday ?  foundHostProfile.closedOnWednesday = closedOnWednesday : foundHostProfile.closedOnWednesday = false;
+                    closedOnThursday ?  foundHostProfile.closedOnThursday = closedOnThursday : foundHostProfile.closedOnThursday = false;
+                    closedOnFriday ?  foundHostProfile.closedOnFriday = closedOnFriday : foundHostProfile.closedOnFriday = false;
+                    closedOnSaturday ?  foundHostProfile.closedOnSaturday = closedOnSaturday : foundHostProfile.closedOnSaturday = false;
+                    closedOnSunday ?  foundHostProfile.closedOnSunday = closedOnSunday : foundHostProfile.closedOnSunday = false;
+                    closedOnHolidays ?  foundHostProfile.closedOnHolidays = closedOnHolidays : foundHostProfile.closedOnHolidays = false;
 
-                    address ? foundUserProfile.address = address : foundUserProfile.address = "";
-                    city ? foundUserProfile.city = city : foundUserProfile.city = "";
-                    region ? foundUserProfile.region = region : foundUserProfile.region = "";
-                    regionCode ? foundUserProfile.regionCode = regionCode : foundUserProfile.regionCode = "";
-                    country ? foundUserProfile.country = country : foundUserProfile.country = "";
-                    manager ? foundUserProfile.manager = manager : foundUserProfile.manager = "";
-                    chain ? foundUserProfile.chain = chain : foundUserProfile.chain = "";
-                    chainId ? foundUserProfile.chainId = chainId : foundUserProfile.chainId = "";
+                    address ? foundHostProfile.address = address : foundHostProfile.address = "";
+                    city ? foundHostProfile.city = city : foundHostProfile.city = "";
+                    region ? foundHostProfile.region = region : foundHostProfile.region = "";
+                    regionCode ? foundHostProfile.regionCode = regionCode : foundHostProfile.regionCode = "";
+                    country ? foundHostProfile.country = country : foundHostProfile.country = "";
 
-                    const savedFoundProfile = await foundUserProfile.save()
+                    const savedFoundProfile = await foundHostProfile.save()
                 
                     const savedFoundUser = await foundUser.save()
 
@@ -409,47 +396,44 @@ const editSettingsHostProfile = async (req, res) => {
             
             } else {
 
-                phonePrimary ? foundUserProfile.phonePrimary = phonePrimary : foundUserProfile.phonePrimary = "";
-                displayname ? foundUserProfile.displayname = displayname : foundUserProfile.displayname = "";
-                announcements ? foundUserProfile.announcements = announcements : foundUserProfile.announcements = "";
+                phonePrimary ? foundHostProfile.phonePrimary = phonePrimary : foundHostProfile.phonePrimary = "";
+                displayname ? foundHostProfile.displayname = displayname : foundHostProfile.displayname = "";
+                announcements ? foundHostProfile.announcements = announcements : foundHostProfile.announcements = "";
                 
-                regularHoursMondayStart ? foundUserProfile.regularHoursMondayStart = regularHoursMondayStart : foundUserProfile.regularHoursMondayStart = "";
-                regularHoursTuesdayStart ? foundUserProfile.regularHoursTuesdayStart = regularHoursTuesdayStart : foundUserProfile.regularHoursTuesdayStart = "";
-                regularHoursWednesdayStart ? foundUserProfile.regularHoursWednesdayStart = regularHoursWednesdayStart : foundUserProfile.regularHoursWednesdayStart = "";
-                regularHoursThursdayStart ? foundUserProfile.regularHoursThursdayStart = regularHoursThursdayStart : foundUserProfile.regularHoursThursdayStart = "";
-                regularHoursFridayStart ? foundUserProfile.regularHoursFridayStart = regularHoursFridayStart : foundUserProfile.regularHoursFridayStart = "";
-                regularHoursSaturdayStart ? foundUserProfile.regularHoursSaturdayStart = regularHoursSaturdayStart : foundUserProfile.regularHoursSaturdayStart = "";
-                regularHoursSundayStart ? foundUserProfile.regularHoursSundayStart = regularHoursSundayStart : foundUserProfile.regularHoursSundayStart = "";
-                holidayHoursStart ? foundUserProfile.holidayHoursStart = holidayHoursStart : foundUserProfile.holidayHoursStart = "";
+                regularHoursMondayStart ? foundHostProfile.regularHoursMondayStart = regularHoursMondayStart : foundHostProfile.regularHoursMondayStart = "";
+                regularHoursTuesdayStart ? foundHostProfile.regularHoursTuesdayStart = regularHoursTuesdayStart : foundHostProfile.regularHoursTuesdayStart = "";
+                regularHoursWednesdayStart ? foundHostProfile.regularHoursWednesdayStart = regularHoursWednesdayStart : foundHostProfile.regularHoursWednesdayStart = "";
+                regularHoursThursdayStart ? foundHostProfile.regularHoursThursdayStart = regularHoursThursdayStart : foundHostProfile.regularHoursThursdayStart = "";
+                regularHoursFridayStart ? foundHostProfile.regularHoursFridayStart = regularHoursFridayStart : foundHostProfile.regularHoursFridayStart = "";
+                regularHoursSaturdayStart ? foundHostProfile.regularHoursSaturdayStart = regularHoursSaturdayStart : foundHostProfile.regularHoursSaturdayStart = "";
+                regularHoursSundayStart ? foundHostProfile.regularHoursSundayStart = regularHoursSundayStart : foundHostProfile.regularHoursSundayStart = "";
+                holidayHoursStart ? foundHostProfile.holidayHoursStart = holidayHoursStart : foundHostProfile.holidayHoursStart = "";
 
-                closedOnMonday ?  foundUserProfile.closedOnMonday = closedOnMonday : foundUserProfile.closedOnMonday = false;
-                closedOnTuesday ?  foundUserProfile.closedOnTuesday = closedOnTuesday : foundUserProfile.closedOnTuesday = false;
-                closedOnWednesday ?  foundUserProfile.closedOnWednesday = closedOnWednesday : foundUserProfile.closedOnWednesday = false;
-                closedOnThursday ?  foundUserProfile.closedOnThursday = closedOnThursday : foundUserProfile.closedOnThursday = false;
-                closedOnFriday ?  foundUserProfile.closedOnFriday = closedOnFriday : foundUserProfile.closedOnFriday = false;
-                closedOnSaturday ?  foundUserProfile.closedOnSaturday = closedOnSaturday : foundUserProfile.closedOnSaturday = false;
-                closedOnSunday ?  foundUserProfile.closedOnSunday = closedOnSunday : foundUserProfile.closedOnSunday = false;
-                closedOnHolidays ?  foundUserProfile.closedOnHolidays = closedOnHolidays : foundUserProfile.closedOnHolidays = false;
+                closedOnMonday ?  foundHostProfile.closedOnMonday = closedOnMonday : foundHostProfile.closedOnMonday = false;
+                closedOnTuesday ?  foundHostProfile.closedOnTuesday = closedOnTuesday : foundHostProfile.closedOnTuesday = false;
+                closedOnWednesday ?  foundHostProfile.closedOnWednesday = closedOnWednesday : foundHostProfile.closedOnWednesday = false;
+                closedOnThursday ?  foundHostProfile.closedOnThursday = closedOnThursday : foundHostProfile.closedOnThursday = false;
+                closedOnFriday ?  foundHostProfile.closedOnFriday = closedOnFriday : foundHostProfile.closedOnFriday = false;
+                closedOnSaturday ?  foundHostProfile.closedOnSaturday = closedOnSaturday : foundHostProfile.closedOnSaturday = false;
+                closedOnSunday ?  foundHostProfile.closedOnSunday = closedOnSunday : foundHostProfile.closedOnSunday = false;
+                closedOnHolidays ?  foundHostProfile.closedOnHolidays = closedOnHolidays : foundHostProfile.closedOnHolidays = false;
 
-                regularHoursMondayFinish ? foundUserProfile.regularHoursMondayFinish = regularHoursMondayFinish : foundUserProfile.regularHoursMondayFinish = "";
-                regularHoursTuesdayFinish ? foundUserProfile.regularHoursTuesdayFinish = regularHoursTuesdayFinish : foundUserProfile.regularHoursTuesdayFinish = "";
-                regularHoursWednesdayFinish ? foundUserProfile.regularHoursWednesdayFinish = regularHoursWednesdayFinish : foundUserProfile.regularHoursWednesdayFinish = "";
-                regularHoursThursdayFinish ? foundUserProfile.regularHoursThursdayFinish = regularHoursThursdayFinish : foundUserProfile.regularHoursThursdayFinish = "";
-                regularHoursFridayFinish ? foundUserProfile.regularHoursFridayFinish = regularHoursFridayFinish : foundUserProfile.regularHoursFridayFinish = "";
-                regularHoursSaturdayFinish ? foundUserProfile.regularHoursSaturdayFinish = regularHoursSaturdayFinish : foundUserProfile.regularHoursSaturdayFinish = "";
-                regularHoursSundayFinish ? foundUserProfile.regularHoursSundayFinish = regularHoursSundayFinish : foundUserProfile.regularHoursSundayFinish = "";
-                holidayHoursFinish ? foundUserProfile.holidayHoursFinish = holidayHoursFinish : foundUserProfile.holidayHoursFinish = "";
+                regularHoursMondayFinish ? foundHostProfile.regularHoursMondayFinish = regularHoursMondayFinish : foundHostProfile.regularHoursMondayFinish = "";
+                regularHoursTuesdayFinish ? foundHostProfile.regularHoursTuesdayFinish = regularHoursTuesdayFinish : foundHostProfile.regularHoursTuesdayFinish = "";
+                regularHoursWednesdayFinish ? foundHostProfile.regularHoursWednesdayFinish = regularHoursWednesdayFinish : foundHostProfile.regularHoursWednesdayFinish = "";
+                regularHoursThursdayFinish ? foundHostProfile.regularHoursThursdayFinish = regularHoursThursdayFinish : foundHostProfile.regularHoursThursdayFinish = "";
+                regularHoursFridayFinish ? foundHostProfile.regularHoursFridayFinish = regularHoursFridayFinish : foundHostProfile.regularHoursFridayFinish = "";
+                regularHoursSaturdayFinish ? foundHostProfile.regularHoursSaturdayFinish = regularHoursSaturdayFinish : foundHostProfile.regularHoursSaturdayFinish = "";
+                regularHoursSundayFinish ? foundHostProfile.regularHoursSundayFinish = regularHoursSundayFinish : foundHostProfile.regularHoursSundayFinish = "";
+                holidayHoursFinish ? foundHostProfile.holidayHoursFinish = holidayHoursFinish : foundHostProfile.holidayHoursFinish = "";
 
-                address ? foundUserProfile.address = address : foundUserProfile.address = "";
-                city ? foundUserProfile.city = city : foundUserProfile.city = "";
-                region ? foundUserProfile.region = region : foundUserProfile.region = "";
-                regionCode ? foundUserProfile.regionCode = regionCode : foundUserProfile.regionCode = "";
-                country ? foundUserProfile.country = country : foundUserProfile.country = "";
-                manager ? foundUserProfile.manager = manager : foundUserProfile.manager = "";
-                chain ? foundUserProfile.chain = chain : foundUserProfile.chain = "";
-                chainId ? foundUserProfile.chainId = chainId : foundUserProfile.chainId = "";
+                address ? foundHostProfile.address = address : foundHostProfile.address = "";
+                city ? foundHostProfile.city = city : foundHostProfile.city = "";
+                region ? foundHostProfile.region = region : foundHostProfile.region = "";
+                regionCode ? foundHostProfile.regionCode = regionCode : foundHostProfile.regionCode = "";
+                country ? foundHostProfile.country = country : foundHostProfile.country = "";
 
-                const savedFoundProfile = await foundUserProfile.save()
+                const savedFoundProfile = await foundHostProfile.save()
             
                 const savedFoundUser = await foundUser.save()
 
@@ -463,7 +447,7 @@ const editSettingsHostProfile = async (req, res) => {
 
 
 
-const editSettingsStoreGeneral = async (req, res) => {
+const editSettingsHostGeneral = async (req, res) => {
 
     const cookies = req.cookies;
 
@@ -481,31 +465,28 @@ const editSettingsStoreGeneral = async (req, res) => {
         }
     )
 
-    const { loggedUserId, lessMotion, privacySetting, pushNotifications, 
-        userTheme, chain, chainId } = req.body
+    const { loggedUserId, lessMotion, privacySetting, pushNotifications, userTheme } = req.body
 
     // Confirm data 
-    if ( !loggedUserId || typeof lessMotion !== 'boolean' || !privacySetting 
-    || typeof pushNotifications !== 'boolean' || !userTheme || !chain || !chainId  ) {
+    if ( !loggedUserId || typeof lessMotion !== 'boolean' || !privacySetting || typeof pushNotifications !== 'boolean' || !userTheme ) {
 
         return res.status(400).json({ message: 'Missing required fields!' })
     }
 
     // Does the user exist to update?
-    HostProfile.findOne({"_userId": loggedUserId }, async function(err, foundUserProfile){
+    HostProfile.findOne({"_userId": loggedUserId }, async function(err, foundHostProfile){
+        
         if(err){
             return res.status(400).json({ message: 'User not found' })
         }
 
         privacySetting ? foundUser.privacySetting = privacySetting : foundUser.privacySetting = "";
 
-        lessMotion ? foundUserProfile.lessMotion = lessMotion : foundUserProfile.lessMotion = "";
-        pushNotifications ? foundUserProfile.pushNotifications = pushNotifications : foundUserProfile.pushNotifications = "";
-        userTheme ? foundUserProfile.userTheme = userTheme : foundUserProfile.userTheme = "";
-        chain ? foundUserProfile.chain = chain : foundUserProfile.chain = "";
-        chainId ? foundUserProfile.chainId = chainId : foundUserProfile.chainId = "";
+        lessMotion ? foundHostProfile.lessMotion = lessMotion : foundHostProfile.lessMotion = "";
+        pushNotifications ? foundHostProfile.pushNotifications = pushNotifications : foundHostProfile.pushNotifications = "";
+        userTheme ? foundHostProfile.userTheme = userTheme : foundHostProfile.userTheme = "";
 
-        const savedFoundProfile = await foundUserProfile.save()
+        const savedFoundProfile = await foundHostProfile.save()
        
         const savedFoundUser = await foundUser.save()
 

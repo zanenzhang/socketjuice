@@ -128,6 +128,34 @@ var hostProfileSchema = new Schema({
         maxLength: 100,
         default: "17:00"
     },
+    closedOnMonday: {
+        type: Boolean,
+        default: false
+    }, 
+    closedOnTuesday: {
+        type: Boolean,
+        default: false
+    },
+    closedOnWednesday: {
+        type: Boolean,
+        default: false
+    },
+    closedOnThursday: {
+        type: Boolean,
+        default: false
+    },
+    closedOnFriday: {
+        type: Boolean,
+        default: false
+    },
+    closedOnSaturday: {
+        type: Boolean,
+        default: false
+    },
+    closedOnSunday: {
+        type: Boolean,
+        default: false
+    },
     hostComments: {
         type: String,
         maxLength: 2000,
