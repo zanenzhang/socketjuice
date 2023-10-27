@@ -14,7 +14,7 @@ const ObjectId  = require('mongodb').ObjectId;
 const jwt = require('jsonwebtoken');
 const fns = require('date-fns')
 const S3 = require("aws-sdk/clients/s3");
-const { deleteFile } = require("../../controllers/media/s3Controller");
+const { deleteFile } = require("../media/s3Controller");
 const fs = require("fs");
 const languageList = require('../languageCheck');
 

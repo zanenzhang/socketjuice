@@ -23,6 +23,14 @@ var usageLimitSchema = new Schema({
             type: Number
         }
     }],
+    numberOfAppointments: [{
+        date: { 
+            type: String, 
+        },
+        appointmentsNumber: {
+            type: Number
+        }
+    }],
     numberOfEmailInvitations: [{
         date: { 
             type: String, 
