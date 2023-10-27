@@ -42,10 +42,10 @@ exports.sendConfirmationEmail = function({toUser, userId, hash}) {
   return sendEmail(message);
 }
 
-exports.sendStoreRecordEmail = function({storename, displayname, address, primaryNumber, city, region, country, website}) {
+exports.sendHostRecordEmail = function({hostname, displayname, address, primaryNumber, city, region, country, website}) {
   
   const regex = /(<([^>]+)>)/gi;
-  const checkedStore = storename.replace(regex, "");
+  const checkedStore = hostname.replace(regex, "");
   const checkedDisplay = displayname.replace(regex, "");
   const checkedAddress = address.replace(regex, "");
   const checkedPrimaryNumber = primaryNumber.replace(regex, "");
@@ -133,7 +133,7 @@ exports.sendVerifiedEmail = function({toUser}) {
     return sendEmail(message);
   }
 
-  exports.sendOrderIssueEmail = function({submittedUser, content, order}) {
+  exports.sendAppointmentIssueEmail = function({submittedUser, content, order}) {
 
     const regex = /(<([^>]+)>)/gi;
     const checkedContent = content.replace(regex, "");

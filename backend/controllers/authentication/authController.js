@@ -1,6 +1,6 @@
 const User = require('../../model/User');
-const UserProfile = require('../../model/CustomerProfile');
-const StoreProfile = require('../../model/HostProfile');
+const UserProfile = require('../../model/DriverProfile');
+const HostProfile = require('../../model/HostProfile');
 const ForexRate = require('../../model/ForexRate');
 const BannedUser = require('../../model/BannedUser');
 const ExternalWall = require('../../model/ExternalWall');
@@ -110,23 +110,23 @@ const handleLogin = async (req, res) => {
 
                     if(Object.values(foundUser?.roles).includes(3780)){
 
-                        const foundStoreProfile = await StoreProfile.findOne({_userId: foundUser._id})
+                        const foundHostProfile = await HostProfile.findOne({_userId: foundUser._id})
 
-                        if(foundStoreProfile){
-                            lessMotion = foundStoreProfile.lessMotion;
-                            pushNotifications = foundStoreProfile.pushNotifications;
-                            userTheme = foundStoreProfile.userTheme;
+                        if(foundHostProfile){
+                            lessMotion = foundHostProfile.lessMotion;
+                            pushNotifications = foundHostProfile.pushNotifications;
+                            userTheme = foundHostProfile.userTheme;
 
-                            city = foundStoreProfile.city;                            
-                            region = foundStoreProfile.region;
-                            country = foundStoreProfile.country;
+                            city = foundHostProfile.city;                            
+                            region = foundHostProfile.region;
+                            country = foundHostProfile.country;
 
                             doneProfile = true;
                         }
                     
                     } else {
 
-                        const foundUserProfile = await UserProfile.findOne({_userId: foundUser._id})
+                        const foundUserProfile = await DriverProfile.findOne({_userId: foundUser._id})
 
                         if(foundUserProfile){
                             lessMotion = foundUserProfile.lessMotion;

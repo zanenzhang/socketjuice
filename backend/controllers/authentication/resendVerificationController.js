@@ -5,6 +5,7 @@ const BannedUser = require('../../model/BannedUser');
 const crypto = require('crypto');
 const { sendConfirmationEmail } = require('../../middleware/mailer')
 
+
 const handleResendVerification = async (req, res) => {
     const { email, geoData } = req.body;
     

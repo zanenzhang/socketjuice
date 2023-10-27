@@ -1,5 +1,5 @@
 const User = require('../../model/User');
-const UserProfile = require('../../model/CustomerProfile');
+const DriverProfile = require('../../model/DriverProfile');
 const BannedUser = require('../../model/BannedUser');
 const ActivateToken = require('../../model/ActivateToken');
 const ExternalWall = require('../../model/ExternalWall');
@@ -148,7 +148,7 @@ const handleNewUser = async (req, res) => {
                                     "token": token
                                 })
         
-                                const newUserProfile = await UserProfile.create({
+                                const newDriverProfile = await DriverProfile.create({
                                     "_userId": savedUser._id,
                                     "username": username,
                                     "region": region,
@@ -178,7 +178,7 @@ const handleNewUser = async (req, res) => {
                                     "_userId": savedUser._id
                                 })
                                 
-                                if(actToken && newUserProfile && updatedWall && newLimits){
+                                if(actToken && newDriverProfile && updatedWall && newLimits){
                                     //spinning wheel here
                                     const success = await sendConfirmationEmail( {toUser: email, userId: savedUser._id , hash: token })
                                     if(success){

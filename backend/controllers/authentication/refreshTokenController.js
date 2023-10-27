@@ -1,6 +1,6 @@
 const User = require('../../model/User');
-const UserProfile = require('../../model/CustomerProfile');
-const StoreProfile = require('../../model/HostProfile');
+const DriverProfile = require('../../model/DriverProfile');
+const HostProfile = require('../../model/HostProfile');
 const ForexRate = require('../../model/ForexRate');
 const jwt = require('jsonwebtoken');
 
@@ -60,17 +60,17 @@ const handleRefreshToken = async (req, res) => {
 
                 if(Object.values(foundUser?.roles).includes(3780)){
 
-                    const foundStoreProfile = await StoreProfile.findOne({_userId: foundUser._id})
+                    const foundHostProfile = await HostProfile.findOne({_userId: foundUser._id})
 
-                    if(foundStoreProfile){
-                        lessMotion = foundStoreProfile.lessMotion;
-                        pushNotifications = foundStoreProfile.pushNotifications;
-                        userTheme = foundStoreProfile.userTheme;
+                    if(foundHostProfile){
+                        lessMotion = foundHostProfile.lessMotion;
+                        pushNotifications = foundHostProfile.pushNotifications;
+                        userTheme = foundHostProfile.userTheme;
 
                         if (foundUser.preferredCity !== 'Select All') {
                             city = foundUser.preferredCity
-                        } else if(foundStoreProfile.city){
-                            city = foundStoreProfile.city
+                        } else if(foundHostProfile.city){
+                            city = foundHostProfile.city
                         } else {
                             city = ''
                         }
@@ -78,13 +78,13 @@ const handleRefreshToken = async (req, res) => {
                         if(foundUser.preferredRegion !== 'Select All'){
                             region = foundUser.preferredRegion;
                         } else {
-                            region = foundStoreProfile.region;
+                            region = foundHostProfile.region;
                         }
                         
                         if(foundUser.preferredCountry !== 'Select All'){
                             country = foundUser.preferredCountry;
                         } else {
-                            country = foundStoreProfile.country;
+                            country = foundHostProfile.country;
                         }
 
                         doneProfile = true;
@@ -92,7 +92,7 @@ const handleRefreshToken = async (req, res) => {
                 
                 } else {
 
-                    const foundUserProfile = await UserProfile.findOne({_userId: foundUser._id})
+                    const foundUserProfile = await DriverProfile.findOne({_userId: foundUser._id})
 
                     if(foundUserProfile){
                         lessMotion = foundUserProfile.lessMotion;

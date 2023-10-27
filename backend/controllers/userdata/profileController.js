@@ -1,5 +1,5 @@
-const UserProfile = require('../../model/CustomerProfile');
-const StoreProfile = require('../../model/HostProfile');
+const UserProfile = require('../../model/DriverProfile');
+const HostProfile = require('../../model/HostProfile');
 const RecentlyViewed = require('../../model/RecentlyViewed');
 const Bookmark = require('../../model/Bookmark');
 const Sharedpost = require('../../model/Sharedpost');
@@ -1173,9 +1173,9 @@ const editSettingsUserGeneral = async (req, res) => {
         
         } else {
 
-            const foundStoreProfile = await StoreProfile.findOne({"_userId": loggedUserId })
+            const foundHostProfile = await HostProfile.findOne({"_userId": loggedUserId })
         
-            if(foundStoreProfile){
+            if(foundHostProfile){
 
                 privacySetting === 1 ? foundUser.privacySetting = 1 : foundUser.privacySetting = 2;
                 currency !== '' ? foundUser.currency = currency : foundUser.currency = "USD";
@@ -1184,11 +1184,11 @@ const editSettingsUserGeneral = async (req, res) => {
                 gender !== '' ? foundUser.gender = gender : foundUser.gender = "female";
                 foundUser.genderSet = true;
 
-                lessMotion ? foundStoreProfile.lessMotion = true : foundStoreProfile.lessMotion = false;
-                pushNotifications ? foundStoreProfile.pushNotifications = true : foundStoreProfile.pushNotifications = false;
-                userTheme !== '' ? foundStoreProfile.userTheme = userTheme : foundStoreProfile.userTheme = "light";
+                lessMotion ? foundHostProfile.lessMotion = true : foundHostProfile.lessMotion = false;
+                pushNotifications ? foundHostProfile.pushNotifications = true : foundHostProfile.pushNotifications = false;
+                userTheme !== '' ? foundHostProfile.userTheme = userTheme : foundHostProfile.userTheme = "light";
 
-                const savedFoundProfile = await foundStoreProfile.save()
+                const savedFoundProfile = await foundHostProfile.save()
                 const savedFoundUser = await foundUser.save()
 
                 if (savedFoundProfile && savedFoundUser) {
@@ -1257,13 +1257,13 @@ const getSuggestedProfiles = async (req, res) => {
     } 
 
     var requestedPeopleProfiles=[];
-    var requestedStoreProfiles=[];
+    var requestedHostProfiles=[];
     var receivedPeopleProfiles=[];
-    var receivedStoreProfiles=[];
+    var receivedHostProfiles=[];
     var peopleData = null;
     var storeData = null;
     var suggestedPeopleProfiles = null;
-    var suggestedStoreProfiles = null;
+    var suggestedHostProfiles = null;
 
     if (peopleSubmitted) {
         
@@ -1295,7 +1295,7 @@ const getSuggestedProfiles = async (req, res) => {
         
         if(storeSubmitted[0]?.submittedFollowRequests !== undefined){
             for(let item of (storeSubmitted[0].submittedFollowRequests)){
-                requestedStoreProfiles.push(item._submittedToUser)
+                requestedHostProfiles.push(item._submittedToUser)
             }
         }
 
@@ -1303,22 +1303,22 @@ const getSuggestedProfiles = async (req, res) => {
 
             if(storeReceived[0]?.receivedFollowRequests !== undefined){
                 for(let item of (storeReceived[0].receivedFollowRequests)){
-                    receivedStoreProfiles.push(item._fromRequestedUser)
+                    receivedHostProfiles.push(item._fromRequestedUser)
                 }
             }
 
-            suggestedStoreProfiles = await StoreProfile.find({$and:[{_userId: {"$ne": loggedUserId}},{_userId:{"$nin": storeFollowing.allStoreFollowing.map(c => c._followingId)}},
-            {_userId:{"$nin": requestedStoreProfiles}},{_userId: {"$nin": blockedProfiles.blockedUsers.map(e=>e._userId)}}]}).select("_userId").limit(8)
+            suggestedHostProfiles = await HostProfile.find({$and:[{_userId: {"$ne": loggedUserId}},{_userId:{"$nin": storeFollowing.allStoreFollowing.map(c => c._followingId)}},
+            {_userId:{"$nin": requestedHostProfiles}},{_userId: {"$nin": blockedProfiles.blockedUsers.map(e=>e._userId)}}]}).select("_userId").limit(8)
 
-            if(suggestedStoreProfiles){
-                storeData = await User.find({$or:[{_id: {$in: suggestedStoreProfiles.map(e=>e._userId)}},{_id: {$in: receivedStoreProfiles}} ]} ).select("_id username profilePicURL privacySetting roles")
+            if(suggestedHostProfiles){
+                storeData = await User.find({$or:[{_id: {$in: suggestedHostProfiles.map(e=>e._userId)}},{_id: {$in: receivedHostProfiles}} ]} ).select("_id username profilePicURL privacySetting roles")
             }
         }
     }
     
     if(peopleData && storeData){
         
-        res.json({suggestedPeopleProfiles, suggestedStoreProfiles, receivedPeopleProfiles, receivedStoreProfiles, peopleData, storeData})
+        res.json({suggestedPeopleProfiles, suggestedHostProfiles, receivedPeopleProfiles, receivedHostProfiles, peopleData, storeData})
     }
 }
 
@@ -1401,11 +1401,11 @@ const getProfileData = async (req, res) => {
         
         } else if (userOrStore == 2) {
 
-            const storeProfile = await StoreProfile.findOne({_userId: userId})
+            const HostProfile = await HostProfile.findOne({_userId: userId})
             const userData = await User.findOne({_id: userId}).select("profilePicKey profilePicURL")
 
-            if(storeProfile && userData){
-                return res.status(200).json({storeProfile, userData})
+            if(HostProfile && userData){
+                return res.status(200).json({HostProfile, userData})
             }
 
         } else {
@@ -1738,15 +1738,15 @@ const editUserReceivePayments = async (req, res) => {
 
             if(Object.values(profileUser.roles).includes(3780)){
 
-                const foundStoreProfile = await StoreProfile.findOne({_userId:profileUserId})
+                const foundHostProfile = await HostProfile.findOne({_userId:profileUserId})
 
-                if(foundStoreProfile && foundWishlist){
+                if(foundHostProfile && foundWishlist){
 
                     if(profileUser.canReceivePayments){
         
                         profileUser.canReceivePayments = 0
         
-                        const updatedPosts = await Post.updateMany({$or:[{_id: {$in: foundStoreProfile.storePosts?.map(e=>e._postId)}},
+                        const updatedPosts = await Post.updateMany({$or:[{_id: {$in: foundHostProfile.storePosts?.map(e=>e._postId)}},
                             {_id: {$in: foundWishlist.bookmarks?.map(e=>e._postId)}}]},{$set:{canReceivePayments: 0}} )
         
                         const updatedUser = await profileUser.save();
@@ -1764,7 +1764,7 @@ const editUserReceivePayments = async (req, res) => {
         
                         profileUser.canReceivePayments = 1
         
-                        const updatedPosts = await Post.updateMany({$or:[{_id: {$in: foundStoreProfile.storePosts?.map(e=>e._postId)}},
+                        const updatedPosts = await Post.updateMany({$or:[{_id: {$in: foundHostProfile.storePosts?.map(e=>e._postId)}},
                             {_id: {$in: foundWishlist.bookmarks?.map(e=>e._postId)}}]},{$set:{canReceivePayments: 1}} )
         
                         const updatedUser = await profileUser.save();

@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 // const mongoose_fuzzy_searching = require('mongoose-fuzzy-searching');
 
-var customerProfileSchema = new Schema({
+var driverProfileSchema = new Schema({
     _userId: { 
         type: Schema.Types.ObjectId, 
         required: true, ref: 'User',
@@ -89,4 +89,4 @@ var customerProfileSchema = new Schema({
 
 // userProfileSchema.index({username: 'text', fullname: 'text'});
 // userProfileSchema.plugin(mongoose_fuzzy_searching, { fields: ['username','fullname'] });
-module.exports = mongoose.model('CustomerProfile', customerProfileSchema, 'customerprofiles');
+module.exports = mongoose.model('DriverProfile', driverProfileSchema, 'driverprofiles');

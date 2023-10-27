@@ -1,5 +1,5 @@
 const User = require('../../model/User');
-const StoreProfile = require('../../model/HostProfile');
+const HostProfile = require('../../model/HostProfile');
 const BannedUser = require('../../model/BannedUser');
 const ActivateToken = require('../../model/ActivateToken');
 const ExternalWall = require('../../model/ExternalWall');
@@ -7,17 +7,18 @@ const UsageLimit = require('../../model/UsageLimit');
 
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
-const { sendConfirmationEmail, sendStoreRecordEmail } = require('../../middleware/mailer')
+const { sendConfirmationEmail, sendHostRecordEmail } = require('../../middleware/mailer')
 const axios = require('axios');
 const dotenv = require('dotenv').config()
 const languageList = require('../languageCheck')
 
-const handleNewStore = async (req, res) => {
+
+const handleNewHost = async (req, res) => {
     
-    const { email, pwd, accountname, storeDisplayname, address, phonePrimary, city, region, 
+    const { email, pwd, accountname, displayname, address, phonePrimary, city, region, 
         regionCode, country, website, geoData, recapToken } = req.body;
 
-    if (!email || !pwd || !accountname || !storeDisplayname || !recapToken || !geoData || !address
+    if (!email || !pwd || !accountname || !displayname || !recapToken || !geoData || !address
         || !phonePrimary || !city || !region || !regionCode || !country ){
         return res.status(400).json({ 'message': 'Missing required fields!' });
     } 
@@ -29,7 +30,7 @@ const handleNewStore = async (req, res) => {
         }
 
 
-    var textToCheck = email.concat(" ", accountname," ", storeDisplayname, " ", address, " ", website, " ", city, " ", region, " ", regionCode, " ", country).toLowerCase();
+    var textToCheck = email.concat(" ", accountname," ", displayname, " ", address, " ", website, " ", city, " ", region, " ", regionCode, " ", country).toLowerCase();
 
     for(let i=0; i < languageList.length; i++){
         if(textToCheck.indexOf(languageList[i]) !== -1){
@@ -121,10 +122,10 @@ const handleNewStore = async (req, res) => {
                                     "token": token
                                 })
                                 
-                                const newStoreProfile = await StoreProfile.create({
+                                const newHostProfile = await HostProfile.create({
                                     "_userId": savedUser._id,
-                                    "storename": accountname,
-                                    "displayname": storeDisplayname,
+                                    "username": accountname,
+                                    "displayname": displayname,
                                     "email": email,
                                     "address": address,
                                     "phonePrimary": phonePrimary,
@@ -157,10 +158,10 @@ const handleNewStore = async (req, res) => {
                                     "_userId": savedUser._id
                                 })
         
-                                if(actToken && newStoreProfile && updatedWall && newLimits){
+                                if(actToken && newHostProfile && updatedWall && newLimits){
                                     
                                     const success1 = await sendConfirmationEmail( {toUser: email, userId: savedUser._id , hash: token })
-                                    const success2 = await sendStoreRecordEmail( { storename: accountname, displayname: storeDisplayname, address: address, 
+                                    const success2 = await sendHosteRecordEmail( { hostname: accountname, displayname: displayname, address: address, 
                                         primaryNumber: phonePrimary, city: city, region: regionCode, country: country, website: website } )
         
                                     if(success1 && success2){
@@ -182,4 +183,4 @@ const handleNewStore = async (req, res) => {
     }
 }
 
-module.exports = { handleNewStore };
+module.exports = { handleNewHost };

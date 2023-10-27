@@ -21,6 +21,9 @@ var appointmentSchema = new Schema({
     appointmentEnd: {
         type: Date,
     },
+    status: {
+        type: String
+    },
     reviewed: {
         type: Boolean,
         default: false

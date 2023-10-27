@@ -17,7 +17,7 @@ const ObjectId  = require('mongodb').ObjectId;
 const jwt = require('jsonwebtoken');
 const S3 = require("aws-sdk/clients/s3");
 const fns = require('date-fns')
-const { deleteFile } = require("../../controllers/media/s3Controller");
+const { deleteFile } = require("../media/s3Controller");
 
 const wasabiPrivateBucketUSA = process.env.WASABI_PRIVATE_BUCKET_NAME_USA;
 const wasabiPublicBucketUSA = process.env.WASABI_PUBLIC_BUCKET_NAME_USA;
