@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const profileController = require('../controllers/userdata/profileController');
-const HostProfileController = require('../controllers/storedata/HostProfileController');
+const hostProfileController = require('../controllers/storedata/hostProfileController');
 const citiesController = require('../controllers/userdata/citiesController');
 const verifyJWT = require('../middleware/verifyJWT');
 
@@ -17,7 +17,7 @@ router.patch('/public', profileController.makePublic);
 router.patch('/receivepayments', profileController.editUserReceivePayments);
 router.patch('/cities', citiesController.updatePreferences);
 
-router.patch('/storesettings', HostProfileController.editSettingsHostProfile);
+router.patch('/storesettings', hostProfileController.editSettingsHostProfile);
 
 router.get('/suggested/:loggedUserId', profileController.getSuggestedProfiles);
 router.delete('/oldpic', profileController.deleteOldProfilePic);

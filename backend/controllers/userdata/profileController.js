@@ -79,9 +79,9 @@ const getUserProfile = async (req, res) => {
                 profilePicURL = userFound.profilePicURL;
             } 
 
-            if(userPosts?.length > 0){
+            if(userProfile?.length > 0){
 
-                userPosts?.forEach(async function(item, index){
+                userProfile?.forEach(async function(item, index){
 
                     if(item.mediaCarouselURLs?.length === 0 && item.mediaCarouselObjectIds?.length > 0){
 
@@ -266,49 +266,15 @@ const getUserProfile = async (req, res) => {
         
         } else {
 
-            const userPosts = await Post.find({ _userId: profileUserId, postClass: 1 },{"caption_fuzzy": 0, "postViews": 0, "postViews": 0, "additionalProperty": 0}).sort({createdAt: -1}).limit(8)
             const userProfile = await DriverProfile.findOne({_userId: profileUserId})
             const userFound = await User.findOne({_id: profileUserId})
             const loggedFound = await User.findOne({_id: loggedUserId})
             const flaggedList = await Flags.findOne({_userId: loggedUserId}).select("userFlags")
-            const ownedProductsFound = await OwnedProducts.findOne({_userId: loggedUserId})
-            const bookmarksFound = await Bookmark.findOne({_userId: loggedUserId})
-            const peopleFollowers = await Peoplefollowers.findOne({ _userId: profileUserId }).select("allPeopleFollowers peopleFollowersCount receivedFollowRequests")
-            const peopleFollowing = await Peoplefollowing.findOne({ _userId: profileUserId }).select("allPeopleFollowing peopleFollowingCount submittedFollowRequests ")
-            const storeFollowers = await Storefollowers.findOne({ _userId: profileUserId }).select("allStoreFollowers storeFollowersCount receivedFollowRequests")
-            const storeFollowing = await Storefollowing.findOne({ _userId: profileUserId }).select("allStoreFollowing storeFollowingCount submittedFollowRequests")
-
-            var sharedpostsFound = await Sharedpost.findOne({_userId: loggedUserId})
-
-            let isFollowing = null;
-            let isRequested = null;
-            let notFollowing = null;
-            let foundProducts = null;
-            let followingLogged = null;
-            let flaggedPosts = null;
-
-            let donePostsData = false;
-            let donePeopleFollowers = false;
-            let doneStoreFollowers = false;
-            let donePeopleFollowing = false;
-            let doneStoreFollowing = false;
-            let doneLoggedBlocked = false;
-            let doneProfileBlocked = false;
-            let doneFlags = false;
-
-            let privacySetting = null;
-            let loggedBlocked = null;
-            let profileBlocked = null;
-            let profilePicURL = null;
-            let flaggedProfile = null;
             
-            let peopleFollowersCount = null;
-            let peopleFollowingCount = null;
-            let storeFollowersCount = null;
-            let storeFollowingCount = null;
-            let totalGems = null;
-
-            var doneSharedposts = false;
+            let flaggedUsers = null;
+            let doneUserData = false;
+            let doneFlags = false;
+            let flaggedProfile = null;
             
             if(flaggedList){
 
@@ -318,135 +284,12 @@ const getUserProfile = async (req, res) => {
                     flaggedProfile = 0
                 }
 
-                if(flaggedList.postFlags){
-                    flaggedPosts = flaggedList.postFlags
-                } else {
-                    flaggedPosts = []
-                }
-
                 doneFlags = true;
             } 
 
-            if(sharedpostsFound){
+            if(driverProfile.length > 0){
 
-                doneSharedposts = true;
-    
-            } else {
-    
-                const newsharedposts = await Sharedpost.create({
-                    _userId: userId,
-                    sharedposts:[]
-                })
-                if(newsharedposts){
-                    sharedpostsFound = {
-                        _userId: userId,
-                        sharedposts:[]
-                    }
-                    doneSharedposts = true;
-                }
-            }
-
-            if(peopleFollowers) {
-
-                peopleFollowersCount = peopleFollowers.peopleFollowersCount
-                donePeopleFollowers = true;
-            }
-
-            if(storeFollowers) {
-
-                storeFollowersCount = storeFollowers.storeFollowersCount
-                
-                if(storeFollowersCount > 0){
-                    if(storeFollowers.allStoreFollowers.some(e => e._followerId.toString() === ((loggedUserId)))){
-                        isFollowing = 1;
-                    } else {
-                        isFollowing = 0;
-                    }   
-                } else {
-                    isFollowing = 0;
-                }
-
-                if(!isFollowing && storeFollowers.receivedFollowRequests){
-                    if(storeFollowers.receivedFollowRequests.some(e => (e._fromRequestedUser.toString() === ((loggedUserId)) && e.isActiveRequest === true))){
-                        isRequested = 1;
-                    } else {
-                        isRequested = 0;
-                    }
-                } else {
-                    isRequested = 0;
-                }
-
-                if(!isFollowing && !isRequested){
-                    notFollowing = 1;
-                } else {
-                    notFollowing = 0;
-                }
-
-                doneStoreFollowers = true;
-            }
-
-            if(userFound){
-                
-                if(userFound.deactivated === true){
-                    return res.status(403).json({"message":"Operation failed"})
-                }
-
-                privacySetting = userFound.privacySetting;
-                profilePicURL = userFound.profilePicURL;
-                totalGems = userFound.totalGems;
-
-                if(userFound?.blockedUsers){
-
-                    if(userFound.blockedUsers.some(e=>e._userId.toString() === ((loggedUserId)))){
-                        loggedBlocked = 1;        
-                    } else {
-                        loggedBlocked = 0;
-                    }
-
-                } else {
-                    loggedBlocked = 0;
-                }
-                
-                doneLoggedBlocked = true;
-            } 
-
-            if(loggedFound){
-                
-                if(loggedFound?.blockedUsers){
-
-                    if(loggedFound.blockedUsers.some(e=>e._userId.toString() === ((profileUserId)))){
-                        profileBlocked = 1;        
-                    } else {
-                        profileBlocked = 0;
-                    }
-
-                } else {
-                    profileBlocked = 0;
-                }
-                
-                doneProfileBlocked = true;
-            } 
-
-            if(peopleFollowing){
-                peopleFollowingCount = peopleFollowing.peopleFollowingCount
-                donePeopleFollowing = true;
-            }
-
-            if(storeFollowing){
-                storeFollowingCount = storeFollowing.storeFollowingCount
-                if(storeFollowing.allStoreFollowing?.some(e=>e._followingId.toString() === ((loggedUserId)))){
-                    followingLogged = 1    
-                } else {
-                    followingLogged = 0
-                }
-                doneStoreFollowing = true;
-            }
-
-            if(userPosts.length > 0){
-
-                foundProducts = await Product.find({_id: {$in: userPosts.map(e=>e._productId)}},{brand_fuzzy: 0, productname_fuzzy:0})
-
-                userPosts?.forEach(function(item, index){
+                driverProfile?.forEach(function(item, index){
 
                     if(item.mediaCarouselURLs?.length === 0 && item.mediaCarouselObjectIds?.length > 0){
 
@@ -659,40 +502,6 @@ const getUserIdByUsername = async (req, res) => {
         return res.status(400).json({"Message": "Failed operation"})
     }
     
-}
-
-
-const setInitialPrefsUser = async (req, res) => {
-
-    var {gender, retailerIds, userId} = req.body
-
-    if(!gender || !retailerIds || !userId){
-        return res.status(400).json({ message: 'Missing required fields' })
-    }
-
-    retailerIds = JSON.parse(retailerIds)
-
-    const foundUser = await User.findOne({_id: userId})
-
-    if(foundUser){
-
-        if(!foundUser.genderSet){
-            
-            foundUser.gender = gender
-            foundUser.genderSet = true
-            foundUser.initialRetailers = retailerIds
-
-            const savedPrefs = await foundUser.save()
-
-            if(savedPrefs){
-                return res.status(200).json({message: "Saved initial prefs"})
-            }
-
-        } else {
-
-            return res.status(200).json({message: "Saved initial prefs"})
-        }
-    }
 }
 
 
@@ -1678,4 +1487,4 @@ const editUserReceivePayments = async (req, res) => {
 module.exports = { getUserProfile, editSettingsUserProfile, editSettingsUserPass, editSettingsUserGeneral, editProfilePic,
     getUserIdByUsername, getSuggestedProfiles, getProfilePicByUserId, checkUser, getProfileData, 
     deleteOldProfilePic, addUserBan, removeUserBan, makePrivate, makePublic, adjustInfluencerRating,
-    editUserReceivePayments, setInitialPrefsUser }
+    editUserReceivePayments }
