@@ -21,9 +21,17 @@ var appointmentSchema = new Schema({
     appointmentEnd: {
         type: Date,
     },
+    cancelRequestHostSubmit: {
+        type: Boolean,
+        default: false
+    },
+    cancelRequestDriverSubmit: {
+        type: Boolean,
+        default: false
+    },
     status: {
         type: String,
-        default: "Requested",
+        default: "Requested", //Requested, Approved, CancelSubmitted, Cancelled, 
     },
     reviewed: {
         type: Boolean,

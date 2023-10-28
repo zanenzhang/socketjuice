@@ -106,6 +106,10 @@ const getHostAppointments = async (req, res) => {
                 return res.status(201).json({userAppointments, foundHostProfiles, userData, flaggedUsers, stop})
             }
         }
+    
+    } else {
+
+        return res.status(400).json({ message: 'Missing required information' })
     }
 }   
 
@@ -182,6 +186,9 @@ const getDriverAppointments = async (req, res) => {
                 return res.status(201).json({userAppointments, foundHostProfiles, userData, flaggedUsers, stop})
             }
         }
+    } else {
+
+        return res.status(400).json({ message: 'Missing required information' })
     }
 }   
 
@@ -325,73 +332,196 @@ const addAppointment = async (req, res) => {
     }
 }
 
+const driverRequestCancelSubmit = async (req, res) =>{
 
-const removeAppointment = async (req, res) => {
+    const { userId, hostUserId, appointmentId } = req.body    
 
-    //Can only be removed if not approved by both parties, otherwise subject to a cancellation fee
-
-    const { userId, hostUserId } = req.query
-
-    if (!userId || !hostUserId ) return res.status(400).json({ 'message': 'Missing required fields!' });
+    if (!userId || !appointmentId || !hostUserId ) return res.status(400).json({ 'message': 'Missing required fields!' });
 
     try {
 
-        var foundHostProfile = await HostProfile.findOne({_id: hostUserId})
+        const foundAppointment = await Appointment.updateOne({_id: appointmentId, _requestUserId: userId, _hostUserId: hostUserId}, {$set: {cancelRequestDriverSubmit: true}})
+        const updateDriverProfile = await DriverProfile.updateOne({_id: userId},{$inc: {numberOfAppointmentCancellations: 1}})
 
-        var donePost = false;
+        if(foundAppointment && updateDriverProfile){
 
-        if(foundHostProfile){
+            return res.status(201).json({ message: 'Success' })
+        }
+
+    } catch(err){
+
+        console.log(err)
+        return res.status(401).json({ message: 'Failed' })
+    }
+}
+
+const driverRequestCancelApprove = async (req, res) =>{
+
+    const { userId, hostUserId, appointmentId } = req.body    
+
+    if (!userId || !appointmentId || !hostUserId ) return res.status(400).json({ 'message': 'Missing required fields!' });
+
+    try {
+
+        var foundAppointment = await Appointment.findOne({_id: appointmentId})
+
+        if(foundAppointment && foundAppointment.cancelRequestHostSubmit){
             
-            const updatedBookmark = await Bookmark.updateOne({ _userId: hostUserId }, { $pull: { bookmarks: { _hostProfileId: hostUserId }}})
+            const foundDriverProfile = await DriverProfile.findOne({_userId: userId})
+            const foundHostProfile = await HostProfile.findOne({_userId: hostUserId})
 
-            if(updatedBookmark){
+            if(foundDriverProfile && foundHostProfile){
 
-                if(foundHostProfile.bookmarksCount > 0){
-                    foundHostProfile.bookmarksCount = foundHostProfile.bookmarksCount - 1
-                }
+                foundDriverProfile?.userAppointments.pull({_appointmentId: appointmentId})
+                foundHostProfile?.hostAppointments.pull({_appointmentId: appointmentId})
 
-                if(foundHostProfile.bookmarkedBy?.length > 0 && foundHostProfile.bookmarkedBy?.some(e=>e._userId.toString() === userId)){
+                const savedDriver = await foundDriverProfile.save()
+                const savedHost = await foundHostProfile.save()
 
-                    for(let i=0; i<foundHostProfile.bookmarkedBy.length; i++){
+                if(savedDriver && savedHost){
 
-                        if(foundHostProfile.bookmarkedBy[i]._userId.toString() === userId){
-                            
-                            if(foundHostProfile.bookmarkedBy[i].bookmarkedCount > 1){
-                                
-                                foundHostProfile.bookmarkedBy[i].bookmarkedCount = foundHostProfile.bookmarkedBy[i].bookmarkedCount - 1
-                            
-                            } else {
-
-                                foundHostProfile.bookmarkedBy.pull({_userId: userId})
-                            }
-                            break
-                        }
-                    }
-                }
-
-                const savedPost = await foundHostProfile.save()
-
-                if(savedPost){
-                    donePost = true;    
+                    return res.status(201).json({ message: 'Success' })
+                
+                } else {
+        
+                    return res.status(400).json({ message:'Operation Failed' });
                 }
             }
-        }
-            
-        if(donePost){
-
-            return res.status(201).json({ message: 'Success' })                               
         
         } else {
-
-            return res.status(400).json({ message:'Operation Failed' });
+        
+            return res.status(401).json({ message: 'Failed' })
         }
 
-    } catch (err) {
+    } catch(err){
+
+        console.log(err)
+        return res.status(401).json({ message: 'Failed' })
+    }
+}
+
+const hostRequestCancelSubmit = async (req, res) =>{
+
+    const { userId, hostUserId, appointmentId } = req.body    
+
+    if (!userId || !appointmentId || !hostUserId ) return res.status(400).json({ 'message': 'Missing required fields!' });
+
+    try {
+
+        const foundAppointment = await Appointment.updateOne({_id: appointmentId, _requestUserId: userId, _hostUserId: hostUserId}, {$set: {cancelRequestHostSubmit: true}})
+        const updateHostProfile = await HostProfile.updateOne({_id: hostUserId},{$inc: {numberOfAppointmentCancellations: 1}})
+
+        if(foundAppointment && updateHostProfile){
+
+            return res.status(201).json({ message: 'Success' })
+        }
+
+    } catch(err){
+
+        console.log(err)
+        return res.status(401).json({ message: 'Failed' })
+    }
+}
+
+const hostRequestCancelApprove = async (req, res) =>{
+
+    const { userId, hostUserId, appointmentId } = req.body    
+
+    if (!userId || !appointmentId || !hostUserId ) return res.status(400).json({ 'message': 'Missing required fields!' });
+
+    try {
+
+        var foundAppointment = await Appointment.findOne({_id: appointmentId})
+
+        if(foundAppointment && foundAppointment.cancelRequestDriverSubmit){
+            
+            const foundDriverProfile = await DriverProfile.findOne({_userId: userId})
+            const foundHostProfile = await HostProfile.findOne({_userId: hostUserId})
+
+            if(foundDriverProfile && foundHostProfile){
+
+                foundDriverProfile?.userAppointments.pull({_appointmentId: appointmentId})
+                foundHostProfile?.hostAppointments.pull({_appointmentId: appointmentId})
+
+                const savedDriver = await foundDriverProfile.save()
+                const savedHost = await foundHostProfile.save()
+
+                if(savedDriver && savedHost){
+
+                    return res.status(201).json({ message: 'Success' })
+                
+                } else {
+        
+                    return res.status(400).json({ message:'Operation Failed' });
+                }
+            }
+        
+        } else {
+        
+            return res.status(401).json({ message: 'Failed' })
+        }
+
+    } catch(err){
 
         return res.status(401).json({ message: 'Failed' })
     }
 }
 
+const removeAppointment = async (req, res) => {
+
+    const { userId, hostUserId, appointmentId } = req.body    
+
+    if (!userId || !appointmentId || !hostUserId ) return res.status(400).json({ 'message': 'Missing required fields!' });
+
+    const foundUser = await User.findOne({_id: userId}).select("_id deactivated roles")
+
+    if(!foundUser){
+
+        return res.status(403).json({ message: 'User ID Required' })
+    
+    } else {
+
+        if(! Object.values(foundUser.roles).includes(5150)){
+
+            return res.status(403).json({ message: 'User ID Required' })
+        
+        } else {
+
+            var foundAppointment = await Appointment.findOne({_id: appointmentId})
+
+            if(foundAppointment){
+                
+                const foundDriverProfile = await DriverProfile.findOne({_userId: userId})
+                const foundHostProfile = await HostProfile.findOne({_userId: hostUserId})
+
+                if(foundDriverProfile && foundHostProfile){
+
+                    foundDriverProfile?.userAppointments.pull({_appointmentId: appointmentId})
+                    foundHostProfile?.hostAppointments.pull({_appointmentId: appointmentId})
+
+                    const savedDriver = await foundDriverProfile.save()
+                    const savedHost = await foundHostProfile.save()
+
+                    if(savedDriver && savedHost){
+
+                        return res.status(201).json({ message: 'Success' })
+                    
+                    } else {
+            
+                        return res.status(400).json({ message:'Operation Failed' });
+                    }
+                }
+            
+            } else {
+            
+                return res.status(401).json({ message: 'Failed' })
+            }
+        }
+    }
+}
 
 
-module.exports = { getHostAppointments, getDriverAppointments, addAppointment, removeAppointment }
+
+module.exports = { getHostAppointments, getDriverAppointments, addAppointment, 
+    driverRequestCancelSubmit, driverRequestCancelApprove, hostRequestCancelSubmit, 
+    hostRequestCancelApprove, removeAppointment }

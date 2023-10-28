@@ -21,6 +21,10 @@ var paymentSchema = new Schema({
     },
     paymentToken: {
         type: String
+    },
+    refunded: {
+        type: Boolean,
+        default: false
     }
 });
 

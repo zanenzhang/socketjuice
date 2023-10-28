@@ -29,7 +29,7 @@ const PORT = process.env.PORT_SJ || 5000;
 
 const limiter = rateLimiter({
     windowMs: 15 * 60 * 1000,
-    max: 350,
+    max:350,
 });
 
 const speedLimiter = slowDown({
@@ -107,8 +107,8 @@ app.use('/api/profile', cors(corsOptions), require('./routes/profile'));
 app.use('/api/checkuser', cors(corsOptions), require('./routes/checkuser')); 
 
 app.use('/api/emails', cors(corsOptions), require('./routes/emails')); 
-// app.use('/api/payments', cors(corsOptions), require('./routes/payments'));
-// app.use('/api/paymentsuser', cors(corsOptions), require('./routes/paymentsuser')); 
+app.use('/api/payments', cors(corsOptions), require('./routes/payments'));
+app.use('/api/reviews', cors(corsOptions), require('./routes/reviews'));
 
 app.use('/api/notification', cors(corsOptions), require('./routes/notifications')); 
 

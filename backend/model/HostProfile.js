@@ -36,6 +36,14 @@ var hostProfileSchema = new Schema({
             type: Date,
         }
     }],
+    numberOfReceivedReviews: {
+        type: Number,
+        default: 0
+    },
+    numberOfTotalStars: {
+        type: Number,
+        default: 0
+    },
     bookings: [{
         startDate: {
             type: Date,
@@ -240,6 +248,40 @@ var hostProfileSchema = new Schema({
         type: Number,
         default: 0
     },
+    numberOfAppointmentCancellations: {
+        type: Number,
+        default: 0
+    },
+    incomingPayments: [{  
+        _paymentId: { 
+            type: Schema.Types.ObjectId, 
+            ref: 'Payment',
+            index: true
+        },
+        amount: {
+            type: Number, 
+            default: 0
+        },
+        currency: {
+            type: Number, 
+            default: 0
+        },
+        refunded: {
+            type: Boolean,
+            default: false
+        }
+    }],
+    receivedReviews: [{
+        _reviewId: {
+            type: Schema.Types.ObjectId,
+            ref: 'Review',
+            index: true
+        },
+        reviewStars: {
+            type: Number,
+            default: 3
+        }
+    }],
     bookmarksCount: {
         type: Number,
         default: 0

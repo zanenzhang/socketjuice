@@ -225,11 +225,243 @@ const getHostProfile = async (req, res) => {
 
         }  else {
             doneProfileData = true;
+            foundHostProfile = {};
         }
 
-        if(doneProfileData && foundHostProfile && profilePicURL && bookmarksFound && doneFlags ){
+        if(doneProfileData && profilePicURL && bookmarksFound && doneFlags ){
             
                 return res.status(200).json({foundHostProfile, profilePicURL, bookmarksFound, flaggedProfile })
+        
+        } else {
+
+            return res.status(401).json({ message: 'Cannot get store information' })
+        }
+        
+    } catch(err){
+
+        return res.status(401).json({ message: 'Cannot get user information' })
+    }
+}
+
+
+const getHostProfiles = async (req, res) => {
+    
+    const { hostProfiles, loggedUserId, ipAddress, language, currency } = req.query
+
+    if (!hostProfiles || !loggedUserId ) {
+        return res.status(400).json({ message: 'Missing required info' })
+    }
+
+    hostProfiles = JSON.parse(hostProfiles)
+
+    try {
+
+        const foundHostProfiles = await HostProfile.find({_userId: hostProfiles.map(e => e._userId)})
+        const userFound = await User.findOne({_id: profileUserId})
+        const bookmarksFound = await Bookmark.findOne({_userId: loggedUserId})
+
+        let doneProfileData = false;
+        let doneFlags = false;
+
+        let profilePicURL = null;
+        let flaggedProfile = null;
+
+        if(flaggedList){
+
+            if(flaggedList.userFlags?.some(e=>e._userId.toString() === ((profileUserId)))){
+                flaggedProfile = 1
+            } else {
+                flaggedProfile = 0
+            }
+
+            doneFlags = true;
+        } 
+
+        if(userFound){
+
+            if(userFound.deactivated === true){
+                return res.status(403).json({"message":"Operation failed"})
+            }
+
+            profilePicURL = userFound.profilePicURL;
+
+            doneLoggedBlocked = true;
+        } 
+
+        if(foundHostProfiles.length > 0){
+
+            foundHostProfiles?.forEach(function(item, index){
+
+                if(item.mediaCarouselURLs?.length === 0 && item.mediaCarouselObjectIds?.length > 0){
+    
+                    var finalMediaURLs = []
+    
+                    for(let i=0; i<item.mediaCarouselObjectIds?.length; i++){
+                    
+                        var signParams = {
+                            Bucket: wasabiPrivateBucketUSA, 
+                            Key: item.mediaCarouselObjectIds[i],
+                            Expires: 7200
+                          };
+            
+                        var url = s3.getSignedUrl('getObject', signParams);
+            
+                        finalMediaURLs.push(url)
+                    }
+    
+                    var finalVideoURLs = []
+    
+                    for(let i=0; i<item.videoCarouselObjectIds?.length; i++){
+    
+                        if(item.videoCarouselObjectIds[i] !== 'image'){
+    
+                            var signParams = {
+                                Bucket: wasabiPrivateBucketUSA, 
+                                Key: item.videoCarouselObjectIds[i],
+                                Expires: 7200
+                            };
+                
+                            var url = s3.getSignedUrl('getObject', signParams);
+                
+                            finalVideoURLs.push(url)
+    
+                        } else {
+    
+                            finalVideoURLs.push("image")
+                        }
+                    }
+    
+                    item.mediaCarouselURLs = finalMediaURLs
+                    item.videoCarouselURLs = finalVideoURLs
+                    item.previewMediaURL = finalMediaURLs[item.coverIndex]
+                    item.markModified('mediaCarouselURLs')
+                    item.markModified('videoCarouselURLs')
+                    item.markModified('previewMediaURL')
+    
+                } else if(item.mediaCarouselObjectIds?.length > 0) {
+    
+                    for(let i=0; i<item.mediaCarouselURLs?.length; i++){
+                        
+                        var signedUrl = item.mediaCarouselURLs[i];
+    
+                        const params = new URLSearchParams(signedUrl)
+                        const expiry = Number(params.get("Expires")) * 1000
+                        // const creationDate = fns.parseISO(params['X-Amz-Date']);
+                        // const expiresInSecs = Number(params['X-Amz-Expires']);
+                        
+                        // const expiryDate = fns.addSeconds(creationDate, expiresInSecs);
+                        // const expiry = Number(params['Expires']);
+                        const expiryTime = new Date(expiry)
+                        const isExpired = expiryTime < new Date();
+            
+                        if (isExpired){
+            
+                            var signParams = {
+                                Bucket: wasabiPrivateBucketUSA, 
+                                Key: item.mediaCarouselObjectIds[i],
+                                Expires: 7200
+                              };
+                
+                            var url = s3.getSignedUrl('getObject', signParams);
+                
+                            item.mediaCarouselURLs[i] = url
+                        }
+    
+                        if(item.coverIndex === i){
+                            item.previewMediaURL = item.mediaCarouselURLs[i]
+                        }
+                    }
+    
+                    for(let i=0; i<item.videoCarouselURLs?.length; i++){
+    
+                        if(item.videoCarouselURLs[i] !== 'image'){
+    
+                            var signedUrl = item.videoCarouselURLs[i];
+    
+                            const params = new URLSearchParams(signedUrl)
+                            const expiry = Number(params.get("Expires")) * 1000
+                            // const creationDate = fns.parseISO(params['X-Amz-Date']);
+                            // const expiresInSecs = Number(params['X-Amz-Expires']);
+                            
+                            // const expiryDate = fns.addSeconds(creationDate, expiresInSecs);
+                            // const expiry = Number(params['Expires']);
+                            const expiryTime = new Date(expiry)
+                            const isExpired = expiryTime < new Date();
+                
+                            if (isExpired){
+                
+                                var signParams = {
+                                    Bucket: wasabiPrivateBucketUSA, 
+                                    Key: item.videoCarouselObjectIds[i],
+                                    Expires: 7200
+                                };
+                    
+                                var url = s3.getSignedUrl('getObject', signParams);
+                    
+                                item.videoCarouselURLs[i] = url
+                            }
+    
+                        }
+                    }
+    
+                    item.markModified('mediaCarouselURLs')
+                    item.markModified('videoCarouselURLs')
+                    item.markModified('previewMediaURL')
+                
+                } else if(!item.previewMediaURL && item.mediaCarouselObjectIds?.length === 0){
+    
+                    var signParams = {
+                        Bucket: wasabiPrivateBucketUSA, 
+                        Key: item.previewMediaObjectId, 
+                        Expires: 7200
+                    };
+    
+                    var url = s3.getSignedUrl('getObject', signParams);
+    
+                    item.previewMediaURL = url
+                    item.markModified('previewMediaURL')
+                
+                } else if(item.mediaCarouselObjectIds?.length === 0) {
+    
+                    var signedUrl = item.previewMediaURL
+    
+                    const params = new URLSearchParams(signedUrl)
+                    const expiry = Number(params.get("Expires")) * 1000
+                    // const creationDate = fns.parseISO(params['X-Amz-Date']);
+                    // const expiresInSecs = Number(params['X-Amz-Expires']);
+                    
+                    // const expiryDate = fns.addSeconds(creationDate, expiresInSecs);
+                    // const expiry = Number(params['Expires']);
+                    const expiryTime = new Date(expiry)
+                    const isExpired = expiryTime < new Date();
+    
+                    if (isExpired){
+    
+                        var signParams = {
+                            Bucket: wasabiPrivateBucketUSA, 
+                            Key: item.previewMediaObjectId,
+                            Expires: 7200
+                        };
+            
+                        var url = s3.getSignedUrl('getObject', signParams);
+            
+                        item.previewMediaURL = url
+                        item.markModified('previewMediaURL')
+                    }
+                }    
+    
+                item.update()
+            })
+
+            doneProfileData = true;
+
+        }  else {
+            doneProfileData = true;
+        }
+
+        if(doneProfileData && profilePicURL && bookmarksFound && doneFlags ){
+            
+                return res.status(200).json({foundHostProfiles, profilePicURL, bookmarksFound, flaggedProfile })
         
         } else {
 
@@ -497,4 +729,4 @@ const editSettingsHostGeneral = async (req, res) => {
     })
 }
 
-module.exports = { getHostProfile, editSettingsHostProfile }
+module.exports = { getHostProfile, getHostProfiles, editSettingsHostProfile }

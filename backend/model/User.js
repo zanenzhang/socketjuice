@@ -124,6 +124,18 @@ const userSchema = new Schema({
         default: new Date("1/1/23"),
         index: true
     },
+    identificationFrontObjectId: { 
+        type: String
+    },
+    identificationFrontMediaURL: {
+        type: String
+    },
+    identificationBackObjectId: { 
+        type: String
+    },
+    identificationBackMediaURL: {
+        type: String
+    },
     createdAt: { 
         type: Date, 
         default: Date.now
