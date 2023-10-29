@@ -39,10 +39,6 @@ const userSchema = new Schema({
         type: Boolean, //Banned
         default: false
     },
-    isHost: {
-        type: Boolean,
-        default: false
-    },
     lockedOut: {
         type: Boolean, //Missed password attempts
         default: false
