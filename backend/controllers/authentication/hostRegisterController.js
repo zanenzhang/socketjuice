@@ -1,5 +1,6 @@
 const User = require('../../model/User');
 const HostProfile = require('../../model/HostProfile');
+const DriverProfile = require('../../model/DriverProfile');
 const BannedUser = require('../../model/BannedUser');
 const ActivateToken = require('../../model/ActivateToken');
 const ExternalWall = require('../../model/ExternalWall');
@@ -16,7 +17,7 @@ const languageList = require('../languageCheck')
 const handleNewHost = async (req, res) => {
     
     const { email, pwd, accountname, displayname, address, phonePrimary, city, region, 
-        regionCode, country, website, geoData, recapToken } = req.body;
+        regionCode, country, birthdate, geoData, recapToken } = req.body;
 
     if (!email || !pwd || !accountname || !displayname || !recapToken || !geoData || !address
         || !phonePrimary || !city || !region || !regionCode || !country ){
@@ -30,7 +31,7 @@ const handleNewHost = async (req, res) => {
         }
 
 
-    var textToCheck = email.concat(" ", accountname," ", displayname, " ", address, " ", website, " ", city, " ", region, " ", regionCode, " ", country).toLowerCase();
+    var textToCheck = email.concat(" ", accountname," ", displayname, " ", address, " ", city, " ", region, " ", regionCode, " ", country).toLowerCase();
 
     for(let i=0; i < languageList.length; i++){
         if(textToCheck.indexOf(languageList[i]) !== -1){
@@ -40,7 +41,7 @@ const handleNewHost = async (req, res) => {
 
     const checkBan = await BannedUser.findOne({admin: "admin"})
 
-    if(checkBan?.ipAddresses?.some(e=>e.userIP === geoData?.IPv4)){
+    if(geoData?.IPv4 && checkBan?.ipAddresses?.some(e=>e.userIP === geoData?.IPv4)){
 
         return res.status(403).json({"message":"Please check your inbox"})  
     
@@ -116,10 +117,21 @@ const handleNewHost = async (req, res) => {
                             });
         
                             newUser.save( async function(err, savedUser){
+
+                                var dateObject = new Date(birthdate)
         
                                 const actToken = await ActivateToken.create({
                                     "_userId": savedUser._id,
                                     "token": token
+                                })
+
+                                const newDriverProfile = await DriverProfile.create({
+                                    "_userId": savedUser._id,
+                                    "username": accountname,
+                                    "region": region,
+                                    "regionCode": regionCode,
+                                    "country": country,
+                                    "birthDate": dateObject
                                 })
                                 
                                 const newHostProfile = await HostProfile.create({
@@ -133,8 +145,6 @@ const handleNewHost = async (req, res) => {
                                     "region": region,
                                     "regionCode": regionCode,
                                     "country": country,
-                                    "website": website,
-                                    "retailerRanking": 5,
                                 })
         
                                 var updatedWall = null
@@ -158,11 +168,11 @@ const handleNewHost = async (req, res) => {
                                     "_userId": savedUser._id
                                 })
         
-                                if(actToken && newHostProfile && updatedWall && newLimits){
+                                if(actToken && newHostProfile && newDriverProfile && updatedWall && newLimits){
                                     
                                     const success1 = await sendConfirmationEmail( {toUser: email, userId: savedUser._id , hash: token })
-                                    const success2 = await sendHosteRecordEmail( { hostname: accountname, displayname: displayname, address: address, 
-                                        primaryNumber: phonePrimary, city: city, region: regionCode, country: country, website: website } )
+                                    const success2 = await sendHostRecordEmail( { hostname: accountname, displayname: displayname, address: address, 
+                                        primaryNumber: phonePrimary, city: city, region: regionCode, country: country} )
         
                                     if(success1 && success2){
                                         res.status(201).json({'Success': `New account created! Please check your email to activate! ` });

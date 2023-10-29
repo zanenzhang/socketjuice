@@ -87,7 +87,6 @@ app.use('/', cors(), express.static(path.join(__dirname, '/public')));
 
 // routes
 app.use('/api', cors(), require('./routes/root'));
-app.use('/api/register', cors(corsOptions), require('./routes/register'));
 app.use('/api/hostregister', cors(corsOptions), require('./routes/hostregister'));
 app.use('/api/auth', cors(corsOptions), require('./routes/auth'));
 app.use('/api/refresh', cors(corsOptions), require('./routes/refresh'));
