@@ -209,8 +209,16 @@ var hostProfileSchema = new Schema({
         maxLength: 50
     },
     location: {
-        type: { type: String, maxLength: 50 },
-        coordinates: [Number], //Longitude first, then latitude
+        type: {
+            type: String,
+            enum: ['Point'],
+            required: true
+        },
+            coordinates: {
+            type: [Number], //Longitude first, then latitude
+            required: true
+        },
+        index: "2dsphere"
     },
     lessMotion: { 
         type: Boolean, 
