@@ -172,17 +172,17 @@ var hostProfileSchema = new Schema({
     address: {
         type: String,
         required: true,
-        maxLength: 50
+        maxLength: 150
     },
     city: {
         type: String,
         required: true,
-        maxLength: 50
+        maxLength: 150
     },
     region: {
         type: String,
         required: true,
-        maxLength: 50
+        maxLength: 150
     },
     regionCode: {
         type: String,

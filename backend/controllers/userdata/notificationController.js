@@ -481,13 +481,9 @@ const editNewRequestsFill = async (req, res) => {
 }
 
 
-module.exports = { getNotifications, 
-    
-    addCommentNoti, addValueNoti, addReplyNoti, addCommentValueNoti, 
-    addShareNoti, addFollowNoti, addFollowRequestedNoti, 
-    addFollowApprovedNoti, addMessageNoti, 
+module.exports = { getNotifications, addMessageNoti, 
 
-    editReadRecent, editOpenedAlert, editNewMessagesFill, editNewRequestsFill }
+    editReadRecent, editOpenedAlert, editNewMessagesFill }
 
 
 //Need deletecomment, deletereply, and deletemessage routes and process

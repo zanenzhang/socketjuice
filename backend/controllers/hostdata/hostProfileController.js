@@ -498,7 +498,7 @@ const editSettingsHostProfile = async (req, res) => {
         const { loggedUserId, phonePrimary, profilePicKey, profilePicURL, displayname, 
             regularHoursMondayStart, regularHoursMondayFinish, regularHoursTuesdayStart, regularHoursTuesdayFinish, regularHoursWednesdayStart, regularHoursWednesdayFinish, 
             regularHoursThursdayStart, regularHoursThursdayFinish, regularHoursFridayStart, regularHoursFridayFinish, regularHoursSaturdayStart, regularHoursSaturdayFinish, 
-            regularHoursSundayStart, regularHoursSundayFinish, closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays,
+            regularHoursSundayStart, regularHoursSundayFinish, closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, 
             address, city, region, regionCode, country } = req.body
         
         if ( !loggedUserId || !phonePrimary || !displayname || !address 

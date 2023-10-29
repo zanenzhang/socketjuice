@@ -6,19 +6,17 @@ const citiesController = require('../controllers/userdata/citiesController');
 const verifyJWT = require('../middleware/verifyJWT');
 
 router.use(verifyJWT)
-router.get('/user', profileController.getDriverProfile);
+router.get('/driver', profileController.getDriverProfile);
 router.get('/host', hostProfileController.getHostProfile);
 
 router.patch('/usersettings', profileController.editSettingsUserProfile);
 router.patch('/userpass', profileController.editSettingsUserPass);
 router.patch('/usergeneral', profileController.editSettingsUserGeneral);
 router.patch('/profilepic', profileController.editProfilePic);
-router.patch('/private', profileController.makePrivate);
-router.patch('/public', profileController.makePublic);
-router.patch('/receivepayments', profileController.editUserReceivePayments);
+
 router.patch('/cities', citiesController.updatePreferences);
 
-router.patch('/storesettings', hostProfileController.editSettingsHostProfile);
+router.patch('/hostsettings', hostProfileController.editSettingsHostProfile);
 
 router.delete('/oldpic', profileController.deleteOldProfilePic);
 

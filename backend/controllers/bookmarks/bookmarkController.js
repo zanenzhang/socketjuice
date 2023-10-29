@@ -70,7 +70,7 @@ const getBookmarks = async (req, res) => {
 
     if(userBookmarks?.bookmarks?.length > 0){
 
-        foundHostProfiles = await HostProfile.find({_id: {$in: userBookmarks?.bookmarks.map(e=>e._userId)}})
+        foundHostProfiles = await HostProfile.find({_id: {$in: userBookmarks?.bookmarks.map(e=>e._hostProfileId)}})
 
         if(foundHostProfiles?.length > 0){
 
@@ -88,7 +88,7 @@ const getBookmarks = async (req, res) => {
                             Bucket: wasabiPrivateBucketUSA, 
                             Key: item.mediaCarouselObjectIds[i],
                             Expires: 7200
-                            };
+                        };
             
                         var url = s3.getSignedUrl('getObject', signParams);
             
