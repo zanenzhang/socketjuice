@@ -98,7 +98,6 @@ app.use('/api/resetpassword', cors(corsOptions), require('./routes/resetpassword
 app.use('/api/inputnewpassword', cors(), require('./routes/inputnewpassword'));
 app.use('/api/userdata', cors(), require('./routes/userdata'));
 
-app.use('/api/comments', cors(corsOptions), require('./routes/comments')); 
 app.use('/api/chats', cors(corsOptions), require('./routes/chats')); 
 app.use('/api/singlechat', cors(corsOptions), require('./routes/singlechat')); 
 app.use('/api/messages', cors(corsOptions), require('./routes/messages')); 
@@ -269,35 +268,7 @@ connection.once('open', () => {
         };
     });
 
-    const commentChangeStream = connection.collection("comments").watch();
-
-    commentChangeStream.on("change", (change) => {
-        switch (change.operationType) {
-            case "update":
-                
-                io.to(change.documentKey._postId.toString()).emit("updatedComment", change.documentKey._id);                
-                break;
-
-            case "insert":
-
-                io.to(change.fullDocument._postId.toString()).emit("newComment", change.fullDocument);
-                break;
-        };
-    });
-
-    const storeVisitorsChangeStream = connection.collection("storevisitors").watch([], { fullDocument: 'updateLookup' });
-
-    storeVisitorsChangeStream.on("change", (change) => {
-        switch (change.operationType) {
-            case "update":
-                
-                io.to(change.fullDocument._userId.toString()).emit("updatedVisitors", change.fullDocument._userId);                    
-                
-                break;
-        }
-    });
-
-
+    
     const notificationChangeStream = connection.collection("notifications").watch();
 
     notificationChangeStream.on("change", (change) => {

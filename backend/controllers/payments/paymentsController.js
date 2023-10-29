@@ -7,7 +7,6 @@ const Payment = require('../../model/Payment');
 const Flags = require('../../model/Flags');
 const UsageLimit = require('../../model/UsageLimit');
 const BannedUser = require("../../model/BannedUser");
-const BannedProduct = require("../../model/BannedProduct");
 const  {deleteFile} = require("../../controllers/media/s3Controller");
 
 const crypto = require('crypto');
@@ -183,8 +182,9 @@ const addRefund = async (req, res) => {
                         
                         var changedHost = false;
                         for(let i=0; i<foundHostProfile?.incomingPayments?.length; i++){
-                            if(foundHostProfile?.incomingPayments[i]._paymentId.toString() === paymentId){
-                                foundHostProfile?.incomingPayments[i].refunded = true;
+                            
+                            if(foundHostProfile.incomingPayments[i]._paymentId.toString() === paymentId){
+                                foundHostProfile.incomingPayments[i].refunded = true;
                                 changedHost = true;
                                 break
                             }
@@ -204,8 +204,9 @@ const addRefund = async (req, res) => {
                         
                         var changedDriver = false;
                         for(let i=0; i<foundDriverProfile?.outgoingPayments?.length; i++){
-                            if(foundDriverProfile?.outgoingPayments[i]._paymentId.toString() === paymentId){
-                                foundDriverProfile?.outgoingPayments[i].refunded = true;
+                            
+                            if(foundDriverProfile.outgoingPayments[i]._paymentId.toString() === paymentId){
+                                foundDriverProfile.outgoingPayments[i].refunded = true;
                                 changedDriver = true;
                                 break
                             }

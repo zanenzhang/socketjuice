@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const storeRegisterController = require('../controllers/authentication/storeRegisterController');
+const hostRegisterController = require('../controllers/authentication/hostRegisterController');
 
-router.post('/', storeRegisterController.handleNewStore);
+router.post('/', hostRegisterController.handleNewHost);
 
 module.exports = router;

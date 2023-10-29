@@ -214,11 +214,10 @@ var hostProfileSchema = new Schema({
             enum: ['Point'],
             required: true
         },
-            coordinates: {
+        coordinates: {
             type: [Number], //Longitude first, then latitude
             required: true
         },
-        index: "2dsphere"
     },
     lessMotion: { 
         type: Boolean, 
@@ -329,5 +328,6 @@ var hostProfileSchema = new Schema({
     }
 })
 
+hostProfileSchema.index({location: "2dsphere"})
 
 module.exports = mongoose.model('HostProfile', hostProfileSchema, 'hostprofiles');

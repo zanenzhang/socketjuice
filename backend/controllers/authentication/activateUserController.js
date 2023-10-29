@@ -12,7 +12,6 @@ const Bookmarks = require('../../model/Bookmark');
 const Communications = require('../../model/Communications');
 const Flags = require('../../model/Flags');
 const BannedUser = require('../../model/BannedUser');
-const BannedProduct = require('../../model/BannedProduct');
 const ForexRate = require('../../model/ForexRate');
 
 const { sendVerifiedEmail } = require('../../middleware/mailer')

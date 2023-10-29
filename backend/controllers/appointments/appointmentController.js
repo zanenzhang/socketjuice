@@ -6,7 +6,6 @@ const Appointment = require('../../model/Appointment');
 const Flags = require('../../model/Flags');
 const UsageLimit = require('../../model/UsageLimit');
 const BannedUser = require("../../model/BannedUser");
-const BannedProduct = require("../../model/BannedProduct");
 const  {deleteFile} = require("../../controllers/media/s3Controller");
 
 const ObjectId  = require('mongodb').ObjectId;
