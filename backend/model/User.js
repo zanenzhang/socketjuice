@@ -31,6 +31,10 @@ const userSchema = new Schema({
         type: Boolean, //Not verified
         default: false
     },
+    waitingIdApproval: {
+        type: Boolean,
+        default: false
+    },
     deactivated: {
         type: Boolean, //Banned
         default: false
