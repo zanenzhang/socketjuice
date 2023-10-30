@@ -1,0 +1,60 @@
+.autocomplete-wrapper {
+  position: flex;
+  display: inline-block;
+  width: 100%;
+}
+
+.autocomplete-wrapper > div {
+  width: 100%;
+}
+
+.autocomplete-wrapper input {
+  border: 1px solid;
+  border-color: #DBDBDB;
+  padding: 8px 16px;
+  width: 100% !important;
+  border-radius: 0.25rem;
+  box-shadow: none;
+}
+
+.autocomplete-wrapper input:focus {
+  box-shadow: none;
+  outline: #8BEDF3;
+  border: 2px solid;
+  border-color: #8BEDF3;
+}
+
+.autocomplete-wrapper .dropdown {
+  width: 100%;
+  padding: 0;
+  text-align: left;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background-color: #ffffff;
+  border: 1px solid #8BEDF3;
+  border-top: none;
+  z-index: 1500;
+  position: fixed;
+}
+
+.autocomplete-wrapper .item  {
+  display: block;
+  cursor: pointer;
+  padding: 15px;
+  z-index: 1500;
+  position: fixed;
+}
+
+@media (max-width: 639px) {
+  .autocomplete-wrapper input {
+    font-size: 0.75rem; 
+    line-height: 1.25rem;
+  }
+}
+
+@media (min-width: 640px) {
+  .autocomplete-wrapper input {
+    font-size: 0.875rem; 
+    line-height: 1.25rem;
+  }
+}

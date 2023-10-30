@@ -1,0 +1,26 @@
+import axios from "../../api/axios";
+const DELETE_URL = '/userdata/deleterequest'
+
+async function deleteUserData(userId, accessToken) {
+
+    try {
+        const response = await axios.delete(DELETE_URL,
+            {
+                params: {
+                    userId
+                },
+                headers: { "Authorization": `Bearer ${accessToken} ${userId}`, 
+                    'Content-Type': 'application/json'},
+                withCredentials: true
+            }
+        );
+        if (response){
+            return response;
+        }
+        
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+export default deleteUserData
