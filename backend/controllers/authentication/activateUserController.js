@@ -110,12 +110,6 @@ const handleUserActivation = async (req, res) => {
 
               const savedActivities = await activities.save()
 
-              let preferences = new Preference({
-                "_userId": foundUser._id,
-              });
-
-              const savedPreferences = await preferences.save()
-
               let notifications = new NotificationSettings({
                 "_userId": foundUser._id,
               });
@@ -141,68 +135,11 @@ const handleUserActivation = async (req, res) => {
                   if(deletedTokens){
                     sendVerifiedEmail({ toUser: foundUser.email })
 
-                    return res.redirect(process.env.LOGIN_PAGE);
+                    return res.redirect(`${process.env.MOBILE_VERIFY_PAGE}/${foundUser._id}`);
                 }
               }
             }
-
-        } else if (Object.values(foundUser?.roles).includes(2001)){
-
-          foundUser.active = true;
-          const savedUser = await foundUser.save() 
-          
-          if(savedUser){
-
-              let bookmarks = new Bookmarks({
-                "_userId": foundUser._id,
-              });
-
-              const savedBookmarks = await bookmarks.save()
-
-              let activities = new ActivityLog({
-                "_userId": foundUser._id,
-              });
-
-              const savedActivities = await activities.save()
-
-              let preferences = new Preference({
-                "_userId": foundUser._id,
-              });
-
-              const savedPreferences = await preferences.save()
-
-              let notifications = new NotificationSettings({
-                "_userId": foundUser._id,
-              });
-
-              const savedNotifications = await notifications.save()
-
-              let userFlags = new Flags({
-                "_userId": foundUser._id,
-              });
-
-              const savedUserFlags = await userFlags.save()
-
-              let userCommunications = new Communications({
-                "_userId": foundUser._id,
-              });
-
-              const savedCommunications = await userCommunications.save()
-
-                if(savedBookmarks && savedActivities && savedPreferences && savedNotifications && savedUserFlags && savedCommunications ){
-
-                  const deletedTokens = await ActivateToken.deleteMany( { _userId : foundUser._id})
-              
-                  if(deletedTokens){
-
-                    sendVerifiedEmail({ toUser: foundUser.email })
-                    alert("Verified! Your account is now active!"); 
-
-                    return res.redirect(process.env.LOGIN_PAGE);
-                  }
-              }
-            }
-          }
+          } 
         }
       }   
     };

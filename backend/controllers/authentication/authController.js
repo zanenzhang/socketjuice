@@ -40,6 +40,10 @@ const handleLogin = async (req, res) => {
                 if(foundUser?.deactivated === true){
                     return res.status(403).json({ 'message': 'Please check your inbox.' });
                 }
+
+                if(foundUser?.checkedMobile === false){
+                    return res.status(202).json({'message': "Please provide a mobile number for verification", userId: foundUser._id})
+                }
         
                 if(geoData?.IPv4 !== ""){
         
@@ -212,7 +216,7 @@ const handleLogin = async (req, res) => {
                                     });
                 
                                     // Send authorization role and access token to user
-                                    res.json({ username, roles, userId, accessToken, profilePicURL, privacySetting,
+                                    res.status(200).json({ username, roles, userId, accessToken, profilePicURL, privacySetting,
                                         currency, showFXPriceSetting, lessMotion, pushNotifications, birthDate,
                                         userTheme, blockedUsers, FXRates, city, region, country, credits, 
                                         gender, retailerIds, genderSet });

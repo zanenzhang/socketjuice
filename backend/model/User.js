@@ -31,6 +31,10 @@ const userSchema = new Schema({
         type: Boolean, //Not verified
         default: false
     },
+    checkedMobile: {
+        type: Boolean,
+        default: false
+    }, 
     waitingIdApproval: {
         type: Boolean,
         default: false

@@ -92,7 +92,8 @@ app.use('/api/auth', cors(corsOptions), require('./routes/auth'));
 app.use('/api/refresh', cors(corsOptions), require('./routes/refresh'));
 app.use('/api/logout', cors(corsOptions), require('./routes/logout'));
 app.use('/api/activate', cors(), require('./routes/activate'));
-app.use('/api/resendverification', cors(corsOptions), require('./routes/resendverification'));
+app.use('/api/resendemailverification', cors(corsOptions), require('./routes/resendemailverification'));
+app.use('/api/resendsmsverification', cors(corsOptions), require('./routes/resendsmsverification'));
 app.use('/api/resetpassword', cors(corsOptions), require('./routes/resetpassword'));
 app.use('/api/inputnewpassword', cors(), require('./routes/inputnewpassword'));
 app.use('/api/userdata', cors(), require('./routes/userdata'));
@@ -102,6 +103,7 @@ app.use('/api/singlechat', cors(corsOptions), require('./routes/singlechat'));
 app.use('/api/messages', cors(corsOptions), require('./routes/messages')); 
 
 app.use('/api/profile', cors(corsOptions), require('./routes/profile')); 
+app.use('/api/verifymobile', cors(corsOptions), require('./routes/verifymobile')); 
 app.use('/api/checkuser', cors(corsOptions), require('./routes/checkuser')); 
 
 app.use('/api/emails', cors(corsOptions), require('./routes/emails')); 
