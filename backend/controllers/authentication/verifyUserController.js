@@ -102,8 +102,6 @@ const verifyUserIdPhotos = async (req, res) => {
             }
         )
 
-        //Route for admins to approve users
-
         const { userId } = req.body
 
         if (!userId || !(Object.values(foundUser.roles).includes(5150)) ){
@@ -124,14 +122,58 @@ const verifyUserIdPhotos = async (req, res) => {
                 return res.status(200).json({"message": "Success"})
             }
         }
-
     })
 }
 
 const rejectUserUploads = async (req, res) => {
 
-    
+    const cookies = req.cookies;
 
+    if (!cookies?.purchiesjwt) return res.sendStatus(401);
+    const refreshToken = cookies.purchiesjwt;
+
+    User.findOne({ refreshToken }, async function(err, foundUser){
+
+        if (err || !foundUser) return res.sendStatus(403); 
+    
+        jwt.verify(
+            refreshToken,
+            process.env.REFRESH_TOKEN_SECRET,
+            (err, decoded) => {
+
+                if (err || foundUser.username !== decoded.username || !foundUser._id.toString() === ((decoded.userId)) ) return res.sendStatus(403);
+            }
+        )
+
+        const { userId } = req.body;
+
+        if( !userId ){
+            return res.status(400).json({ 'message': 'Missing required fields!' });
+        }
+
+        const checkUser = await User.findOne({_id: userId})
+
+        if(checkUser){
+
+            checkUser.identificationFrontObjectId = ""
+            checkUser.identificationFrontMediaURL = ""
+            checkUser.identificationBackObjectId = ""
+            checkUser.identificationBackMediaURL = ""
+
+            checkUser.waitingIdApproval = false
+
+            const savedUser = await checkUser.save()
+
+            if(savedUser){
+                return res.status(200).json({"message": "Sucess"})
+            }
+        
+        } else {
+
+            return res.status(400).json({"message": "Failed"})
+        }
+
+    })
 }
 
 module.exports = { createService, sendVerification, checkVerification, verifyUserProfilePhone, verifyUserIdPhotos, rejectUserUploads }

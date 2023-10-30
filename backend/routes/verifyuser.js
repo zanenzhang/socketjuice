@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const verifyMobileController = require('../controllers/authentication/verifyMobileController'); 
+const verifyMobileController = require('../controllers/authentication/verifyUserController'); 
 
 const verifyJWT = require('../middleware/verifyJWT')
 

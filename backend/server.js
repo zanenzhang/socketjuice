@@ -102,7 +102,7 @@ app.use('/api/singlechat', cors(corsOptions), require('./routes/singlechat'));
 app.use('/api/messages', cors(corsOptions), require('./routes/messages')); 
 
 app.use('/api/profile', cors(corsOptions), require('./routes/profile')); 
-app.use('/api/verifymobile', cors(corsOptions), require('./routes/verifymobile')); 
+app.use('/api/verifyuser', cors(corsOptions), require('./routes/verifyuser')); 
 app.use('/api/checkuser', cors(corsOptions), require('./routes/checkuser')); 
 
 app.use('/api/emails', cors(corsOptions), require('./routes/emails')); 

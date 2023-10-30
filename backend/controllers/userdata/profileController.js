@@ -1083,6 +1083,33 @@ const updateUserIdPhotos = async (res, req) => {
             foundUser.identificationFrontObjectId = identificationFrontObjectId
             foundUser.identificationBackObjectId = identificationBackObjectId
 
+            try{
+
+                var signParams = {
+                    Bucket: wasabiPrivateBucketUSA, 
+                    Key: identificationFrontObjectId, 
+                    Expires: 7200
+                };
+    
+                var signedURLFrontPhoto = s3.getSignedUrl('getObject', signParams);
+    
+                var signParams = {
+                    Bucket: wasabiPrivateBucketUSA, 
+                    Key: identificationBackObjectId, 
+                    Expires: 7200
+                };
+    
+                var signedURLBackPhoto = s3.getSignedUrl('getObject', signParams);
+
+                foundUser.identificationFrontMediaURL = signedURLFrontPhoto
+                foundUser.identificationBackMediaURL = signedURLBackPhoto
+
+            } catch(err){
+
+                console.log(err)
+                return res.status(400).json({"message": ""})
+            }
+
             const savedUser = await foundUser.save()
 
             if(savedUser){
