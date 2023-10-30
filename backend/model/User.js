@@ -14,6 +14,12 @@ const userSchema = new Schema({
         type: String,
         maxLength: 50,
     },
+    phonePrimary: { 
+        type: String,
+    },
+    phoneSecondary: { 
+        type: String,
+    },
     roles: {
         User: {
             type: Number,

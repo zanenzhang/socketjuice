@@ -6,8 +6,11 @@ const verifyJWT = require('../middleware/verifyJWT')
 
 router.use(verifyJWT)
 
-router.get('/getcode', verifyMobileController.getCode);
-router.get('/verifycode', verifyMobileController.verifyCode);
+router.get('/create', verifyMobileController.createService);
+router.get('/send', verifyMobileController.sendVerification);
+router.get('/check', verifyMobileController.checkVerification);
+router.get('/verifyphone', verifyMobileController.verifyUserProfilePhone);
+router.get('/verifyphotos', verifyMobileController.verifyUserIdPhotos);
 
 
 module.exports = router;

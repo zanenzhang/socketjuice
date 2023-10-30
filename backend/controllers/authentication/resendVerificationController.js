@@ -6,7 +6,8 @@ const crypto = require('crypto');
 const { sendConfirmationEmail } = require('../../middleware/mailer')
 
 
-const handleResendVerification = async (req, res) => {
+const handleResendVerificationEmail = async (req, res) => {
+
     const { email, geoData } = req.body;
     
     if (!email ) return res.status(400).json({ 'message': 'Missing required information!' });
@@ -63,4 +64,10 @@ const handleResendVerification = async (req, res) => {
     }
 }
 
-module.exports = { handleResendVerification };
+const handleResendVerificationSMS = async (req, res) => {
+    
+    const { phoneNumber } = req.body;
+
+}
+
+module.exports = { handleResendVerificationEmail, handleResendVerificationSMS };

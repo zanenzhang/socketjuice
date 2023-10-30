@@ -8,10 +8,6 @@ var hostProfileSchema = new Schema({
         required: true, ref: 'User',
         index: true 
     },
-    email: {
-        type: String,
-        required: true
-    },
     defaultavailability: [{
         startDate: {
             type: Date,
@@ -44,14 +40,6 @@ var hostProfileSchema = new Schema({
             type: Date,
         }
     }],
-    phonePrimary: { 
-        type: String,
-        // match: /^(\()?\d{3}(\))?(-|\s)?\d{3}(-|\s)\d{4}$/
-    },
-    phoneSecondary: { 
-        type: String,
-        // match: /^(\()?\d{3}(\))?(-|\s)?\d{3}(-|\s)\d{4}$/
-    },
     chargingLevel: {
         type: String,
     },

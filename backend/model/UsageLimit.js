@@ -7,6 +7,9 @@ var usageLimitSchema = new Schema({
         required: true, ref: 'User',
         index: true
     },
+    phoneNumber: {
+        type: String
+    },
     emailVerifications: {
         type: Number,
         default: 0

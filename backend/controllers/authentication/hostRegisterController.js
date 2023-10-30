@@ -16,17 +16,16 @@ const languageList = require('../languageCheck')
 
 const handleNewHost = async (req, res) => {
     
-    const { email, pwd, firstName, lastName, address, phonePrimary, city, region, 
-        regionCode, country, birthdate, geoData, recapToken } = req.body;
+    const { email, pwd, firstName, lastName, address, city, region, 
+        regionCode, country, birthdate, recapToken, geoData } = req.body;
 
-    if (!email || !pwd || !firstName || !lastName || !recapToken || !geoData || !address
-        || !phonePrimary || !city || !region || !regionCode || !country ){
+    if (!email || !pwd || !firstName || !lastName || !recapToken || !address
+         || !city || !region || !regionCode || !country ){
         return res.status(400).json({ 'message': 'Missing required fields!' });
     } 
 
     if(email?.length > 48 || firstName?.length > 48 || lastName?.length > 48 || pwd?.length < 8 || pwd?.length > 48 
-        || address?.length > 48 || phonePrimary?.length > 48 || city?.length > 48 
-        || region?.length > 48 || regionCode?.length > 48 || country?.length > 48 ){
+        || address?.length > 48  || city?.length > 48  || region?.length > 48 || regionCode?.length > 48 || country?.length > 48 ){
             return res.status(400).json({ 'message': 'Content does not meet requirements' });
         }
 
@@ -50,7 +49,7 @@ const handleNewHost = async (req, res) => {
         var ipSafeList = ['209.141.138.201']
         var safeIP = false;
 
-        if(ipSafeList.includes(geoData.IPv4)){
+        if(ipSafeList.includes(geoData?.IPv4)){
             safeIP = true;
         }
 
@@ -111,7 +110,7 @@ const handleNewHost = async (req, res) => {
                                 "lastName": lastName,
                                 "roles": {User: 2001, Manager: 3780},
                                 "privacySetting": 1,
-                                "primaryGeoData": geoData
+                                "primaryGeoData": geoData,
                             });
         
                             newUser.save( async function(err, savedUser){
@@ -125,6 +124,7 @@ const handleNewHost = async (req, res) => {
 
                                 const newDriverProfile = await DriverProfile.create({
                                     "_userId": savedUser._id,
+                                    "city": city,
                                     "region": region,
                                     "regionCode": regionCode,
                                     "country": country,
@@ -133,9 +133,7 @@ const handleNewHost = async (req, res) => {
                                 
                                 const newHostProfile = await HostProfile.create({
                                     "_userId": savedUser._id,
-                                    "email": email,
                                     "address": address,
-                                    "phonePrimary": phonePrimary,
                                     "city": city,
                                     "region": region,
                                     "regionCode": regionCode,
@@ -167,7 +165,7 @@ const handleNewHost = async (req, res) => {
                                     
                                     const success1 = await sendConfirmationEmail( {toUser: email, userId: savedUser._id , hash: token })
                                     const success2 = await sendHostRecordEmail( { firstName: firstName, lastName: lastName, address: address, 
-                                        primaryNumber: phonePrimary, city: city, region: regionCode, country: country} )
+                                        city: city, region: regionCode, country: country} )
         
                                     if(success1 && success2){
                                         res.status(201).json({'Success': `New account created! Please check your email to activate! ` });
