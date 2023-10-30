@@ -651,32 +651,24 @@ const getProfilePicByUserId = async (req, res) => {
 
 const checkUser = async (req, res) => {
 
-    const {username, email} = req.query
+    const {email} = req.query
 
-    if (!username || !email || username.length > 48 || email.length > 48
-        || username.length < 4 || email.length < 4 ) {
+    if (!email || email.length > 48 || email.length < 4 ) {
         return res.status(400).json({ message: 'Missing required fields' })
     }
 
     try {
 
-        const foundUsername = await User.findOne({username: username})
         const foundEmail = await User.findOne({email: email}) 
 
-        if(foundUsername && foundEmail ){
+        if(foundEmail ){
 
-            return res.status(200).json({username: 1, email: 1})
+            return res.status(200).json({email: 1})
         
-        } else if (!foundUsername && foundEmail){
+        } else if (!foundEmail){
 
-            return res.status(200).json({username: 0, email: 1})
-
-        } else if (foundUsername && !foundEmail){
-
-            return res.status(200).json({username: 1, email: 0})
+            return res.status(200).json({email: 0})
         }
-        
-        return res.status(200).json({username: 0, email: 0})
 
     } catch (err) {
 

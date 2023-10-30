@@ -8,17 +8,9 @@ var hostProfileSchema = new Schema({
         required: true, ref: 'User',
         index: true 
     },
-    username: {
-        type: String,
-        required: true,
-    },
     email: {
         type: String,
         required: true
-    },
-    displayname: {
-        type: String,
-        maxLength: 50,
     },
     defaultavailability: [{
         startDate: {

@@ -6,10 +6,13 @@ const userSchema = new Schema({
         type: String,
         maxLength: 50
     },
-    username: {
+    firstName: {
         type: String,
-        required: true,
-        maxLength: 50
+        maxLength: 50,
+    },
+    lastName: {
+        type: String,
+        maxLength: 50,
     },
     roles: {
         User: {

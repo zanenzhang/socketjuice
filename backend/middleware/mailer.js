@@ -42,11 +42,11 @@ exports.sendConfirmationEmail = function({toUser, userId, hash}) {
   return sendEmail(message);
 }
 
-exports.sendHostRecordEmail = function({hostname, displayname, address, primaryNumber, city, region, country, website}) {
+exports.sendHostRecordEmail = function({firstName, lastName, address, primaryNumber, city, region, country, website}) {
   
   const regex = /(<([^>]+)>)/gi;
-  const checkedStore = hostname.replace(regex, "");
-  const checkedDisplay = displayname.replace(regex, "");
+  const checkedFirstName = firstName.replace(regex, "");
+  const checkedLastName = lastName.replace(regex, "");
   const checkedAddress = address.replace(regex, "");
   const checkedPrimaryNumber = primaryNumber.replace(regex, "");
   const checkedCity = city.replace(regex, "");
@@ -60,8 +60,7 @@ exports.sendHostRecordEmail = function({hostname, displayname, address, primaryN
     to: 'storerecords@purchies.com',
     subject: 'Purchies - Store Record',
     html: `
-      <p>${checkedStore} has just registered for an account</p>
-      <p>Display name: ${checkedDisplay}</p>
+      <p>${checkedFirstName}, ${checkedLastName} has just registered for an account</p>
       <p>Address: ${checkedAddress}</p>
       <p>Phone Number: ${checkedPrimaryNumber}</p>
       <p>City: ${checkedCity}</p> 

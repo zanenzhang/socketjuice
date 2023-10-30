@@ -16,22 +16,22 @@ const languageList = require('../languageCheck')
 
 const handleNewHost = async (req, res) => {
     
-    const { email, pwd, accountname, displayname, address, phonePrimary, city, region, 
+    const { email, pwd, firstName, lastName, address, phonePrimary, city, region, 
         regionCode, country, birthdate, geoData, recapToken } = req.body;
 
-    if (!email || !pwd || !accountname || !displayname || !recapToken || !geoData || !address
+    if (!email || !pwd || !firstName || !lastName || !recapToken || !geoData || !address
         || !phonePrimary || !city || !region || !regionCode || !country ){
         return res.status(400).json({ 'message': 'Missing required fields!' });
     } 
 
-    if(email?.length > 48 || accountname?.length > 48 || pwd?.length < 8 || pwd?.length > 48 
-        || address?.length > 48 || phonePrimary?.length > 48 || city?.length > 48 || storeDisplayname?.length > 48
+    if(email?.length > 48 || firstName?.length > 48 || lastName?.length > 48 || pwd?.length < 8 || pwd?.length > 48 
+        || address?.length > 48 || phonePrimary?.length > 48 || city?.length > 48 
         || region?.length > 48 || regionCode?.length > 48 || country?.length > 48 ){
             return res.status(400).json({ 'message': 'Content does not meet requirements' });
         }
 
 
-    var textToCheck = email.concat(" ", accountname," ", displayname, " ", address, " ", city, " ", region, " ", regionCode, " ", country).toLowerCase();
+    var textToCheck = email.concat(" ", firstName," ", lastName, " ", address, " ", city, " ", region, " ", regionCode, " ", country).toLowerCase();
 
     for(let i=0; i < languageList.length; i++){
         if(textToCheck.indexOf(languageList[i]) !== -1){
@@ -96,9 +96,6 @@ const handleNewHost = async (req, res) => {
                     const duplicate = await User.findOne({ email: email }).exec();
                     if (duplicate) return res.status(409).json({ 'message': 'Email address already in use!' }); //Conflict 
             
-                    const duplicateUsername = await User.findOne({username: accountname });
-                    if (duplicateUsername) return res.status(406).json({ 'message': 'Username already taken!' });
-            
                     //encrypt the password
                     const saltRounds = 10;
                     const token = crypto.randomBytes(16).toString('hex')
@@ -110,7 +107,8 @@ const handleNewHost = async (req, res) => {
                             var newUser = new User({
                                 "email": email,
                                 "password": hashedPwd,
-                                "username": accountname,
+                                "firstName": firstName,
+                                "lastName": lastName,
                                 "roles": {User: 2001, Manager: 3780},
                                 "privacySetting": 1,
                                 "primaryGeoData": geoData
@@ -127,7 +125,6 @@ const handleNewHost = async (req, res) => {
 
                                 const newDriverProfile = await DriverProfile.create({
                                     "_userId": savedUser._id,
-                                    "username": accountname,
                                     "region": region,
                                     "regionCode": regionCode,
                                     "country": country,
@@ -136,8 +133,6 @@ const handleNewHost = async (req, res) => {
                                 
                                 const newHostProfile = await HostProfile.create({
                                     "_userId": savedUser._id,
-                                    "username": accountname,
-                                    "displayname": displayname,
                                     "email": email,
                                     "address": address,
                                     "phonePrimary": phonePrimary,
@@ -171,7 +166,7 @@ const handleNewHost = async (req, res) => {
                                 if(actToken && newHostProfile && newDriverProfile && updatedWall && newLimits){
                                     
                                     const success1 = await sendConfirmationEmail( {toUser: email, userId: savedUser._id , hash: token })
-                                    const success2 = await sendHostRecordEmail( { hostname: accountname, displayname: displayname, address: address, 
+                                    const success2 = await sendHostRecordEmail( { firstName: firstName, lastName: lastName, address: address, 
                                         primaryNumber: phonePrimary, city: city, region: regionCode, country: country} )
         
                                     if(success1 && success2){

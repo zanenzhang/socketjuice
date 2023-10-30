@@ -495,24 +495,24 @@ const editSettingsHostProfile = async (req, res) => {
             }
         )
 
-        const { loggedUserId, phonePrimary, profilePicKey, profilePicURL, displayname, 
+        const { loggedUserId, phonePrimary, profilePicKey, profilePicURL, 
             regularHoursMondayStart, regularHoursMondayFinish, regularHoursTuesdayStart, regularHoursTuesdayFinish, regularHoursWednesdayStart, regularHoursWednesdayFinish, 
             regularHoursThursdayStart, regularHoursThursdayFinish, regularHoursFridayStart, regularHoursFridayFinish, regularHoursSaturdayStart, regularHoursSaturdayFinish, 
             regularHoursSundayStart, regularHoursSundayFinish, closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, 
             address, city, region, regionCode, country } = req.body
         
-        if ( !loggedUserId || !phonePrimary || !displayname || !address 
+        if ( !loggedUserId || !phonePrimary  || !address 
             || !city || !region || !regionCode || !country ) {    
             return res.status(400).json({ message: 'Missing required fields!' })
         }
 
-        if( phonePrimary?.length > 48 || displayname?.length > 48 || address?.length > 48 || city?.length > 48
+        if( phonePrimary?.length > 48  || address?.length > 48 || city?.length > 48
             || region?.length > 48 || regionCode?.length > 48 || country?.length > 48
             || regularHoursMondayStart?.length > 100 ){
             return res.status(400).json({ 'message': 'Content does not meet requirements' });
         }
     
-        var textToCheck = displayname.concat(" ", address, " ", city, " ", region, " ", regionCode, " ", country).toLowerCase();
+        var textToCheck = address.concat(" ", city, " ", region, " ", regionCode, " ", country).toLowerCase();
 
         for(let i=0; i < languageList.length; i++){
             if(textToCheck.indexOf(languageList[i]) !== -1){
@@ -530,7 +530,6 @@ const editSettingsHostProfile = async (req, res) => {
                 profilePicURL ? foundUser.profilePicURL = profilePicURL : null;
 
                 phonePrimary ? foundHostProfile.phonePrimary = phonePrimary : foundHostProfile.phonePrimary = "";
-                displayname ? foundHostProfile.displayname = displayname : foundHostProfile.displayname = "";
                 
                 regularHoursMondayStart ? foundHostProfile.regularHoursMondayStart = regularHoursMondayStart : foundHostProfile.regularHoursMondayStart = "";
                 regularHoursTuesdayStart ? foundHostProfile.regularHoursTuesdayStart = regularHoursTuesdayStart : foundHostProfile.regularHoursTuesdayStart = "";
@@ -581,8 +580,6 @@ const editSettingsHostProfile = async (req, res) => {
                     profilePicURL ? foundUser.profilePicURL = profilePicURL : null;
 
                     phonePrimary ? foundHostProfile.phonePrimary = phonePrimary : foundHostProfile.phonePrimary = "";
-                    displayname ? foundHostProfile.displayname = displayname : foundHostProfile.displayname = "";
-                    announcements ? foundHostProfile.announcements = announcements : foundHostProfile.announcements = "";
 
                     regularHoursMondayStart ? foundHostProfile.regularHoursMondayStart = regularHoursMondayStart : foundHostProfile.regularHoursMondayStart = "";
                     regularHoursTuesdayStart ? foundHostProfile.regularHoursTuesdayStart = regularHoursTuesdayStart : foundHostProfile.regularHoursTuesdayStart = "";
@@ -629,8 +626,6 @@ const editSettingsHostProfile = async (req, res) => {
             } else {
 
                 phonePrimary ? foundHostProfile.phonePrimary = phonePrimary : foundHostProfile.phonePrimary = "";
-                displayname ? foundHostProfile.displayname = displayname : foundHostProfile.displayname = "";
-                announcements ? foundHostProfile.announcements = announcements : foundHostProfile.announcements = "";
                 
                 regularHoursMondayStart ? foundHostProfile.regularHoursMondayStart = regularHoursMondayStart : foundHostProfile.regularHoursMondayStart = "";
                 regularHoursTuesdayStart ? foundHostProfile.regularHoursTuesdayStart = regularHoursTuesdayStart : foundHostProfile.regularHoursTuesdayStart = "";
