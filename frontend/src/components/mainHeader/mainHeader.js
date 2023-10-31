@@ -879,16 +879,17 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
         <TabPanel style={{paddingLeft: '16px', paddingRight: '16px', paddingTop: '16px', paddingBottom: '0px',
             display:'flex', flexDirection: 'column'}} value="1">
     
-    <div className='w-full flex flex-col items-center justify-center p-2'>
+        <div className='w-full flex flex-col items-center justify-center p-2'>
 
-    <div className='w-full flex-col max-w-[700px] px-6 sm:px-8 md:px-10 py-10
-        rounded-xl md:rounded-none shadow-inner md:shadow-none'>
-    
-        <div className='flex items-center justify-center px-10 pb-6'>
-            <img className='w-100' src={socketjuice_full_logo} />
-        </div>
+        <div className='w-full flex-col max-w-[700px] px-6 sm:px-8 md:px-10 py-10
+            rounded-xl md:rounded-none shadow-inner md:shadow-none'>
+        
+            <div className='flex items-center justify-center px-10 pb-6'>
+                <img className='w-100' src={socketjuice_full_logo} />
+            </div>
 
-        <div className='py-4 flex flex-col justify-center items-center gap-y-2'>
+            <div className='py-4 flex flex-col justify-center items-center gap-y-2'>
+
             <span className='text-base md:text-lg lg:text-xl'> Create an account below:</span> 
         </div>
         
@@ -1392,18 +1393,17 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
                 )
                 : 
                 ( 
-                    <>
-                    <div className='flex flex-col justify-center'>
-                    <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#e53e3e" className="w-6 h-6" >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    </div>
-                    <div className='flex flex-col justify-center'>
-                        <span className="text-sm md:text-base text-red-600">Please enter your country</span>
-                    </div>
-                    </>
-                )
-            }
+                <>
+                <div className='flex flex-col justify-center'>
+                <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#e53e3e" className="w-6 h-6" >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                </div>
+                <div className='flex flex-col justify-center'>
+                    <span className="text-sm md:text-base text-red-600">Please enter your country</span>
+                </div>
+                </>
+            )}
         </div>  
 
         {/* <div className='mt-6 pl-2 flex items-start'>
@@ -1518,11 +1518,11 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
                 />
             </div>
             
-            <Link className='flex flex-col' to={"/home"}>
             <button 
                 className='flex items-center justify-center gap-2 active:scale-[.98] active:duration-75 transition-all hover:scale-[1.01]
                  ease-in-out transform py-4 px-8 sm:px-12 rounded-3xl text-gray-700 gap-x-2
-                 text-base md:text-lg border-2 border-[#00D3E0] bg-white'>
+                 text-base md:text-lg border-2 border-[#00D3E0] bg-white'
+                 onClick={()=>setValue("0")}>
 
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
                         strokeWidth="1.5" stroke="#00D3E0" className="w-6 h-6">
@@ -1536,8 +1536,6 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
                     <p className='text-[#00D3E0]'>Login</p>
                     </div>        
             </button>
-            </Link>
-            
 
             {(success && resendCount <= 2) ? ( 
                 <>
