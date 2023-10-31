@@ -9,8 +9,8 @@ router.use(verifyJWT)
 router.get('/create', verifyMobileController.createService);
 router.get('/send', verifyMobileController.sendVerification);
 router.get('/check', verifyMobileController.checkVerification);
-router.get('/verifyphone', verifyMobileController.verifyUserProfilePhone);
-router.get('/verifyphotos', verifyMobileController.verifyUserIdPhotos);
+router.get('/verifyphone', verifyMobileController.approveUserProfilePhone);
+router.get('/verifyphotos', verifyMobileController.approveUserIdPhotos);
 
 
 module.exports = router;

@@ -14,14 +14,17 @@ import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import axios from '../../api/axios';
 import Otp from "../../components/verify/otp";
 import editProfilePic from '../../helpers/DriverData/editProfilePic';
+import deleteManyObj from "../../helpers/Media/deleteManyObjects";
 
 import Camera from "../Camera";
+import CameraSinglePhoto from '../CameraSinglePhoto';
 import ProfileCropper from '../SettingPanels/ProfileOptions/profileCropper';
 import MuiPhoneNumber from 'material-ui-phone-number';
 import MainHeader from '../../components/mainHeader/mainHeader';
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer, toast } from 'react-toastify';
 import { useLocation } from 'react-router';
+
 import useAuth from '../../hooks/useAuth';
 
 
@@ -29,6 +32,25 @@ function isNumeric(n) {
     return !isNaN(parseInt(n)) && isFinite(n);
 }
 
+function dataURItoBlob(dataURI) {
+    // convert base64/URLEncoded data component to raw binary data held in a string
+    var byteString;
+    if (dataURI.split(',')[0].indexOf('base64') >= 0)
+        byteString = atob(dataURI.split(',')[1]);
+    else
+        byteString = unescape(dataURI.split(',')[1]);
+
+    // separate out the mime component
+    var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+
+    // write the bytes of the string to a typed array
+    var ia = new Uint8Array(byteString.length);
+    for (var i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+    }
+
+    return new Blob([ia], {type:mimeString});
+  }
 
 const VerifyPage = () => {
 
@@ -45,21 +67,56 @@ const VerifyPage = () => {
     const [otpShow, setOtpShow] = useState(false)
     const [otp, setOtp] = useState("")
 
-    const [profileImage, setProfileImage] = useState("");
-    const [croppedProfileImage, setCroppedProfileImage] = useState("");
     const [success, setSuccess] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
 
+    const [phonePrimary, setPhonePrimary] = useState("");
+    const [validPhonePrimary, setValidPhonePrimary] = useState(false);
+    const [phonePrimaryFocus, setPhonePrimaryFocus] = useState(false);
+
     const { setAuth, auth  } = useAuth();
 
-    const [croppedImageURL, setCroppedImageURL] = useState([]);
-    const [croppedImage, setCroppedImage] = useState([]);
-    const [coverIndex, setCoverIndex] = useState(0);
-    const [mediaTypes, setMediaTypes] = useState([]);
-    const [videoArray, setVideoArray] = useState([]);
-    const [videoURLArray, setVideoURLArray] = useState([]);
-    const [videoThumbnails, setVideoThumbnails] = useState([]);
-    const [oldMediaTrack, setOldMediaTrack] = useState([]);
+    const [profileImage, setProfileImage] = useState("");
+    const [croppedProfileImage, setCroppedProfileImage] = useState("");
+
+    const [croppedImageURLDriver, setCroppedImageURLDriver] = useState([]);
+    const [croppedImageDriver, setCroppedImageDriver] = useState([]);
+    const [coverIndexDriver, setCoverIndexDriver] = useState(0);
+    const [mediaTypesDriver, setMediaTypesDriver] = useState([]);
+    const [videoArrayDriver, setVideoArrayDriver] = useState([]);
+    const [videoURLArrayDriver, setVideoURLArrayDriver] = useState([]);
+    const [videoThumbnailsDriver, setVideoThumbnailsDriver] = useState([]);
+    const [oldMediaTrackDriver, setOldMediaTrackDriver] = useState([]);
+
+    const [croppedImageURLHost, setCroppedImageURLHost] = useState([]);
+    const [croppedImageHost, setCroppedImageHost] = useState([]);
+    const [coverIndexHost, setCoverIndexHost] = useState(0);
+    const [mediaTypesHost, setMediaTypesHost] = useState([]);
+    const [videoArrayHost, setVideoArrayHost] = useState([]);
+    const [videoURLArrayHost, setVideoURLArrayHost] = useState([]);
+    const [videoThumbnailsHost, setVideoThumbnailsHost] = useState([]);
+    const [oldMediaTrackHost, setOldMediaTrackHost] = useState([]);
+
+    const [croppedImageURLFront, setCroppedImageURLFront] = useState([]);
+    const [croppedImageFront, setCroppedImageFront] = useState([]);
+    const [coverIndexFront, setCoverIndexFront] = useState(0);
+    const [mediaTypesFront, setMediaTypesFront] = useState([]);
+    const [videoArrayFront, setVideoArrayFront] = useState([]);
+    const [videoURLArrayFront, setVideoURLArrayFront] = useState([]);
+    const [videoThumbnailsFront, setVideoThumbnailsFront] = useState([]);
+    const [oldMediaTrackFront, setOldMediaTrackFront] = useState([]);
+
+    const [croppedImageURLBack, setCroppedImageURLBack] = useState([]);
+    const [croppedImageBack, setCroppedImageBack] = useState([]);
+    const [coverIndexBack, setCoverIndexBack] = useState(0);
+    const [mediaTypesBack, setMediaTypesBack] = useState([]);
+    const [videoArrayBack, setVideoArrayBack] = useState([]);
+    const [videoURLArrayBack, setVideoURLArrayBack] = useState([]);
+    const [videoThumbnailsBack, setVideoThumbnailsBack] = useState([]);
+    const [oldMediaTrackBack, setOldMediaTrackBack] = useState([]);
+    
+    //Put photo limit, 1 for front and back, more for arrays
+    
     const [waiting, setWaiting] = useState(false);
 
     const PUBLIC_MEDIA_URL = '/s3/single-profilepic';
@@ -212,17 +269,17 @@ const VerifyPage = () => {
         }
     }
     
-
     const options = new ProfanityOptions();
     options.wholeWord = false;
     const profanity = new Profanity(options);
     profanity.removeWords(['arse', "ass", 'asses', 'cok',"balls",  "boob", "boobs", "bum", "bugger", 'butt',]);
 
-    async function onSubmitHandler(e) {
+    
+    async function onSubmitHandlerDriver(e) {
 
         e.preventDefault();
     
-        if(waiting || (croppedImage?.length !== croppedImageURL?.length) || (croppedImage?.length === 0) ){
+        if(waiting || (croppedImageDriver?.length !== croppedImageURLDriver?.length) ){
           return
         }
     
@@ -234,7 +291,7 @@ const VerifyPage = () => {
     
         var autoCloseTime = 0
     
-        mediaLength = croppedImage?.length
+        mediaLength = croppedImageDriver?.length
         autoCloseTime = mediaLength * 7000    
     
         setWaiting(true);
@@ -253,12 +310,13 @@ const VerifyPage = () => {
           var videoTranscripts = "";
           var transcriptCount = 0;
     
-          for (let i=0; i<videoArray?.length; i++){
+          for (let i=0; i<videoArrayDriver?.length; i++){
     
-            if(videoArray[i] !== 'image'){
+            if(videoArrayDriver[i] !== 'image'){
+
               const formData = new FormData();
               const date = new Date();
-              const videofile = new File([videoArray[i]], `${date.getTime()}_${auth.userId}.mp4`, { type: "video/mp4" })
+              const videofile = new File([videoArrayDriver[i]], `${date.getTime()}_${auth.userId}.mp4`, { type: "video/mp4" })
               formData.append("video", videofile);
               
               const transcript = await axios.post("/speech/transcribe", 
@@ -279,13 +337,13 @@ const VerifyPage = () => {
         
                 transcriptCount += 1;
               }
+
             } else {
               transcriptCount += 1;
             }
-            
           }
     
-          if(transcriptCount === videoArray?.length){
+          if(transcriptCount === videoArrayDriver?.length){
     
             const profanityCheck1 = profanity.exists(videoTranscripts)
     
@@ -293,13 +351,17 @@ const VerifyPage = () => {
     
               var tessDone = false;
               var tessResult = {};
-              if(croppedImageURL?.length > 0 && oldMediaTrack[currentIndex] !== 'oldmedia'){
+              
+              if(croppedImageURLDriver?.length > 0 && oldMediaTrackDriver[currentIndex] !== 'oldmedia'){
                 
-                tessResult = await Tesseract.recognize(croppedImageURL[currentIndex],'eng')
+                tessResult = await Tesseract.recognize(croppedImageURLDriver[currentIndex],'eng')
     
-                  if (tessResult.text){
+                  if(tessResult.text){
+                    
                     tessDone = true
+
                   } else {
+                    
                     tessResult.text = "test"
                     tessDone = true
                   }
@@ -317,12 +379,12 @@ const VerifyPage = () => {
                     
                 if(!profanityCheck1 && !profanityCheck2){
     
-                  if(mediaTypes[currentIndex] !== 'video'){
+                  if(mediaTypesDriver[currentIndex] !== 'video'){
         
-                    if(croppedImage?.length > 0 && croppedImage[currentIndex] !== undefined){
+                    if(croppedImageDriver?.length > 0 && croppedImageDriver[currentIndex] !== undefined){
           
                       const formData = new FormData();
-                      const file = new File([croppedImage[currentIndex]], `${userId}.jpeg`, { type: "image/jpeg" })
+                      const file = new File([croppedImageDriver[currentIndex]], `${userId}.jpeg`, { type: "image/jpeg" })
                       formData.append("image", file);
                       
                       const nsfwResults = await axios.post("/nsfw/check", 
@@ -424,15 +486,15 @@ const VerifyPage = () => {
                         theme: "colored",
                         });
           
-                      if(videoThumbnails?.length > 0 && videoThumbnails[currentIndex] !== undefined){
+                      if(videoThumbnailsDriver?.length > 0 && videoThumbnailsDriver[currentIndex] !== undefined){
           
                         var thumbCheckCount = 0;
                         var thumbIndex = 0;
           
-                          while(thumbIndex < videoThumbnails[currentIndex]?.length){
+                          while(thumbIndex < videoThumbnailsDriver[currentIndex]?.length){
           
                             const formData = new FormData();
-                            const file = new File([dataURItoBlob(videoThumbnails[currentIndex][thumbIndex])], `${userId}.jpeg`, { type: "image/jpeg" });
+                            const file = new File([dataURItoBlob(videoThumbnailsDriver[currentIndex][thumbIndex])], `${userId}.jpeg`, { type: "image/jpeg" });
                             formData.append("image", file);
                             
                             const nsfwResults = await axios.post("/nsfw/check", 
@@ -486,16 +548,16 @@ const VerifyPage = () => {
                             }
                           }
           
-                          if(thumbCheckCount === videoThumbnails[currentIndex]?.length && videoArray[currentIndex] !== 'image'){
+                          if(thumbCheckCount === videoThumbnailsDriver[currentIndex]?.length && videoArrayDriver[currentIndex] !== 'image'){
           
                             const date = new Date();
     
                             const videoFormData = new FormData();
-                            const videofile = new File([videoArray[currentIndex]], `${date.getTime()}_${userId}.mp4`, { type: "video/mp4" })
+                            const videofile = new File([videoArrayDriver[currentIndex]], `${date.getTime()}_${userId}.mp4`, { type: "video/mp4" })
                             videoFormData.append("video", videofile);
           
                             const imageFormData = new FormData();
-                            const file = new File([croppedImage[currentIndex]], `${date.getTime()}_${userId}.jpeg`, { type: "image/jpeg" })
+                            const file = new File([croppedImageDriver[currentIndex]], `${date.getTime()}_${userId}.jpeg`, { type: "image/jpeg" })
                             imageFormData.append("image", file);
           
                             try {
@@ -572,45 +634,43 @@ const VerifyPage = () => {
         
             if(finalImageObjArray?.length === mediaLength){
     
-              const previewMediaObjectId = finalImageObjArray[coverIndex]
-              const previewMediaType = mediaTypes[coverIndex]
+              const previewMediaObjectId = finalImageObjArray[coverIndexDriver]
+              const previewMediaType = mediaTypesDriver[coverIndexDriver]
         
               try {
         
-                const newPost = await addSingleSocialPost(auth.userId, username, category,
-                  previewMediaObjectId, finalImageObjArray, finalVideoObjArray, coverIndex, mediaTypes, 
-                  previewMediaType, caption, link, description, imageText, finalTesserText, userOrStore, 
-                  city, region, country, auth.accessToken)
+                const uploadMedia = true
         
-                if(newPost){
-                  toast.success("Success! Completed uploads!", {
-                    position: "bottom-center",
-                    autoClose: 1500,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "colored",
+                if(uploadMedia){
+                  
+                    toast.success("Success! Completed uploads!", {
+                        position: "bottom-center",
+                        autoClose: 1500,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "colored",
                     });
+
                     setWaiting(false);
-                    setShowModal(false);
                     
-                    for(let i=0; i<croppedImageURL?.length; i++){
-                      URL.revokeObjectURL(croppedImageURL[i])
+                    for(let i=0; i<croppedImageURLDriver?.length; i++){
+                      URL.revokeObjectURL(croppedImageURLDriver[i])
                     }
     
-                    for(let i=0; i<videoURLArray?.length; i++){
-                      if(videoURLArray[i] !== 'image'){
-                        URL.revokeObjectURL(videoURLArray[i])
+                    for(let i=0; i<videoURLArrayDriver?.length; i++){
+                      if(videoURLArrayDriver[i] !== 'image'){
+                        URL.revokeObjectURL(videoURLArrayDriver[i])
                       }
                     }
         
-                    setCroppedImage([])
-                    setCroppedImageURL([])
-                    setVideoArray([])
-                    setVideoURLArray([])
-                    setVideoThumbnails([])
+                    setCroppedImageDriver([])
+                    setCroppedImageURLDriver([])
+                    setVideoArrayDriver([])
+                    setVideoURLArrayDriver([])
+                    setVideoThumbnailsDriver([])
                     
                 } else {
     
@@ -625,7 +685,7 @@ const VerifyPage = () => {
                 }
                 
               } catch (err) {
-                  setIsLoading(false);
+                  setWaiting(false);
                   setErrorMessage("Failed to create new post! Please try again!");
               }
             
@@ -646,6 +706,440 @@ const VerifyPage = () => {
             }
           }
     }
+
+    async function onSubmitHandlerHost(e) {
+
+        e.preventDefault();
+    
+        if(waiting || (croppedImageHost?.length !== croppedImageURLHost?.length) ){
+          return
+        }
+    
+        let currentIndex = 0;
+        let mediaLength = 0;
+        let finalImageObjArray = [];
+        let finalVideoObjArray = [];
+        let finalTesserText = "";
+    
+        var autoCloseTime = 0
+    
+        mediaLength = croppedImageHost?.length
+        autoCloseTime = mediaLength * 7000    
+    
+        setWaiting(true);
+    
+        toast.info("Checking for inappropriate content, please wait...", {
+          position: "bottom-center",
+          autoClose: autoCloseTime,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+          });
+    
+          var videoTranscripts = "";
+          var transcriptCount = 0;
+    
+          for (let i=0; i<videoArrayHost?.length; i++){
+    
+            if(videoArrayHost[i] !== 'image'){
+
+              const formData = new FormData();
+              const date = new Date();
+              const videofile = new File([videoArrayHost[i]], `${date.getTime()}_${auth.userId}.mp4`, { type: "video/mp4" })
+              formData.append("video", videofile);
+              
+              const transcript = await axios.post("/speech/transcribe", 
+                formData,
+                  {
+                    headers: { "Authorization": `Bearer ${auth.accessToken} ${userId}`, 
+                    'Content-Type': 'multipart/form-data'},
+                      withCredentials: true
+                  }
+                );
+        
+              if(transcript){
+                
+                videoTranscripts = videoTranscripts.concat(transcript.data.text)
+                transcriptCount += 1;
+              
+              } else {
+        
+                transcriptCount += 1;
+              }
+
+            } else {
+
+              transcriptCount += 1;
+            }
+          }
+    
+          if(transcriptCount === videoArrayDriver?.length){
+    
+            const profanityCheck1 = profanity.exists(videoTranscripts)
+    
+            while (mediaLength > 0 && currentIndex < mediaLength){
+    
+              var tessDone = false;
+              var tessResult = {};
+              
+              if(croppedImageURLDriver?.length > 0 && oldMediaTrackDriver[currentIndex] !== 'oldmedia'){
+                
+                tessResult = await Tesseract.recognize(croppedImageURLDriver[currentIndex],'eng')
+    
+                  if(tessResult.text){
+                    
+                    tessDone = true
+
+                  } else {
+                    
+                    tessResult.text = "test"
+                    tessDone = true
+                  }
+    
+              } else {
+                tessResult.text = "test"
+                tessDone = true
+              }
+        
+              if(tessDone){
+    
+                finalTesserText = finalTesserText.concat(" ", tessResult?.text)
+    
+                const profanityCheck2 = profanity.exists(tessResult?.text)
+                    
+                if(!profanityCheck1 && !profanityCheck2){
+    
+                  if(mediaTypesDriver[currentIndex] !== 'video'){
+        
+                    if(croppedImageDriver?.length > 0 && croppedImageDriver[currentIndex] !== undefined){
+          
+                      const formData = new FormData();
+                      const file = new File([croppedImageDriver[currentIndex]], `${userId}.jpeg`, { type: "image/jpeg" })
+                      formData.append("image", file);
+                      
+                      const nsfwResults = await axios.post("/nsfw/check", 
+                      formData,
+                      {
+                        headers: { "Authorization": `Bearer ${auth.accessToken} ${userId}`, 
+                        'Content-Type': 'multipart/form-data'},
+                          withCredentials: true
+                      }
+                      );
+          
+                      if (nsfwResults?.status !== 413){
+          
+                        var check1 = null;
+                        var check2 = null;
+          
+                        for(let i=0; i<nsfwResults.data.length; i++){
+          
+                          if(nsfwResults.data[i].className === 'Hentai' && nsfwResults.data[i].probability < 0.2){
+                            check1 = true
+                          }
+                          if(nsfwResults.data[i].className === 'Porn' && nsfwResults.data[i].probability < 0.2){
+                            check2 = true
+                          }
+                        }            
+          
+                          if(check1 && check2){
+          
+                            try {
+                              const response = await axios.post(IMAGE_UPLOAD_URL, 
+                                  formData,
+                                  {
+                                    headers: { "Authorization": `Bearer ${auth.accessToken} ${userId}`, 
+                                    'Content-Type': 'application/json'},
+                                      withCredentials: true
+                                  }
+                              );
+          
+                              if(response?.status === 200){
+          
+                                  const returnedObjId = response.data.key
+          
+                                  finalImageObjArray.push(returnedObjId)
+                                  finalVideoObjArray.push("image")
+          
+                                  currentIndex += 1
+                              };
+          
+                            } catch (err) {
+                                setWaiting(false);
+                                setErrorMessage("Failed to upload photo! Please try again!");
+                                break
+                            }
+                          
+                          } else {
+          
+                            setErrorMessage("Your post content may not meet our terms of service. Please check for inappropriate content.");
+                            break
+                          }
+                        
+                        } else {
+          
+                          toast.error("The photo is too large, please upload a new photo!", {
+                            position: "bottom-center",
+                            autoClose: 1500,
+                            hideProgressBar: false,
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            draggable: true,
+                            progress: undefined,
+                            theme: "colored",
+                            });
+                            break
+                        }
+          
+                      } else {
+                        toast.error("This post does not have an attached photo", {
+                          position: "bottom-center",
+                          autoClose: 1500,
+                          hideProgressBar: false,
+                          closeOnClick: true,
+                          pauseOnHover: true,
+                          draggable: true,
+                          progress: undefined,
+                          theme: "colored",
+                          });
+                          break
+                      }
+                    } else {
+    
+                      toast.info("Checking video for inappropriate content, this may take some time, please hold...", {
+                        position: "bottom-center",
+                        autoClose: (autoCloseTime *3),
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "colored",
+                        });
+          
+                      if(videoThumbnailsDriver?.length > 0 && videoThumbnailsDriver[currentIndex] !== undefined){
+          
+                        var thumbCheckCount = 0;
+                        var thumbIndex = 0;
+          
+                          while(thumbIndex < videoThumbnailsDriver[currentIndex]?.length){
+          
+                            const formData = new FormData();
+                            const file = new File([dataURItoBlob(videoThumbnailsDriver[currentIndex][thumbIndex])], `${userId}.jpeg`, { type: "image/jpeg" });
+                            formData.append("image", file);
+                            
+                            const nsfwResults = await axios.post("/nsfw/check", 
+                            formData,
+                            {
+                              headers: { "Authorization": `Bearer ${auth.accessToken} ${userId}`, 
+                              'Content-Type': 'multipart/form-data'},
+                                withCredentials: true
+                            }
+                            );
+                
+                            if (nsfwResults?.status !== 413){
+                
+                              var check1 = null;
+                              var check2 = null;
+                
+                              for(let i=0; i<nsfwResults.data.length; i++){
+                
+                                if(nsfwResults.data[i].className === 'Hentai' && nsfwResults.data[i].probability < 0.2){
+                                  check1 = true
+                                }
+                                if(nsfwResults.data[i].className === 'Porn' && nsfwResults.data[i].probability < 0.2){
+                                  check2 = true
+                                }
+                              }            
+                
+                              if(check1 && check2){
+      
+                                thumbCheckCount += 1;
+                                thumbIndex += 1;
+          
+                              } else {
+              
+                                setErrorMessage("Your post content may not meet our terms of service. Please check for inappropriate content.");
+                                break
+                              }
+                              
+                            } else {
+              
+                              toast.error("The photo check was not completed, please upload a new photo!", {
+                                position: "bottom-center",
+                                autoClose: 1500,
+                                hideProgressBar: false,
+                                closeOnClick: true,
+                                pauseOnHover: true,
+                                draggable: true,
+                                progress: undefined,
+                                theme: "colored",
+                                });
+                                break
+                            }
+                          }
+          
+                          if(thumbCheckCount === videoThumbnailsDriver[currentIndex]?.length && videoArrayDriver[currentIndex] !== 'image'){
+          
+                            const date = new Date();
+    
+                            const videoFormData = new FormData();
+                            const videofile = new File([videoArrayDriver[currentIndex]], `${date.getTime()}_${userId}.mp4`, { type: "video/mp4" })
+                            videoFormData.append("video", videofile);
+          
+                            const imageFormData = new FormData();
+                            const file = new File([croppedImageDriver[currentIndex]], `${date.getTime()}_${userId}.jpeg`, { type: "image/jpeg" })
+                            imageFormData.append("image", file);
+          
+                            try {
+                              const videoResponse = await axios.post(VIDEO_UPLOAD_URL, 
+                                videoFormData,
+                                  {
+                                    headers: { "Authorization": `Bearer ${auth.accessToken} ${userId}`, 
+                                    'Content-Type': 'multipart/form-data'},
+                                      withCredentials: true
+                                  }
+                              );
+          
+                              const imageResponse = await axios.post(IMAGE_UPLOAD_URL, 
+                                imageFormData,
+                                {
+                                  headers: { "Authorization": `Bearer ${auth.accessToken} ${userId}`, 
+                                  'Content-Type': 'application/json'},
+                                    withCredentials: true
+                                }
+                            );
+          
+                              if(videoResponse?.status === 200 && imageResponse?.status === 200){
+          
+                                  const returnedObjIdVideo = videoResponse.data.key
+                                  const returnedObjIdImage = imageResponse.data.key
+          
+                                  if(returnedObjIdVideo){
+                                    finalVideoObjArray.push(returnedObjIdVideo)
+                                    finalImageObjArray.push(returnedObjIdImage)
+                                    currentIndex += 1
+                                  }
+                              }
+          
+                            } catch (err) {
+                              setWaiting(false);
+                                setErrorMessage("Failed to upload video! Please try again!");
+                                break
+                            }
+                          }
+            
+                        } else {
+                          toast.error("This post does not have an attached photo", {
+                            position: "bottom-center",
+                            autoClose: 1500,
+                            hideProgressBar: false,
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            draggable: true,
+                            progress: undefined,
+                            theme: "colored",
+                            });
+                            break
+                        }
+                    }
+                } else {
+                  toast.error("This post appears to have inappropriate language, please try again", {
+                    position: "bottom-center",
+                    autoClose: 1500,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "colored",
+                    });
+                    break
+                }
+              } else {
+        
+                console.log("Tesseract is not connected")
+                break
+              }
+            }
+        
+            if(finalImageObjArray?.length === mediaLength){
+    
+              const previewMediaObjectId = finalImageObjArray[coverIndexDriver]
+              const previewMediaType = mediaTypesDriver[coverIndexDriver]
+        
+              try {
+        
+                const uploadMedia = true
+        
+                if(uploadMedia){
+                  
+                    toast.success("Success! Completed uploads!", {
+                        position: "bottom-center",
+                        autoClose: 1500,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "colored",
+                    });
+
+                    setWaiting(false);
+                    
+                    for(let i=0; i<croppedImageURLDriver?.length; i++){
+                      URL.revokeObjectURL(croppedImageURLDriver[i])
+                    }
+    
+                    for(let i=0; i<videoURLArrayDriver?.length; i++){
+                      if(videoURLArrayDriver[i] !== 'image'){
+                        URL.revokeObjectURL(videoURLArrayDriver[i])
+                      }
+                    }
+        
+                    setCroppedImageDriver([])
+                    setCroppedImageURLDriver([])
+                    setVideoArrayDriver([])
+                    setVideoURLArrayDriver([])
+                    setVideoThumbnailsDriver([])
+                    
+                } else {
+    
+                  var objectsToDelete = [...finalImageObjArray, ...finalVideoObjArray]
+    
+                  if(objectsToDelete?.length > 0){
+                    const deleted = await deleteManyObj(objectsToDelete, auth.userId, auth.accessToken)
+                    if(deleted){
+                      console.log("Objects deleted")
+                    }
+                  }
+                }
+                
+              } catch (err) {
+                  setWaiting(false);
+                  setErrorMessage("Failed to create new post! Please try again!");
+              }
+            
+            } else {
+        
+              toast.error("Upload process failed, please try again!", {
+                position: "bottom-center",
+                autoClose: 1500,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+                });
+        
+                return
+            }
+          }
+    }
+
 
     const _getCode = async() => {
         const e = code + pno;
@@ -693,12 +1187,12 @@ const VerifyPage = () => {
         <div className='flex flex-col mt-6'>
             <label className='text-base md:text-lg font-medium'>Phone Number</label>
             <div className={`text-sm text-gray-700 w-full py-3 px-4 bg-white
-            border-2 rounded-xl hover:scale-[1.01] ease-in-out border-[#995372]/10 }`} >
+            border-2 rounded-xl hover:scale-[1.01] ease-in-out border-[#00D3E0]/10 }`} >
             
             <MuiPhoneNumber sx={{ '& svg': { height: '1em', }, }}
                 defaultCountry={'us'}
-                className='w-full border-2 border-[#995372]/10 rounded-xl
-                    bg-white focus:outline-[#995372]'
+                className='w-full border-2 border-[#00D3E0]/10 rounded-xl
+                    bg-white focus:outline-[#00D3E0]'
                 InputProps={{ disableUnderline: true }}    
                 regions={['north-america']}
                 onChange={ ( e ) => setPhonePrimary(e)} 
@@ -819,15 +1313,15 @@ const VerifyPage = () => {
 
                 <div className='flex flex-col content-center items-center w-full'>
                     <ProfileCropper setCroppedImage={setCroppedProfileImage} setImage={setProfileImage} 
-                    image={image} profilePicURL={auth.profilePicURL} />
+                    image={profileImage} profilePicURL={auth.profilePicURL} />
                 </div>
 
                 <div className='flex flex-row gap-x-4 pb-4 pt-2'>
                     
                     <button 
-                        className={`flex align-center px-4 py-2 text-[#995372] w-[110px]
-                        border-2 rounded-xl border-[#995372] bg-white text-base font-semibold
-                        hover:bg-[#995372] hover:text-white justify-center items-center gap-x-2`}
+                        className={`flex align-center px-4 py-2 text-[#00D3E0] w-[110px]
+                        border-2 rounded-xl border-[#00D3E0] bg-white text-base font-semibold
+                        hover:bg-[#00D3E0] hover:text-white justify-center items-center gap-x-2`}
                         onClick={(event)=>handleChangeProfilePic(event)}
                         >
                             {waiting && 
@@ -848,28 +1342,79 @@ const VerifyPage = () => {
                 </div>
 
                 <div className="flex w-full flex-col px-4">
-                    <label className="flex justify-start sm:justify-center text-base md:text-lg font-bold text-[#995372]">Select or Take Photo:</label>   
+                    <label className="flex justify-start sm:justify-center text-base md:text-lg font-bold text-[#00D3E0]">Select or Take Photo:</label>   
                     
                     <div className="w-full flex justify-center">
                     
-                    <Camera croppedImage={croppedImage} setCroppedImage={setCroppedImage} croppedImageURL={croppedImageURL} setCroppedImageURL={setCroppedImageURL} 
-                        coverIndex={coverIndex} setCoverIndex={setCoverIndex} mediaTypes={mediaTypes} setMediaTypes={setMediaTypes} videoArray={videoArray} setVideoArray={setVideoArray} 
-                        videoURLArray={videoURLArray} setVideoURLArray={setVideoURLArray}  videoThumbnails={videoThumbnails} setVideoThumbnails={setVideoThumbnails} 
-                        oldMediaTrack={oldMediaTrack} setOldMediaTrack={setOldMediaTrack} />  
+                    <CameraSinglePhoto croppedImage={croppedImageFront} setCroppedImage={setCroppedImageFront} croppedImageURL={croppedImageURLFront} setCroppedImageURL={setCroppedImageURLFront} 
+                        coverIndex={coverIndexFront} setCoverIndex={setCoverIndexFront} mediaTypes={mediaTypesFront} setMediaTypes={setMediaTypesFront} videoArray={videoArrayFront} setVideoArray={setVideoArrayFront} 
+                        videoURLArray={videoURLArrayFront} setVideoURLArray={setVideoURLArrayFront}  videoThumbnails={videoThumbnailsFront} setVideoThumbnails={setVideoThumbnailsFront} 
+                        oldMediaTrack={oldMediaTrackFront} setOldMediaTrack={setOldMediaTrackFront} limit={1} />  
                     
                     </div>
                 </div>
 
                 <div>
-                    <p>Upload ID and photos of charger</p>
+                    <p>Upload Driver's License (Front)</p>
+                </div>
+
+                <div className="flex w-full flex-col px-4">
+                    <label className="flex justify-start sm:justify-center text-base md:text-lg font-bold text-[#00D3E0]">Select or Take Photo:</label>   
+                    
+                    <div className="w-full flex justify-center">
+                    
+                    <CameraSinglePhoto croppedImage={croppedImageBack} setCroppedImage={setCroppedImageBack} croppedImageURL={croppedImageURLBack} setCroppedImageURL={setCroppedImageURLBack} 
+                        coverIndex={coverIndexBack} setCoverIndex={setCoverIndexBack} mediaTypes={mediaTypesBack} setMediaTypes={setMediaTypesBack} videoArray={videoArrayBack} setVideoArray={setVideoArrayBack} 
+                        videoURLArray={videoURLArrayBack} setVideoURLArray={setVideoURLArrayBack}  videoThumbnails={videoThumbnailsBack} setVideoThumbnails={setVideoThumbnailsBack} 
+                        oldMediaTrack={oldMediaTrackBack} setOldMediaTrack={setOldMediaTrackBack} limit={1} />  
+                    
+                    </div>
+                </div>
+
+                <div>
+                    <p>Upload Driver's License (Back)</p>
+                </div>
+
+
+                <div className="flex w-full flex-col px-4">
+                    <label className="flex justify-start sm:justify-center text-base md:text-lg font-bold text-[#00D3E0]">Select or Take Photo:</label>   
+                    
+                    <div className="w-full flex justify-center">
+                    
+                    <Camera croppedImage={croppedImageDriver} setCroppedImage={setCroppedImageDriver} croppedImageURL={croppedImageURLDriver} setCroppedImageURL={setCroppedImageURLDriver} 
+                        coverIndex={coverIndexDriver} setCoverIndex={setCoverIndexDriver} mediaTypes={mediaTypesDriver} setMediaTypes={setMediaTypesDriver} videoArray={videoArrayDriver} setVideoArray={setVideoArrayDriver} 
+                        videoURLArray={videoURLArrayDriver} setVideoURLArray={setVideoURLArrayDriver}  videoThumbnails={videoThumbnailsDriver} setVideoThumbnails={setVideoThumbnailsDriver} 
+                        oldMediaTrack={oldMediaTrackDriver} setOldMediaTrack={setOldMediaTrackDriver} limit={10} />  
+                    
+                    </div>
+                </div>
+
+                <div>
+                    <p>Upload Photos of Your Electric Vehicle</p>
+                </div>
+
+                <div className="flex w-full flex-col px-4">
+                    <label className="flex justify-start sm:justify-center text-base md:text-lg font-bold text-[#00D3E0]">Select or Take Photo:</label>   
+                    
+                    <div className="w-full flex justify-center">
+                    
+                    <Camera croppedImage={croppedImageHost} setCroppedImage={setCroppedImageHost} croppedImageURL={croppedImageURLHost} setCroppedImageURL={setCroppedImageURLHost} 
+                        coverIndex={coverIndexHost} setCoverIndex={setCoverIndexHost} mediaTypes={mediaTypesHost} setMediaTypes={setMediaTypesHost} videoArray={videoArrayHost} setVideoArray={setVideoArrayHost} 
+                        videoURLArray={videoURLArrayHost} setVideoURLArray={setVideoURLArrayHost}  videoThumbnails={videoThumbnailsHost} setVideoThumbnails={setVideoThumbnailsHost} 
+                        oldMediaTrack={oldMediaTrackHost} setOldMediaTrack={setOldMediaTrackHost} limit={10} />  
+                    
+                    </div>
+                </div>
+
+                <div>
+                    <p>Upload Photos of Your Charger</p>
                 </div>
 
             </div>
-
         </div>
 
         <ToastContainer
-            toastStyle={{ backgroundColor: "#995372" }}
+            toastStyle={{ backgroundColor: "#00D3E0" }}
                 position="bottom-center"
                 autoClose={1500}
                 hideProgressBar={false}
