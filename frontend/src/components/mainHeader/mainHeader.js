@@ -693,6 +693,7 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
             </button>
 
         <TabContext value={value}>
+
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
             <div className='flex justify-center'>
             <TabList onChange={handleChange} 
@@ -718,7 +719,7 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
                     </div>
 
                     <div className='py-4 flex flex-col justify-center items-center'>
-                        <p className='text-4xl'> Login Below!</p>
+                        <p className='text-4xl'> Login Below:</p>
                     </div>
                     
                     <div className='flex flex-col mt-6'>
@@ -867,476 +868,532 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
 
                 </div>
                 </div>
+
                 <div className='w-full flex flex-col pt-16 justify-center pb-4 gap-y-2'>
 
                 <div className='flex justify-center flex-row'>
                     <p className='text-xs text-gray-500'>Copyright © 2023 SocketJuice</p>
                 </div>
-                </div>
+            </div>
             
         </TabPanel>
 
-        <TabPanel style={{paddingLeft: '16px', paddingRight: '16px', paddingTop: '16px', paddingBottom: '0px',
+        <TabPanel style={{paddingLeft: '16px', paddingRight: '16px', paddingTop: '0px', paddingBottom: '0px',
             display:'flex', flexDirection: 'column'}} value="1">
     
-        <div className='w-full flex flex-col items-center justify-center p-2'>
+        <div className='flex flex-col items-center justify-center p-2'>
 
-        <div className='w-full flex-col max-w-[700px] px-6 sm:px-8 md:px-10 py-10
-            rounded-xl md:rounded-none shadow-inner md:shadow-none'>
+        <div className='w-full max-w-[350px] py-10
+                    rounded-xl md:rounded-none shadow-inner md:shadow-none'>
         
             <div className='flex items-center justify-center px-10 pb-6'>
                 <img className='w-100' src={socketjuice_full_logo} />
             </div>
 
-            <div className='py-4 flex flex-col justify-center items-center gap-y-2'>
-
-            <span className='text-base md:text-lg lg:text-xl'> Create an account below:</span> 
-        </div>
+            <div className='py-4 flex flex-col justify-center items-center'>
+                <span className='text-4xl text-center w-full'> Create an account:</span> 
+            </div>
         
-        <div className='flex flex-col mt-6'>
-            <label className='text-base md:text-lg font-medium'>Email</label>
-            <input 
-                className='w-full border-2  rounded-xl p-4 mt-1 hover:scale-[1.01] ease-in-out border-[#00D3E0]/10
-                    bg-white focus:outline-[#00D3E0] placeholder:text-sm md:placeholder:text-base'
-                placeholder="Enter your email"
-                aria-label="Enter your email" 
-                ref={emailRef}
-                autoComplete="off"
-                type="text" 
-                onChange={ ( {target} ) => handleEmailRegister(target.value)}
-                value={emailRegister}
-                onFocus={() => setEmailFocusRegister(true)}
-                onBlur={() => setEmailFocusRegister(false)}
-                aria-invalid={validEmailRegister ? "false" : "true"}
-                aria-describedby="emailnote"
-                required
-            />
-        </div>
-
-        <div className='flex flex-row mx-2 gap-x-2 mt-1'>
-            
-            {validEmailRegister ? 
-                (
-                    <>
-                    <div className='flex flex-col justify-center'>
-                    <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#38a169" className="w-6 h-6">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    </div>
-                    <div className='flex flex-col justify-center'>
-                        <span className="text-sm md:text-base text-green-600">Please enter a valid email address</span>
-                    </div>
-                    </>
-                )
-                : 
-                ( 
-                    <>
-                    <div className='flex flex-col justify-center'>
-                    <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#e53e3e" className="w-6 h-6" >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    </div>
-                    <div className='flex flex-col justify-center'>
-                        <span className="text-sm md:text-base text-red-600">Please enter a valid email address</span>
-                    </div>
-                    </>
-                )
-            }
-        </div> 
-            
-        <div className='flex flex-col mt-6'>
-            <label className='text-base md:text-lg font-medium'>First Name</label>
-            <input 
-                className='w-full border-2 rounded-xl p-4 mt-1 hover:scale-[1.01] ease-in-out border-[#00D3E0]/10
-                    bg-white focus:outline-[#00D3E0] placeholder:text-sm md:placeholder:text-base'
-                placeholder="Enter your first name"
-                aria-label="Enter your first name" 
-                type="text"
-                id="firstname"
-                autoComplete="off"
-                onChange={ ( event ) => setFirstName(event.target.value)}
-                value={firstName}
-                aria-invalid={validFirstName ? "false" : "true"}
-                aria-describedby="firstnamenote"
-                onFocus={() => setFirstNameFocus(true)}
-                onBlur={() => setFirstNameFocus(false)}
-                required
-            />
-        </div>
-
-        <div className='flex flex-row mx-2 gap-x-2 mt-1'>
-            
-            {validFirstName ? 
-                (
-                    <>
-                    <div className='flex flex-col justify-center'>
-                    <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#38a169" className="w-6 h-6">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    </div>
-                    <div className='flex flex-col justify-center'>
-                        <span className="text-sm md:text-base text-green-600">Please enter your first name</span>
-                    </div>
-                    </>
-                )
-                : 
-                ( 
-                    <>
-                    <div className='flex flex-col justify-center'>
-                    <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#e53e3e" className="w-6 h-6" >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    </div>
-                    <div className='flex flex-col justify-center'>
-                        <span className="text-sm md:text-base text-red-600">Please enter your first name</span>
-                    </div>
-                    </>
-                )
-            }
-        </div>  
-
-        <div className='flex flex-col mt-6'>
-            <label className='text-base md:text-lg font-medium'>Last Name</label>
-            <input 
-                className='w-full border-2 rounded-xl p-4 mt-1 hover:scale-[1.01] ease-in-out border-[#00D3E0]/10
-                    bg-white focus:outline-[#00D3E0] placeholder:text-sm md:placeholder:text-base'
-                placeholder="Enter your last name"
-                aria-label="Enter your last name" 
-                type="text"
-                id="lastname"
-                autoComplete="off"
-                onChange={ ( event ) => setLastName(event.target.value)}
-                value={lastName}
-                aria-invalid={validLastName ? "false" : "true"}
-                aria-describedby="lastnamenote"
-                onFocus={() => setLastNameFocus(true)}
-                onBlur={() => setLastNameFocus(false)}
-                required
-            />
-        </div>
-
-        <div className='flex flex-row mx-2 gap-x-2 mt-1'>
-            
-            {validLastName ? 
-                (
-                    <>
-                    <div className='flex flex-col justify-center'>
-                    <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#38a169" className="w-6 h-6">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    </div>
-                    <div className='flex flex-col justify-center'>
-                        <span className="text-sm md:text-base text-green-600">Please enter your last name</span>
-                    </div>
-                    </>
-                )
-                : 
-                ( 
-                    <>
-                    <div className='flex flex-col justify-center'>
-                    <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#e53e3e" className="w-6 h-6" >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    </div>
-                    <div className='flex flex-col justify-center'>
-                        <span className="text-sm md:text-base text-red-600">Please enter your last name</span>
-                    </div>
-                    </>
-                )
-            }
-        </div>  
-
-        <div className='flex flex-col mt-6'>
-            <label className='text-base md:text-lg font-medium'>Password</label>
-            <div className='flex flex-row w-full'>
-            <input 
-                className='w-full border-2 rounded-xl p-4 mt-1 hover:scale-[1.01] ease-in-out border-[#00D3E0]/10
-                    bg-white focus:outline-[#00D3E0] placeholder:text-sm md:placeholder:text-base'
-                placeholder="Enter your password"
-                aria-label="Enter your password" 
-                type={inputType}
-                id="password"
-
-                onChange={ ( e ) => setPwdRegister(e.target.value)}
-                value={pwdRegister}
-                aria-invalid={validPwdRegister ? "false" : "true"}
-                aria-describedby="pwdnote"
-                onFocus={() => setPwdFocusRegister(true)}
-                onBlur={() => setPwdFocusRegister(false)}
-                required
-            />
-            <span className='relative flex cursor-pointer justify-around items-center'
-                onClick={handlePassToggleRegister}>
-                
-                <span className='absolute mr-16'>
-                {inputTypeRegister === 'text' ? 
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 16.3299C9.61004 16.3299 7.67004 14.3899 7.67004 11.9999C7.67004 9.60992 9.61004 7.66992 12 7.66992C14.39 7.66992 16.33 9.60992 16.33 11.9999C16.33 14.3899 14.39 16.3299 12 16.3299ZM12 9.16992C10.44 9.16992 9.17004 10.4399 9.17004 11.9999C9.17004 13.5599 10.44 14.8299 12 14.8299C13.56 14.8299 14.83 13.5599 14.83 11.9999C14.83 10.4399 13.56 9.16992 12 9.16992Z" fill="#00D3E0"/>
-                        <path d="M12 21.02C8.23996 21.02 4.68996 18.82 2.24996 15C1.18996 13.35 1.18996 10.66 2.24996 8.99998C4.69996 5.17998 8.24996 2.97998 12 2.97998C15.75 2.97998 19.3 5.17998 21.74 8.99998C22.8 10.65 22.8 13.34 21.74 15C19.3 18.82 15.75 21.02 12 21.02ZM12 4.47998C8.76996 4.47998 5.67996 6.41998 3.51996 9.80998C2.76996 10.98 2.76996 13.02 3.51996 14.19C5.67996 17.58 8.76996 19.52 12 19.52C15.23 19.52 18.32 17.58 20.48 14.19C21.23 13.02 21.23 10.98 20.48 9.80998C18.32 6.41998 15.23 4.47998 12 4.47998Z" fill="#00D3E0"/>
-                    </svg>
-                        : 
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M9.47004 15.2799C9.28004 15.2799 9.09004 15.2099 8.94004 15.0599C8.12004 14.2399 7.67004 13.1499 7.67004 11.9999C7.67004 9.60992 9.61004 7.66992 12 7.66992C13.15 7.66992 14.24 8.11992 15.06 8.93992C15.2 9.07992 15.28 9.26992 15.28 9.46992C15.28 9.66992 15.2 9.85992 15.06 9.99992L10 15.0599C9.85004 15.2099 9.66004 15.2799 9.47004 15.2799ZM12 9.16992C10.44 9.16992 9.17004 10.4399 9.17004 11.9999C9.17004 12.4999 9.30004 12.9799 9.54004 13.3999L13.4 9.53992C12.98 9.29992 12.5 9.16992 12 9.16992Z" fill="#00D3E0"/>
-                        <path d="M5.59997 18.51C5.42997 18.51 5.24997 18.45 5.10997 18.33C4.03997 17.42 3.07997 16.3 2.25997 15C1.19997 13.35 1.19997 10.66 2.25997 8.99998C4.69997 5.17998 8.24997 2.97998 12 2.97998C14.2 2.97998 16.37 3.73998 18.27 5.16998C18.6 5.41998 18.67 5.88998 18.42 6.21998C18.17 6.54998 17.7 6.61998 17.37 6.36998C15.73 5.12998 13.87 4.47998 12 4.47998C8.76997 4.47998 5.67997 6.41998 3.51997 9.80998C2.76997 10.98 2.76997 13.02 3.51997 14.19C4.26997 15.36 5.12997 16.37 6.07997 17.19C6.38997 17.46 6.42997 17.93 6.15997 18.25C6.01997 18.42 5.80997 18.51 5.59997 18.51Z" fill="#00D3E0"/>
-                        <path d="M11.9999 21.02C10.6699 21.02 9.36994 20.75 8.11994 20.22C7.73994 20.06 7.55994 19.62 7.71994 19.24C7.87994 18.86 8.31994 18.68 8.69994 18.84C9.75994 19.29 10.8699 19.52 11.9899 19.52C15.2199 19.52 18.3099 17.58 20.4699 14.19C21.2199 13.02 21.2199 10.98 20.4699 9.81C20.1599 9.32 19.8199 8.85 19.4599 8.41C19.1999 8.09 19.2499 7.62 19.5699 7.35C19.8899 7.09 20.3599 7.13 20.6299 7.46C21.0199 7.94 21.3999 8.46 21.7399 9C22.7999 10.65 22.7999 13.34 21.7399 15C19.2999 18.82 15.7499 21.02 11.9999 21.02Z" fill="#00D3E0"/>
-                        <path d="M12.69 16.2699C12.34 16.2699 12.02 16.0199 11.95 15.6599C11.87 15.2499 12.14 14.8599 12.55 14.7899C13.65 14.5899 14.57 13.6699 14.77 12.5699C14.85 12.1599 15.24 11.8999 15.65 11.9699C16.06 12.0499 16.33 12.4399 16.25 12.8499C15.93 14.5799 14.55 15.9499 12.83 16.2699C12.78 16.2599 12.74 16.2699 12.69 16.2699Z" fill="#00D3E0"/>
-                        <path d="M1.99994 22.7502C1.80994 22.7502 1.61994 22.6802 1.46994 22.5302C1.17994 22.2402 1.17994 21.7602 1.46994 21.4702L8.93994 14.0002C9.22994 13.7102 9.70994 13.7102 9.99994 14.0002C10.2899 14.2902 10.2899 14.7702 9.99994 15.0602L2.52994 22.5302C2.37994 22.6802 2.18994 22.7502 1.99994 22.7502Z" fill="#00D3E0"/>
-                        <path d="M14.53 10.2199C14.34 10.2199 14.15 10.1499 14 9.99994C13.71 9.70994 13.71 9.22994 14 8.93994L21.47 1.46994C21.76 1.17994 22.24 1.17994 22.53 1.46994C22.82 1.75994 22.82 2.23994 22.53 2.52994L15.06 9.99994C14.91 10.1499 14.72 10.2199 14.53 10.2199Z" fill="#00D3E0"/>
-                    </svg>          
-                        
-                }
-                </span>
-            </span>
+            <div className='flex flex-col mt-6'>
+                <label className='text-base md:text-lg font-medium'>Email</label>
+                <input 
+                    className='w-full border-2  rounded-xl p-4 mt-1 hover:scale-[1.01] ease-in-out border-[#00D3E0]/10
+                        bg-white focus:outline-[#00D3E0] placeholder:text-sm md:placeholder:text-base'
+                    placeholder="Enter your email"
+                    aria-label="Enter your email" 
+                    ref={emailRef}
+                    autoComplete="off"
+                    type="text" 
+                    onChange={ ( {target} ) => handleEmailRegister(target.value)}
+                    value={emailRegister}
+                    onFocus={() => setEmailFocusRegister(true)}
+                    onBlur={() => setEmailFocusRegister(false)}
+                    aria-invalid={validEmailRegister ? "false" : "true"}
+                    aria-describedby="emailnote"
+                    required
+                />
             </div>
-        </div>
 
-        <div className='flex flex-row mx-2 gap-x-2 mt-1'>
-            
-            {validPwdRegister ? 
-                (
-                    <>
-                    <div className='flex flex-col justify-center'>
-                    <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#38a169" className="w-6 h-6">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    </div>
-                    <div className='flex flex-col justify-center'>
-                        <span className="text-sm md:text-base text-green-600">Please include at least 8 characters, lower and uppercase letters, a number and a special character</span>
-                    </div>
-                    </>
-                )
-                : 
-                ( 
-                    <>
-                    <div className='flex flex-col justify-center'>
-                    <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#e53e3e" className="w-6 h-6" >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    </div>
-                    <div className='flex flex-col justify-center'>
-                        <span className="text-sm md:text-base text-red-600">Please include at least 8 characters, lower and uppercase letters, a number and a special character</span>
-                    </div>
-                    </>
-                )
-            }
-        </div>
-
-        <div className='flex flex-col mt-6'>
-            <label className='text-base md:text-lg font-medium'>Confirm Password</label>
-            <div className='flex flex-row w-full'>
-            <input 
-                className='w-full border-2 rounded-xl p-4 mt-1 hover:scale-[1.01] ease-in-out border-[#00D3E0]/10
-                    bg-white focus:outline-[#00D3E0] placeholder:text-sm md:placeholder:text-base'
-                placeholder="Confirm your password"
-                aria-label="Confirm your password" 
-                type={inputType}
-                id="confirmpwd"
-
-                onChange={ ( e ) => setMatchPwd(e.target.value)}
-                value={matchPwd}
-                aria-invalid={validMatch ? "false" : "true"}
-                aria-describedby="confirmnote"
-                onFocus={() => setMatchFocus(true)}
-                onBlur={() => setMatchFocus(false)}
-                required
-            />
-            <span className='relative flex cursor-pointer justify-around items-center'
-                onClick={handlePassToggleRegister}>
+            <div className='flex flex-row mx-2 gap-x-2 mt-1'>
                 
-                <span className='absolute mr-16'>
-                {inputType === 'text' ? 
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 16.3299C9.61004 16.3299 7.67004 14.3899 7.67004 11.9999C7.67004 9.60992 9.61004 7.66992 12 7.66992C14.39 7.66992 16.33 9.60992 16.33 11.9999C16.33 14.3899 14.39 16.3299 12 16.3299ZM12 9.16992C10.44 9.16992 9.17004 10.4399 9.17004 11.9999C9.17004 13.5599 10.44 14.8299 12 14.8299C13.56 14.8299 14.83 13.5599 14.83 11.9999C14.83 10.4399 13.56 9.16992 12 9.16992Z" fill="#00D3E0"/>
-                        <path d="M12 21.02C8.23996 21.02 4.68996 18.82 2.24996 15C1.18996 13.35 1.18996 10.66 2.24996 8.99998C4.69996 5.17998 8.24996 2.97998 12 2.97998C15.75 2.97998 19.3 5.17998 21.74 8.99998C22.8 10.65 22.8 13.34 21.74 15C19.3 18.82 15.75 21.02 12 21.02ZM12 4.47998C8.76996 4.47998 5.67996 6.41998 3.51996 9.80998C2.76996 10.98 2.76996 13.02 3.51996 14.19C5.67996 17.58 8.76996 19.52 12 19.52C15.23 19.52 18.32 17.58 20.48 14.19C21.23 13.02 21.23 10.98 20.48 9.80998C18.32 6.41998 15.23 4.47998 12 4.47998Z" fill="#00D3E0"/>
-                    </svg>
-                        : 
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M9.47004 15.2799C9.28004 15.2799 9.09004 15.2099 8.94004 15.0599C8.12004 14.2399 7.67004 13.1499 7.67004 11.9999C7.67004 9.60992 9.61004 7.66992 12 7.66992C13.15 7.66992 14.24 8.11992 15.06 8.93992C15.2 9.07992 15.28 9.26992 15.28 9.46992C15.28 9.66992 15.2 9.85992 15.06 9.99992L10 15.0599C9.85004 15.2099 9.66004 15.2799 9.47004 15.2799ZM12 9.16992C10.44 9.16992 9.17004 10.4399 9.17004 11.9999C9.17004 12.4999 9.30004 12.9799 9.54004 13.3999L13.4 9.53992C12.98 9.29992 12.5 9.16992 12 9.16992Z" fill="#00D3E0"/>
-                        <path d="M5.59997 18.51C5.42997 18.51 5.24997 18.45 5.10997 18.33C4.03997 17.42 3.07997 16.3 2.25997 15C1.19997 13.35 1.19997 10.66 2.25997 8.99998C4.69997 5.17998 8.24997 2.97998 12 2.97998C14.2 2.97998 16.37 3.73998 18.27 5.16998C18.6 5.41998 18.67 5.88998 18.42 6.21998C18.17 6.54998 17.7 6.61998 17.37 6.36998C15.73 5.12998 13.87 4.47998 12 4.47998C8.76997 4.47998 5.67997 6.41998 3.51997 9.80998C2.76997 10.98 2.76997 13.02 3.51997 14.19C4.26997 15.36 5.12997 16.37 6.07997 17.19C6.38997 17.46 6.42997 17.93 6.15997 18.25C6.01997 18.42 5.80997 18.51 5.59997 18.51Z" fill="#00D3E0"/>
-                        <path d="M11.9999 21.02C10.6699 21.02 9.36994 20.75 8.11994 20.22C7.73994 20.06 7.55994 19.62 7.71994 19.24C7.87994 18.86 8.31994 18.68 8.69994 18.84C9.75994 19.29 10.8699 19.52 11.9899 19.52C15.2199 19.52 18.3099 17.58 20.4699 14.19C21.2199 13.02 21.2199 10.98 20.4699 9.81C20.1599 9.32 19.8199 8.85 19.4599 8.41C19.1999 8.09 19.2499 7.62 19.5699 7.35C19.8899 7.09 20.3599 7.13 20.6299 7.46C21.0199 7.94 21.3999 8.46 21.7399 9C22.7999 10.65 22.7999 13.34 21.7399 15C19.2999 18.82 15.7499 21.02 11.9999 21.02Z" fill="#00D3E0"/>
-                        <path d="M12.69 16.2699C12.34 16.2699 12.02 16.0199 11.95 15.6599C11.87 15.2499 12.14 14.8599 12.55 14.7899C13.65 14.5899 14.57 13.6699 14.77 12.5699C14.85 12.1599 15.24 11.8999 15.65 11.9699C16.06 12.0499 16.33 12.4399 16.25 12.8499C15.93 14.5799 14.55 15.9499 12.83 16.2699C12.78 16.2599 12.74 16.2699 12.69 16.2699Z" fill="#00D3E0"/>
-                        <path d="M1.99994 22.7502C1.80994 22.7502 1.61994 22.6802 1.46994 22.5302C1.17994 22.2402 1.17994 21.7602 1.46994 21.4702L8.93994 14.0002C9.22994 13.7102 9.70994 13.7102 9.99994 14.0002C10.2899 14.2902 10.2899 14.7702 9.99994 15.0602L2.52994 22.5302C2.37994 22.6802 2.18994 22.7502 1.99994 22.7502Z" fill="#00D3E0"/>
-                        <path d="M14.53 10.2199C14.34 10.2199 14.15 10.1499 14 9.99994C13.71 9.70994 13.71 9.22994 14 8.93994L21.47 1.46994C21.76 1.17994 22.24 1.17994 22.53 1.46994C22.82 1.75994 22.82 2.23994 22.53 2.52994L15.06 9.99994C14.91 10.1499 14.72 10.2199 14.53 10.2199Z" fill="#00D3E0"/>
-                    </svg>          
-                        
+                {validEmailRegister ? 
+                    (
+                        <>
+                        <div className='flex flex-col justify-center'>
+                        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#38a169" className="w-6 h-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        </div>
+                        <div className='flex flex-col justify-center'>
+                            <span className="text-sm md:text-base text-green-600">Please enter a valid email address</span>
+                        </div>
+                        </>
+                    )
+                    : 
+                    ( 
+                        <>
+                        <div className='flex flex-col justify-center'>
+                        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#e53e3e" className="w-6 h-6" >
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        </div>
+                        <div className='flex flex-col justify-center'>
+                            <span className="text-sm md:text-base text-red-600">Please enter a valid email address</span>
+                        </div>
+                        </>
+                    )
                 }
-                </span>
-            </span>
+            </div> 
+                
+            <div className='flex flex-col mt-6'>
+                <label className='text-base md:text-lg font-medium'>First Name</label>
+                <input 
+                    className='w-full border-2 rounded-xl p-4 mt-1 hover:scale-[1.01] ease-in-out border-[#00D3E0]/10
+                        bg-white focus:outline-[#00D3E0] placeholder:text-sm md:placeholder:text-base'
+                    placeholder="Enter your first name"
+                    aria-label="Enter your first name" 
+                    type="text"
+                    id="firstname"
+                    autoComplete="off"
+                    onChange={ ( event ) => setFirstName(event.target.value)}
+                    value={firstName}
+                    aria-invalid={validFirstName ? "false" : "true"}
+                    aria-describedby="firstnamenote"
+                    onFocus={() => setFirstNameFocus(true)}
+                    onBlur={() => setFirstNameFocus(false)}
+                    required
+                />
             </div>
-        </div>
 
-        <div className='flex flex-row mx-2 gap-x-2 mt-1'>
-            
-            {validMatch ? 
-                (
-                    <>
-                    <div className='flex flex-col justify-center'>
-                    <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#38a169" className="w-6 h-6">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    </div>
-                    <div className='flex flex-col justify-center'>
-                        <span className="text-sm md:text-base text-green-600">Please re-enter your password</span>
-                    </div>
-                    </>
-                )
-                : 
-                ( 
-                    <>
-                    <div className='flex flex-col justify-center'>
-                    <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#e53e3e" className="w-6 h-6" >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    </div>
-                    <div className='flex flex-col justify-center'>
-                        <span className="text-sm md:text-base text-red-600">Please re-enter your password</span>
-                    </div>
-                    </>
-                )
-            }
-        </div>
+            <div className='flex flex-row mx-2 gap-x-2 mt-1'>
+                
+                {validFirstName ? 
+                    (
+                        <>
+                        <div className='flex flex-col justify-center'>
+                        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#38a169" className="w-6 h-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        </div>
+                        <div className='flex flex-col justify-center'>
+                            <span className="text-sm md:text-base text-green-600">Please enter your first name</span>
+                        </div>
+                        </>
+                    )
+                    : 
+                    ( 
+                        <>
+                        <div className='flex flex-col justify-center'>
+                        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#e53e3e" className="w-6 h-6" >
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        </div>
+                        <div className='flex flex-col justify-center'>
+                            <span className="text-sm md:text-base text-red-600">Please enter your first name</span>
+                        </div>
+                        </>
+                    )
+                }
+            </div>  
 
-        <div className='flex flex-col mt-6'>
-            <label className='text-base md:text-lg font-medium'>Street Address</label>
-            <input 
-                className='w-full border-2 rounded-xl p-4 mt-1 hover:scale-[1.01] ease-in-out border-[#00D3E0]/10
-                    bg-white focus:outline-[#00D3E0] placeholder:text-sm md:placeholder:text-base'
-                placeholder="Street address of your store"
-                aria-label="Street address of your store" 
-                type="text"
-                id="address"
-                autoComplete="off"
-                onChange={ ( e ) => setAddress(e.target.value)}
-                value={address}
-                aria-invalid={validAddress ? "false" : "true"}
-                aria-describedby="addressnamenote"
-                onFocus={() => setAddressFocus(true)}
-                onBlur={() => setAddressFocus(false)}
-                required
-            />
-        </div>
+            <div className='flex flex-col mt-6'>
+                <label className='text-base md:text-lg font-medium'>Last Name</label>
+                <input 
+                    className='w-full border-2 rounded-xl p-4 mt-1 hover:scale-[1.01] ease-in-out border-[#00D3E0]/10
+                        bg-white focus:outline-[#00D3E0] placeholder:text-sm md:placeholder:text-base'
+                    placeholder="Enter your last name"
+                    aria-label="Enter your last name" 
+                    type="text"
+                    id="lastname"
+                    autoComplete="off"
+                    onChange={ ( event ) => setLastName(event.target.value)}
+                    value={lastName}
+                    aria-invalid={validLastName ? "false" : "true"}
+                    aria-describedby="lastnamenote"
+                    onFocus={() => setLastNameFocus(true)}
+                    onBlur={() => setLastNameFocus(false)}
+                    required
+                />
+            </div>
 
-        <div className='flex flex-row mx-2 gap-x-2 mt-1'>
-            
-            {validAddress ? 
-                (
-                    <>
-                    <div className='flex flex-col justify-center'>
-                    <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#38a169" className="w-6 h-6">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    </div>
-                    <div className='flex flex-col justify-center'>
-                        <span className="text-sm md:text-base text-green-600">Please enter the street address where your charger is located</span>
-                    </div>
-                    </>
-                )
-                : 
-                ( 
-                    <>
-                    <div className='flex flex-col justify-center'>
-                    <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#e53e3e" className="w-6 h-6" >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    </div>
-                    <div className='flex flex-col justify-center'>
-                        <span className="text-sm md:text-base text-red-600">Please enter the street address where your charger is located</span>
-                    </div>
-                    </>
-                )
-            }
-        </div>  
+            <div className='flex flex-row mx-2 gap-x-2 mt-1'>
+                
+                {validLastName ? 
+                    (
+                        <>
+                        <div className='flex flex-col justify-center'>
+                        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#38a169" className="w-6 h-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        </div>
+                        <div className='flex flex-col justify-center'>
+                            <span className="text-sm md:text-base text-green-600">Please enter your last name</span>
+                        </div>
+                        </>
+                    )
+                    : 
+                    ( 
+                        <>
+                        <div className='flex flex-col justify-center'>
+                        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#e53e3e" className="w-6 h-6" >
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        </div>
+                        <div className='flex flex-col justify-center'>
+                            <span className="text-sm md:text-base text-red-600">Please enter your last name</span>
+                        </div>
+                        </>
+                    )
+                }
+            </div>  
 
-        <div className='flex flex-col mt-6'>
-            <label className='text-base md:text-lg font-medium'>City </label>
-            <input 
-                className={`w-full border-2 rounded-xl placeholder:text-sm md:placeholder:text-base hover:scale-[1.01] ease-in-out border-[#00D3E0]/10
-                    p-4 mt-1 bg-white focus:outline-[#00D3E0] ${city === 'Select City' ? 'text-gray-400' : 'text-black'}`}
-                placeholder="Enter the city/town of your store"
-                aria-label="Store Address - City" 
-                type="text"
-                id="city"
-                autoComplete="off"
-                onChange={ ( e ) => setCity(e.target.value)}
-                value={city}
-                aria-invalid={validCity ? "false" : "true"}
-                aria-describedby="citynamenote"
-                onFocus={() => setCityFocus(true)}
-                onBlur={() => setCityFocus(false)}
-                required
-            />
-        </div>
+            <div className='flex flex-col mt-6'>
+                <label className='text-base md:text-lg font-medium'>Password</label>
+                <div className='flex flex-row w-full'>
+                <input 
+                    className='w-full border-2 rounded-xl p-4 mt-1 hover:scale-[1.01] ease-in-out border-[#00D3E0]/10
+                        bg-white focus:outline-[#00D3E0] placeholder:text-sm md:placeholder:text-base'
+                    placeholder="Enter your password"
+                    aria-label="Enter your password" 
+                    type={inputType}
+                    id="password"
 
-        <div className='flex flex-row mx-2 gap-x-2 mt-1'>
-            
-            {validCity ? 
-                (
-                    <>
-                    <div className='flex flex-col justify-center'>
-                    <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#38a169" className="w-6 h-6">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    </div>
-                    <div className='flex flex-col justify-center'>
-                        <span className="flex flex-col text-green-600">Please enter your city</span>
-                    </div>
-                    </>
-                )
-                : 
-                ( 
-                    <>
-                    <div className='flex flex-col justify-center'>
-                    <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#e53e3e" className="w-6 h-6" >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    </div>
-                    <div className='flex flex-col justify-center'>
-                        <span className="text-sm md:text-base text-red-600">Please enter your city</span>
-                    </div>
-                    </>
-                )
-            }
-        </div>  
+                    onChange={ ( e ) => setPwdRegister(e.target.value)}
+                    value={pwdRegister}
+                    aria-invalid={validPwdRegister ? "false" : "true"}
+                    aria-describedby="pwdnote"
+                    onFocus={() => setPwdFocusRegister(true)}
+                    onBlur={() => setPwdFocusRegister(false)}
+                    required
+                />
+                <span className='relative flex cursor-pointer justify-around items-center'
+                    onClick={handlePassToggleRegister}>
+                    
+                    <span className='absolute mr-16'>
+                    {inputTypeRegister === 'text' ? 
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 16.3299C9.61004 16.3299 7.67004 14.3899 7.67004 11.9999C7.67004 9.60992 9.61004 7.66992 12 7.66992C14.39 7.66992 16.33 9.60992 16.33 11.9999C16.33 14.3899 14.39 16.3299 12 16.3299ZM12 9.16992C10.44 9.16992 9.17004 10.4399 9.17004 11.9999C9.17004 13.5599 10.44 14.8299 12 14.8299C13.56 14.8299 14.83 13.5599 14.83 11.9999C14.83 10.4399 13.56 9.16992 12 9.16992Z" fill="#00D3E0"/>
+                            <path d="M12 21.02C8.23996 21.02 4.68996 18.82 2.24996 15C1.18996 13.35 1.18996 10.66 2.24996 8.99998C4.69996 5.17998 8.24996 2.97998 12 2.97998C15.75 2.97998 19.3 5.17998 21.74 8.99998C22.8 10.65 22.8 13.34 21.74 15C19.3 18.82 15.75 21.02 12 21.02ZM12 4.47998C8.76996 4.47998 5.67996 6.41998 3.51996 9.80998C2.76996 10.98 2.76996 13.02 3.51996 14.19C5.67996 17.58 8.76996 19.52 12 19.52C15.23 19.52 18.32 17.58 20.48 14.19C21.23 13.02 21.23 10.98 20.48 9.80998C18.32 6.41998 15.23 4.47998 12 4.47998Z" fill="#00D3E0"/>
+                        </svg>
+                            : 
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9.47004 15.2799C9.28004 15.2799 9.09004 15.2099 8.94004 15.0599C8.12004 14.2399 7.67004 13.1499 7.67004 11.9999C7.67004 9.60992 9.61004 7.66992 12 7.66992C13.15 7.66992 14.24 8.11992 15.06 8.93992C15.2 9.07992 15.28 9.26992 15.28 9.46992C15.28 9.66992 15.2 9.85992 15.06 9.99992L10 15.0599C9.85004 15.2099 9.66004 15.2799 9.47004 15.2799ZM12 9.16992C10.44 9.16992 9.17004 10.4399 9.17004 11.9999C9.17004 12.4999 9.30004 12.9799 9.54004 13.3999L13.4 9.53992C12.98 9.29992 12.5 9.16992 12 9.16992Z" fill="#00D3E0"/>
+                            <path d="M5.59997 18.51C5.42997 18.51 5.24997 18.45 5.10997 18.33C4.03997 17.42 3.07997 16.3 2.25997 15C1.19997 13.35 1.19997 10.66 2.25997 8.99998C4.69997 5.17998 8.24997 2.97998 12 2.97998C14.2 2.97998 16.37 3.73998 18.27 5.16998C18.6 5.41998 18.67 5.88998 18.42 6.21998C18.17 6.54998 17.7 6.61998 17.37 6.36998C15.73 5.12998 13.87 4.47998 12 4.47998C8.76997 4.47998 5.67997 6.41998 3.51997 9.80998C2.76997 10.98 2.76997 13.02 3.51997 14.19C4.26997 15.36 5.12997 16.37 6.07997 17.19C6.38997 17.46 6.42997 17.93 6.15997 18.25C6.01997 18.42 5.80997 18.51 5.59997 18.51Z" fill="#00D3E0"/>
+                            <path d="M11.9999 21.02C10.6699 21.02 9.36994 20.75 8.11994 20.22C7.73994 20.06 7.55994 19.62 7.71994 19.24C7.87994 18.86 8.31994 18.68 8.69994 18.84C9.75994 19.29 10.8699 19.52 11.9899 19.52C15.2199 19.52 18.3099 17.58 20.4699 14.19C21.2199 13.02 21.2199 10.98 20.4699 9.81C20.1599 9.32 19.8199 8.85 19.4599 8.41C19.1999 8.09 19.2499 7.62 19.5699 7.35C19.8899 7.09 20.3599 7.13 20.6299 7.46C21.0199 7.94 21.3999 8.46 21.7399 9C22.7999 10.65 22.7999 13.34 21.7399 15C19.2999 18.82 15.7499 21.02 11.9999 21.02Z" fill="#00D3E0"/>
+                            <path d="M12.69 16.2699C12.34 16.2699 12.02 16.0199 11.95 15.6599C11.87 15.2499 12.14 14.8599 12.55 14.7899C13.65 14.5899 14.57 13.6699 14.77 12.5699C14.85 12.1599 15.24 11.8999 15.65 11.9699C16.06 12.0499 16.33 12.4399 16.25 12.8499C15.93 14.5799 14.55 15.9499 12.83 16.2699C12.78 16.2599 12.74 16.2699 12.69 16.2699Z" fill="#00D3E0"/>
+                            <path d="M1.99994 22.7502C1.80994 22.7502 1.61994 22.6802 1.46994 22.5302C1.17994 22.2402 1.17994 21.7602 1.46994 21.4702L8.93994 14.0002C9.22994 13.7102 9.70994 13.7102 9.99994 14.0002C10.2899 14.2902 10.2899 14.7702 9.99994 15.0602L2.52994 22.5302C2.37994 22.6802 2.18994 22.7502 1.99994 22.7502Z" fill="#00D3E0"/>
+                            <path d="M14.53 10.2199C14.34 10.2199 14.15 10.1499 14 9.99994C13.71 9.70994 13.71 9.22994 14 8.93994L21.47 1.46994C21.76 1.17994 22.24 1.17994 22.53 1.46994C22.82 1.75994 22.82 2.23994 22.53 2.52994L15.06 9.99994C14.91 10.1499 14.72 10.2199 14.53 10.2199Z" fill="#00D3E0"/>
+                        </svg>          
+                            
+                    }
+                    </span>
+                </span>
+                </div>
+            </div>
 
-        <div className='flex flex-col mt-6'>
-            <label className='text-base md:text-lg font-medium '>State/Province/Region </label>
-            <select onChange={(event) => handleRegionChange(event)}
-                value={region}
-                placeholder="Store Address - State/Province/Region"
-                aria-label="Store Address - State/Province/Region" 
-                required
-                className={`w-full border-2 rounded-xl placeholder:text-sm md:placeholder:text-base text-sm md:text-base h-16 pl-4 sm:h-auto
-                p-4 mt-1 bg-white focus:outline-[#00D3E0] ${region === 'Select Region' ? 'text-gray-400 text-sm' : 'text-black text-base'}
-                hover:scale-[1.01] ease-in-out border-[#00D3E0]/10`}
-                >
-                    {regionData?.length > 0 ? regionData
-                    .filter(region => (region.region !== "Select All"))
+            <div className='flex flex-row mx-2 gap-x-2 mt-1'>
+                
+                {validPwdRegister ? 
+                    (
+                        <>
+                        <div className='flex flex-col justify-center'>
+                        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#38a169" className="w-6 h-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        </div>
+                        <div className='flex flex-col justify-center'>
+                            <span className="text-sm md:text-base text-green-600">Please include at least 8 characters, lower and uppercase letters, a number and a special character</span>
+                        </div>
+                        </>
+                    )
+                    : 
+                    ( 
+                        <>
+                        <div className='flex flex-col justify-center'>
+                        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#e53e3e" className="w-6 h-6" >
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        </div>
+                        <div className='flex flex-col justify-center'>
+                            <span className="text-sm md:text-base text-red-600">Please include at least 8 characters, lower and uppercase letters, a number and a special character</span>
+                        </div>
+                        </>
+                    )
+                }
+            </div>
+
+            <div className='flex flex-col mt-6'>
+                <label className='text-base md:text-lg font-medium'>Confirm Password</label>
+                <div className='flex flex-row w-full'>
+                <input 
+                    className='w-full border-2 rounded-xl p-4 mt-1 hover:scale-[1.01] ease-in-out border-[#00D3E0]/10
+                        bg-white focus:outline-[#00D3E0] placeholder:text-sm md:placeholder:text-base'
+                    placeholder="Confirm your password"
+                    aria-label="Confirm your password" 
+                    type={inputType}
+                    id="confirmpwd"
+
+                    onChange={ ( e ) => setMatchPwd(e.target.value)}
+                    value={matchPwd}
+                    aria-invalid={validMatch ? "false" : "true"}
+                    aria-describedby="confirmnote"
+                    onFocus={() => setMatchFocus(true)}
+                    onBlur={() => setMatchFocus(false)}
+                    required
+                />
+                <span className='relative flex cursor-pointer justify-around items-center'
+                    onClick={handlePassToggleRegister}>
+                    
+                    <span className='absolute mr-16'>
+                    {inputType === 'text' ? 
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 16.3299C9.61004 16.3299 7.67004 14.3899 7.67004 11.9999C7.67004 9.60992 9.61004 7.66992 12 7.66992C14.39 7.66992 16.33 9.60992 16.33 11.9999C16.33 14.3899 14.39 16.3299 12 16.3299ZM12 9.16992C10.44 9.16992 9.17004 10.4399 9.17004 11.9999C9.17004 13.5599 10.44 14.8299 12 14.8299C13.56 14.8299 14.83 13.5599 14.83 11.9999C14.83 10.4399 13.56 9.16992 12 9.16992Z" fill="#00D3E0"/>
+                            <path d="M12 21.02C8.23996 21.02 4.68996 18.82 2.24996 15C1.18996 13.35 1.18996 10.66 2.24996 8.99998C4.69996 5.17998 8.24996 2.97998 12 2.97998C15.75 2.97998 19.3 5.17998 21.74 8.99998C22.8 10.65 22.8 13.34 21.74 15C19.3 18.82 15.75 21.02 12 21.02ZM12 4.47998C8.76996 4.47998 5.67996 6.41998 3.51996 9.80998C2.76996 10.98 2.76996 13.02 3.51996 14.19C5.67996 17.58 8.76996 19.52 12 19.52C15.23 19.52 18.32 17.58 20.48 14.19C21.23 13.02 21.23 10.98 20.48 9.80998C18.32 6.41998 15.23 4.47998 12 4.47998Z" fill="#00D3E0"/>
+                        </svg>
+                            : 
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9.47004 15.2799C9.28004 15.2799 9.09004 15.2099 8.94004 15.0599C8.12004 14.2399 7.67004 13.1499 7.67004 11.9999C7.67004 9.60992 9.61004 7.66992 12 7.66992C13.15 7.66992 14.24 8.11992 15.06 8.93992C15.2 9.07992 15.28 9.26992 15.28 9.46992C15.28 9.66992 15.2 9.85992 15.06 9.99992L10 15.0599C9.85004 15.2099 9.66004 15.2799 9.47004 15.2799ZM12 9.16992C10.44 9.16992 9.17004 10.4399 9.17004 11.9999C9.17004 12.4999 9.30004 12.9799 9.54004 13.3999L13.4 9.53992C12.98 9.29992 12.5 9.16992 12 9.16992Z" fill="#00D3E0"/>
+                            <path d="M5.59997 18.51C5.42997 18.51 5.24997 18.45 5.10997 18.33C4.03997 17.42 3.07997 16.3 2.25997 15C1.19997 13.35 1.19997 10.66 2.25997 8.99998C4.69997 5.17998 8.24997 2.97998 12 2.97998C14.2 2.97998 16.37 3.73998 18.27 5.16998C18.6 5.41998 18.67 5.88998 18.42 6.21998C18.17 6.54998 17.7 6.61998 17.37 6.36998C15.73 5.12998 13.87 4.47998 12 4.47998C8.76997 4.47998 5.67997 6.41998 3.51997 9.80998C2.76997 10.98 2.76997 13.02 3.51997 14.19C4.26997 15.36 5.12997 16.37 6.07997 17.19C6.38997 17.46 6.42997 17.93 6.15997 18.25C6.01997 18.42 5.80997 18.51 5.59997 18.51Z" fill="#00D3E0"/>
+                            <path d="M11.9999 21.02C10.6699 21.02 9.36994 20.75 8.11994 20.22C7.73994 20.06 7.55994 19.62 7.71994 19.24C7.87994 18.86 8.31994 18.68 8.69994 18.84C9.75994 19.29 10.8699 19.52 11.9899 19.52C15.2199 19.52 18.3099 17.58 20.4699 14.19C21.2199 13.02 21.2199 10.98 20.4699 9.81C20.1599 9.32 19.8199 8.85 19.4599 8.41C19.1999 8.09 19.2499 7.62 19.5699 7.35C19.8899 7.09 20.3599 7.13 20.6299 7.46C21.0199 7.94 21.3999 8.46 21.7399 9C22.7999 10.65 22.7999 13.34 21.7399 15C19.2999 18.82 15.7499 21.02 11.9999 21.02Z" fill="#00D3E0"/>
+                            <path d="M12.69 16.2699C12.34 16.2699 12.02 16.0199 11.95 15.6599C11.87 15.2499 12.14 14.8599 12.55 14.7899C13.65 14.5899 14.57 13.6699 14.77 12.5699C14.85 12.1599 15.24 11.8999 15.65 11.9699C16.06 12.0499 16.33 12.4399 16.25 12.8499C15.93 14.5799 14.55 15.9499 12.83 16.2699C12.78 16.2599 12.74 16.2699 12.69 16.2699Z" fill="#00D3E0"/>
+                            <path d="M1.99994 22.7502C1.80994 22.7502 1.61994 22.6802 1.46994 22.5302C1.17994 22.2402 1.17994 21.7602 1.46994 21.4702L8.93994 14.0002C9.22994 13.7102 9.70994 13.7102 9.99994 14.0002C10.2899 14.2902 10.2899 14.7702 9.99994 15.0602L2.52994 22.5302C2.37994 22.6802 2.18994 22.7502 1.99994 22.7502Z" fill="#00D3E0"/>
+                            <path d="M14.53 10.2199C14.34 10.2199 14.15 10.1499 14 9.99994C13.71 9.70994 13.71 9.22994 14 8.93994L21.47 1.46994C21.76 1.17994 22.24 1.17994 22.53 1.46994C22.82 1.75994 22.82 2.23994 22.53 2.52994L15.06 9.99994C14.91 10.1499 14.72 10.2199 14.53 10.2199Z" fill="#00D3E0"/>
+                        </svg>          
+                            
+                    }
+                    </span>
+                </span>
+                </div>
+            </div>
+
+            <div className='flex flex-row mx-2 gap-x-2 mt-1'>
+                
+                {validMatch ? 
+                    (
+                        <>
+                        <div className='flex flex-col justify-center'>
+                        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#38a169" className="w-6 h-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        </div>
+                        <div className='flex flex-col justify-center'>
+                            <span className="text-sm md:text-base text-green-600">Please re-enter your password</span>
+                        </div>
+                        </>
+                    )
+                    : 
+                    ( 
+                        <>
+                        <div className='flex flex-col justify-center'>
+                        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#e53e3e" className="w-6 h-6" >
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        </div>
+                        <div className='flex flex-col justify-center'>
+                            <span className="text-sm md:text-base text-red-600">Please re-enter your password</span>
+                        </div>
+                        </>
+                    )
+                }
+            </div>
+
+            <div className='flex flex-col mt-6'>
+                <label className='text-base md:text-lg font-medium'>Street Address</label>
+                <input 
+                    className='w-full border-2 rounded-xl p-4 mt-1 hover:scale-[1.01] ease-in-out border-[#00D3E0]/10
+                        bg-white focus:outline-[#00D3E0] placeholder:text-sm md:placeholder:text-base'
+                    placeholder="Street address of your store"
+                    aria-label="Street address of your store" 
+                    type="text"
+                    id="address"
+                    autoComplete="off"
+                    onChange={ ( e ) => setAddress(e.target.value)}
+                    value={address}
+                    aria-invalid={validAddress ? "false" : "true"}
+                    aria-describedby="addressnamenote"
+                    onFocus={() => setAddressFocus(true)}
+                    onBlur={() => setAddressFocus(false)}
+                    required
+                />
+            </div>
+
+            <div className='flex flex-row mx-2 gap-x-2 mt-1'>
+                
+                {validAddress ? 
+                    (
+                        <>
+                        <div className='flex flex-col justify-center'>
+                        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#38a169" className="w-6 h-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        </div>
+                        <div className='flex flex-col justify-center'>
+                            <span className="text-sm md:text-base text-green-600">Please enter the street address where your charger is located</span>
+                        </div>
+                        </>
+                    )
+                    : 
+                    ( 
+                        <>
+                        <div className='flex flex-col justify-center'>
+                        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#e53e3e" className="w-6 h-6" >
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        </div>
+                        <div className='flex flex-col justify-center'>
+                            <span className="text-sm md:text-base text-red-600">Please enter the street address where your charger is located</span>
+                        </div>
+                        </>
+                    )
+                }
+            </div>  
+
+            <div className='flex flex-col mt-6'>
+                <label className='text-base md:text-lg font-medium'>City </label>
+                <input 
+                    className={`w-full border-2 rounded-xl placeholder:text-sm md:placeholder:text-base hover:scale-[1.01] ease-in-out border-[#00D3E0]/10
+                        p-4 mt-1 bg-white focus:outline-[#00D3E0] ${city === 'Select City' ? 'text-gray-400' : 'text-black'}`}
+                    placeholder="Enter the city/town of your store"
+                    aria-label="Store Address - City" 
+                    type="text"
+                    id="city"
+                    autoComplete="off"
+                    onChange={ ( e ) => setCity(e.target.value)}
+                    value={city}
+                    aria-invalid={validCity ? "false" : "true"}
+                    aria-describedby="citynamenote"
+                    onFocus={() => setCityFocus(true)}
+                    onBlur={() => setCityFocus(false)}
+                    required
+                />
+            </div>
+
+            <div className='flex flex-row mx-2 gap-x-2 mt-1'>
+                
+                {validCity ? 
+                    (
+                        <>
+                        <div className='flex flex-col justify-center'>
+                        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#38a169" className="w-6 h-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        </div>
+                        <div className='flex flex-col justify-center'>
+                            <span className="flex flex-col text-green-600">Please enter your city</span>
+                        </div>
+                        </>
+                    )
+                    : 
+                    ( 
+                        <>
+                        <div className='flex flex-col justify-center'>
+                        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#e53e3e" className="w-6 h-6" >
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        </div>
+                        <div className='flex flex-col justify-center'>
+                            <span className="text-sm md:text-base text-red-600">Please enter your city</span>
+                        </div>
+                        </>
+                    )
+                }
+            </div>  
+
+            <div className='flex flex-col mt-6'>
+                <label className='text-base md:text-lg font-medium '>State/Province/Region </label>
+                <select onChange={(event) => handleRegionChange(event)}
+                    value={region}
+                    placeholder="Store Address - State/Province/Region"
+                    aria-label="Store Address - State/Province/Region" 
+                    required
+                    className={`w-full border-2 rounded-xl placeholder:text-sm md:placeholder:text-base text-sm md:text-base h-16 pl-4 sm:h-auto
+                    p-4 mt-1 bg-white focus:outline-[#00D3E0] ${region === 'Select Region' ? 'text-gray-400 text-sm' : 'text-black text-base'}
+                    hover:scale-[1.01] ease-in-out border-[#00D3E0]/10`}
+                    >
+                        {regionData?.length > 0 ? regionData
+                        .filter(region => (region.region !== "Select All"))
+                        .map((item, index) => (
+
+                            <option className='text-sm md:text-base' key={`${item.region} ${index}`} value={item.region}>{item.region}</option>
+                        
+                        )) : null}
+
+                    </select> 
+            </div>
+
+            <div className='flex flex-row mx-2 gap-x-2 mt-1'>
+                
+                {validRegion ? 
+                    (
+                        <>
+                        <div className='flex flex-col justify-center'>
+                        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#38a169" className="w-6 h-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        </div>
+                        <div className='flex flex-col justify-center'>
+                            <span className="text-sm md:text-base text-green-600">Please enter your state/province/region</span>
+                        </div>
+                        </>
+                    )
+                    : 
+                    ( 
+                        <>
+                        <div className='flex flex-col justify-center'>
+                        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#e53e3e" className="w-6 h-6" >
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        </div>
+                        <div className='flex flex-col justify-center'>
+                            <span className="text-sm md:text-base text-red-600">Please enter your state/province/region</span>
+                        </div>
+                        </>
+                    )
+                }
+            </div>  
+
+            <div className='flex flex-col mt-6'>
+                <label className='text-base md:text-lg font-medium'>Country </label>
+                <div>
+                <select onChange={(event) => setCountry(event.target.value)}
+                    value={country} 
+                    placeholder="Store Address - Country"
+                    aria-label="Store Address - Country" 
+                    required
+                    disabled={countrySet}
+                    className={`w-full border-2 rounded-xl placeholder:text-sm md:placeholder:text-base text-sm md:text-base h-16 pl-4 sm:h-auto
+                    p-4 mt-1 bg-white focus:outline-[#00D3E0] ${country === 'Select Country' ? 'text-gray-400 text-sm' : 'text-black text-base'}
+                    hover:scale-[1.01] ease-in-out border-[#00D3E0]/10`}
+                    >
+                    {countryData?.length > 0 ? countryData
+                    .filter(country => (country !== "Select All"))
                     .map((item, index) => (
 
-                        <option className='text-sm md:text-base' key={`${item.region} ${index}`} value={item.region}>{item.region}</option>
+                        <option key={`${item} ${index}`} value={item}>{item}</option>
                     
                     )) : null}
 
                 </select> 
-        </div>
+                </div>
+            </div>
 
-        <div className='flex flex-row mx-2 gap-x-2 mt-1'>
-            
-            {validRegion ? 
-                (
-                    <>
-                    <div className='flex flex-col justify-center'>
-                    <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#38a169" className="w-6 h-6">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    </div>
-                    <div className='flex flex-col justify-center'>
-                        <span className="text-sm md:text-base text-green-600">Please enter your state/province/region</span>
-                    </div>
-                    </>
-                )
-                : 
-                ( 
+            <div className='flex flex-row mx-2 gap-x-2 mt-1'>
+                
+                {validCountry ? 
+                    (
+                        <>
+                        <div className='flex flex-col justify-center'>
+                        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#38a169" className="w-6 h-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        </div>
+                        <div className='flex flex-col justify-center'>
+                            <span className="text-sm md:text-base text-green-600">Please enter your country</span>
+                        </div>
+                        </>
+                    )
+                    : 
+                    ( 
                     <>
                     <div className='flex flex-col justify-center'>
                     <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#e53e3e" className="w-6 h-6" >
@@ -1344,95 +1401,39 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
                     </svg>
                     </div>
                     <div className='flex flex-col justify-center'>
-                        <span className="text-sm md:text-base text-red-600">Please enter your state/province/region</span>
+                        <span className="text-sm md:text-base text-red-600">Please enter your country</span>
                     </div>
                     </>
-                )
-            }
-        </div>  
+                )}
+            </div>  
 
-        <div className='flex flex-col mt-6'>
-            <label className='text-base md:text-lg font-medium'>Country </label>
-            <div>
-            <select onChange={(event) => setCountry(event.target.value)}
-                value={country} 
-                placeholder="Store Address - Country"
-                aria-label="Store Address - Country" 
-                required
-                disabled={countrySet}
-                className={`w-full border-2 rounded-xl placeholder:text-sm md:placeholder:text-base text-sm md:text-base h-16 pl-4 sm:h-auto
-                p-4 mt-1 bg-white focus:outline-[#00D3E0] ${country === 'Select Country' ? 'text-gray-400 text-sm' : 'text-black text-base'}
-                hover:scale-[1.01] ease-in-out border-[#00D3E0]/10`}
-                >
-                {countryData?.length > 0 ? countryData
-                .filter(country => (country !== "Select All"))
-                .map((item, index) => (
-
-                    <option key={`${item} ${index}`} value={item}>{item}</option>
-                
-                )) : null}
-
-            </select> 
+            {/* <div className='mt-6 pl-2 flex items-start'>
+                <div>
+                    <input  
+                        type="checkbox" 
+                        id='termsagree'
+                        onChange={toggleAcceptTerms}
+                        checked={acceptTerms}
+                    />
+                    <label className='ml-2 text-sm font-medium md:text-base' htmlFor="termsagree">{`I agree to the `}
+                    <button className='text-blue-900 underline' onClick={handleOpenModalTerms}> 
+                        Terms of Service</button></label>
+                </div>
             </div>
-        </div>
 
-        <div className='flex flex-row mx-2 gap-x-2 mt-1'>
-            
-            {validCountry ? 
-                (
-                    <>
-                    <div className='flex flex-col justify-center'>
-                    <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#38a169" className="w-6 h-6">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    </div>
-                    <div className='flex flex-col justify-center'>
-                        <span className="text-sm md:text-base text-green-600">Please enter your country</span>
-                    </div>
-                    </>
-                )
-                : 
-                ( 
-                <>
-                <div className='flex flex-col justify-center'>
-                <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#e53e3e" className="w-6 h-6" >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                </div>
-                <div className='flex flex-col justify-center'>
-                    <span className="text-sm md:text-base text-red-600">Please enter your country</span>
-                </div>
-                </>
-            )}
-        </div>  
-
-        {/* <div className='mt-6 pl-2 flex items-start'>
-            <div>
+            <div className='mt-2 pl-2 flex items-start'>
+                <div>
                 <input  
-                    type="checkbox" 
-                    id='termsagree'
-                    onChange={toggleAcceptTerms}
-                    checked={acceptTerms}
-                />
-                <label className='ml-2 text-sm font-medium md:text-base' htmlFor="termsagree">{`I agree to the `}
-                <button className='text-blue-900 underline' onClick={handleOpenModalTerms}> 
-                    Terms of Service</button></label>
-            </div>
-        </div>
-
-        <div className='mt-2 pl-2 flex items-start'>
-            <div>
-            <input  
-                    type="checkbox" 
-                    id='privacyagree'
-                    onChange={toggleAcceptPrivacy}
-                    checked={acceptPrivacy}
-                />
-                <label className='ml-2 font-medium text-sm md:text-base' htmlFor="privacyagree">{`I agree to the `}
-                <button className='text-blue-900 underline' onClick={handleOpenModalPrivacy}> 
-                    Privacy Policy</button></label>
-            </div>
-        </div> */}
+                        type="checkbox" 
+                        id='privacyagree'
+                        onChange={toggleAcceptPrivacy}
+                        checked={acceptPrivacy}
+                    />
+                    <label className='ml-2 font-medium text-sm md:text-base' htmlFor="privacyagree">{`I agree to the `}
+                    <button className='text-blue-900 underline' onClick={handleOpenModalPrivacy}> 
+                        Privacy Policy</button></label>
+                </div>
+            </div> */}
 
             {/* <div className='flex flex-row mx-2 gap-x-2 mt-1'>
             {(acceptTerms && acceptPrivacy) ? 
@@ -1469,7 +1470,8 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
             {success && <p className='font-medium text-base md:text-lg text-center text-green-600 mt-8'>Please check your email to activate!</p>}
         </div>
 
-        <div className='py-8 flex flex-col gap-y-4 px-6 sm:px-8 md:px-10'>
+        <div className='py-8 flex flex-col gap-y-4 w-full'>
+
             <button className={`active:scale-[.98] active:duration-75 transition-all hover:scale-[1.01]  
                 ease-in-out transform py-4 px-8 sm:px-12 bg-[#00D3E0] rounded-3xl text-white 
                 text-base md:text-lg
@@ -1520,7 +1522,7 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
             
             <button 
                 className='flex items-center justify-center gap-2 active:scale-[.98] active:duration-75 transition-all hover:scale-[1.01]
-                 ease-in-out transform py-4 px-8 sm:px-12 rounded-3xl text-gray-700 gap-x-2
+                 ease-in-out transform py-4 rounded-3xl text-gray-700 gap-x-2
                  text-base md:text-lg border-2 border-[#00D3E0] bg-white'
                  onClick={()=>setValue("0")}>
 
@@ -1540,21 +1542,27 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
             {(success && resendCount <= 2) ? ( 
                 <>
             <div className='flex flex-col'>
-            <button 
-                className='flex items-center justify-center gap-x-2 active:scale-[.98] active:duration-75 transition-all hover:scale-[1.01]  
-                ease-in-out transform py-4 px-8 sm:px-12 rounded-3xl
-                text-base md:text-lg border-2 border-[#00D3E0] text-blue-500 cursor-pointer bg-white'
-                onClick={(event)=>handleResend(event)} >
-                    <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
-                    </svg>
+                <button 
+                    className='flex items-center justify-center gap-x-2 active:scale-[.98] active:duration-75 transition-all hover:scale-[1.01]  
+                    ease-in-out transform py-4 rounded-3xl
+                    text-base md:text-lg border-2 border-[#00D3E0] text-blue-500 cursor-pointer bg-white'
+                    onClick={(event)=>handleResend(event)} >
+                        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                        </svg>
 
-                Resend confirmation email</button>
-                
-                </div>
-                </>
+                    Resend confirmation email</button>
+                    
+                    </div>
+                    </>
                     ) : null }
 
+            </div>
+
+            <div className='w-full flex flex-col pt-16 justify-center pb-4 gap-y-2'>
+                <div className='flex justify-center flex-row'>
+                    <p className='text-xs text-gray-500'>Copyright © 2023 SocketJuice</p>
+                </div>
             </div>
         </div>
 
