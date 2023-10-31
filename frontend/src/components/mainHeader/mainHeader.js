@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef, useMemo} from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import * as ROUTES from '../../constants/routes';
 import axios from '../../api/axios';
@@ -7,6 +7,10 @@ import { Profanity, ProfanityOptions } from '@2toad/profanity';
 // import NotificationsDropdown from '../notifications/notificationsDropdown';
 // import SettingsDropdown from '../settings/settingsDropdown';
 
+import ReCAPTCHA from "react-google-recaptcha";
+import { regionData } from '../listdata/regions';
+import { countryData } from '../listdata/countries';
+import debounce from 'lodash.debounce';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import Tab from "@material-ui/core/Tab";
@@ -16,7 +20,7 @@ import TabPanel from "@material-ui/lab/TabPanel";
 
 import socketjuice_full_logo from "../../images/SocketJuice.png";
 import editNewMessagesFill from '../../helpers/Notifications/editNewMessagesFill';
-
+import checkUser from '../../helpers/DriverData/checkUser';
 
 const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket, setSocket,
         socketConnected, setSocketConnected} ) => {
@@ -32,6 +36,7 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
     const [value, setValue] = useState("0");
     const [registerTab, setRegisterTab] = useState(true);
     const [loginTab, setLoginTab] = useState(false);
+    const [inputType, setInputType] = useState("password");
 
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingEmail, setIsLoadingMail] = useState(false);
@@ -179,9 +184,9 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
 
         async function checkDuplicate(){
 
-            var regexCheckEmail = EMAIL_REGEX.test(email)
+            var regexCheckEmail = EMAIL_REGEX.test(emailRegister)
             
-            const response = await checkUser(email.toLowerCase())
+            const response = await checkUser(emailRegister.toLowerCase())
 
             if(response?.email === 0 && regexCheckEmail){
                 setValidEmailRegister(true);
@@ -190,7 +195,7 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
             }
         }
 
-        if(email?.length > 4){
+        if(emailRegister?.length > 4){
             checkDuplicate()
         } else {
             setValidEmailRegister(false);
@@ -221,10 +226,6 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
     }, [lastName])
 
     useEffect(() => {
-        setValidPhonePrimary(PHONE_PRIMARY_REGEX.test(phonePrimary));
-    }, [phonePrimary])
-
-    useEffect(() => {
         setValidAddress(ADDRESS_REGEX.test(address));
     }, [address])
 
@@ -241,14 +242,14 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
     }, [country])
 
     useEffect(() => {
-        setValidPwd(PWD_REGEX.test(pwdRegister));
+        setValidPwdRegister(PWD_REGEX.test(pwdRegister));
         setValidMatch((pwdRegister === matchPwd) && (matchPwd !== ''));
     }, [pwdRegister, matchPwd])
 
     useEffect(() => {
         setErrMsg('');
         setIsErr(false);
-    }, [emailRegister, pwdRegister, matchPwd, address, phonePrimary, city, region, country])
+    }, [emailRegister, pwdRegister, matchPwd, address, city, region, country])
 
     const isInvalidLogin = pwdLogin === '' || emailLogin === '';
     const isInvalidRegister = pwdRegister === '' || emailRegister === '' || matchPwd ==='';
@@ -261,7 +262,7 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
 
         try {
             const response = await axios.post(RESEND_VERIFICATION_URL,
-                JSON.stringify({ email: email.toLowerCase(), geoData }),
+                JSON.stringify({ email: emailLogin.toLowerCase() }),
                 {
                     headers: { 'Content-Type': 'application/json' },
                     withCredentials: true
@@ -315,7 +316,7 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
             if(!profanityCheck){
 
                 const response = await axios.post(REGISTER_URL,
-                    JSON.stringify({ email:email.toLowerCase(), pwd, firstName, lastName, address, phonePrimary, city, region, regionCode, country, recapToken }),
+                    JSON.stringify({ email: emailRegister.toLowerCase(), pwd: pwdRegister, firstName, lastName, address, city, region, regionCode, country, recapToken }),
                     {
                         headers: { 'Content-Type': 'application/json' },
                         withCredentials: true
@@ -379,7 +380,7 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
 
         try {
             const response = await axios.post(LOGIN_URL,
-                JSON.stringify({ email:email.toLowerCase(), pwd }),
+                JSON.stringify({ email: emailLogin.toLowerCase(), pwd: pwdLogin }),
                 {
                     headers: { 'Content-Type': 'application/json' },
                     withCredentials: true
@@ -727,7 +728,7 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
                             onChange={ ( {target} ) => setEmailLogin(target.value)}
                             onFocus={()=> setEmailFocusLogin(true)}
                             onBlur={()=> setEmailFocusLogin(false)}
-                            value={email}
+                            value={emailLogin}
                             required
                         />
                     </div>
@@ -898,7 +899,7 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
                 autoComplete="off"
                 type="text" 
                 onChange={ ( {target} ) => handleEmailRegister(target.value)}
-                value={email}
+                value={emailRegister}
                 onFocus={() => setEmailFocusRegister(true)}
                 onBlur={() => setEmailFocusRegister(false)}
                 aria-invalid={validEmailRegister ? "false" : "true"}
@@ -909,7 +910,7 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
 
         <div className='flex flex-row mx-2 gap-x-2 mt-1'>
             
-            {validEmail ? 
+            {validEmailRegister ? 
                 (
                     <>
                     <div className='flex flex-col justify-center'>
@@ -1135,7 +1136,7 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
                 required
             />
             <span className='relative flex cursor-pointer justify-around items-center'
-                onClick={handlePassToggle}>
+                onClick={handlePassToggleRegister}>
                 
                 <span className='absolute mr-16'>
                 {inputType === 'text' ? 
@@ -1470,11 +1471,11 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
                 text-base md:text-lg
                 flex justify-center items-center gap-x-2
                 ${(!validEmailRegister || !validPwdRegister || !validMatch || isInvalidRegister || !acceptTerms 
-                    || !acceptPrivacy || !validPhonePrimary || !validAddress || !validCity || !validRegion 
+                    || !acceptPrivacy || !validAddress || !validCity || !validRegion 
                     || !validCountry || !recapToken || waiting) && ' opacity-60' }`}
                 
                 disabled={!validEmailRegister || !validPwdRegister || !validMatch || isInvalidRegister || !acceptTerms 
-                    || !acceptPrivacy || !validPhonePrimary || !validAddress || !validCity || !validRegion 
+                    || !acceptPrivacy || !validAddress || !validCity || !validRegion 
                     || !validCountry || success || !recapToken || waiting ? true : false}
                 onClick={(event) => handleSubmit(event)}
             >

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useMemo} from 'react';
 import {
     Paper,
     TextField,
@@ -6,12 +6,23 @@ import {
     Button,
     IconButton
 } from '@material-ui/core';
+
+import { useNavigate } from "react-router-dom";
+import { Profanity, ProfanityOptions } from '@2toad/profanity';
+import Tesseract from 'tesseract.js';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import axios from '../../api/axios';
 import Otp from "../../components/verify/otp";
 import editProfilePic from '../../helpers/DriverData/editProfilePic';
-import addWarnings from '../../helpers/DriverData/addWarnings';
+
+import Camera from "../Camera";
 import ProfileCropper from '../SettingPanels/ProfileOptions/profileCropper';
+import MuiPhoneNumber from 'material-ui-phone-number';
+import MainHeader from '../../components/mainHeader/mainHeader';
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from 'react-toastify';
+import { useLocation } from 'react-router';
+import useAuth from '../../hooks/useAuth';
 
 
 function isNumeric(n) {
@@ -20,6 +31,14 @@ function isNumeric(n) {
 
 
 const VerifyPage = () => {
+
+    const search = useLocation().search;
+    const userId = new URLSearchParams(search).get("userId");
+    const hash = new URLSearchParams(search).get("hash");
+
+    const IMAGE_UPLOAD_URL = '/s3/singleimage';
+    const VIDEO_UPLOAD_URL = '/s3/singlevideo';
+    const navigate = useNavigate();
     
     const [code, setCode] = useState("")
     const [pno, setPno] = useState("")
@@ -28,6 +47,10 @@ const VerifyPage = () => {
 
     const [profileImage, setProfileImage] = useState("");
     const [croppedProfileImage, setCroppedProfileImage] = useState("");
+    const [success, setSuccess] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
+
+    const { setAuth, auth  } = useAuth();
 
     const [croppedImageURL, setCroppedImageURL] = useState([]);
     const [croppedImage, setCroppedImage] = useState([]);
@@ -37,15 +60,11 @@ const VerifyPage = () => {
     const [videoURLArray, setVideoURLArray] = useState([]);
     const [videoThumbnails, setVideoThumbnails] = useState([]);
     const [oldMediaTrack, setOldMediaTrack] = useState([]);
+    const [waiting, setWaiting] = useState(false);
 
     const PUBLIC_MEDIA_URL = '/s3/single-profilepic';
 
     const handleChangeProfilePic = async (event) => {
-
-        if(!auth.userId || browse === 'yes'){
-            navigate('/home');
-            return
-        }
 
         event.preventDefault();
         
@@ -137,10 +156,9 @@ const VerifyPage = () => {
                                     theme: "colored",
                                 })
                                 
-                                URL.revokeObjectURL(image.photo?.src)
+                                URL.revokeObjectURL(profileImage.photo?.src)
                                 setWaiting(false)
                                 setSuccess(true);
-                                setOpenModalPic(false);
                             
                             } else {
 
@@ -176,11 +194,6 @@ const VerifyPage = () => {
                     progress: undefined,
                     theme: "colored",
                 });
-                
-                const warnUser = await addWarnings(auth.userId, auth.accessToken)
-                if(warnUser?.status === 202){
-                    logout();
-                }
             }
             }
 
@@ -200,11 +213,16 @@ const VerifyPage = () => {
     }
     
 
+    const options = new ProfanityOptions();
+    options.wholeWord = false;
+    const profanity = new Profanity(options);
+    profanity.removeWords(['arse', "ass", 'asses', 'cok',"balls",  "boob", "boobs", "bum", "bugger", 'butt',]);
+
     async function onSubmitHandler(e) {
 
         e.preventDefault();
     
-        if(isLoading || (croppedImage?.length !== croppedImageURL?.length) || (croppedImage?.length === 0) ){
+        if(waiting || (croppedImage?.length !== croppedImageURL?.length) || (croppedImage?.length === 0) ){
           return
         }
     
@@ -219,7 +237,7 @@ const VerifyPage = () => {
         mediaLength = croppedImage?.length
         autoCloseTime = mediaLength * 7000    
     
-        setIsLoading(true);
+        setWaiting(true);
     
         toast.info("Checking for inappropriate content, please wait...", {
           position: "bottom-center",
@@ -240,7 +258,7 @@ const VerifyPage = () => {
             if(videoArray[i] !== 'image'){
               const formData = new FormData();
               const date = new Date();
-              const videofile = new File([videoArray[i]], `${date.getTime()}_${userId}.mp4`, { type: "video/mp4" })
+              const videofile = new File([videoArray[i]], `${date.getTime()}_${auth.userId}.mp4`, { type: "video/mp4" })
               formData.append("video", videofile);
               
               const transcript = await axios.post("/speech/transcribe", 
@@ -269,12 +287,7 @@ const VerifyPage = () => {
     
           if(transcriptCount === videoArray?.length){
     
-            profanity.removeWords(['arse', "ass", 'asses', 'cok',"balls",  "boob", "boobs", "bum", "bugger", 'butt',]);
-            
-            var textToCheck = caption.concat( " ", category, " ", imageText, " ", description, 
-            " ", city, " ", region, " ", country, " ", link, " ", videoTranscripts)
-    
-            const profanityCheck1 = profanity.exists(textToCheck)
+            const profanityCheck1 = profanity.exists(videoTranscripts)
     
             while (mediaLength > 0 && currentIndex < mediaLength){
     
@@ -359,7 +372,7 @@ const VerifyPage = () => {
                               };
           
                             } catch (err) {
-                                setIsLoading(false);
+                                setWaiting(false);
                                 setErrorMessage("Failed to upload photo! Please try again!");
                                 break
                             }
@@ -367,10 +380,6 @@ const VerifyPage = () => {
                           } else {
           
                             setErrorMessage("Your post content may not meet our terms of service. Please check for inappropriate content.");
-                            const warnUser = await addWarnings(auth.userId, auth.accessToken)
-                            if(warnUser?.status === 202){
-                              logout();
-                            }
                             break
                           }
                         
@@ -458,10 +467,6 @@ const VerifyPage = () => {
                               } else {
               
                                 setErrorMessage("Your post content may not meet our terms of service. Please check for inappropriate content.");
-                                const warnUser = await addWarnings(auth.userId, auth.accessToken)
-                                if(warnUser?.status === 202){
-                                  logout();
-                                }
                                 break
                               }
                               
@@ -525,7 +530,7 @@ const VerifyPage = () => {
                               }
           
                             } catch (err) {
-                              setIsLoading(false);
+                              setWaiting(false);
                                 setErrorMessage("Failed to upload video! Please try again!");
                                 break
                             }
@@ -578,7 +583,7 @@ const VerifyPage = () => {
                   city, region, country, auth.accessToken)
         
                 if(newPost){
-                  toast.success("Success! Created new post!", {
+                  toast.success("Success! Completed uploads!", {
                     position: "bottom-center",
                     autoClose: 1500,
                     hideProgressBar: false,
@@ -588,7 +593,7 @@ const VerifyPage = () => {
                     progress: undefined,
                     theme: "colored",
                     });
-                    setIsLoading(false);
+                    setWaiting(false);
                     setShowModal(false);
                     
                     for(let i=0; i<croppedImageURL?.length; i++){
@@ -606,17 +611,6 @@ const VerifyPage = () => {
                     setVideoArray([])
                     setVideoURLArray([])
                     setVideoThumbnails([])
-        
-                    if(userOrStore === 1){
-                      
-                      navigate(`/profile/user/${username}`);
-                      navigate(0);
-                    
-                    } else {
-        
-                      navigate(`/profile/store/${username}`);
-                      navigate(0);
-                    }
                     
                 } else {
     
@@ -625,18 +619,9 @@ const VerifyPage = () => {
                   if(objectsToDelete?.length > 0){
                     const deleted = await deleteManyObj(objectsToDelete, auth.userId, auth.accessToken)
                     if(deleted){
-                      const warnUser = await addWarnings(userId, auth.accessToken)
-                      if(warnUser?.status === 202){
-                        logout();
-                      }
+                      console.log("Objects deleted")
                     }
-                  } else {
-                    const warnUser = await addWarnings(userId, auth.accessToken)
-                      if(warnUser?.status === 202){
-                        logout();
-                      }
                   }
-                  
                 }
                 
               } catch (err) {
@@ -685,9 +670,12 @@ const VerifyPage = () => {
         .then(data => console.log(data))
         .catch(err => console.log(err));
     }
-    
+
 
     return(
+
+        <>
+
         <div style={{
             flex: 1, 
             display: 'flex', 
@@ -696,6 +684,11 @@ const VerifyPage = () => {
             backgroundColor: 'rgba(160, 160, 160, 0.2)',
             height: '100vh'
         }}>
+
+        <MainHeader 
+            loggedUserId={auth.userId} loggedUsername={auth.username} 
+            profilePicURL={auth.profilePicURL} roles={auth.roles}
+        />
 
         <div className='flex flex-col mt-6'>
             <label className='text-base md:text-lg font-medium'>Phone Number</label>
@@ -874,6 +867,22 @@ const VerifyPage = () => {
             </div>
 
         </div>
+
+        <ToastContainer
+            toastStyle={{ backgroundColor: "#995372" }}
+                position="bottom-center"
+                autoClose={1500}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="colored"
+            />
+
+        </>
     );
 }
 

@@ -1,12 +1,12 @@
 import { useRef, useState, useEffect } from "react";
-import axios from '../api/axios';
+import axios from '../../api/axios';
 import { Link } from "react-router-dom";
 import ReCAPTCHA from "react-google-recaptcha";
 import socketjuice_full_logo from "../../images/SocketJuice.png";
 
 const EMAIL_REGEX = /\S+@\S+\.\S+/;
-const RESET_PASSWORD_URL = '/resetpassword';
-const RESEND_VERIFICATION_URL = '/resendemailverification';
+const RESET_PASSWORD_URL = 'http://localhost:5000/api/resetpassword';
+const RESEND_VERIFICATION_URL = 'http://localhost:5000/api/resendemailverification';
 
 
 const ResetPass = () => {
@@ -149,8 +149,6 @@ const ResetPass = () => {
     return (
 
         <>
-        <div className={`flex flex-col w-full overflow-y-auto h-full bg-no-repeat bg-cover bg-fixed
-            ${windowSize.x < 400 ? ' bg-bottom bg-[url(./images/purchies_background_mobile.png)]' : ' bg-right bg-[url(./images/purchies_background_desktop.png)]'} ` }>
 
             <div className='flex flex-col items-center justify-center p-2 h-full'>
 
@@ -249,7 +247,6 @@ const ResetPass = () => {
                     <p className='text-xs text-gray-500'>Copyright © 2023 SocketJuice</p>
                 </div>
             </div>
-        </div>
 
         </>
         

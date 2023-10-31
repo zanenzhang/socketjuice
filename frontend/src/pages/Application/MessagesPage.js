@@ -10,8 +10,8 @@ import { useRef, useState, useEffect } from 'react'
     DirectionsRenderer, 
   } from '@react-google-maps/api'
 
-  import MainHeader from '../components/mainHeader/mainHeader';
-  import useAuth from '../hooks/useAuth';
+  import MainHeader from '../../components/mainHeader/mainHeader';
+  import useAuth from '../../hooks/useAuth';
   
   
   const MessagesPage = () => {
