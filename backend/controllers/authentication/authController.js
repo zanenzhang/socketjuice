@@ -208,7 +208,7 @@ const handleLogin = async (req, res) => {
                 
                                 if(result){
                                     
-                                    res.cookie('purchiesjwt', refreshToken, { 
+                                    res.cookie('socketjuicejwt', refreshToken, { 
                                         httpOnly: true, 
                                         secure: true, 
                                         sameSite: 'None', 

@@ -4,8 +4,8 @@ const handleLogout = async (req, res) => {
     // On client, also delete the accessToken
 
     const cookies = req.cookies;
-    if (!cookies?.purchiesjwt) return res.sendStatus(204); //No content
-    const refreshToken = cookies.purchiesjwt;
+    if (!cookies?.socketjuicejwt) return res.sendStatus(204); //No content
+    const refreshToken = cookies.socketjuicejwt;
 
     const {loggedUserId} = req.query
 
@@ -17,7 +17,7 @@ const handleLogout = async (req, res) => {
         }
 
         if (!foundUser && foundUser._id !== loggedUserId) {
-            res.clearCookie('purchiesjwt', { httpOnly: true, sameSite: 'None', secure: true });
+            res.clearCookie('socketjuicejwt', { httpOnly: true, sameSite: 'None', secure: true });
             return res.sendStatus(204);
         }
     
@@ -28,7 +28,7 @@ const handleLogout = async (req, res) => {
 
         if(saved){
             
-            res.clearCookie('purchiesjwt', { httpOnly: true, sameSite: 'None', secure: true });
+            res.clearCookie('socketjuicejwt', { httpOnly: true, sameSite: 'None', secure: true });
             return res.sendStatus(204);
 
         } else {

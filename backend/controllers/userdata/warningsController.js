@@ -9,8 +9,8 @@ const addWarnings = async (req, res) => {
 
     const cookies = req.cookies;
 
-    if (!cookies?.purchiesjwt) return res.sendStatus(403);
-    const refreshToken = cookies.purchiesjwt;
+    if (!cookies?.socketjuicejwt) return res.sendStatus(403);
+    const refreshToken = cookies.socketjuicejwt;
     const { loggedUserId } = req.body
 
     User.findOne({ refreshToken }, async function(err, foundUser){

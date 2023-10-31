@@ -179,8 +179,8 @@ router.delete("/deletemany", async (req, res) => {
 
     const cookies = req.cookies;
 
-    if (!cookies?.purchiesjwt) return res.sendStatus(401);
-    const refreshToken = cookies.purchiesjwt;
+    if (!cookies?.socketjuicejwt) return res.sendStatus(401);
+    const refreshToken = cookies.socketjuicejwt;
     
     User.findOne({ refreshToken }, async function(err, foundUser){
 
@@ -236,8 +236,8 @@ router.delete("/deletemany", async (req, res) => {
 
     const cookies = req.cookies;
 
-    if (!cookies?.purchiesjwt) return res.sendStatus(401);
-    const refreshToken = cookies.purchiesjwt;
+    if (!cookies?.socketjuicejwt) return res.sendStatus(401);
+    const refreshToken = cookies.socketjuicejwt;
     
     User.findOne({ refreshToken }, async function(err, foundUser){
 

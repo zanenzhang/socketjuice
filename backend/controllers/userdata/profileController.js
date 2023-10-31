@@ -288,8 +288,8 @@ const editSettingsUserProfile = async (req, res) => {
     
     const cookies = req.cookies;
 
-    if (!cookies?.purchiesjwt) return res.sendStatus(401);
-    const refreshToken = cookies.purchiesjwt;
+    if (!cookies?.socketjuicejwt) return res.sendStatus(401);
+    const refreshToken = cookies.socketjuicejwt;
 
     User.findOne({ refreshToken }, async function(err, foundUser){
 
@@ -401,8 +401,8 @@ const editProfilePic = async (req, res) => {
     
     const cookies = req.cookies;
 
-    if (!cookies?.purchiesjwt) return res.sendStatus(401);
-    const refreshToken = cookies.purchiesjwt;
+    if (!cookies?.socketjuicejwt) return res.sendStatus(401);
+    const refreshToken = cookies.socketjuicejwt;
 
     User.findOne({ refreshToken }, async function(err, foundUser){
 
@@ -457,8 +457,8 @@ const editSettingsUserPass = async (req, res) => {
 
     const cookies = req.cookies;
 
-    if (!cookies?.purchiesjwt) return res.sendStatus(401);
-    const refreshToken = cookies.purchiesjwt;
+    if (!cookies?.socketjuicejwt) return res.sendStatus(401);
+    const refreshToken = cookies.socketjuicejwt;
 
     User.findOne({ refreshToken }, async function(err, foundUser){
 
@@ -545,8 +545,8 @@ const editSettingsUserGeneral = async (req, res) => {
 
     const cookies = req.cookies;
 
-    if (!cookies?.purchiesjwt) return res.sendStatus(401);
-    const refreshToken = cookies.purchiesjwt;
+    if (!cookies?.socketjuicejwt) return res.sendStatus(401);
+    const refreshToken = cookies.socketjuicejwt;
 
     User.findOne({ refreshToken }, async function(err, foundUser){
 
@@ -853,8 +853,8 @@ const makePrivate = async (req, res) => {
 
     const cookies = req.cookies;
 
-    if (!cookies?.purchiesjwt) return res.sendStatus(202);
-    const refreshToken = cookies.purchiesjwt;
+    if (!cookies?.socketjuicejwt) return res.sendStatus(202);
+    const refreshToken = cookies.socketjuicejwt;
 
     User.findOne({ refreshToken }, async function(err, foundUser){
 
@@ -899,8 +899,8 @@ const makePublic = async (req, res) => {
 
     const cookies = req.cookies;
 
-    if (!cookies?.purchiesjwt) return res.sendStatus(202);
-    const refreshToken = cookies.purchiesjwt;
+    if (!cookies?.socketjuicejwt) return res.sendStatus(202);
+    const refreshToken = cookies.socketjuicejwt;
 
     User.findOne({ refreshToken }, async function(err, foundUser){
 
@@ -946,8 +946,8 @@ const editUserReceivePayments = async (req, res) => {
 
     const cookies = req.cookies;
 
-    if (!cookies?.purchiesjwt) return res.sendStatus(202);
-    const refreshToken = cookies.purchiesjwt;
+    if (!cookies?.socketjuicejwt) return res.sendStatus(202);
+    const refreshToken = cookies.socketjuicejwt;
 
     User.findOne({ refreshToken }, async function(err, foundUser){
 
