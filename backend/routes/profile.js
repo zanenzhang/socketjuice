@@ -9,13 +9,16 @@ router.use(verifyJWT)
 router.get('/driver', profileController.getDriverProfile);
 router.get('/host', hostProfileController.getHostProfile);
 
+router.post('/useridphotos', profileController.uploadUserIdPhotos);
+router.post('/driverphotos', profileController.uploadDriverPhotos);
+router.post('/hostphotos', profileController.uploadHostPhotos);
+
 router.patch('/usersettings', profileController.editSettingsUserProfile);
 router.patch('/userpass', profileController.editSettingsUserPass);
 router.patch('/usergeneral', profileController.editSettingsUserGeneral);
 router.patch('/profilepic', profileController.editProfilePic);
 
 router.patch('/cities', citiesController.updatePreferences);
-
 router.patch('/hostsettings', hostProfileController.editSettingsHostProfile);
 
 router.delete('/oldpic', profileController.deleteOldProfilePic);

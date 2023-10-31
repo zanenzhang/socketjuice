@@ -1,16 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const verifyMobileController = require('../controllers/authentication/verifyUserController'); 
+const verifyController = require('../controllers/authentication/verifyUserController'); 
 
 const verifyJWT = require('../middleware/verifyJWT')
 
-router.use(verifyJWT)
+router.use(verifyJWT);
 
-router.get('/create', verifyMobileController.createService);
-router.get('/send', verifyMobileController.sendVerification);
-router.get('/check', verifyMobileController.checkVerification);
-router.get('/verifyphone', verifyMobileController.approveUserProfilePhone);
-router.get('/verifyphotos', verifyMobileController.approveUserIdPhotos);
+router.post('/approvephone', verifyController.approveUserProfilePhone);
+router.post('/approvephotos', verifyController.approveUserIdPhotos);
+router.post('/rejectuser', verifyController.rejectUserUploads);
+router.get('/userstatus', verifyController.getUserStatusPhotos);
 
 
 module.exports = router;

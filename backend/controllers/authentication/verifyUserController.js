@@ -1,59 +1,4 @@
-const client = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
-const getCode = async (req, res) => {
-    client
-        .verify
-        .services(process.env.VERIFY_SERVICE_SID)
-        .verifications
-        .create({
-            to: `+${req.query.phonenumber}`,
-            channel: req.query.channel
-        })
-        .then(data => {
-            res.status(200).send(data);
-        })
-};
-
-const verifyCode = async (req, res) => {
-    client
-        .verify
-        .services(process.env.VERIFY_SERVICE_SID)
-        .verificationChecks
-        .create({
-            to: `+${req.query.phonenumber}`,
-            code: req.query.code
-        })
-        .then(data => {
-            res.status(200).send(data);
-        });
-};
-
-const createService = async(req, res) => {
-    client.verify.v2.services.create({ friendlyName: 'phoneVerification' })
-        .then(service => console.log(service.sid))
-}
-
-const sendVerification = async(req, res, number) => {
-
-    client.verify.v2.services(process.env.TWILIO_VERIFICATION_SID)
-        .verifications
-        .create({to: `${number}`, channel: 'sms'})
-        .then( verification => 
-            console.log(verification.status)
-        ); 
-}
-
-//check verification token
-const checkVerification = async(req, res, number, code) => {
-    return new Promise((resolve, reject) => {
-        client.verify.v2.services(process.env.TWILIO_VERIFICATION_SID)
-            .verificationChecks
-            .create({to: `${number}`, code: `${code}`})
-            .then(verification_check => {
-                resolve(verification_check.status)
-            });
-    })
-}
 
 
 const approveUserProfilePhone = async (req, res) => {
@@ -141,7 +86,9 @@ const rejectUserUploads = async (req, res) => {
             process.env.REFRESH_TOKEN_SECRET,
             (err, decoded) => {
 
-                if (err || foundUser.username !== decoded.username || !foundUser._id.toString() === ((decoded.userId)) ) return res.sendStatus(403);
+                if (err || foundUser.username !== decoded.username || !foundUser._id.toString() === ((decoded.userId)) || !(Object.values(foundUser.roles).includes(5150)) ) {
+                    return res.sendStatus(403);
+                }
             }
         )
 
@@ -577,8 +524,7 @@ const getUserStatusPhotos = async (req, res) => {
 
             return res.status(400).json({"message": "Failed"})
         }
-
     })
 }
 
-module.exports = { createService, sendVerification, checkVerification, approveUserProfilePhone, approveUserIdPhotos, rejectUserUploads, getUserStatusPhotos }
+module.exports = { approveUserProfilePhone, approveUserIdPhotos, rejectUserUploads, getUserStatusPhotos }

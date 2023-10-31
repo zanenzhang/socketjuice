@@ -1053,7 +1053,7 @@ const editUserReceivePayments = async (req, res) => {
 }
 
 
-const updateUserIdPhotos = async (res, req) => {
+const uploadUserIdPhotos = async (res, req) => {
 
     const { userId, identificationFrontObjectId, identificationBackObjectId,
         driverPreviewMediaObjectId, driverMediaObjectIds, driverVideoObjectIds, driverObjectTypes, driverPreviewObjectType, driverCoverIndex,
@@ -1254,7 +1254,7 @@ const updateUserIdPhotos = async (res, req) => {
 
 
 
-const updateDriverPhotos = async (req, res) => {
+const uploadDriverPhotos = async (req, res) => {
 
     const { userId, driverPreviewMediaObjectId, driverMediaObjectIds, driverVideoObjectIds, driverObjectTypes, driverPreviewObjectType, driverCoverIndex } = req.body
 
@@ -1336,7 +1336,7 @@ const updateDriverPhotos = async (req, res) => {
 }
 
 
-const updateHostPhotos = async (req, res) => {
+const uploadHostPhotos = async (req, res) => {
 
     const { userId, hostPreviewMediaObjectId, hostMediaObjectIds, hostVideoObjectIds, hostObjectTypes, hostPreviewObjectType, hostCoverIndex } = req.body
 
@@ -1421,8 +1421,7 @@ const updateHostPhotos = async (req, res) => {
 
 
 
-module.exports = { getDriverProfile, 
-    editSettingsUserProfile, editSettingsUserPass, editSettingsUserGeneral, editProfilePic,
-    getUserIdByUsername, getProfilePicByUserId, checkUser, getProfileData, 
+module.exports = { getDriverProfile, editSettingsUserProfile, editSettingsUserPass, editSettingsUserGeneral, 
+    editProfilePic, getUserIdByUsername, getProfilePicByUserId, checkUser, getProfileData, 
     deleteOldProfilePic, addUserBan, removeUserBan, makePrivate, makePublic, 
-    editUserReceivePayments, updateUserIdPhotos, updateDriverPhotos, updateHostPhotos }
+    editUserReceivePayments, uploadUserIdPhotos, uploadDriverPhotos, uploadHostPhotos }
