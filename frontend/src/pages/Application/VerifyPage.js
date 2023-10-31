@@ -1407,7 +1407,7 @@ const VerifyPage = () => {
                 </div>
 
                 <div>
-                    <p>Upload Photos of Your Charger</p>
+                    <p>Upload Photos of Your Charger / Wall Connector</p>
                 </div>
 
             </div>
