@@ -1,11 +1,5 @@
 const nodemailer = require('nodemailer');
 
-import fs from 'fs'
-import path from 'path'
-import { fileURLToPath } from 'url'
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-
 
 function sendEmail(message) {
   return new Promise((res, rej) => {
@@ -33,26 +27,24 @@ function sendEmail(message) {
 
 exports.sendConfirmationEmail = function({toUser, userId, hash}) {
 
-  const imageData = fs.readFileSync(__dirname + '/SocketJuice.png', 'binary')
-
-  const src = `data:image/jpg;base64,${Buffer.from(
-    imageData,
-    'binary'
-  ).toString('base64')}`
-
   const message = {
     from: process.env.EMAIL_SUPPORT,
     // to: toUser.email // in production uncomment this
     to: toUser,
     subject: 'SocketJuice - Activate Account',
     html: `
-      <img style="width:800px;" src="${src}">
+      <img src = "cid:myImg" style="width:200px;"/>
       <h3> Hello! </h3>
       <p>Thank you for registering and welcome to ${process.env.MAIL_FROM_NAME}! Just one last step remaining...</p>
       <p>To activate your account please follow this link: <a target="_" href="${process.env.API}/activate/${userId}/${hash}">${process.env.MAIL_FROM_NAME}/activate </a></p>
       <p>Cheers,</p>
       <p>The ${process.env.MAIL_FROM_NAME} team</p>
-    `
+    `,
+    attachments: [{
+      filename: 'SocketJuiceLogo.png',
+      path: __dirname + '/SocketJuice.png',
+      cid: 'myImg'
+    }]
   }
 
   return sendEmail(message);

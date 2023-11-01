@@ -204,6 +204,10 @@ var hostProfileSchema = new Schema({
         type: Boolean, 
         default: false 
     },
+    offeringCharging: {
+        type: Boolean,
+        default: true,
+    },
     hostAppointments: [{  
         _appointmentId: { 
             type: Schema.Types.ObjectId, 

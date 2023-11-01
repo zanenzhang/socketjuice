@@ -732,7 +732,7 @@ const handleSelfieCamera = () => {
             </div>
           } 
 
-          {croppedImageURL?.length > 0 &&
+          {croppedImageURL?.length > 1 &&
 
           <div className="flex flex-col items-center py-2">
 

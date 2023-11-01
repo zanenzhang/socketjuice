@@ -79,7 +79,7 @@ const ImageInput = ({
       />
 
       {showPreview && (
-        <div className="flex content-center justify-center pb-4">
+        <div className="flex content-center justify-center pb-2">
             <img
               key={imageData}
               src={imageData ? imageData : defaultPic}
@@ -91,10 +91,10 @@ const ImageInput = ({
         </div>
       )}
       <Link onClick={() => inputElement.click()}>
-        <button className="align-center mb-2 px-4 py-2 text-[#8BEDF3] 
-            border-2 rounded-xl border-[#8BEDF3] bg-white text-base font-semibold
-            hover:bg-[#8BEDF3] hover:text-white" >
-        Change Profile Picture
+        <button className="align-center mb-2 px-4 py-1 
+            border-2 rounded-xl border-[#8BEDF3] bg-white text-base
+            hover:bg-[#8BEDF3] text-black" >
+        Select Profile Picture
         </button>
     </Link>
 

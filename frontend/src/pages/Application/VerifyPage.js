@@ -1,20 +1,13 @@
-import React, {useState, useMemo} from 'react';
-import {
-    Paper,
-    TextField,
-    MenuItem,
-    Button,
-    IconButton
-} from '@material-ui/core';
+import React, {useState, useEffect} from 'react';
+
 
 import { useNavigate } from "react-router-dom";
 import { Profanity, ProfanityOptions } from '@2toad/profanity';
 import Tesseract from 'tesseract.js';
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import axios from '../../api/axios';
-import Otp from "../../components/verify/otp";
 import editProfilePic from '../../helpers/DriverData/editProfilePic';
 import deleteManyObj from "../../helpers/Media/deleteManyObjects";
+import VerificationInput from "react-verification-input";
 
 import Camera from "../Camera";
 import CameraSinglePhoto from '../CameraSinglePhoto';
@@ -61,15 +54,17 @@ const VerifyPage = () => {
     const IMAGE_UPLOAD_URL = '/s3/singleimage';
     const VIDEO_UPLOAD_URL = '/s3/singlevideo';
     const PHONE_PRIMARY_REGEX = /^[+]?(1\-|1\s|1|\d{3}\-|\d{3}\s|)?((\(\d{3}\))|\d{3})(\-|\s)?(\d{3})(\-|\s)?(\d{4})$/;
-    
-    const navigate = useNavigate();
-    
-    const [code, setCode] = useState("")
-    const [pno, setPno] = useState("")
-    const [otpShow, setOtpShow] = useState(false)
-    const [otp, setOtp] = useState("")
 
+    const navigate = useNavigate();
     const [success, setSuccess] = useState(false);
+
+    const [verifyCode, setVerifyCode] = useState("");
+    
+    const [submittedPhone, setSubmittedPhone] = useState(false);
+    const [submittedPhotos, setSubmittedPhotos] = useState(false);
+    const [verifiedPhone, setVerifiedPhone] = useState(false);
+    const [verifiedPhotos, setVerifiedPhotos] = useState(false);
+    
     const [errorMessage, setErrorMessage] = useState("");
 
     const [phonePrimary, setPhonePrimary] = useState("");
@@ -78,7 +73,7 @@ const VerifyPage = () => {
 
     const { setAuth, auth  } = useAuth();
 
-    const [profileImage, setProfileImage] = useState("");
+    const [profileImage, setProfileImage] = useState("../../images/defaultUserPic.svg");
     const [croppedProfileImage, setCroppedProfileImage] = useState("");
 
     const [croppedImageURLDriver, setCroppedImageURLDriver] = useState([]);
@@ -122,6 +117,10 @@ const VerifyPage = () => {
     const [waiting, setWaiting] = useState(false);
 
     const PUBLIC_MEDIA_URL = '/s3/single-profilepic';
+
+    useEffect(() => {
+        setValidPhonePrimary(PHONE_PRIMARY_REGEX.test(phonePrimary));
+    }, [phonePrimary])
 
     const handleChangeProfilePic = async (event) => {
 
@@ -1143,52 +1142,24 @@ const VerifyPage = () => {
     }
 
 
-    const _getCode = async() => {
-        const e = code + pno;
-        await axios.get(`${process.env.LOCAL_SERVER}/verifymobile/getcode`, {
-            params: {
-                phonenumber: e,
-                channel: 'sms'
-            }
-        })
-        .then(data => console.log(data))
-        .catch(err => console.log(err));
-    };
-
-    const _verifyCode = async () => {
-        const e = code + pno;
-        await axios.get(`${process.env.LOCAL_SERVER}/verifymobile/verifycode`, {
-            params: {
-                phonenumber: e,
-                code: otp
-            }
-        })
-        .then(data => console.log(data))
-        .catch(err => console.log(err));
-    }
-
-
     return(
 
         <>
 
-        <div style={{
-            flex: 1, 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center', 
-            backgroundColor: 'rgba(160, 160, 160, 0.2)',
-            height: '100vh'
-        }}>
+        <div className='flex flex-col w-full h-full'>
 
         <MainHeader 
             loggedUserId={auth.userId} loggedUsername={auth.username} 
             profilePicURL={auth.profilePicURL} roles={auth.roles}
         />
 
+        <div className='w-full flex flex-col justify-center items-center pt-[10vh]'>
+
         <div className='flex flex-col mt-6'>
-            <label className='text-base md:text-lg font-medium'>Phone Number</label>
-            <div className={`text-sm text-gray-700 w-full py-3 px-4 bg-white
+
+            <p className='text-base md:text-lg font-bold pb-2'>Step 1: Please Verify Your Phone Number</p>
+
+            <div className={`text-sm text-gray-700 py-3 px-4 bg-white w-[350px]
             border-2 rounded-xl hover:scale-[1.01] ease-in-out border-[#00D3E0]/10 }`} >
             
             <MuiPhoneNumber sx={{ '& svg': { height: '1em', }, }}
@@ -1196,7 +1167,7 @@ const VerifyPage = () => {
                 className='w-full border-2 border-[#00D3E0]/10 rounded-xl
                     bg-white focus:outline-[#00D3E0]'
                 InputProps={{ disableUnderline: true }}    
-                regions={['north-america']}
+                // regions={['north-america']}
                 onChange={ ( e ) => setPhonePrimary(e)} 
                 onFocus={() => setPhonePrimaryFocus(true)}
                 onBlur={() => setPhonePrimaryFocus(false)}
@@ -1216,7 +1187,7 @@ const VerifyPage = () => {
                     </svg>
                     </div>
                     <div className='flex flex-col justify-center'>
-                        <span className="text-sm md:text-base text-green-600">Please enter your store's phone number</span>
+                        <span className="text-sm md:text-base text-green-600">Please enter a valid phone number</span>
                     </div>
                     </>
                 )
@@ -1229,122 +1200,47 @@ const VerifyPage = () => {
                     </svg>
                     </div>
                     <div className='flex flex-col justify-center'>
-                        <span className="text-sm md:text-base text-red-600">Please enter your store's phone number</span>
+                        <span className="text-sm md:text-base text-red-600">Please enter a valid phone number</span>
                     </div>
                     </>
                 )
             }
         </div>
+            
+            <button className='my-2 px-4 py-3 rounded-2xl border-2 border-[#00D3E0] hover:bg-[#00D3E0] '>
+                Submit phone number for verification</button>
+                <p className='text-sm flex flex-col w-[300px]'>
+                Note: You will receive the code via a SMS text message. Regular charges from your phone plan may apply.</p>
 
-            <Paper elevation={4} style={{ padding: 20, width: 300, marginBottom: 60}}>
+            <div className='w-full flex flex-col justify-center items-center pt-12'>
+                
+            <p className='text-base md:text-lg font-bold pb-2'>Step 2: Please Enter Your Verification Code</p>
+                
+                <VerificationInput />
 
-                {!otpShow ? <h3 style={{marginLeft: 10, color: '#9f9f9f'}}>αlpha</h3> : <IconButton onClick={() => {
+                <button className='my-2 py-4 px-3 rounded-2xl border-2 border-[#00D3E0] hover:bg-[#00D3E0]'>
+                    Confirm code</button>
+            </div>
+            
+            <div className='w-full flex flex-col justify-center items-center pt-12'>
 
-                    setOtpShow(false)
-                    setOtp("")
-
-                }} size="small"><ArrowBackIcon /></IconButton>}
-
-                {!otpShow ? <h3>Enter your Phone Number</h3> : <h3>Enter the OTP</h3> }
-                {otpShow ? <p>A One Time Password has been sent to your phone number for verification puposes.</p> : null}
-
-                <div>
-                    {!otpShow ? <div style={{display: 'flex', flexDirection: 'row', marginLeft: 'auto', justifyContent: 'space-around'}}>
-
-                        <div style={{alignItems: 'flex-end', justifyContent: 'center', display: 'flex', marginRight: 10, width: 60}}>
-
-                            <TextField id="code" label="Code" color="secondary" value={code} 
-                            
-                                onChange={e => {
-                                    setCode(e.target.value)
-                                }}/>
-                        </div>
-                        <div>
-                            <TextField id="phone" label="Phone" color="secondary" value={pno} 
-                            
-                            onChange={e => {
-                                if((e.target.value[e.target.value.length-1]>='0' && e.target.value[e.target.value.length-1]<='9') || !e.target.value) {
-                                    setPno(e.target.value);
-                                }
-                            }}/>
-                        </div>
-
-                    </div> : <Otp otp={otp} setOtp={val => setOtp(val)} />}
-
-                    {otpShow ? <div style={{width: '100%', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginTop: 5}}>
-
-                        Didn't receive an OTP? <Button onClick={() => _getCode()} color="primary" style={{textTransform: 'none', fontSize: 15}}>Resend OTP</Button>
-
-                    </div> : null }
-
-                    <div style={{display: 'flex', flexDirection: 'row', marginTop: 20}}>
-                        
-                        <Button 
-                            variant="contained" 
-                            disabled={(pno.length!==10) || (code===null) || !isNumeric(pno) || (otpShow && otp.length!==6)} 
-                            color="secondary" 
-                            style={{ 
-                                color: 'white', 
-                                marginLeft: 'auto', 
-                                textTransform: 'none'
-                            }}
-                            onClick={() => {
-                                if(otpShow) {
-                                    _verifyCode();
-                                } else {
-                                    _getCode();
-                                    setOtpShow(true);
-                                }
-                            }}>
-                            Verify
-                        </Button>
-                    </div>
-                    
-                    {!otpShow ? <p>By tapping Verify an SMS may be sent. Message & data rates may apply.</p> : null}
-                    
-                    {/* <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', marginTop: 10}}>
-                        <a href='#' style={{textDecoration: 'none', fontSize: 14}}>Terms of service</a>
-                        <a href='#' style={{textDecoration: 'none', fontSize: 14, marginLeft: 10}}>User agreement</a>
-                    </div> */}
-                </div>
-            </Paper>
+            <p className='text-base md:text-lg font-bold pb-2'>Step 3: Build Your SocketJuice Profile</p>
 
             <div className='flex flex-col items-center justify-center'>
 
-                <p className='text-center py-4'>Upload a profile picture! </p>
+                <p className='text-base md:text-lg font-medium text-center'>a) Upload a profile picture </p>
 
                 <div className='flex flex-col content-center items-center w-full'>
                     <ProfileCropper setCroppedImage={setCroppedProfileImage} setImage={setProfileImage} 
-                    image={profileImage} profilePicURL={auth.profilePicURL} />
-                </div>
-
-                <div className='flex flex-row gap-x-4 pb-4 pt-2'>
-                    
-                    <button 
-                        className={`flex align-center px-4 py-2 text-[#00D3E0] w-[110px]
-                        border-2 rounded-xl border-[#00D3E0] bg-white text-base font-semibold
-                        hover:bg-[#00D3E0] hover:text-white justify-center items-center gap-x-2`}
-                        onClick={(event)=>handleChangeProfilePic(event)}
-                        >
-                            {waiting && 
-                                <div aria-label="Loading..." role="status">
-                                    <svg className="h-6 w-6 animate-spin" viewBox="3 3 18 18">
-                                    <path
-                                        className="fill-gray-200"
-                                        d="M12 5C8.13401 5 5 8.13401 5 12C5 15.866 8.13401 19 12 19C15.866 19 19 15.866 19 12C19 8.13401 15.866 5 12 5ZM3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12Z"></path>
-                                    <path
-                                        className="fill-gray-800"
-                                        d="M16.9497 7.05015C14.2161 4.31648 9.78392 4.31648 7.05025 7.05015C6.65973 7.44067 6.02656 7.44067 5.63604 7.05015C5.24551 6.65962 5.24551 6.02646 5.63604 5.63593C9.15076 2.12121 14.8492 2.12121 18.364 5.63593C18.7545 6.02646 18.7545 6.65962 18.364 7.05015C17.9734 7.44067 17.3403 7.44067 16.9497 7.05015Z"></path>
-                                    </svg>
-                                </div>
-                            }
-
-                        Confirm
-                    </button>
+                    image={profileImage} profilePicURL={profileImage} />
                 </div>
 
                 <div className="flex w-full flex-col px-4">
-                    <label className="flex justify-start sm:justify-center text-base md:text-lg font-bold text-[#00D3E0]">Select or Take Photo:</label>   
+
+                    <div className='flex justify-center pt-4'>
+                        <p className='text-base md:text-lg font-medium text-center'>
+                            b) Upload your driver's license (Front)</p>
+                    </div>
                     
                     <div className="w-full flex justify-center">
                     
@@ -1356,12 +1252,12 @@ const VerifyPage = () => {
                     </div>
                 </div>
 
-                <div>
-                    <p>Upload Driver's License (Front)</p>
-                </div>
-
                 <div className="flex w-full flex-col px-4">
-                    <label className="flex justify-start sm:justify-center text-base md:text-lg font-bold text-[#00D3E0]">Select or Take Photo:</label>   
+                    
+                    <div className='flex justify-center pt-4'>
+                        <p className='text-base md:text-lg font-medium text-center'>
+                            c) Upload your driver's license (Back)</p>
+                    </div>
                     
                     <div className="w-full flex justify-center">
                     
@@ -1373,13 +1269,13 @@ const VerifyPage = () => {
                     </div>
                 </div>
 
-                <div>
-                    <p>Upload Driver's License (Back)</p>
-                </div>
-
 
                 <div className="flex w-full flex-col px-4">
-                    <label className="flex justify-start sm:justify-center text-base md:text-lg font-bold text-[#00D3E0]">Select or Take Photo:</label>   
+                    
+                    <div className='flex justify-center pt-4'>
+                        <p className='text-base md:text-lg font-medium text-center'>
+                            d) Upload photos of your electric car (include license plate)</p>
+                    </div>
                     
                     <div className="w-full flex justify-center">
                     
@@ -1391,12 +1287,12 @@ const VerifyPage = () => {
                     </div>
                 </div>
 
-                <div>
-                    <p>Upload Photos of Your Electric Vehicle</p>
-                </div>
-
                 <div className="flex w-full flex-col px-4">
-                    <label className="flex justify-start sm:justify-center text-base md:text-lg font-bold text-[#00D3E0]">Select or Take Photo:</label>   
+                    
+                    <div className='flex justify-center pt-4'>
+                        <p className='text-base md:text-lg font-medium text-center'>
+                            e) Upload photos of your charger / wall connector</p>
+                    </div>
                     
                     <div className="w-full flex justify-center">
                     
@@ -1408,10 +1304,11 @@ const VerifyPage = () => {
                     </div>
                 </div>
 
-                <div>
-                    <p>Upload Photos of Your Charger / Wall Connector</p>
-                </div>
+                <button className='my-2 py-4 px-3 rounded-2xl border-2 border-[#00D3E0] hover:bg-[#00D3E0]'>
+                    Save Profile and Submit</button>
 
+                </div>
+            </div>
             </div>
         </div>
 

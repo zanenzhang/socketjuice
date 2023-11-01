@@ -609,18 +609,6 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
         setOpenModalLogin(false);
     }
 
-    useEffect( ()=> {
-
-        const timer = setTimeout(() => {
-            if(!auth.userId){
-                setOpenModalLogin(true)
-            }
-          }, 120000);
-
-          return () => clearTimeout(timer);
-
-    }, [])
-
 
     const handleMessagesClick =  async (event) => {
 

@@ -18,6 +18,7 @@ const { sendVerifiedEmail } = require('../../middleware/mailer');
 const alert = require('alert'); 
 const axios = require('axios');
 const ObjectId  = require('mongodb').ObjectId;
+const crypto = require('crypto');
 
 
 const handleUserActivation = async (req, res) => {
