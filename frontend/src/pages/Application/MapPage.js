@@ -64,7 +64,7 @@ import { useRef, useState, useEffect } from 'react'
     function handleCenterChanged() {
         if (!mapRef.current) return;
         const newPos = mapRef.current.getCenter().toJSON();
-        console.log(newPos);
+        // console.log(newPos);
     }
 
     const handlePanLocation = () => {

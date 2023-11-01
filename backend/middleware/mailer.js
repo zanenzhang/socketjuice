@@ -42,31 +42,27 @@ exports.sendConfirmationEmail = function({toUser, userId, hash}) {
   return sendEmail(message);
 }
 
-exports.sendHostRecordEmail = function({firstName, lastName, address, primaryNumber, city, region, country, website}) {
+exports.sendHostRecordEmail = function({firstName, lastName, address, city, region, country}) {
   
   const regex = /(<([^>]+)>)/gi;
   const checkedFirstName = firstName.replace(regex, "");
   const checkedLastName = lastName.replace(regex, "");
   const checkedAddress = address.replace(regex, "");
-  const checkedPrimaryNumber = primaryNumber.replace(regex, "");
   const checkedCity = city.replace(regex, "");
   const checkedRegion = region.replace(regex, "");
   const checkedCountry = country.replace(regex, "");
-  const checkedWebsite = website.replace(regex, "");
   
   const message = {
     from: process.env.EMAIL_SUPPORT,
     // to: toUser.email // in production uncomment this
-    to: 'process.env.EMAIL_SUPPORT',
+    to: process.env.EMAIL_SUPPORT,
     subject: 'SocketJuice - Host Record',
     html: `
       <p>${checkedFirstName}, ${checkedLastName} has just registered for an account</p>
       <p>Address: ${checkedAddress}</p>
-      <p>Phone Number: ${checkedPrimaryNumber}</p>
       <p>City: ${checkedCity}</p> 
       <p>Region: ${checkedRegion}</p> 
       <p>Country: ${checkedCountry}</p> 
-      <p>Website: ${checkedWebsite}</p> 
     `
   }
 

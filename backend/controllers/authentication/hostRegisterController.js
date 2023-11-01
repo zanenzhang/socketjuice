@@ -16,7 +16,7 @@ const languageList = require('../languageCheck')
 
 const handleNewHost = async (req, res) => {
     
-    const { email, pwd, firstName, lastName, address, city, region, long, lat,
+    var { email, pwd, firstName, lastName, address, city, region, long, lat,
         regionCode, country, birthdate, recapToken, geoData } = req.body;
 
     if (!email || !pwd || !firstName || !lastName || !recapToken || !address || !birthdate
@@ -168,8 +168,7 @@ const handleNewHost = async (req, res) => {
                                 if(actToken && newHostProfile && newDriverProfile && updatedWall && newLimits){
                                     
                                     const success1 = await sendConfirmationEmail( {toUser: email, userId: savedUser._id , hash: token })
-                                    const success2 = await sendHostRecordEmail( { firstName: firstName, lastName: lastName, address: address, 
-                                        city: city, region: regionCode, country: country} )
+                                    const success2 = await sendHostRecordEmail( { firstName, lastName, address, city, region: regionCode, country} )
         
                                     if(success1 && success2){
                                         res.status(201).json({'Success': `New account created! Please check your email to activate! ` });
