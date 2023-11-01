@@ -34,23 +34,6 @@ var driverProfileSchema = new Schema({
         maxLength: 50
         // match: /^(\()?\d{3}(\))?(-|\s)?\d{3}(-|\s)\d{4}$/
     },
-    lessMotion: { 
-        type: Boolean, 
-        default: false 
-    },
-    pushNotifications: { 
-        type: Boolean, 
-        default: false 
-    },
-    userTheme: { 
-        type: String,
-        default: "light",
-        maxLength: 50
-    },
-    userFont: {
-        type: String,
-        maxLength: 50
-    },
     birthDate: { 
         type: Date,
         default: "01/01/1980"

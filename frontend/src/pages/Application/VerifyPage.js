@@ -60,6 +60,8 @@ const VerifyPage = () => {
 
     const IMAGE_UPLOAD_URL = '/s3/singleimage';
     const VIDEO_UPLOAD_URL = '/s3/singlevideo';
+    const PHONE_PRIMARY_REGEX = /^[+]?(1\-|1\s|1|\d{3}\-|\d{3}\s|)?((\(\d{3}\))|\d{3})(\-|\s)?(\d{3})(\-|\s)?(\d{4})$/;
+    
     const navigate = useNavigate();
     
     const [code, setCode] = useState("")

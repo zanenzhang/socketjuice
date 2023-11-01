@@ -1,9 +1,13 @@
 const User = require('../../model/User');
-const UserProfile = require('../../model/DriverProfile');
+const DriverProfile = require('../../model/DriverProfile');
 const HostProfile = require('../../model/HostProfile');
 const ForexRate = require('../../model/ForexRate');
 const BannedUser = require('../../model/BannedUser');
 const ExternalWall = require('../../model/ExternalWall');
+
+const UsageLimit = require('../../model/UsageLimit');
+const Flags = require('../../model/Flags')
+
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
@@ -23,7 +27,7 @@ const handleLogin = async (req, res) => {
             geoData = {"IPv4": ""}
         }
         
-        if(geoData.IPv4 && checkUser?.ipAddresses?.some(e=>e.userIP === geoData.IPv4)){
+        if(geoData?.IPv4 && checkUser?.ipAddresses?.some(e=>e.userIP === geoData?.IPv4)){
 
             return res.status(403).json({ 'message': 'Unauthorized access' });
             
@@ -38,11 +42,11 @@ const handleLogin = async (req, res) => {
             } else {
 
                 if(foundUser?.deactivated === true){
-                    return res.status(403).json({ 'message': 'Please check your inbox.' });
+                    return res.status(403).json({'message': 'Please check your inbox.' });
                 }
 
                 if(foundUser?.checkedMobile === false){
-                    return res.status(202).json({'message': "Please provide a mobile number for verification", userId: foundUser._id})
+                    return res.status(202).json({'message': "Please check your email to activate and verify your phone number"})
                 }
         
                 if(geoData?.IPv4 !== ""){
@@ -74,35 +78,26 @@ const handleLogin = async (req, res) => {
         
                     const match = await bcrypt.compare(pwd, foundUser.password);
             
-                    if (match) {
+                    if(match){
 
                         const roles = Object.values(foundUser.roles).filter(Boolean);
+                        
                         const userId = foundUser._id;
-                        const username = foundUser.username;
+                        const firstName = foundUser.firstName;
+                        const lastName = foundUser.lastName;
                         const profilePicURL = foundUser.profilePicURL;
-                        const privacySetting = foundUser.privacySetting;
                         const currency = foundUser.currency;
-                        const showFXPriceSetting = foundUser.showFXPriceSetting;
-                        const blockedUsers = foundUser.blockedUsers;
                         const credits = foundUser.credits;
-                        const gender = foundUser.gender;
-                        const retailerIds = foundUser.initialRetailers
-                        const genderSet = foundUser.genderSet;
+
+                        const lessMotion = foundUser.lessMotion;
+                        const pushNotifications = foundUser.pushNotifications;
+                        const userTheme = foundUser.userTheme;
 
                         foundUser.loginAttempts = 0;
 
-                        var lessMotion = null;
-                        var pushNotifications = null;
-                        var userTheme = null;
-                        var FXRates = null;
-
-                        var birthDate = null;
-                        var city = null;
-                        var region = null;
-                        var country = null;
-
-                        var doneProfile = false;
+                        var doneProfile = true;
                         var doneRates = false;
+                        var FXRates = false;
 
                         if(currency){
 
@@ -110,49 +105,6 @@ const handleLogin = async (req, res) => {
                             if(rates){
                                 FXRates = rates;
                                 doneRates = true;
-                            }
-                        }
-
-                        if(Object.values(foundUser?.roles).includes(3780)){
-
-                            const foundHostProfile = await HostProfile.findOne({_userId: foundUser._id})
-
-                            if(foundHostProfile){
-                                lessMotion = foundHostProfile.lessMotion;
-                                pushNotifications = foundHostProfile.pushNotifications;
-                                userTheme = foundHostProfile.userTheme;
-
-                                city = foundHostProfile.city;                            
-                                region = foundHostProfile.region;
-                                country = foundHostProfile.country;
-
-                                doneProfile = true;
-                            }
-                        
-                        } else {
-
-                            const foundUserProfile = await DriverProfile.findOne({_userId: foundUser._id})
-
-                            if(foundUserProfile){
-                                lessMotion = foundUserProfile.lessMotion;
-                                pushNotifications = foundUserProfile.pushNotifications;
-                                userTheme = foundUserProfile.userTheme;
-                                birthDate = foundUserProfile.birthDate;
-
-                                if(foundUser.preferredCity !== 'Select All' && foundUser.preferredRegion !== 'Select All' && foundUser.preferredCountry !== 'Select All'){
-                                    
-                                    city = foundUser.preferredCity
-                                    region = foundUser.preferredRegion;
-                                    country = foundUser.preferredCountry;
-
-                                } else {
-                                    
-                                    city= "Select All"
-                                    region = foundUserProfile.region;
-                                    country = foundUserProfile.country;
-                                }
-                                
-                                doneProfile = true;
                             }
                         }
             
@@ -216,10 +168,8 @@ const handleLogin = async (req, res) => {
                                     });
                 
                                     // Send authorization role and access token to user
-                                    res.status(200).json({ username, roles, userId, accessToken, profilePicURL, privacySetting,
-                                        currency, showFXPriceSetting, lessMotion, pushNotifications, birthDate,
-                                        userTheme, blockedUsers, FXRates, city, region, country, credits, 
-                                        gender, retailerIds, genderSet });
+                                    res.status(200).json({ firstName, lastName, userId, roles, accessToken, profilePicURL, 
+                                        currency, lessMotion, pushNotifications, userTheme, FXRates, credits });
                                 }
                             }
                         }
@@ -297,4 +247,377 @@ const handleLogin = async (req, res) => {
     }
 }
 
-module.exports = { handleLogin };
+
+
+const uploadUserIdPhotos = async (res, req) => {
+
+    const { userId, identificationFrontObjectId, identificationBackObjectId,
+        driverPreviewMediaObjectId, driverMediaObjectIds, driverVideoObjectIds, driverObjectTypes, driverPreviewObjectType, driverCoverIndex,
+        hostPreviewMediaObjectId, hostMediaObjectIds, hostVideoObjectIds, hostObjectTypes, hostPreviewObjectType, hostCoverIndex,
+         } = req.body
+
+    if (!userId || !identificationFrontObjectId || !identificationBackObjectId) {
+        return res.status(400).json({ message: 'User ID Required' })
+    }
+
+    const foundUser = await User.findOne({_id: userId})
+    const foundDriver = await DriverProfile.findOne({_id: userId})
+    const foundHost = await HostProfile.findOne({_id: userId})
+
+    var doneUser = false;
+    var doneDriver = false;
+    var doneHost = false;
+
+    if(foundUser ){
+
+        if(!foundUser.checkedMobile || !foundUser.waitingIdApproval){
+        
+            return res.status(400).json({"message": "Operation failed"})
+        
+        } else {
+
+            foundUser.identificationFrontObjectId = identificationFrontObjectId
+            foundUser.identificationBackObjectId = identificationBackObjectId
+
+            try{
+
+                var signParams = {
+                    Bucket: wasabiPrivateBucketUSA, 
+                    Key: identificationFrontObjectId, 
+                    Expires: 7200
+                };
+    
+                var signedURLFrontPhoto = s3.getSignedUrl('getObject', signParams);
+    
+                var signParams = {
+                    Bucket: wasabiPrivateBucketUSA, 
+                    Key: identificationBackObjectId, 
+                    Expires: 7200
+                };
+    
+                var signedURLBackPhoto = s3.getSignedUrl('getObject', signParams);
+
+                foundUser.identificationFrontMediaURL = signedURLFrontPhoto
+                foundUser.identificationBackMediaURL = signedURLBackPhoto
+
+            } catch(err){
+
+                console.log(err)
+                return res.status(400).json({"message": ""})
+            }
+
+            const savedUser = await foundUser.save()
+
+            if(savedUser){
+                doneUser = true
+            }
+        }
+
+    } else {
+
+        return res.status(400).json({"message": "Operation failed"})
+    }
+
+    if(foundDriver && driverMediaObjectIds?.length > 0){
+
+        var signedMediaURLs = []
+
+        for(let i=0; i<driverMediaObjectIds?.length; i++){
+
+            var signParams = {
+                Bucket: wasabiPrivateBucketUSA, 
+                Key: driverMediaObjectIds[i], 
+                Expires: 7200
+            };
+
+            var signedURL = s3.getSignedUrl('getObject', signParams);
+            signedMediaURLs.push(signedURL)
+        }
+
+        var signedVideoURLs = []
+
+        for(let i=0; i< driverVideoObjectIds?.length; i++){
+
+            if(driverVideoObjectIds[i] && driverVideoObjectIds[i] !== 'image'){
+                
+                var signParams = {
+                    Bucket: wasabiPrivateBucketUSA, 
+                    Key: driverVideoObjectIds[i], 
+                    Expires: 7200
+                };
+
+                var signedURL = s3.getSignedUrl('getObject', signParams);
+                signedVideoURLs.push(signedURL)
+
+            } else {
+
+                signedVideoURLs.push("image")
+            }
+        }
+
+        var signedPreviewURL = signedMediaURLs[coverIndex]
+
+        driverPreviewMediaObjectId ? foundDriver.previewMediaObjectId = driverPreviewMediaObjectId : null;
+        driverMediaObjectIds ? foundDriver.mediaCarouselObjectIds = driverMediaObjectIds : null;
+        driverVideoObjectIds ? foundDriver.videoCarouselObjectIds = driverVideoObjectIds : null;
+        driverCoverIndex !== null ? foundDriver.coverIndex = driverCoverIndex : null;
+        driverObjectTypes ? foundDriver.mediaCarouselObjectTypes = driverObjectTypes : null;
+        driverPreviewObjectType ? foundDriver.previewMediaType = driverPreviewObjectType : null;
+
+        signedPreviewURL ? foundDriver.previewMediaURL = signedPreviewURL : null;
+        signedMediaURLs ? foundDriver.mediaCarouselURLs = signedMediaURLs : null;
+        signedVideoURLs ? foundDriver.videoCarouselURLs = signedVideoURLs : null;
+
+        const savedDriver = await foundDriver.save()
+
+        if(savedDriver){
+            doneDriver = true
+        }   
+    } else {
+        doneDriver = true
+    }
+
+    if(foundHost && hostMediaObjectIds?.length > 0) {
+
+        var signedMediaURLs = []
+
+        for(let i=0; i<hostMediaObjectIds?.length; i++){
+
+            var signParams = {
+                Bucket: wasabiPrivateBucketUSA, 
+                Key: hostMediaObjectIds[i], 
+                Expires: 7200
+            };
+
+            var signedURL = s3.getSignedUrl('getObject', signParams);
+            signedMediaURLs.push(signedURL)
+        }
+
+        var signedVideoURLs = []
+
+        for(let i=0; i< hostVideoObjectIds?.length; i++){
+
+            if(hostVideoObjectIds[i] && hostVideoObjectIds[i] !== 'image'){
+                
+                var signParams = {
+                    Bucket: wasabiPrivateBucketUSA, 
+                    Key: hostVideoObjectIds[i], 
+                    Expires: 7200
+                };
+
+                var signedURL = s3.getSignedUrl('getObject', signParams);
+                signedVideoURLs.push(signedURL)
+
+            } else {
+
+                signedVideoURLs.push("image")
+            }
+        }
+
+        var signedPreviewURL = signedMediaURLs[coverIndex]
+
+        hostPreviewMediaObjectId ? foundHost.previewMediaObjectId = hostPreviewMediaObjectId : null;
+        hostMediaObjectIds ? foundHost.mediaCarouselObjectIds = hostMediaObjectIds : null;
+        hostVideoObjectIds ? foundHost.videoCarouselObjectIds = hostVideoObjectIds : null;
+        hostCoverIndex !== null ? foundHost.coverIndex = hostCoverIndex : null;
+        hostObjectTypes ? foundHost.mediaCarouselObjectTypes = hostObjectTypes : null;
+        hostPreviewObjectType ? foundHost.previewMediaType = hostPreviewObjectType : null;
+
+        signedPreviewURL ? foundHost.previewMediaURL = signedPreviewURL : null;
+        signedMediaURLs ? foundHost.mediaCarouselURLs = signedMediaURLs : null;
+        signedVideoURLs ? foundHost.videoCarouselURLs = signedVideoURLs : null;
+
+        const savedHost = await foundHost.save()
+
+        if(savedHost){
+            doneHost = true
+        }  
+    
+    } else {
+
+        doneHost = true
+    }
+
+    if(doneUser && doneHost && doneDriver){
+
+        return res.status(200).json({"message": "Operation success"})
+    
+    } else {
+
+        return res.status(400).json({ message: 'Operation failed' })
+    }
+}
+
+
+
+const uploadDriverPhotos = async (req, res) => {
+
+    const { userId, driverPreviewMediaObjectId, driverMediaObjectIds, driverVideoObjectIds, driverObjectTypes, driverPreviewObjectType, driverCoverIndex } = req.body
+
+    if (!userId || !driverMediaObjectIds ) {
+        return res.status(400).json({ message: 'User ID Required' })
+    }
+
+    const foundDriver = await DriverProfile.findOne({_id: userId})
+
+    var doneDriver = false;
+
+    if(foundDriver && driverMediaObjectIds?.length > 0){
+
+        var signedMediaURLs = []
+
+        for(let i=0; i<driverMediaObjectIds?.length; i++){
+
+            var signParams = {
+                Bucket: wasabiPrivateBucketUSA, 
+                Key: driverMediaObjectIds[i], 
+                Expires: 7200
+            };
+
+            var signedURL = s3.getSignedUrl('getObject', signParams);
+            signedMediaURLs.push(signedURL)
+        }
+
+        var signedVideoURLs = []
+
+        for(let i=0; i< driverVideoObjectIds?.length; i++){
+
+            if(driverVideoObjectIds[i] && driverVideoObjectIds[i] !== 'image'){
+                
+                var signParams = {
+                    Bucket: wasabiPrivateBucketUSA, 
+                    Key: driverVideoObjectIds[i], 
+                    Expires: 7200
+                };
+
+                var signedURL = s3.getSignedUrl('getObject', signParams);
+                signedVideoURLs.push(signedURL)
+
+            } else {
+
+                signedVideoURLs.push("image")
+            }
+        }
+
+        var signedPreviewURL = signedMediaURLs[coverIndex]
+
+        driverPreviewMediaObjectId ? foundDriver.previewMediaObjectId = driverPreviewMediaObjectId : null;
+        driverMediaObjectIds ? foundDriver.mediaCarouselObjectIds = driverMediaObjectIds : null;
+        driverVideoObjectIds ? foundDriver.videoCarouselObjectIds = driverVideoObjectIds : null;
+        driverCoverIndex !== null ? foundDriver.coverIndex = driverCoverIndex : null;
+        driverObjectTypes ? foundDriver.mediaCarouselObjectTypes = driverObjectTypes : null;
+        driverPreviewObjectType ? foundDriver.previewMediaType = driverPreviewObjectType : null;
+
+        signedPreviewURL ? foundDriver.previewMediaURL = signedPreviewURL : null;
+        signedMediaURLs ? foundDriver.mediaCarouselURLs = signedMediaURLs : null;
+        signedVideoURLs ? foundDriver.videoCarouselURLs = signedVideoURLs : null;
+
+        const savedDriver = await foundDriver.save()
+
+        if(savedDriver){
+            doneDriver = true
+        }   
+    } else {
+        doneDriver = true
+    }
+
+    if(doneDriver){
+
+        return res.status(200).json({"message": "Operation success"})
+    
+    } else {
+
+        return res.status(400).json({ message: 'Operation failed' })
+    }
+}
+
+
+const uploadHostPhotos = async (req, res) => {
+
+    const { userId, hostPreviewMediaObjectId, hostMediaObjectIds, hostVideoObjectIds, hostObjectTypes, hostPreviewObjectType, hostCoverIndex } = req.body
+
+    if (!userId || !hostMediaObjectIds ) {
+        return res.status(400).json({ message: 'User ID Required' })
+    }
+
+    const foundHost = await HostProfile.findOne({_id: userId})
+
+    var doneHost = false;
+
+    if(foundHost && hostMediaObjectIds?.length > 0) {
+
+        var signedMediaURLs = []
+
+        for(let i=0; i<hostMediaObjectIds?.length; i++){
+
+            var signParams = {
+                Bucket: wasabiPrivateBucketUSA, 
+                Key: hostMediaObjectIds[i], 
+                Expires: 7200
+            };
+
+            var signedURL = s3.getSignedUrl('getObject', signParams);
+            signedMediaURLs.push(signedURL)
+        }
+
+        var signedVideoURLs = []
+
+        for(let i=0; i< hostVideoObjectIds?.length; i++){
+
+            if(hostVideoObjectIds[i] && hostVideoObjectIds[i] !== 'image'){
+                
+                var signParams = {
+                    Bucket: wasabiPrivateBucketUSA, 
+                    Key: hostVideoObjectIds[i], 
+                    Expires: 7200
+                };
+
+                var signedURL = s3.getSignedUrl('getObject', signParams);
+                signedVideoURLs.push(signedURL)
+
+            } else {
+
+                signedVideoURLs.push("image")
+            }
+        }
+
+        var signedPreviewURL = signedMediaURLs[coverIndex]
+
+        hostPreviewMediaObjectId ? foundHost.previewMediaObjectId = hostPreviewMediaObjectId : null;
+        hostMediaObjectIds ? foundHost.mediaCarouselObjectIds = hostMediaObjectIds : null;
+        hostVideoObjectIds ? foundHost.videoCarouselObjectIds = hostVideoObjectIds : null;
+        hostCoverIndex !== null ? foundHost.coverIndex = hostCoverIndex : null;
+        hostObjectTypes ? foundHost.mediaCarouselObjectTypes = hostObjectTypes : null;
+        hostPreviewObjectType ? foundHost.previewMediaType = hostPreviewObjectType : null;
+
+        signedPreviewURL ? foundHost.previewMediaURL = signedPreviewURL : null;
+        signedMediaURLs ? foundHost.mediaCarouselURLs = signedMediaURLs : null;
+        signedVideoURLs ? foundHost.videoCarouselURLs = signedVideoURLs : null;
+
+        const savedHost = await foundHost.save()
+
+        if(savedHost){
+            doneHost = true
+        }
+    
+    } else {
+
+        doneHost = true
+    }
+
+    if(doneHost){
+
+        return res.status(200).json({"message": "Operation success"})
+    
+    } else {
+
+        return res.status(400).json({ message: 'Operation failed' })
+    }
+}
+
+
+// const deletedTokens = await ActivateToken.deleteMany( { _userId : foundUser._id} )
+
+//                   if(deletedTokens){
+
+module.exports = { handleLogin, uploadUserIdPhotos, uploadDriverPhotos, uploadHostPhotos };

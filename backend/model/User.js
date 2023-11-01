@@ -149,6 +149,23 @@ const userSchema = new Schema({
     identificationBackMediaURL: {
         type: String
     },
+    lessMotion: { 
+        type: Boolean, 
+        default: false 
+    },
+    pushNotifications: { 
+        type: Boolean, 
+        default: true 
+    },
+    userTheme: { 
+        type: String,
+        default: 'light',
+        maxLength: 50
+    },
+    userFont: {
+        type: String,
+        maxLength: 50
+    },
     createdAt: { 
         type: Date, 
         default: Date.now

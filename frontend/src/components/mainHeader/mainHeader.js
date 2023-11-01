@@ -7,10 +7,13 @@ import { Profanity, ProfanityOptions } from '@2toad/profanity';
 // import NotificationsDropdown from '../notifications/notificationsDropdown';
 // import SettingsDropdown from '../settings/settingsDropdown';
 
+import GooglePlacesAutocomplete from "react-google-places-autocomplete";
+
 import ReCAPTCHA from "react-google-recaptcha";
 import { regionData } from '../listdata/regions';
 import { countryData } from '../listdata/countries';
 import debounce from 'lodash.debounce';
+
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import Tab from "@material-ui/core/Tab";
@@ -21,6 +24,8 @@ import TabPanel from "@material-ui/lab/TabPanel";
 import socketjuice_full_logo from "../../images/SocketJuice.png";
 import editNewMessagesFill from '../../helpers/Notifications/editNewMessagesFill';
 import checkUser from '../../helpers/DriverData/checkUser';
+import { set } from 'date-fns';
+
 
 const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket, setSocket,
         socketConnected, setSocketConnected} ) => {
@@ -37,6 +42,9 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
     const [registerTab, setRegisterTab] = useState(true);
     const [loginTab, setLoginTab] = useState(false);
     const [inputType, setInputType] = useState("password");
+
+    const [lat, setLat] = useState(0);
+    const [long, setLong] = useState(0);
 
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingEmail, setIsLoadingMail] = useState(false);
@@ -55,9 +63,9 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
     const FIRST_NAME_REGEX = /^.{1,48}$/;
     const LAST_NAME_REGEX = /^.{1,48}$/;
     const PWD_REGEX = /^(?=(.*[0-9]))(?=.*[!@#$%^&*()\\[\]{}\-_+=~`|:;"'<>,./?])(?=.*[a-z])(?=(.*[A-Z]))(?=(.*)).{8,48}$/;
-    const PHONE_PRIMARY_REGEX = /^[+]?(1\-|1\s|1|\d{3}\-|\d{3}\s|)?((\(\d{3}\))|\d{3})(\-|\s)?(\d{3})(\-|\s)?(\d{4})$/;
+    const BIRTHDATE_REGEX = /^[0-9]{4}[-]{1}[0-9]{2}[-]{1}[0-9]{2}$/;
 
-    const ADDRESS_REGEX = /^.{4,48}$/;
+    const ADDRESS_REGEX = /^.{4,250}$/;
     const CITY_REGEX = /^.{1,48}$/;
     const REGION_REGEX = /^.{2,48}$/;
     const COUNTRY_REGEX = /^.{4,48}$/;
@@ -93,6 +101,15 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
     const [lastName, setLastName] = useState('');
     const [validLastName, setValidLastName] = useState(false);
     const [lastNameFocus, setLastNameFocus] = useState(false);
+
+    var todaysDate = new Date().toISOString().slice(0, 10)
+    var pastDate = new Date()
+    pastDate.setFullYear(pastDate.getFullYear() - 13)
+    var cutoffDate = pastDate.toISOString().slice(0,10)
+
+    const [birthdate, setBirthdate] = useState(todaysDate);
+    const [validBirthdate, setValidBirthdate] = useState(false);
+    const [birthdateFocus, setBirthdateFocus] = useState(false);
 
     const [address, setAddress] = useState('');
     const [validAddress, setValidAddress] = useState(false);
@@ -131,6 +148,63 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
         }
      }
 
+     const handleAddress = (e) => {
+
+        async function getcoordinates(){
+            
+            console.log(e)
+            
+            if(e.value?.place_id){
+
+                const latlong = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?place_id=${e.value.place_id}&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`)
+
+                if(latlong && latlong.data.results[0].geometry.location.lat && latlong.data.results[0].geometry.location.lng){
+
+                    setAddress(e.value?.formatted_address)
+                    setLat(latlong.data.results[0].geometry.location.lat)
+                    setLong(latlong.data.results[0].geometry.location.lng)
+
+                    var cityDone = false
+                    var regionDone = false
+
+                    var cityMap = {
+                        locality: 'locality',
+                        sublocality_level_1: "sublocality_level_1",
+                    };
+
+                    for(let i=0; i<latlong.data.results[0]?.address_components?.length; i++){
+                        
+                        var types = latlong.data.results[0].address_components[i].types
+
+                        for(var j = 0; j < types.length; j++){ 
+
+                            var component_type = types[j];
+            
+                            if(!cityDone && cityMap.hasOwnProperty(component_type)){
+                                
+                                setCity(latlong.data.results[0].address_components[i].short_name)
+                            
+                            } else if (!regionDone && component_type === 'administrative_area_level_1'){
+
+                                setRegion(latlong.data.results[0].address_components[i].long_name)
+
+                                for(let x=0; x<regionData?.length; x++){
+                                    if(regionData[x].code === latlong.data.results[0].address_components[i].short_name){
+                                        setRegionCode(regionData[x].code)
+                                        regionDone = true;
+                                    }
+                                }
+                        
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        getcoordinates()
+     }
+
      const handleRegionChange = (event) => {
         var saved = false
         setRegion(event.target.value);
@@ -158,13 +232,14 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
 
         for(let i=0; i< regionData.length; i++){
             
-            if(regionData[i].region === region && region !== 'Select Region'){
+            if(regionData[i].code === regionCode && region !== 'Select Region'){
                 setCountry(regionData[i].country);
                 setCountrySet(true);
             }
         }
 
-    }, [region])
+    }, [regionCode])
+
 
     useEffect( () => {
         
@@ -183,6 +258,10 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
         setValidEmailLogin(EMAIL_REGEX.test(emailLogin));
     }, [emailLogin])
 
+    useEffect(() => {
+        setValidBirthdate(BIRTHDATE_REGEX.test(birthdate) && birthdate > '1920-01-01' && birthdate < cutoffDate);
+    }, [birthdate])
+
 
     useEffect(() => {
 
@@ -191,6 +270,10 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
             var regexCheckEmail = EMAIL_REGEX.test(emailRegister)
             
             const response = await checkUser(emailRegister.toLowerCase())
+
+            if(response){
+                console.log(response)
+            }
 
             if(response?.email === 0 && regexCheckEmail){
                 setValidEmailRegister(true);
@@ -217,6 +300,7 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
     , []);
 
     const handleEmailRegister = (event) => {
+
         setEmailRegisterDisplay(event.target.value);
         debouncedChangeHandler(event);
     }
@@ -259,8 +343,9 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
     const isInvalidRegister = pwdRegister === '' || emailRegister === '' || matchPwd ==='';
 
     const handleResend = async (e) => {
+        
         e.preventDefault();
-        waiting = true;;
+        setWaiting(true);
 
         resendCount += 1;
 
@@ -275,7 +360,7 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
             
             if(response){
                 alert("Resent verification email");
-                waiting = false;;
+                setWaiting(false);
             }
             
         } catch (err) {
@@ -288,14 +373,16 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
         }
     }
 
-    const handleSubmit = async (e) => {
+    const handleSubmitRegister = async (e) => {
         e.preventDefault();
+        
         if(waiting){
             return
         }
-        waiting = true;;
+        
+        setWaiting(true);
 
-        setTimeout(()=>{}, 900);
+        setTimeout(()=>{}, 500);
         
         const v1 = EMAIL_REGEX.test(emailRegister);
         const v2 = FIRST_NAME_REGEX.test(firstName);
@@ -320,7 +407,8 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
             if(!profanityCheck){
 
                 const response = await axios.post(REGISTER_URL,
-                    JSON.stringify({ email: emailRegister.toLowerCase(), pwd: pwdRegister, firstName, lastName, address, city, region, regionCode, country, recapToken }),
+                    JSON.stringify({ email: emailRegister.toLowerCase(), pwd: pwdRegister, firstName, lastName, long, lat,
+                        address, city, region, regionCode, country, birthdate, recapToken }),
                     {
                         headers: { 'Content-Type': 'application/json' },
                         withCredentials: true
@@ -333,7 +421,7 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
                     setPwdRegister('');
                     setMatchPwd('');
                     alert("Registered! Please check your email inbox to activate the account!")
-                    waiting = false;;
+                    setWaiting(false);
 
                 } else {
                     alert("Account creation failed, please try again")
@@ -393,26 +481,25 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
 
             if(response && response.status === 200){
 
-                const username = response?.data?.username
+                const firstName = response?.data?.firstName;
+                const lastName = response?.data?.lastName;
                 const accessToken = response?.data?.accessToken;
+                
                 const roles = response?.data?.roles;
                 const userId = response?.data?.userId
                 const profilePicURL = response?.data?.profilePicURL
                 const currency = response?.data?.currency
+                
                 const FXRates = response?.data?.FXRates
-                const showFXPriceSetting = response?.data?.showFXPriceSetting
+
                 const lessMotion = response?.data?.lessMotion
                 const pushNotifications = response?.data?.pushNotifications
                 const userTheme = response?.data?.userTheme
-                const city = response?.data?.city
-                const region = response?.data?.region
-                const country = response?.data?.country
+
                 const credits = response?.data?.credits
 
-                setAuth({ username, userId, roles, accessToken, profilePicURL, 
-                    currency, showFXPriceSetting, lessMotion, 
-                    pushNotifications, userTheme, FXRates, city, region, 
-                    country, credits });
+                setAuth({ firstName, lastName, userId, roles, accessToken, profilePicURL, 
+                    currency, lessMotion, pushNotifications, userTheme, FXRates, credits });
 
                 localStorage.setItem("socketjuice-persist", persist)
 
@@ -421,11 +508,8 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
 
             } else if(response && response.status === 202) {
 
-                //Redirect to mobile number verification here
-
-                var userId = response?.data?.userId
-
-                //redirect to verify SMS with userId
+                //Resend verification link with token
+                setErrMsg('Please check your email to activate and verify your phone number!');
 
             } else {
 
@@ -582,7 +666,8 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
 
                     <svg xmlns="http://www.w3.org/2000/svg" 
                         width="32" height="32" id="gps">
-                        <path d="M16 4.219c-4.547 0-8.25 3.702-8.25 8.25 0 2.265.93 4.316 2.408 5.804.02.035.03.065.09.122l2.82 3.167c-1.266.19-2.365.492-3.213.893-.528.25-.963.534-1.289.877-.325.343-.544.767-.545 1.229 0 .561.316 1.053.764 1.437.448.384 1.045.695 1.762.955 1.433.52 3.353.826 5.473.826 2.12 0 4.039-.306 5.472-.826.717-.26 1.314-.571 1.762-.955.448-.384.764-.876.764-1.437-.002-.46-.22-.883-.545-1.225-.325-.342-.76-.626-1.286-.875-.845-.4-1.941-.702-3.205-.893l3.268-3.705a.5.5 0 0 0 .117-.244c1.142-1.412 1.883-3.187 1.883-5.148 0-4.478-3.601-8.1-8.053-8.211A.5.5 0 0 0 16 4.219Zm-.008 1.002H16a7.248 7.248 0 0 1 7.25 7.25c0 1.809-.685 3.461-1.785 4.734a.5.5 0 0 0-.076.121l-3.76 4.264a.512.512 0 0 0-.022.023l-.078.09a.499.499 0 0 0-.078.123l-.002.004-.004.008a.48.48 0 0 0-.013.039.487.487 0 0 0-.014.043v.004a.495.495 0 0 0-.008.047v.002c-.002.015.169-.34.168-.325l-.172.225-1.386 1.547-1.364-1.545-.082-.012c0-.016.082.136.08.12a.484.484 0 0 0-.02-.098v-.002a.49.49 0 0 0-.017-.045v-.002a.508.508 0 0 0-.021-.043v-.002a.501.501 0 0 0-.026-.041v-.002a.51.51 0 0 0-.031-.04l-.006-.007-.082-.094a.5.5 0 0 0-.033-.033l-.002-.002-3.45-3.873h-.003c-.018-.032-.025-.058-.078-.111a7.21 7.21 0 0 1-2.135-5.115 7.246 7.246 0 0 1 7.242-7.248ZM16 8.937a3.541 3.541 0 0 0-3.531 3.532A3.541 3.541 0 0 0 16 16a3.541 3.541 0 0 0 3.531-3.531A3.541 3.541 0 0 0 16 8.938zm0 1c1.4 0 2.531 1.132 2.531 2.532 0 1.4-1.13 2.531-2.531 2.531a2.529 2.529 0 0 1-2.531-2.531c0-1.4 1.13-2.531 2.531-2.531Zm-2.129 12.56 1.754 1.99v.001a.5.5 0 0 0 .072.067h.002a.493.493 0 0 0 .178.086.506.506 0 0 0 .049.01h.002a.5.5 0 0 0 .072.005h.031a.498.498 0 0 0 .36-.152l.013-.014 1.782-1.99c1.453.169 2.735.468 3.574.865.449.213.785.446.988.66.203.215.27.387.27.54 0 .188-.104.41-.414.675-.312.267-.813.544-1.454.776-1.28.464-3.109.765-5.13.765-2.022 0-3.851-.301-5.131-.765-.64-.232-1.142-.51-1.453-.776-.312-.266-.415-.488-.415-.677 0-.154.066-.325.27-.54.204-.214.542-.449.992-.662.842-.398 2.13-.697 3.588-.865z" color="#000" font-family="sans-serif" font-weight="400" overflow="visible"></path>
+                        <path d="M16 4.219c-4.547 0-8.25 3.702-8.25 8.25 0 2.265.93 4.316 2.408 5.804.02.035.03.065.09.122l2.82 3.167c-1.266.19-2.365.492-3.213.893-.528.25-.963.534-1.289.877-.325.343-.544.767-.545 1.229 0 .561.316 1.053.764 1.437.448.384 1.045.695 1.762.955 1.433.52 3.353.826 5.473.826 2.12 0 4.039-.306 5.472-.826.717-.26 1.314-.571 1.762-.955.448-.384.764-.876.764-1.437-.002-.46-.22-.883-.545-1.225-.325-.342-.76-.626-1.286-.875-.845-.4-1.941-.702-3.205-.893l3.268-3.705a.5.5 0 0 0 .117-.244c1.142-1.412 1.883-3.187 1.883-5.148 0-4.478-3.601-8.1-8.053-8.211A.5.5 0 0 0 16 4.219Zm-.008 1.002H16a7.248 7.248 0 0 1 7.25 7.25c0 1.809-.685 3.461-1.785 4.734a.5.5 0 0 0-.076.121l-3.76 4.264a.512.512 0 0 0-.022.023l-.078.09a.499.499 0 0 0-.078.123l-.002.004-.004.008a.48.48 0 0 0-.013.039.487.487 0 0 0-.014.043v.004a.495.495 0 0 0-.008.047v.002c-.002.015.169-.34.168-.325l-.172.225-1.386 1.547-1.364-1.545-.082-.012c0-.016.082.136.08.12a.484.484 0 0 0-.02-.098v-.002a.49.49 0 0 0-.017-.045v-.002a.508.508 0 0 0-.021-.043v-.002a.501.501 0 0 0-.026-.041v-.002a.51.51 0 0 0-.031-.04l-.006-.007-.082-.094a.5.5 0 0 0-.033-.033l-.002-.002-3.45-3.873h-.003c-.018-.032-.025-.058-.078-.111a7.21 7.21 0 0 1-2.135-5.115 7.246 7.246 0 0 1 7.242-7.248ZM16 8.937a3.541 3.541 0 0 0-3.531 3.532A3.541 3.541 0 0 0 16 16a3.541 3.541 0 0 0 3.531-3.531A3.541 3.541 0 0 0 16 8.938zm0 1c1.4 0 2.531 1.132 2.531 2.532 0 1.4-1.13 2.531-2.531 2.531a2.529 2.529 0 0 1-2.531-2.531c0-1.4 1.13-2.531 2.531-2.531Zm-2.129 12.56 1.754 1.99v.001a.5.5 0 0 0 .072.067h.002a.493.493 0 0 0 .178.086.506.506 0 0 0 .049.01h.002a.5.5 0 0 0 .072.005h.031a.498.498 0 0 0 .36-.152l.013-.014 1.782-1.99c1.453.169 2.735.468 3.574.865.449.213.785.446.988.66.203.215.27.387.27.54 0 .188-.104.41-.414.675-.312.267-.813.544-1.454.776-1.28.464-3.109.765-5.13.765-2.022 0-3.851-.301-5.131-.765-.64-.232-1.142-.51-1.453-.776-.312-.266-.415-.488-.415-.677 0-.154.066-.325.27-.54.204-.214.542-.449.992-.662.842-.398 2.13-.697 3.588-.865z" color="#000" 
+                        fontFamily="sans-serif" fontWeight="400" overflow="visible"></path>
                     </svg>
 
                     <p className='text-[12px] mx-1 sm:text-sm md:text-base '>Map</p>
@@ -611,7 +696,7 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
                             ${activeTab === 'chat' ? 'border-2 border-black ' : ''} rounded-lg p-1 sm:px-2`}>
                         
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
-                            strokeWidth="1" stroke="currentColor" class="w-7 h-8">
+                            strokeWidth="1" stroke="currentColor" className="w-7 h-8">
                             <path strokeLinecap="round" strokeLinejoin="round" 
                             d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
                         </svg>
@@ -638,7 +723,7 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
                             ${activeTab === 'chat' ? 'border-2 border-black' : ''} rounded-lg p-1 sm:px-2`}>
 
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
-                            strokeWidth="1" stroke="currentColor" class="w-7 h-8">
+                            strokeWidth="1" stroke="currentColor" className="w-7 h-8">
                             <path strokeLinecap="round" strokeLinejoin="round" 
                             d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
                         </svg>
@@ -904,8 +989,8 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
                     ref={emailRef}
                     autoComplete="off"
                     type="text" 
-                    onChange={ ( {target} ) => handleEmailRegister(target.value)}
-                    value={emailRegister}
+                    onChange={ ( e ) => handleEmailRegister(e)}
+                    value={emailRegisterDisplay}
                     onFocus={() => setEmailFocusRegister(true)}
                     onBlur={() => setEmailFocusRegister(false)}
                     aria-invalid={validEmailRegister ? "false" : "true"}
@@ -1198,23 +1283,103 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
             </div>
 
             <div className='flex flex-col mt-6'>
-                <label className='text-base md:text-lg font-medium'>Street Address</label>
+                <label className='text-base md:text-lg font-medium'>Date of Birth </label>
                 <input 
-                    className='w-full border-2 rounded-xl p-4 mt-1 hover:scale-[1.01] ease-in-out border-[#00D3E0]/10
-                        bg-white focus:outline-[#00D3E0] placeholder:text-sm md:placeholder:text-base'
-                    placeholder="Street address of your store"
-                    aria-label="Street address of your store" 
-                    type="text"
-                    id="address"
-                    autoComplete="off"
-                    onChange={ ( e ) => setAddress(e.target.value)}
-                    value={address}
-                    aria-invalid={validAddress ? "false" : "true"}
-                    aria-describedby="addressnamenote"
-                    onFocus={() => setAddressFocus(true)}
-                    onBlur={() => setAddressFocus(false)}
+                    aria-label="dateOfBirth" 
+                    type="date" 
+                    id="birthdate"
+                    placeholder="Birthdate"
+                    className='text-sm text-gray-base w-full mr-3 py-6 px-4 h-10
+                    border border-[#00D3E0]/10 rounded focus:outline-[#00D3E0]' 
+                    onChange={ ( e ) => setBirthdate(e.target.value)}
+                    value={birthdate}
+                    aria-invalid={validBirthdate ? "false" : "true"}
+                    onFocus={() => setBirthdateFocus(true)}
+                    onBlur={() => setBirthdateFocus(false)}
                     required
                 />
+            </div>
+
+            <div className='flex flex-row mx-2 gap-x-2 mt-1'>
+                
+                {validBirthdate ? 
+                    (
+                        <>
+                        <div className='flex flex-col justify-center'>
+                        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#38a169" className="w-6 h-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        </div>
+                        <div className='flex flex-col justify-center'>
+                            <span className="text-sm md:text-base text-green-600">Please enter your date of birth</span>
+                        </div>
+                        </>
+                    )
+                    : 
+                    ( 
+                        <>
+                        <div className='flex flex-col justify-center'>
+                        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#e53e3e" className="w-6 h-6" >
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        </div>
+                        <div className='flex flex-col justify-center'>
+                            <span className="text-sm md:text-base text-red-600">Please enter your date of birth</span>
+                        </div>
+                        </>
+                    )
+                }
+            </div>  
+
+            <div className='flex flex-col mt-6'>
+                <label className='text-base md:text-lg font-medium'>Street Address</label>
+                
+                <div >
+                <GooglePlacesAutocomplete
+
+                    apiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}
+                    debounce={400}
+                    // autocompletionRequest={{
+                    //     componentRestrictions: {
+                    //       country: ["ca", "us"] //to set the specific country
+                    //     }
+                    //   }}
+                    selectProps={{
+                        defaultInputValue: address,
+                        onChange: handleAddress, //save the value gotten from google
+                        placeholder: "Street address of your charger",
+                        styles: {
+                            control: (provided, state) => ({
+                                ...provided,
+                                boxShadow: "#00D3E0",
+                               paddingTop: "8px",
+                               paddingBottom: "8px",
+                               border: state.isFocused
+                                ? "2px solid #00D3E0"
+                                : "0.5px solid #00D3E0",
+                               '&:focus': {
+                                    border: "4px solid #00D3E0"
+                                },
+                                '&:hover': {
+                                    
+                                },
+                                '&:select': {
+                                    border: "4px solid #00D3E0"
+                                },
+                                borderColor: "#00d3e080",
+                                outlineColor: "#00D3E0",
+                                "--tw-ring-color": "#00D3E0"
+                            }),
+                            menu: (provided) => ({
+                                ...provided,
+                            }),
+                            option: (provided) => ({
+                              ...provided,
+                            }),
+                          },
+                    }}
+                />
+                </div>
             </div>
 
             <div className='flex flex-row mx-2 gap-x-2 mt-1'>
@@ -1253,7 +1418,7 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
                 <input 
                     className={`w-full border-2 rounded-xl placeholder:text-sm md:placeholder:text-base hover:scale-[1.01] ease-in-out border-[#00D3E0]/10
                         p-4 mt-1 bg-white focus:outline-[#00D3E0] ${city === 'Select City' ? 'text-gray-400' : 'text-black'}`}
-                    placeholder="Enter the city/town of your store"
+                    placeholder="Enter the city/town of your charger"
                     aria-label="Store Address - City" 
                     type="text"
                     id="city"
@@ -1483,7 +1648,7 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
                 disabled={!validEmailRegister || !validPwdRegister || !validMatch || isInvalidRegister || !acceptTerms 
                     || !acceptPrivacy || !validAddress || !validCity || !validRegion 
                     || !validCountry || success || !recapToken || waiting ? true : false}
-                onClick={(event) => handleSubmit(event)}
+                onClick={(event) => handleSubmitRegister(event)}
             >
                 {waiting && 
                     <div aria-label="Loading..." role="status">

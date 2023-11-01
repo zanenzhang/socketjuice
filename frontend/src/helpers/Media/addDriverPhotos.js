@@ -1,5 +1,5 @@
 import axios from "../../api/axios";
-const UPLOAD_URL = '/profile/driverphotos';
+const UPLOAD_URL = '/auth/driverphotos';
 
 async function addDriverPhotos(userId, driverPreviewMediaObjectId, driverMediaObjectIds, driverVideoObjectIds, 
     driverObjectTypes, driverPreviewObjectType, driverCoverIndex, accessToken) {

@@ -191,30 +191,14 @@ var hostProfileSchema = new Schema({
     location: {
         type: {
             type: String,
-            enum: ['Point'],
+            enum: ['Point', "Polygon"],
+            default: "Point",
             required: true
         },
         coordinates: {
             type: [Number], //Longitude first, then latitude
             required: true
         },
-    },
-    lessMotion: { 
-        type: Boolean, 
-        default: false 
-    },
-    pushNotifications: { 
-        type: Boolean, 
-        default: true 
-    },
-    userTheme: { 
-        type: String,
-        default: 'light',
-        maxLength: 50
-    },
-    userFont: {
-        type: String,
-        maxLength: 50
     },
     verifiedHost: { 
         type: Boolean, 

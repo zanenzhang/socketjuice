@@ -1,10 +1,11 @@
 import axios from "../../api/axios";
-const UPLOAD_URL = '/profile/hostphotos';
+const UPLOAD_URL = '/auth/hostphotos';
 
 async function addDriverPhotos(userId, hostPreviewMediaObjectId, hostMediaObjectIds, hostVideoObjectIds, 
     hostObjectTypes, hostPreviewObjectType, hostCoverIndex, accessToken) {
 
     try {
+
         const response = await axios.post(UPLOAD_URL, 
             JSON.stringify({userId, hostPreviewMediaObjectId, hostMediaObjectIds, hostVideoObjectIds, 
                 hostObjectTypes, hostPreviewObjectType, hostCoverIndex}),
@@ -14,6 +15,7 @@ async function addDriverPhotos(userId, hostPreviewMediaObjectId, hostMediaObject
                 withCredentials: true
             }
         );
+        
         if (response){
             return response
         } else {

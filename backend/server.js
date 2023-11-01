@@ -25,7 +25,7 @@ const mongoSanitize = require("express-mongo-sanitize");
 
 const http = require('http').createServer(app);
 
-const PORT = process.env.PORT_SJ || 5000;
+const PORT = process.env.PORT_SJ || 5500;
 
 const limiter = rateLimiter({
     windowMs: 15 * 60 * 1000,

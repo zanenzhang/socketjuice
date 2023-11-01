@@ -14,7 +14,7 @@ const Flags = require('../../model/Flags');
 const BannedUser = require('../../model/BannedUser');
 const ForexRate = require('../../model/ForexRate');
 
-const { sendVerifiedEmail } = require('../../middleware/mailer')
+const { sendVerifiedEmail } = require('../../middleware/mailer');
 const alert = require('alert'); 
 const axios = require('axios');
 const ObjectId  = require('mongodb').ObjectId;
@@ -52,8 +52,6 @@ const handleUserActivation = async (req, res) => {
         var checkedAdminUser = false;
         var checkedAdminForex = false;
 
-        if(Object.values(foundUser?.roles).includes(5150)){
-
           const checkedUser = await BannedUser.findOne({admin: "admin"})
           if(checkedUser){
             checkedAdminUser = true;
@@ -81,11 +79,6 @@ const handleUserActivation = async (req, res) => {
               checkedAdminForex = true
             }
           }
-          
-        } else {
-          checkedAdminUser = true;
-          checkedAdminForex = true;
-        }
 
         if(checkedAdminUser && checkedAdminForex){
 
@@ -97,6 +90,10 @@ const handleUserActivation = async (req, res) => {
             if(savedUser){
 
               alert("Verified! Your account is now active!"); 
+
+              const token = crypto.randomBytes(16).toString('hex')
+
+              const updatedToken = await ActivateToken.updateOne({_userId: userId}, {$set:{token: token}})
 
               let bookmarks = new Bookmarks({
                 "_userId": foundUser._id,
@@ -128,15 +125,12 @@ const handleUserActivation = async (req, res) => {
 
               const savedUserFlags = await userFlags.save()
 
-                if(savedBookmarks && savedActivities && savedPreferences && savedNotifications && savedCommunications && savedUserFlags ){
+                if(savedBookmarks && savedActivities && updatedToken && savedNotifications && savedCommunications && savedUserFlags ){
                   
-                  const deletedTokens = await ActivateToken.deleteMany( { _userId : foundUser._id} )
+                  sendVerifiedEmail({ toUser: foundUser.email })
 
-                  if(deletedTokens){
-                    sendVerifiedEmail({ toUser: foundUser.email })
-
-                    return res.redirect(`${process.env.MOBILE_VERIFY_PAGE}/${foundUser._id}`);
-                }
+                  return res.redirect(`${process.env.MOBILE_VERIFY_PAGE}?id=${foundUser._id}&hash=${hash}`);
+              
               }
             }
           } 

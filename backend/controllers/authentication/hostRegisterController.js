@@ -16,10 +16,10 @@ const languageList = require('../languageCheck')
 
 const handleNewHost = async (req, res) => {
     
-    const { email, pwd, firstName, lastName, address, city, region, 
+    const { email, pwd, firstName, lastName, address, city, region, long, lat,
         regionCode, country, birthdate, recapToken, geoData } = req.body;
 
-    if (!email || !pwd || !firstName || !lastName || !recapToken || !address
+    if (!email || !pwd || !firstName || !lastName || !recapToken || !address || !birthdate
          || !city || !region || !regionCode || !country ){
         return res.status(400).json({ 'message': 'Missing required fields!' });
     } 
@@ -29,6 +29,8 @@ const handleNewHost = async (req, res) => {
             return res.status(400).json({ 'message': 'Content does not meet requirements' });
         }
 
+    long = Number(long)
+    lat = Number(lat)
 
     var textToCheck = email.concat(" ", firstName," ", lastName, " ", address, " ", city, " ", region, " ", regionCode, " ", country).toLowerCase();
 
@@ -53,7 +55,7 @@ const handleNewHost = async (req, res) => {
             safeIP = true;
         }
 
-        const foundWall = await ExternalWall.findOne({userIP:geoData.IPv4})
+        const foundWall = await ExternalWall.findOne({userIP: geoData?.IPv4})
 
         const checkHuman = await axios.post(
             `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.GOOGLE_RECAPTCHA_SECRET_KEY}&response=${recapToken}`
@@ -74,6 +76,7 @@ const handleNewHost = async (req, res) => {
                 }
 
             } else {
+
                 const newWall = await ExternalWall.create({userIP: geoData.IPv4, Total_GoogleRecaptcha: 1, 
                     Total_LoginAttempts: 0, Total_LockedLoginAttempts:0, Total_Registrations: 1})
 
@@ -138,12 +141,13 @@ const handleNewHost = async (req, res) => {
                                     "region": region,
                                     "regionCode": regionCode,
                                     "country": country,
+                                    "location": {type: "Point", coordinates: [long, lat]}
                                 })
         
                                 var updatedWall = null
                                 if(!foundWall){
                                     var newWall = await ExternalWall.create({
-                                        "userIP": geoData.IPv4,
+                                        "userIP": geoData?.IPv4,
                                         "Total_Registrations": 1
                                     })
                                     if(newWall){
