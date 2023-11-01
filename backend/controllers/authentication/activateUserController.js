@@ -129,7 +129,7 @@ const handleUserActivation = async (req, res) => {
                   
                   sendVerifiedEmail({ toUser: foundUser.email })
 
-                  return res.redirect(`${process.env.MOBILE_VERIFY_PAGE}?id=${foundUser._id}&hash=${hash}`);
+                  return res.redirect(`${process.env.MOBILE_VERIFY_PAGE}?id=${foundUser._id}&hash=${token}`);
               
               }
             }
