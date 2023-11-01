@@ -8,7 +8,7 @@ function sendEmail(message) {
       port: process.env.EMAIL_PORT,
       //secure: false,
       auth: {
-        user: process.env.EMAIL_USER,
+        user: process.env.EMAIL_SUPPORT,
         pass: process.env.EMAIL_PASSWORD
       }
     })
@@ -26,10 +26,10 @@ function sendEmail(message) {
 
 exports.sendConfirmationEmail = function({toUser, userId, hash}) {
   const message = {
-    from: process.env.EMAIL_USER,
+    from: process.env.EMAIL_SUPPORT,
     // to: toUser.email // in production uncomment this
     to: toUser,
-    subject: 'Purchies - Activate Account',
+    subject: 'SocketJuice - Activate Account',
     html: `
       <h3> Hello! </h3>
       <p>Thank you for registering and welcome to ${process.env.MAIL_FROM_NAME}! Just one last step remaining...</p>
@@ -55,10 +55,10 @@ exports.sendHostRecordEmail = function({firstName, lastName, address, primaryNum
   const checkedWebsite = website.replace(regex, "");
   
   const message = {
-    from: process.env.EMAIL_USER,
+    from: process.env.EMAIL_SUPPORT,
     // to: toUser.email // in production uncomment this
-    to: 'storerecords@purchies.com',
-    subject: 'Purchies - Store Record',
+    to: 'process.env.EMAIL_SUPPORT',
+    subject: 'SocketJuice - Host Record',
     html: `
       <p>${checkedFirstName}, ${checkedLastName} has just registered for an account</p>
       <p>Address: ${checkedAddress}</p>
@@ -75,10 +75,10 @@ exports.sendHostRecordEmail = function({firstName, lastName, address, primaryNum
 
 exports.sendVerifiedEmail = function({toUser}) {
     const message = {
-      from: process.env.EMAIL_USER,
+      from: process.env.EMAIL_SUPPORT,
       // to: toUser.email // in production uncomment this
       to: toUser,
-      subject: 'Purchies - Account Verified',
+      subject: 'SocketJuice - Account Verified',
       html: `
         <h3> Hello! </h3>
         <p>Thanks for verifying your account! Your account is now active!</p>
@@ -96,14 +96,13 @@ exports.sendVerifiedEmail = function({toUser}) {
     const checkedName = friendname.replace(regex, "");
 
     const message = {
-      from: process.env.EMAIL_USER,
+      from: process.env.EMAIL_SUPPORT,
       // to: toUser.email // in production uncomment this
       to: toUser,
-      subject: 'Purchies - Invitation',
+      subject: 'SocketJuice - Invitation',
       html: `
         <h3> Hello! </h3>
-        <p>Your friend, ${checkedName} has invited you to hang out together on <a target="_" href="https://purchies.com/">Purchies! </a></p>
-        <p>You can check out your friend's profile at https://purchies.com/profile/${type}/${username} </p>
+        <p>Your friend, ${checkedName} has invited you to check out <a target="_" href="https://socketjuice.com/">SocketJuice! </a></p>
         <p>Cheers,</p>
         <p>The ${process.env.MAIL_FROM_NAME} team</p>
       `
@@ -119,10 +118,10 @@ exports.sendVerifiedEmail = function({toUser}) {
     const checkedContent = content.replace(regex, "");
 
     const message = {
-      from: process.env.EMAIL_USER,
+      from: process.env.EMAIL_SUPPORT,
       // to: toUser.email // in production uncomment this
       to: process.env.EMAIL_SUPPORT,
-      subject: 'Purchies - Feedback',
+      subject: 'SocketJuice - Feedback',
       html: `
         From: ${submittedUser}
         Feedback: ${checkedContent}
@@ -138,10 +137,10 @@ exports.sendVerifiedEmail = function({toUser}) {
     const checkedContent = content.replace(regex, "");
 
     const message = {
-      from: process.env.EMAIL_USER,
+      from: process.env.EMAIL_SUPPORT,
       // to: toUser.email // in production uncomment this
-      to: process.env.EMAIL_ORDERS,
-      subject: 'Purchies - Issue With Order',
+      to: process.env.EMAIL_SUPPORT,
+      subject: 'SocketJuice - Issue With Order',
       html: `
         From: ${submittedUser}
         Order: ${order}
@@ -154,10 +153,10 @@ exports.sendVerifiedEmail = function({toUser}) {
 
 exports.sendResetPasswordEmail = ({toUser, userId, hash}) => {
   const message = {
-    from: process.env.EMAIL_USER,
+    from: process.env.EMAIL_SUPPORT,
     // to: toUser.email // in production uncomment this
     to: toUser,
-    subject: 'Purchies - Reset Password',
+    subject: 'SocketJuice - Reset Password',
     html: `
       <h3>Hello!</h3>
       <p>To reset your password please follow this link: <a target="_" href="${process.env.CLIENT}/inputnewpassword?userId=${userId}&hash=${hash}">${process.env.MAIL_FROM_NAME}/inputnewpassword</a></p>
@@ -172,10 +171,10 @@ exports.sendResetPasswordEmail = ({toUser, userId, hash}) => {
 
 exports.sendPassResetConfirmation = ({toUser}) => {
     const message = {
-        from: process.env.EMAIL_USER,
+        from: process.env.EMAIL_SUPPORT,
         // to: toUser.email // in production uncomment this
         to: toUser,
-        subject: 'Purchies - Password Was Reset!',
+        subject: 'SocketJuice - Password Was Reset!',
         html: `
           <h3>Hello!</h3>
           <p>This email is to notify that your password reset is complete. </p>
