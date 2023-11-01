@@ -269,7 +269,7 @@ const uploadUserIdPhotos = async (res, req) => {
 
     if(foundUser ){
 
-        if(!foundUser.checkedMobile || !foundUser.waitingIdApproval){
+        if(!foundUser.checkedMobile || !foundUser.receivedIdApproval){
         
             return res.status(400).json({"message": "Operation failed"})
         

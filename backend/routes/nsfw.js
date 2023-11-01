@@ -7,12 +7,11 @@ const ObjectId  = require('mongodb').ObjectId;
 
 const tf = require('@tensorflow/tfjs-node')
 const nsfw = require('nsfwjs')
+const upload = multer()
 
 const verifyJWT = require('../middleware/verifyJWT')
+
 router.use(verifyJWT)
-
-
-const upload = multer()
 
 let _model
 
@@ -33,10 +32,11 @@ const convert = async (img) => {
 
 router.post('/check', upload.single('image'), async (req, res) => {
 
-
-
-  if (!req.file) res.status(400).send('Missing image multipart/form-data')
-  else {
+  if (!req.file){
+  
+    res.status(400).send('Missing image multipart/form-data')
+  
+  } else {
 
     var name = (req.file.originalname).substring(0, (req.file.originalname).lastIndexOf('.'));
 

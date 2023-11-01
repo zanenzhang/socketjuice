@@ -58,7 +58,7 @@ const approveUserIdPhotos = async (req, res) => {
 
         if(checkUser){
 
-            checkUser.waitingIdApproval = true
+            checkUser.receivedIdApproval = true
 
             const savedUser = await checkUser.save()
 
@@ -107,7 +107,7 @@ const rejectUserUploads = async (req, res) => {
             checkUser.identificationBackObjectId = ""
             checkUser.identificationBackMediaURL = ""
 
-            checkUser.waitingIdApproval = false
+            checkUser.receivedIdApproval = false
 
             const savedUser = await checkUser.save()
 
@@ -143,7 +143,7 @@ const getUserStatusPhotos = async (req, res) => {
             }
         )
 
-        const usersToCheck = await User.find({checkedMobile: true, waitingIdApproval: false})
+        const usersToCheck = await User.find({checkedMobile: true, receivedIdApproval: false})
         var doneDrivers = false;
         var doneHosts = false;
 

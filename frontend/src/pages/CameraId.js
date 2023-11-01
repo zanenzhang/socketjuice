@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {FACING_MODES} from "react-html5-camera-photo"
 import Cropper from "react-easy-crop";
 import { useState, useRef } from "react";
@@ -37,13 +37,20 @@ const colorScheme = [
   "purple"
 ];
 
-export default function Camera({croppedImage, setCroppedImage, croppedImageURL, setCroppedImageURL, 
+export default function CameraId({croppedImage, setCroppedImage, croppedImageURL, setCroppedImageURL, 
   coverIndex, setCoverIndex, mediaTypes, setMediaTypes, videoArray, setVideoArray, videoURLArray, 
-  setVideoURLArray, videoThumbnails, setVideoThumbnails, oldMediaTrack, setOldMediaTrack}) {
+  setVideoURLArray, videoThumbnails, setVideoThumbnails, oldMediaTrack, setOldMediaTrack, camera_id}) {
 
   const [isUseCamera, setUseCamera] = useState(false);
   const [photo, setPhoto] = useState(null);
   const [quality, setQuality] = useState(0.5);
+
+  useEffect( ()=> {
+
+    console.log(camera_id, croppedImage)
+    console.log(camera_id, croppedImageURL)
+
+  }, [croppedImage, croppedImageURL])
   
   const refs = useRef({
     video: null,
@@ -709,10 +716,19 @@ const handleSelfieCamera = () => {
 
           <div className="flex flex-col">
 
-          { (croppedImageURL?.length > 0 && croppedImageURL[coverIndex] !== undefined && mediaTypes[coverIndex] !== 'video') &&
+          { (croppedImageURL?.length >= 1 && croppedImageURL[coverIndex] !== undefined && mediaTypes[coverIndex] !== 'video') &&
             <div className="flex flex-col pt-2">
               <div className="flex flex-row justify-center pt-2">
-                <img ref={refPhoto} key={'mainCropImage'} src={croppedImageURL[coverIndex] || DEFAULT_IMAGE_PATH} width="284" 
+                <img ref={refPhoto} key={'mainCropImage'} src={croppedImageURL[0] || DEFAULT_IMAGE_PATH} width="284" 
+                className="rounded-xl border" />
+              </div>
+            </div>
+          }
+
+          { (croppedImageURL?.length >= 2 && croppedImageURL[coverIndex] !== undefined && mediaTypes[coverIndex] !== 'video') &&
+            <div className="flex flex-col pt-2">
+              <div className="flex flex-row justify-center pt-2">
+                <img ref={refPhoto} key={'mainCropImage'} src={croppedImageURL[1] || DEFAULT_IMAGE_PATH} width="284" 
                 className="rounded-xl border" />
               </div>
             </div>
@@ -732,42 +748,6 @@ const handleSelfieCamera = () => {
             </div>
           } 
 
-          {croppedImageURL?.length > 1 &&
-
-          <div className="flex flex-col items-center py-2">
-
-            <p>Choose Cover Photo:</p>
-
-            <div className="flex flex-wrap w-[350px] justify-center py-2 gap-x-4">
-          
-            {croppedImageURL.map((image, index) => (
-
-              <div className="flex flex-col" key={`croppedcontainer_${index}`}>
-              
-              <img key={`${index}_imageURL`}
-              onClick={(event)=>changePhotoIndex(event, index)}
-               ref={refPhoto} src={croppedImageURL[index] || DEFAULT_IMAGE_PATH} 
-               width="60" 
-               className={`rounded-xl border hover:cursor-pointer w-[60px] h-[60px]
-               hover:opacity-50 ${index === coverIndex && ' border-2 border-[#8BEDF3]'}`} />
-
-               <button 
-                  onClick={()=>handleSpliceRemoveMedia(index)}
-                  className="absolute ml-[50px] mb-[25px]"
-                  >
-                   <svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24" 
-                    strokeWidth="1.5" stroke="#7F1D1D" className="w-6 h-6">
-                      <path strokeLinecap="round" strokeLinejoin="round" 
-                      d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-               </button>
-
-               </div>
-            ))}
-
-            </div>
-          </div>
-          }
           
           </div>
         </div>
@@ -838,7 +818,7 @@ const handleSelfieCamera = () => {
                       <input type="file" 
                         id="files"
                         accept="image/*"
-                        onChange={handleUploadMedia} 
+                        onChange={(e)=>handleUploadMedia(e)} 
                         value={""}
                         placeholder={"Add media!"}
                         className="w-full 
@@ -889,14 +869,14 @@ const handleSelfieCamera = () => {
 
                     }
 
-                {(croppedImage?.length > 0 && croppedImage?.length <10 ) && 
+                {(croppedImage?.length > 0 && croppedImage?.length < 2 ) && 
 
                 <div className="py-2">
 
                 <input type="file" 
                   id="files"
                   accept="image/*"
-                  onChange={handleUploadMedia} 
+                  onChange={(e)=>handleUploadMedia(e)} 
                   value={""}
                   placeholder={"Add a photo!"}
                   className="w-full 

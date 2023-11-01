@@ -44,7 +44,7 @@ const userSchema = new Schema({
         type: Boolean,
         default: false
     }, 
-    waitingIdApproval: {
+    receivedIdApproval: {
         type: Boolean,
         default: false
     },
