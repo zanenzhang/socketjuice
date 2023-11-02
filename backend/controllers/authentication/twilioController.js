@@ -1,58 +1,86 @@
 const client = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+const phoneUtil = require('google-libphonenumber').PhoneNumberUtil.getInstance();
+const User = require('../../model/User');
 
-const getCode = async (req, res) => {
-    client
-        .verify
-        .services(process.env.VERIFY_SERVICE_SID)
-        .verifications
-        .create({
-            to: `+${req.query.phonenumber}`,
-            channel: req.query.channel
-        })
-        .then(data => {
-            res.status(200).send(data);
-        })
-};
+async function sendVerification (req, res) {
 
-const verifyCode = async (req, res) => {
-    client
-        .verify
-        .services(process.env.VERIFY_SERVICE_SID)
-        .verificationChecks
-        .create({
-            to: `+${req.query.phonenumber}`,
-            code: req.query.code
-        })
-        .then(data => {
-            res.status(200).send(data);
-        });
-};
+    const {number, phoneCountry, userId} = req.body
 
-const createService = async(req, res) => {
-    client.verify.v2.services.create({ friendlyName: 'phoneVerification' })
-        .then(service => console.log(service.sid))
-}
+    if (!number ) {
+        return res.status(400).json({ message: 'Missing required info' })
+    }
 
-const sendVerification = async(req, res, number) => {
+    const foundUser = await User.findOne({_id: userId})
 
-    client.verify.v2.services(process.env.TWILIO_VERIFICATION_SID)
-        .verifications
-        .create({to: `${number}`, channel: 'sms'})
-        .then( verification => 
-            console.log(verification.status)
-        ); 
+    if(foundUser && !foundUser.checkedMobile){
+
+        const checkedNumber = phoneUtil.parseAndKeepRawInput(number, phoneCountry);
+
+        if(phoneUtil.isValidNumber(checkedNumber)){
+
+            client.verify.v2.services(process.env.TWILIO_SOCKETJUICE_SID)
+            .verifications
+            .create({to: `${number}`, channel: 'sms'})
+            .then( verification => {
+                console.log(verification.status)
+                res.status(200).send({result: verification.status})
+            })
+            .catch(e => {
+                console.log(e)
+                res.status(500).send(e);
+            })
+        }
+
+    } else {
+
+        return res.status(401).json({ message: 'Already approved' })
+    }
 }
 
 //check verification token
-const checkVerification = async(req, res, number, code) => {
-    return new Promise((resolve, reject) => {
-        client.verify.v2.services(process.env.TWILIO_VERIFICATION_SID)
-            .verificationChecks
-            .create({to: `${number}`, code: `${code}`})
-            .then(verification_check => {
-                resolve(verification_check.status)
-            });
-    })
+async function checkVerification (req, res) {
+
+    const {number, code, userId, phonePrimary, phonePrefix, 
+        phoneCountry, phoneCountryCode} = req.body
+
+    if (!number || !code ) {
+        return res.status(400).json({ message: 'Missing required info' })
+    }
+
+    const foundUser = await User.findOne({_id: userId})
+
+    if(foundUser && !foundUser.checkedMobile){
+
+        client.verify.v2.services(process.env.TWILIO_SOCKETJUICE_SID)
+        .verificationChecks
+        .create({to: `${number}`, code: `${code}`})
+        .then( verification => async function() {
+            console.log(verification.status)
+            if(verification.status === 'approved'){
+                
+                const updatedUser = await User.updateOne({_id: userId},
+                    {$set:{checkedMobile: true, phonePrimary: phonePrimary, phonePrefix: phonePrefix,
+                    phoneCountry: phoneCountry, phoneCountryCode: phoneCountryCode}})
+
+                if(updatedUser){
+                    res.status(200).send({result: verification.status})
+                }
+                
+            } else {
+                res.status(400);    
+            }
+            
+        })
+        .catch(e => {
+            console.log(e)
+            res.status(500).send(e);
+        })
+
+    } else {
+
+        return res.status(401).json({ message: 'Already approved' })
+    } 
 }
 
-module.exports = { createService, sendVerification, checkVerification }
+
+module.exports = { sendVerification, checkVerification }

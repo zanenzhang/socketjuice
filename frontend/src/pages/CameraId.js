@@ -44,13 +44,6 @@ export default function CameraId({croppedImage, setCroppedImage, croppedImageURL
   const [isUseCamera, setUseCamera] = useState(false);
   const [photo, setPhoto] = useState(null);
   const [quality, setQuality] = useState(0.5);
-
-  useEffect( ()=> {
-
-    console.log(camera_id, croppedImage)
-    console.log(camera_id, croppedImageURL)
-
-  }, [croppedImage, croppedImageURL])
   
   const refs = useRef({
     video: null,

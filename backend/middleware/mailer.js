@@ -25,7 +25,7 @@ function sendEmail(message) {
   })
 }
 
-exports.sendConfirmationEmail = function({toUser, userId, hash}) {
+exports.sendConfirmationEmail = function({toUser, userId, hash, firstName}) {
 
   const message = {
     from: process.env.EMAIL_SUPPORT,
@@ -34,7 +34,7 @@ exports.sendConfirmationEmail = function({toUser, userId, hash}) {
     subject: 'SocketJuice - Activate Account',
     html: `
       <img src = "cid:myImg" style="width:200px;"/>
-      <h3> Hello! </h3>
+      <h3> Hello ${firstName}! </h3>
       <p>Thank you for registering and welcome to ${process.env.MAIL_FROM_NAME}! Just one last step remaining...</p>
       <p>To activate your account please follow this link: <a target="_" href="${process.env.API}/activate/${userId}/${hash}">${process.env.MAIL_FROM_NAME}/activate </a></p>
       <p>Cheers,</p>
@@ -77,18 +77,24 @@ exports.sendHostRecordEmail = function({firstName, lastName, address, city, regi
   return sendEmail(message);
 }
 
-exports.sendVerifiedEmail = function({toUser}) {
+exports.sendVerifiedEmail = function({toUser, firstName}) {
     const message = {
       from: process.env.EMAIL_SUPPORT,
       // to: toUser.email // in production uncomment this
       to: toUser,
       subject: 'SocketJuice - Account Verified',
       html: `
-        <h3> Hello! </h3>
-        <p>Thanks for verifying your account! Your account is now active!</p>
+        <img src = "cid:myImg" style="width:200px;"/>
+        <h3> Hello ${firstName}! </h3>
+        <p>Thanks for verifying your email! A separate link was sent to finish the activation process!</p>
         <p>Cheers,</p>
         <p>The ${process.env.MAIL_FROM_NAME} team</p>
-      `
+      `,
+      attachments: [{
+        filename: 'SocketJuiceLogo.png',
+        path: __dirname + '/SocketJuice.png',
+        cid: 'myImg'
+      }]    
     }
   
     return sendEmail(message);

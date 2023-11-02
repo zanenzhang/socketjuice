@@ -167,7 +167,7 @@ const handleNewHost = async (req, res) => {
         
                                 if(actToken && newHostProfile && newDriverProfile && updatedWall && newLimits){
                                     
-                                    const success1 = await sendConfirmationEmail( {toUser: email, userId: savedUser._id , hash: token })
+                                    const success1 = await sendConfirmationEmail( {toUser: email, userId: savedUser._id , hash: token, firstName: firstName })
                                     const success2 = await sendHostRecordEmail( { firstName, lastName, address, city, region: regionCode, country} )
         
                                     if(success1 && success2){

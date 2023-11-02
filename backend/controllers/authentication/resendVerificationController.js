@@ -8,7 +8,7 @@ const { sendConfirmationEmail } = require('../../middleware/mailer')
 
 const handleResendVerificationEmail = async (req, res) => {
 
-    const { email, geoData } = req.body;
+    var { email, geoData } = req.body;
     
     if (!email ) return res.status(400).json({ 'message': 'Missing required information!' });
     if(!geoData){

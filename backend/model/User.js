@@ -20,6 +20,15 @@ const userSchema = new Schema({
     phoneSecondary: { 
         type: String,
     },
+    phonePrefix: {
+        type: String,
+    },
+    phoneCountry: {
+        type: String,
+    },
+    phoneCountryCode: {
+        type: String,
+    },
     roles: {
         User: {
             type: Number,

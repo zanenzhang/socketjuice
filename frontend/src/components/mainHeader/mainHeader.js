@@ -50,7 +50,7 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
     const [isLoadingEmail, setIsLoadingMail] = useState(false);
     const [resendActivate, setResendActivate] = useState(false);
 
-    const RESEND_VERIFICATION_URL = '/resendverification';
+    const RESEND_VERIFICATION_URL = '/resendverification/email';
     const LOGIN_URL = '/auth';
     const REGISTER_URL = '/hostregister';
 
@@ -342,7 +342,7 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
     const isInvalidLogin = pwdLogin === '' || emailLogin === '';
     const isInvalidRegister = pwdRegister === '' || emailRegister === '' || matchPwd ==='';
 
-    const handleResend = async (e) => {
+    const handleResendLogin = async (e) => {
         
         e.preventDefault();
         setWaiting(true);
@@ -352,6 +352,37 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
         try {
             const response = await axios.post(RESEND_VERIFICATION_URL,
                 JSON.stringify({ email: emailLogin.toLowerCase() }),
+                {
+                    headers: { 'Content-Type': 'application/json' },
+                    withCredentials: true
+                }
+            );
+            
+            if(response){
+                alert("Resent verification email");
+                setWaiting(false);
+            }
+            
+        } catch (err) {
+            setErrMsg(true)
+            if (!err?.response) {
+                setErrMsg('No Server Response');
+            } else {
+                setErrMsg('Resend Failed')
+            }
+        }
+    }
+
+    const handleResendRegister = async (e) => {
+        
+        e.preventDefault();
+        setWaiting(true);
+
+        resendCount += 1;
+
+        try {
+            const response = await axios.post(RESEND_VERIFICATION_URL,
+                JSON.stringify({ email: emailRegister.toLowerCase() }),
                 {
                     headers: { 'Content-Type': 'application/json' },
                     withCredentials: true
@@ -421,7 +452,6 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
                     setPwdRegister('');
                     setMatchPwd('');
                     alert("Registered! Please check your email inbox to activate the account!")
-                    setWaiting(false);
 
                 } else {
                     alert("Account creation failed, please try again")
@@ -871,7 +901,7 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
                                 className='flex items-center justify-center gap-2 active:scale-[.98] active:duration-75 transition-all hover:scale-[1.01] ease-in-out 
                                 transform rounded-3xl
                                 text-base md:text-lg border-2 border-[#00D3E0] text-blue-500 bg-white'
-                                onClick={(event)=>handleResend(event)} >
+                                onClick={(event)=>handleResendLogin(event)} >
                                     <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
                                         <path strokeLinecap="round" strokeLinejoin="round" 
                                         d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
@@ -1699,7 +1729,7 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
                     className='flex items-center justify-center gap-x-2 active:scale-[.98] active:duration-75 transition-all hover:scale-[1.01]  
                     ease-in-out transform py-4 rounded-3xl
                     text-base md:text-lg border-2 border-[#00D3E0] text-blue-500 cursor-pointer bg-white'
-                    onClick={(event)=>handleResend(event)} >
+                    onClick={(event)=>handleResendRegister(event)} >
                         <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
                         </svg>

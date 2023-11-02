@@ -18,12 +18,17 @@ const verifyJWT = async (req, res, next) => {
             const hash = splitArr[1];
             const userId = splitArr[2];
 
+            console.log("Checking hash")
+
+            console.log(userId)
+            console.log(hash)
+
             const foundToken = await ActivateToken.findOne({_userId: userId})
             const foundUser = await User.findOne({_id: userId, verified: false})
 
             if(foundToken && foundUser){
 
-                if(foundToken.token === hash && foundUser.checkedMobile === true && foundUser.receivedIdApproval === false){
+                if(foundToken.token === hash){
 
                     next();
 

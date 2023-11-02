@@ -1,10 +1,11 @@
 import React, {useState, useEffect} from 'react';
 import { useNavigate } from "react-router-dom";
-import { profanity } from '@2toad/profanity';
-import Tesseract from 'tesseract.js';
 import axios from '../../api/axios';
 import editProfilePic from '../../helpers/DriverData/editProfilePic';
 import deleteManyObj from "../../helpers/Media/deleteManyObjects";
+import addCodeRequest from '../../helpers/Twilio/addCodeRequest';
+import addCodeVerify from '../../helpers/Twilio/addCodeVerify';
+import addUserIdPhotos from '../../helpers/Media/addUserIdPhotos';
 import VerificationInput from "react-verification-input";
 
 import CameraId from '../CameraId';
@@ -45,7 +46,7 @@ function dataURItoBlob(dataURI) {
 const VerifyPage = () => {
 
     const search = useLocation().search;
-    const userId = new URLSearchParams(search).get("userId");
+    const userId = new URLSearchParams(search).get("id");
     const hash = new URLSearchParams(search).get("hash");
 
     const IMAGE_UPLOAD_URL = '/s3/singleimage';
@@ -54,8 +55,6 @@ const VerifyPage = () => {
 
     const navigate = useNavigate();
     const [success, setSuccess] = useState(false);
-
-    const [verifyCode, setVerifyCode] = useState("");
     
     const [submittedPhone, setSubmittedPhone] = useState(false);
     const [submittedPhotos, setSubmittedPhotos] = useState(false);
@@ -65,15 +64,23 @@ const VerifyPage = () => {
     const [errorMessage, setErrorMessage] = useState("");
 
     const [phonePrimary, setPhonePrimary] = useState("");
-    const [validPhonePrimary, setValidPhonePrimary] = useState(false);
     const [phonePrimaryFocus, setPhonePrimaryFocus] = useState(false);
+    const [phonePrefix, setPhonePrefix] = useState("");
+    const [phoneCountry, setPhoneCountry] = useState("");
+    const [phoneCountryCode, setPhoneCountryCode] = useState("");
 
-    const { setAuth, auth  } = useAuth();
+    const { setAuth, auth, activeTab, setActiveTab  } = useAuth();
 
     const [profileImage, setProfileImage] = useState("../../images/defaultUserPic.svg");
     const [croppedProfileImage, setCroppedProfileImage] = useState("");
 
     const [currentstage, setCurrentstage] = useState(1);
+
+    const [codeInput, setCodeInput] = useState("")
+    const [sentCode, setSentCode] = useState(false);
+    const [resendCode, setResendCode] = useState(false);
+    const [doneCode, setDoneCode] = useState(false);
+    const [doneProfile, setDoneProfile] = useState(false);
 
     const [croppedImageURLId, setCroppedImageURLId] = useState([]);
     const [croppedImageId, setCroppedImageId] = useState([]);
@@ -90,10 +97,102 @@ const VerifyPage = () => {
 
     const PUBLIC_MEDIA_URL = '/s3/single-profilepic';
 
-    useEffect(() => {
-        setValidPhonePrimary(PHONE_PRIMARY_REGEX.test(phonePrimary));
-    }, [phonePrimary])
+    useEffect( ()=> {
 
+        setActiveTab("verify")
+
+    }, [])
+
+    const handleCodeInput = (e) => {
+
+        console.log(e)
+
+        setCodeInput(e)
+    }
+
+    const handleResendCode = () => {
+
+        async function resendSMS(){
+
+            if(sentCode && !resendCode){
+
+                setResendCode(true);
+    
+                const requestedCode = await addCodeRequest(phonePrimary, userId, phoneCountry, hash)
+
+                if(requestedCode){
+                    console.log(requestedCode)
+                    if(requestedCode.status === 200 && requestedCode.data.result === 'pending'){
+                        setSentCode(true)
+                        setSubmittedPhone(true);
+                    }
+                } else {
+                    alert("Please try again, the verification process did not work for your provided number")
+                }
+            }
+
+            setTimeout(() => {
+
+                setResendCode(false)
+
+            }, '15000')
+        }
+
+        resendSMS()
+    }
+
+    const handlePhonePrimary = (event, data) => {
+
+        console.log(event);
+        console.log(data);
+
+        setPhonePrimary(event);
+        setPhonePrefix(data?.dialCode);
+        setPhoneCountry(data?.name);
+        setPhoneCountryCode(data?.countryCode);
+    }
+
+    const handlePhoneCodeRequest = (event) => {
+
+        event.preventDefault()
+
+        async function handlePhoneRequest() {
+
+            const requestedCode = await addCodeRequest(phonePrimary, userId, phoneCountry, hash)
+
+            if(requestedCode){
+                console.log(requestedCode)
+                if(requestedCode.status === 200 && requestedCode.data.result === 'pending'){
+                    setSentCode(true)
+                    setSubmittedPhone(true);
+                }
+            } else {
+                alert("Please try again, the verification process did not work for your provided number")
+            }
+        }
+
+        handlePhoneRequest()
+    }
+
+    const handlePhoneCodeVerify = (event) => {
+
+        event.preventDefault()
+
+        async function handlePhoneVerify() {
+
+            const verifiedCode = await addCodeVerify(phonePrimary, codeInput, userId, hash)
+
+            if(verifiedCode){
+
+                if(verifiedCode.status === 200 && verifiedCode.data.result === 'approved'){
+                    setVerifiedPhone(true);
+                }
+            }
+        }
+
+        handlePhoneVerify()
+        
+    }
 
     const handlePhotosUpload = async (event) => {
 
@@ -371,47 +470,24 @@ const VerifyPage = () => {
                     bg-white focus:outline-[#00D3E0]'
                 InputProps={{ disableUnderline: true }}    
                 // regions={['north-america']}
-                onChange={ ( e ) => setPhonePrimary(e)} 
+                onChange={ ( e, data ) => handlePhonePrimary(e, data)} 
                 onFocus={() => setPhonePrimaryFocus(true)}
                 onBlur={() => setPhonePrimaryFocus(false)}
                 required
             />
             </div>
         </div>
+            
+            {sentCode ? <button onClick={(e)=>handleResendCode(e)} className='my-2 px-4 py-3 rounded-2xl border-2 border-[#00D3E0] hover:bg-[#00D3E0] '>
+                Resend verification code</button> : 
+                
+                <button disabled={submittedPhone} onClick={(e)=>handlePhoneCodeRequest(e)} 
+                className={`my-2 py-4 px-3 rounded-2xl border-2 border-[#00D3E0] 
+                ${ (phonePrimary?.length < 7 || submittedPhone ) ? ' hover:bg-gray-100 cursor-not-allowed ' : ' hover:bg-[#00D3E0] '}`}>
+                    Submit phone number for verification</button>
+                }
 
-        <div className='flex flex-row mx-2 gap-x-2 mt-1'>
-            
-            {validPhonePrimary ? 
-                (
-                    <>
-                    <div className='flex flex-col justify-center'>
-                    <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#38a169" className="w-6 h-6">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    </div>
-                    <div className='flex flex-col justify-center'>
-                        <span className="text-sm md:text-base text-green-600">Please enter a valid phone number</span>
-                    </div>
-                    </>
-                )
-                : 
-                ( 
-                    <>
-                    <div className='flex flex-col justify-center'>
-                    <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#e53e3e" className="w-6 h-6" >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    </div>
-                    <div className='flex flex-col justify-center'>
-                        <span className="text-sm md:text-base text-red-600">Please enter a valid phone number</span>
-                    </div>
-                    </>
-                )
-            }
-        </div>
-            
-            <button className='my-2 px-4 py-3 rounded-2xl border-2 border-[#00D3E0] hover:bg-[#00D3E0] '>
-                Submit phone number for verification</button>
+
                 <p className='text-sm flex flex-col w-[300px]'>
                 Note: You will receive the code via a SMS text message. Regular charges from your phone plan may apply.</p>
 
@@ -419,9 +495,16 @@ const VerifyPage = () => {
                 
             <p className='text-base md:text-lg font-bold pb-2'>Step 2: Please Enter Your Verification Code</p>
                 
-                <VerificationInput />
+                <VerificationInput
+                    value={codeInput}
+                    validChars={'0-9'}
+                    onChange={(e)=>handleCodeInput(e)}
+                    length={6}
+                />
 
-                <button className='my-2 py-4 px-3 rounded-2xl border-2 border-[#00D3E0] hover:bg-[#00D3E0]'>
+                <button disabled={phonePrimary?.length < 7 || submittedPhone} onClick={(e)=>handlePhoneCodeVerify(e)} 
+                className={`my-2 py-4 px-3 rounded-2xl border-2 border-[#00D3E0] 
+                     ${ (phonePrimary?.length < 7 || !submittedPhone || verifiedPhone) ? ' hover:bg-gray-100 cursor-not-allowed ' : ' hover:bg-[#00D3E0] '}`}>
                     Confirm code</button>
             </div>
             

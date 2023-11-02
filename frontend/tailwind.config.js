@@ -30,9 +30,11 @@ module.exports = {
         '"Noto Color Emoji"',
       ],
     },
-    animation: {
-      'spin-slow': 'spin 5s linear infinite',
-    },
+    extend: {
+      animation: {
+        'spin-slow': 'spin 3s linear infinite',
+      },
+    }
   }
   // ...
 }
