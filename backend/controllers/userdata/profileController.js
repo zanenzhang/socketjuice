@@ -399,38 +399,25 @@ const editSettingsUserProfile = async (req, res) => {
 
 const editProfilePic = async (req, res) => {
     
-    const cookies = req.cookies;
+    const { userId, tempProfilePicKey, tempProfilePicURL } = req.body
 
-    if (!cookies?.socketjuicejwt) return res.sendStatus(401);
-    const refreshToken = cookies.socketjuicejwt;
+    if ( !userId ||  !tempProfilePicKey ||!tempProfilePicURL ) {    
+        return res.status(400).json({ message: 'Missing required fields!' })
+    }
 
-    User.findOne({ refreshToken }, async function(err, foundUser){
+    const foundUser = await User.findOne({_id: userId})
 
-        if (err || !foundUser) return res.sendStatus(403); 
-    
-        jwt.verify(
-            refreshToken,
-            process.env.REFRESH_TOKEN_SECRET,
-            (err, decoded) => {
+    if(foundUser){
 
-                if (err || foundUser.username !== decoded.username || !foundUser._id.toString() === ((decoded.userId)) ) return res.sendStatus(403);
-            }
-        )        
-    
-        const { loggedUserId, profilePicKey, profilePicURL } = req.body
-
-        if ( !loggedUserId ||  !profilePicKey ||!profilePicURL ) {    
-            return res.status(400).json({ message: 'Missing required fields!' })
-        }
-
-        if(profilePicKey !== '' && foundUser.profilePicKey !== profilePicKey && foundUser.profilePicURL !== '/images/avatars/defaultUserPic.svg'){
+        if(tempProfilePicKey !== '' && foundUser.profilePicKey !== tempProfilePicKey 
+        && foundUser.profilePicURL !== '/images/avatars/defaultUserPic.svg'){
 
             const deleted = await deleteFile(foundUser.profilePicKey)
 
             if(deleted){
 
-                profilePicKey ? foundUser.profilePicKey = profilePicKey : null;
-                profilePicURL ? foundUser.profilePicURL = profilePicURL : null;
+                tempProfilePicKey ? foundUser.profilePicKey = tempProfilePicKey : null;
+                tempProfilePicURL ? foundUser.profilePicURL = tempProfilePicURL : null;
             
                 const savedFoundUser = await foundUser.save()
 
@@ -441,8 +428,8 @@ const editProfilePic = async (req, res) => {
 
         } else {
             
-            profilePicKey ? foundUser.profilePicKey = profilePicKey : null;
-            profilePicURL ? foundUser.profilePicURL = profilePicURL : null;
+            tempProfilePicKey ? foundUser.profilePicKey = tempProfilePicKey : null;
+            tempProfilePicURL ? foundUser.profilePicURL = tempProfilePicURL : null;
         
             const savedFoundUser = await foundUser.save()
 
@@ -450,8 +437,13 @@ const editProfilePic = async (req, res) => {
                 res.json({ message: "Success!" })
             }
         }
-    })
+
+    } else {
+
+        res.status(401).json({ message: 'Failed operation' })
+    }   
 }
+
 
 const editSettingsUserPass = async (req, res) => {
 

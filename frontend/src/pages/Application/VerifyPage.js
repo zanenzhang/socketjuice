@@ -1,11 +1,8 @@
 import React, {useState, useEffect} from 'react';
 import { useNavigate } from "react-router-dom";
 import axios from '../../api/axios';
-import editProfilePic from '../../helpers/DriverData/editProfilePic';
-import deleteManyObj from "../../helpers/Media/deleteManyObjects";
 import addCodeRequest from '../../helpers/Twilio/addCodeRequest';
 import addCodeVerify from '../../helpers/Twilio/addCodeVerify';
-import addUserIdPhotos from '../../helpers/Media/addUserIdPhotos';
 import VerificationInput from "react-verification-input";
 
 import CameraId from '../CameraId';
@@ -100,6 +97,7 @@ const VerifyPage = () => {
     useEffect( ()=> {
 
         setActiveTab("verify")
+        setCurrentStage(2)
 
     }, [])
 
@@ -207,8 +205,10 @@ const VerifyPage = () => {
             if(verifiedCode){
 
                 if(verifiedCode.status === 200 && verifiedCode.data.result === 'approved'){
+                    
                     setVerifiedPhone(true);
-                    alert("Verified phone number")
+                    setCurrentStage(2)
+
                     toast.info("Thank you! Your phone number has been verified", {
                         position: "bottom-center",
                         autoClose: 1500,
@@ -231,13 +231,13 @@ const VerifyPage = () => {
 
         event.preventDefault();
         
-        if(waiting){
+        if(waiting || croppedImageId?.length < 2 || !croppedProfileImage){
             return
         }
 
         toast.info("Checking for inappropriate content, please wait...", {
             position: "bottom-center",
-            autoClose: 1500,
+            autoClose: 7000,
             hideProgressBar: false,
             closeOnClick: true,
             pauseOnHover: true,
@@ -259,9 +259,14 @@ const VerifyPage = () => {
 
             const nsfwResults = await axios.post("/nsfw/check", 
                 formData,
+                {
+                    headers: { "Authorization": `Hash ${hash} ${userId}`, 
+                    'Content-Type': 'multipart/form-data'},
+                    withCredentials: true
+                }
             );
 
-            if (nsfwResults){
+            if(nsfwResults){
 
                 var check1 = null;
                 var check2 = null;
@@ -269,10 +274,10 @@ const VerifyPage = () => {
                 for(let i=0; i<nsfwResults.data.length; i++){
 
                     if(nsfwResults.data[i].className === 'Hentai' && nsfwResults.data[i].probability < 0.2){
-                    check1 = true
+                        check1 = true
                     }
                     if(nsfwResults.data[i].className === 'Porn' && nsfwResults.data[i].probability < 0.2){
-                    check2 = true
+                        check2 = true
                     }
                 }            
 
@@ -281,6 +286,11 @@ const VerifyPage = () => {
                     try {
                         const response = await axios.post(PUBLIC_MEDIA_URL, 
                             formData,
+                            {
+                                headers: { "Authorization": `Hash ${hash} ${userId}`, 
+                                'Content-Type': 'multipart/form-data'},
+                                withCredentials: true
+                            }
                         );
             
                         if(response){
@@ -290,7 +300,14 @@ const VerifyPage = () => {
                                 const tempProfilePicURL = response.data.Location;
                                 const tempProfilePicKey = response.data.Key;
                                 
-                                const changedProfilePic = await editProfilePic(userId, tempProfilePicKey, tempProfilePicURL, hash)
+                                const changedProfilePic = await axios.patch('/profile/profilepic', 
+                                    JSON.stringify({userId, tempProfilePicKey, tempProfilePicURL}),
+                                    {
+                                        headers: { "Authorization": `Hash ${hash} ${userId}`, 
+                                            'Content-Type': 'application/json'},
+                                        withCredentials: true
+                                    }
+                                );
             
                                 if(changedProfilePic){
                 
@@ -302,14 +319,13 @@ const VerifyPage = () => {
                                     });      
                                     
                                     URL.revokeObjectURL(profileImage.photo?.src)
-                                    setWaiting(false)
-                                    setSuccess(true);
+                                    doneProfilePhoto = true;
                                 
                                 } else {
 
                                     toast.error("Upload was not successful, please try again!", {
                                         position: "bottom-center",
-                                        autoClose: 1500,
+                                        autoClose: 7000,
                                         hideProgressBar: false,
                                         closeOnClick: true,
                                         pauseOnHover: true,
@@ -318,9 +334,24 @@ const VerifyPage = () => {
                                         theme: "colored",
                                     });
 
-                                    //delete profile pic here
-                                    
-                                    setWaiting(false)
+                                    var ObjectIdArray = [tempProfilePicKey]
+
+                                    const deleted = await axios.delete("/s3/deletemany", 
+                                        {
+                                            data: {
+                                                userId,
+                                                ObjectIdArray
+                                            },
+                                            headers: { "Authorization": `Hash ${hash} ${userId}`, 
+                                                'Content-Type': 'application/json'},
+                                            withCredentials: true
+                                        }
+                                    );
+
+                                    if(deleted){
+                                        setWaiting(false)
+                                        return
+                                    }
                                 }
                             }
                         }
@@ -331,9 +362,9 @@ const VerifyPage = () => {
 
                 } else {
                     
-                    toast.error("Your photo did not meet our terms of service. Please check for inappropriate content.", {
+                    toast.error("Your photo did not meet our terms of service. Please check for inappropriate content and try again.", {
                         position: "bottom-center",
-                        autoClose: 1500,
+                        autoClose: 7000,
                         hideProgressBar: false,
                         closeOnClick: true,
                         pauseOnHover: true,
@@ -348,7 +379,7 @@ const VerifyPage = () => {
 
             toast.error("Profile photo is not attached, please try again.", {
                 position: "bottom-center",
-                autoClose: 1500,
+                autoClose: 7000,
                 hideProgressBar: false,
                 closeOnClick: true,
                 pauseOnHover: true,
@@ -358,121 +389,174 @@ const VerifyPage = () => {
             });
         }
 
-        let currentIndex = 0;
-        let mediaLength = 0;
-        let finalImageObjArray = [];
-        let finalVideoObjArray = [];
+        if(doneProfilePhoto){
 
-        mediaLength = croppedImageId?.length
-        var autoCloseTime = mediaLength * 7000    
+            let currentIndex = 0;
+            let mediaLength = 0;
+            let finalImageObjArray = [];
+            let finalVideoObjArray = [];
 
+            mediaLength = croppedImageId?.length
 
-        while (mediaLength > 0 && currentIndex < mediaLength){
+            while (mediaLength > 0 && currentIndex < mediaLength){
 
-          if(croppedImageURLId?.length > 0 && croppedImageId[currentIndex] !== undefined){
-      
-            const formData = new FormData();
-            const file = new File([croppedImageId[currentIndex]], `${userId}.jpeg`, { type: "image/jpeg" })
-            formData.append("image", file);
+                if(croppedImageURLId?.length > 0 && croppedImageId[currentIndex] !== undefined){
             
-            const nsfwResults = await axios.post("/nsfw/check", 
-            formData,
-            );
+                    const formData = new FormData();
+                    const file = new File([croppedImageId[currentIndex]], `${userId}.jpeg`, { type: "image/jpeg" })
+                    formData.append("image", file);
+                    
+                    const nsfwResults = await axios.post("/nsfw/check", 
+                        formData,
+                        {
+                            headers: { "Authorization": `Hash ${hash} ${userId}`, 
+                            'Content-Type': 'multipart/form-data'},
+                            withCredentials: true
+                        }
+                    );
 
-            if (nsfwResults?.status !== 413){
+                    if (nsfwResults?.status !== 413){
 
-                var check1 = null;
-                var check2 = null;
+                        var check1 = null;
+                        var check2 = null;
 
-                for(let i=0; i<nsfwResults.data.length; i++){
+                        for(let i=0; i<nsfwResults.data.length; i++){
 
-                if(nsfwResults.data[i].className === 'Hentai' && nsfwResults.data[i].probability < 0.2){
-                    check1 = true
+                        if(nsfwResults.data[i].className === 'Hentai' && nsfwResults.data[i].probability < 0.2){
+                            check1 = true
+                        }
+                        if(nsfwResults.data[i].className === 'Porn' && nsfwResults.data[i].probability < 0.2){
+                            check2 = true
+                        }
+                    }            
+
+                    if(check1 && check2){
+
+                        try {
+                            const response = await axios.post(IMAGE_UPLOAD_URL, 
+                                formData,
+                                {
+                                    headers: { "Authorization": `Hash ${hash} ${userId}`, 
+                                    'Content-Type': 'multipart/form-data'},
+                                    withCredentials: true
+                                }
+                            );
+
+                            if(response?.status === 200){
+
+                                const returnedObjId = response.data.key
+
+                                finalImageObjArray.push(returnedObjId)
+                                finalVideoObjArray.push("image")
+
+                                currentIndex += 1
+                            };
+
+                        } catch (err) {
+                            setWaiting(false);
+                            setErrorMessage("Failed to upload photo! Please try again!");
+
+                            if(finalImageObjArray?.length > 0){
+
+                                const deleted = await axios.delete("/s3/deletemany", 
+                                    {
+                                        data: {
+                                            userId,
+                                            finalImageObjArray
+                                        },
+                                        headers: { "Authorization": `Hash ${hash} ${userId}`, 
+                                            'Content-Type': 'application/json'},
+                                        withCredentials: true
+                                    }
+                                );
+
+                                if(deleted){
+                                    setWaiting(false)
+                                    return
+                                }
+                            }
+                        }
+                    
+                    } else {
+
+                        if(finalImageObjArray?.length > 0){
+
+                            const deleted = await axios.delete("/s3/deletemany", 
+                                {
+                                    data: {
+                                        userId,
+                                        finalImageObjArray
+                                    },
+                                    headers: { "Authorization": `Hash ${hash} ${userId}`, 
+                                        'Content-Type': 'application/json'},
+                                    withCredentials: true
+                                }
+                            );
+
+                            if(deleted){
+                                setWaiting(false)
+                                return
+                            }
+                        }
+                    }
+                
+                } else {
+
+                    toast.error("The photo is too large, please upload a new photo!", {
+                    position: "bottom-center",
+                    autoClose: 7000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "colored",
+                    });
+                    break
                 }
-                if(nsfwResults.data[i].className === 'Porn' && nsfwResults.data[i].probability < 0.2){
-                    check2 = true
-                }
-            }            
 
-            if(check1 && check2){
-
-                try {
-                    const response = await axios.post(IMAGE_UPLOAD_URL, 
-                    formData,
-                );
-
-                if(response?.status === 200){
-
-                    const returnedObjId = response.data.key
-
-                    finalImageObjArray.push(returnedObjId)
-                    finalVideoObjArray.push("image")
-
-                    currentIndex += 1
-                };
-
-            } catch (err) {
-                setWaiting(false);
-                setErrorMessage("Failed to upload photo! Please try again!");
+            } else {
+                toast.error("This post does not have an attached photo", {
+                    position: "bottom-center",
+                    autoClose: 7000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "colored",
+                });
                 break
             }
-            
-            } else {
-
-            setErrorMessage("Your post content may not meet our terms of service. Please check for inappropriate content.");
-            break
             }
+
+            if(finalImageObjArray?.length === mediaLength){
+
+                const identificationFrontObjectId = finalImageObjArray[0]
+                const identificationBackObjectId = finalImageObjArray[1]
         
-        } else {
+                try {
 
-            toast.error("The photo is too large, please upload a new photo!", {
-            position: "bottom-center",
-            autoClose: autoCloseTime,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "colored",
-            });
-            break
-        }
+                    const uploadedUserPhotos = await axios.post("/auth/useridphotos", 
+                        JSON.stringify({userId, identificationFrontObjectId, identificationBackObjectId}),
+                        {
+                            headers: { "Authorization": `Hash ${hash} ${userId}`, 
+                                'Content-Type': 'application/json'},
+                            withCredentials: true
+                        }
+                    );
 
-        } else {
-            toast.error("This post does not have an attached photo", {
-                position: "bottom-center",
-                autoClose: 1500,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "colored",
-                });
-            break
-        }
-        }
+                    if(uploadedUserPhotos){
 
-        if(finalImageObjArray?.length === mediaLength){
+                        toast.info("Success, your photos have been uploaded and will be reviewed. We will send an email shortly after approval")
+                        doneIdPhotos = true
+                    }
 
-            const previewMediaObjectId = finalImageObjArray[coverIndexId]
-            const previewMediaType = mediaTypesId[coverIndexId]
-    
-          try {
+                } catch(err){
 
-            //Upload id photos
-
-            doneIdPhotos = true
-
-          } catch(err){
-
-            console.log(err)
-          }
-        }
-
-        if(doneProfilePhoto && doneIdPhotos){
-
-            toast.info("Success, photos have been uploaded and will be reviewed")
+                    console.log(err)
+                }
+            }
         }
     }
 
@@ -510,12 +594,16 @@ const VerifyPage = () => {
                 />
                 </div>
 
-                {sentCode ? <button onClick={(e)=>handleResendCode(e)} className='my-2 px-4 py-3 rounded-2xl border-2 border-[#00D3E0] hover:bg-[#00D3E0] '>
+                {sentCode ? 
+                
+                <button disabled={codeInput?.length > 0 || verifiedPhone} onClick={(e)=>handleResendCode(e)} 
+                className={`my-2 py-4 px-3 rounded-2xl border-2 border-[#00D3E0] 
+                ${ (codeInput?.length > 0 || verifiedPhone ) ? ' hover:bg-gray-100 cursor-not-allowed ' : ' hover:bg-[#00D3E0] '}`}>
                 Resend verification code</button> : 
                 
-                <button disabled={submittedPhone} onClick={(e)=>handlePhoneCodeRequest(e)} 
+                <button disabled={phonePrimary?.length < 7 || submittedPhone || codeInput?.length > 0} onClick={(e)=>handlePhoneCodeRequest(e)} 
                 className={`my-2 py-4 px-3 rounded-2xl border-2 border-[#00D3E0] 
-                ${ (phonePrimary?.length < 7 || submittedPhone ) ? ' hover:bg-gray-100 cursor-not-allowed ' : ' hover:bg-[#00D3E0] '}`}>
+                ${ (phonePrimary?.length < 7 || submittedPhone || codeInput?.length > 0 ) ? ' hover:bg-gray-100 cursor-not-allowed ' : ' hover:bg-[#00D3E0] '}`}>
                     Submit phone number for verification</button>
                 }
 
@@ -537,16 +625,21 @@ const VerifyPage = () => {
                     length={6}
                 />
 
+                {!verifiedPhone ? 
                 <button disabled={phonePrimary?.length < 7 || !submittedPhone} onClick={(e)=>handlePhoneCodeVerify(e)} 
                 className={`my-2 py-4 px-3 rounded-2xl border-2 border-[#00D3E0] 
                      ${ (phonePrimary?.length < 7 || !submittedPhone || verifiedPhone || codeInput?.length < 6 ) ? ' hover:bg-gray-100 cursor-not-allowed ' : ' hover:bg-[#00D3E0] '}`}>
                     Confirm code</button>
+                :    
+                <button disabled={true} className={`my-2 py-4 px-3 cursor-not-allowed rounded-2xl border-2 border-[#00D3E0] `}>
+                    Phone Number Is Verified</button>
+                }
             </div>}
             
             
             {currentStage >= 2 && <div className='w-full flex flex-col justify-center items-center pt-12'>
 
-                <p className='text-base md:text-lg font-bold pb-2'>Step 3: Create Your SocketJuice Profile</p>
+                <p className='text-base md:text-lg font-bold pb-2'>Final Step: Create Your SocketJuice Profile</p>
 
                 <div className='flex flex-col items-center justify-center'>
 
@@ -587,7 +680,7 @@ const VerifyPage = () => {
         <ToastContainer
             toastStyle={{ backgroundColor: "#00D3E0" }}
                 position="bottom-center"
-                autoClose={1500}
+                autoClose={7000}
                 hideProgressBar={false}
                 newestOnTop={false}
                 closeOnClick
