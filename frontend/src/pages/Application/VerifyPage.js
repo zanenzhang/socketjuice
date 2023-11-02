@@ -68,8 +68,8 @@ const VerifyPage = () => {
 
     const { setAuth, auth, activeTab, setActiveTab  } = useAuth();
 
-    const [profileImage, setProfileImage] = useState("../../images/defaultUserPic.svg");
-    const [croppedProfileImage, setCroppedProfileImage] = useState("");
+    const [image, setImage] = useState("../../images/defaultUserPic.svg");
+    const [croppedImage, setCroppedImage] = useState("");
 
     const [currentStage, setCurrentStage] = useState(1);
 
@@ -184,6 +184,13 @@ const VerifyPage = () => {
                         progress: undefined,
                         theme: "colored",
                     });
+                    setResendCode(true);
+
+                    setTimeout(() => {
+
+                        setResendCode(false)
+        
+                    }, '15000')
                 }
             } else {
                 alert("Please try again, the verification process did not work for your provided number")
@@ -231,7 +238,7 @@ const VerifyPage = () => {
 
         event.preventDefault();
         
-        if(waiting || croppedImageId?.length < 2 || !croppedProfileImage){
+        if(waiting || croppedImageId?.length < 2 || !croppedImage){
             return
         }
 
@@ -251,10 +258,10 @@ const VerifyPage = () => {
         var doneProfilePhoto = false;
         var doneIdPhotos = false;
 
-        if(croppedProfileImage){
+        if(croppedImage){
 
             const formData = new FormData();
-            const file = new File([croppedProfileImage], `${userId}.jpeg`, { type: "image/jpeg" })
+            const file = new File([croppedImage], `${userId}.jpeg`, { type: "image/jpeg" })
             formData.append("image", file);
 
             const nsfwResults = await axios.post("/nsfw/check", 
@@ -318,7 +325,7 @@ const VerifyPage = () => {
                                         }
                                     });      
                                     
-                                    URL.revokeObjectURL(profileImage.photo?.src)
+                                    URL.revokeObjectURL(image.photo?.src)
                                     doneProfilePhoto = true;
                                 
                                 } else {
@@ -646,8 +653,8 @@ const VerifyPage = () => {
                     <p className='text-base md:text-lg font-medium text-center'>a) Upload a profile picture </p>
 
                     <div className='flex flex-col content-center items-center w-full'>
-                        <ProfileCropper setCroppedImage={setCroppedProfileImage} setImage={setProfileImage} 
-                        image={profileImage} profilePicURL={profileImage} />
+                        <ProfileCropper setCroppedImage={setCroppedImage} setImage={setImage} 
+                        image={image} profilePicURL={image} />
                     </div>
 
                     <div className="flex w-full flex-col px-4">

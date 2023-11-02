@@ -23,7 +23,7 @@ const verifyJWT = async (req, res, next) => {
 
                 console.log("Checking hash")
 
-                if(userId && hash){
+                if(userId !== null && hash !== null){
 
                     console.log(userId)
                     console.log(hash)

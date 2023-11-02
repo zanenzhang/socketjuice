@@ -10,7 +10,7 @@ const ImageCropper = ({
   closeModal,
   ratio,
   cropShape,
-  setCroppedImageIC,
+  setCroppedImage,
   quality
 }) => {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -25,7 +25,7 @@ const ImageCropper = ({
     try {
       const croppedImage = await cropImage(inputImg, croppedAreaPixels, 0, quality);
       if (croppedImage){
-        setCroppedImageIC(croppedImage)
+        setCroppedImage(croppedImage)
       }
       onCropImage(
         new File([croppedImage], imgName, {
