@@ -35,8 +35,8 @@ exports.sendConfirmationEmail = function({toUser, userId, hash, firstName}) {
     html: `
       <img src = "cid:myImg" style="width:200px;"/>
       <h3> Hello ${firstName}! </h3>
-      <p>Thank you for registering and welcome to ${process.env.MAIL_FROM_NAME}! Just one last step remaining...</p>
-      <p>To activate your account please follow this link: <a target="_" href="${process.env.API}/activate/${userId}/${hash}">${process.env.MAIL_FROM_NAME}/activate </a></p>
+      <p>Thank you for registering and welcome to ${process.env.MAIL_FROM_NAME}! Just a few more things remaining...</p>
+      <p>To activate your account and confirm your phone number please follow this link: <a target="_" href="${process.env.API}/activate/${userId}/${hash}">${process.env.MAIL_FROM_NAME}/activate </a></p>
       <p>Cheers,</p>
       <p>The ${process.env.MAIL_FROM_NAME} team</p>
     `,
@@ -86,7 +86,7 @@ exports.sendVerifiedEmail = function({toUser, firstName}) {
       html: `
         <img src = "cid:myImg" style="width:200px;"/>
         <h3> Hello ${firstName}! </h3>
-        <p>Thanks for verifying your email! A separate link was sent to finish the activation process!</p>
+        <p>Thanks for verifying your email! </p>
         <p>Cheers,</p>
         <p>The ${process.env.MAIL_FROM_NAME} team</p>
       `,

@@ -120,10 +120,22 @@ const VerifyPage = () => {
                 const requestedCode = await addCodeRequest(phonePrimary, userId, phoneCountry, hash)
 
                 if(requestedCode){
+
                     console.log(requestedCode)
-                    if(requestedCode.status === 200 && requestedCode.data.result === 'pending'){
+                    
+                    if(requestedCode.status === 200 && requestedCode?.data?.result === 'pending'){
                         setSentCode(true)
                         setSubmittedPhone(true);
+                        toast.info("A verification code has been sent to the number provided", {
+                            position: "bottom-center",
+                            autoClose: 1500,
+                            hideProgressBar: false,
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            draggable: true,
+                            progress: undefined,
+                            theme: "colored",
+                        });
                     }
                 } else {
                     alert("Please try again, the verification process did not work for your provided number")
@@ -164,6 +176,16 @@ const VerifyPage = () => {
                 if(requestedCode.status === 200 && requestedCode.data.result === 'pending'){
                     setSentCode(true)
                     setSubmittedPhone(true);
+                    toast.info("A verification code has been sent to the number provided", {
+                        position: "bottom-center",
+                        autoClose: 1500,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "colored",
+                    });
                 }
             } else {
                 alert("Please try again, the verification process did not work for your provided number")
@@ -186,6 +208,7 @@ const VerifyPage = () => {
 
                 if(verifiedCode.status === 200 && verifiedCode.data.result === 'approved'){
                     setVerifiedPhone(true);
+                    alert("Verified phone number")
                     toast.info("Thank you! Your phone number has been verified", {
                         position: "bottom-center",
                         autoClose: 1500,

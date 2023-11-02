@@ -36,6 +36,7 @@ const verifyJWT = async (req, res, next) => {
 
                         if(foundToken.token === hash){
 
+                            console.log("Moving on")
                             next();
 
                         } else {

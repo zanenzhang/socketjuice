@@ -411,6 +411,7 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
             return
         }
         
+        alert("Please hold, we're checking your submitted information and will send you a verification link")
         setWaiting(true);
 
         setTimeout(()=>{}, 500);

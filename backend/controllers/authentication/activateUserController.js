@@ -90,7 +90,7 @@ const handleUserActivation = async (req, res) => {
 
             if(savedUser){
 
-              alert("Thank you! Your email has been verified. Just a few more steps, please verify your phone number."); 
+              alert("Thank you! Your email has been verified. Please verify your phone number and create a profile."); 
 
               const token = crypto.randomBytes(16).toString('hex')
 

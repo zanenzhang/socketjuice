@@ -54,31 +54,36 @@ async function checkVerification (req, res) {
 
     if(foundUser && !foundUser.checkedMobile){
 
-        client.verify.v2.services(process.env.TWILIO_SOCKETJUICE_SID)
-        .verificationChecks
-        .create({to: `${number}`, code: `${code}`})
-        .then( verification => async function() {
-            
-            console.log(verification.status)
-            if(verification.status === 'approved'){
+        try {
+
+            console.log("Checking verification code")
+
+            const verification = await client.verify.v2.services(process.env.TWILIO_SOCKETJUICE_SID)
+            .verificationChecks
+            .create({to: `${number}`, code: `${code}`})
+
+            if(verification?.status === 'approved'){
+                
+                console.log(verification.status)
 
                 const updatedUser = await User.updateOne({_id: userId},
                     {$set:{checkedMobile: true, phonePrefix: phonePrefix,
                     phoneCountry: phoneCountry, phoneCountryCode: phoneCountryCode}})
 
                 if(updatedUser){
+                    console.log("Success")
                     res.status(200).send({result: verification.status})
                 }
                 
             } else {
                 res.status(400);    
             }
-            
-        })
-        .catch(e => {
-            console.log(e)
-            res.status(500).send(e);
-        })
+
+        } catch(err){
+
+            res.status(400);    
+            console.log(err)
+        }
 
     } else {
 
