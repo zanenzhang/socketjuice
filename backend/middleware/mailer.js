@@ -82,7 +82,7 @@ exports.sendVerifiedEmail = function({toUser, firstName}) {
       from: process.env.EMAIL_SUPPORT,
       // to: toUser.email // in production uncomment this
       to: toUser,
-      subject: 'SocketJuice - Account Verified',
+      subject: 'SocketJuice - Email Verified',
       html: `
         <img src = "cid:myImg" style="width:200px;"/>
         <h3> Hello ${firstName}! </h3>

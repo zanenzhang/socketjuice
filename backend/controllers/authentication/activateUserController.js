@@ -128,7 +128,7 @@ const handleUserActivation = async (req, res) => {
 
                 if(savedBookmarks && savedActivities && updatedToken && savedNotifications && savedCommunications && savedUserFlags ){
                   
-                  sendVerifiedEmail({ toUser: foundUser.email })
+                  sendVerifiedEmail({ toUser: foundUser.email, firstName: foundUser.firstName })
 
                   return res.redirect(`${process.env.MOBILE_VERIFY_PAGE}?id=${foundUser._id}&hash=${token}`);
               

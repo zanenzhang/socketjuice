@@ -15,30 +15,42 @@ const verifyJWT = async (req, res, next) => {
         } else {
 
             const splitArr = authHeader.split(' ')
-            const hash = splitArr[1];
-            const userId = splitArr[2];
 
-            console.log("Checking hash")
+            if(splitArr?.length > 2){
+             
+                const hash = splitArr[1];
+                const userId = splitArr[2];
 
-            console.log(userId)
-            console.log(hash)
+                console.log("Checking hash")
 
-            const foundToken = await ActivateToken.findOne({_userId: userId})
-            const foundUser = await User.findOne({_id: userId, verified: false})
+                if(userId && hash){
 
-            if(foundToken && foundUser){
+                    console.log(userId)
+                    console.log(hash)
 
-                if(foundToken.token === hash){
+                    const foundToken = await ActivateToken.findOne({_userId: userId})
+                    const foundUser = await User.findOne({_id: userId, checkedMobile: false, 
+                        receivedIdApproval:false, deactivated:false })
 
-                    next();
+                    if(foundToken && foundUser){
 
+                        if(foundToken.token === hash){
+
+                            next();
+
+                        } else {
+
+                            return res.sendStatus(401);
+                        }
+
+                    } else {
+
+                        return res.sendStatus(401);
+                    }
                 } else {
-
                     return res.sendStatus(401);
                 }
-
             } else {
-
                 return res.sendStatus(401);
             }
         }

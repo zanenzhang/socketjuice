@@ -74,7 +74,7 @@ const VerifyPage = () => {
     const [profileImage, setProfileImage] = useState("../../images/defaultUserPic.svg");
     const [croppedProfileImage, setCroppedProfileImage] = useState("");
 
-    const [currentstage, setCurrentstage] = useState(1);
+    const [currentStage, setCurrentStage] = useState(1);
 
     const [codeInput, setCodeInput] = useState("")
     const [sentCode, setSentCode] = useState(false);
@@ -106,7 +106,6 @@ const VerifyPage = () => {
     const handleCodeInput = (e) => {
 
         console.log(e)
-
         setCodeInput(e)
     }
 
@@ -180,12 +179,23 @@ const VerifyPage = () => {
 
         async function handlePhoneVerify() {
 
-            const verifiedCode = await addCodeVerify(phonePrimary, codeInput, userId, hash)
+            const verifiedCode = await addCodeVerify(phonePrimary, codeInput, userId, phonePrefix, 
+                phoneCountry, phoneCountryCode, hash)
 
             if(verifiedCode){
 
                 if(verifiedCode.status === 200 && verifiedCode.data.result === 'approved'){
                     setVerifiedPhone(true);
+                    toast.info("Thank you! Your phone number has been verified", {
+                        position: "bottom-center",
+                        autoClose: 1500,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "colored",
+                    });
                 }
             }
         }
@@ -225,90 +235,90 @@ const VerifyPage = () => {
             formData.append("image", file);
 
             const nsfwResults = await axios.post("/nsfw/check", 
-            formData,
+                formData,
             );
 
             if (nsfwResults){
 
-            var check1 = null;
-            var check2 = null;
+                var check1 = null;
+                var check2 = null;
 
-            for(let i=0; i<nsfwResults.data.length; i++){
+                for(let i=0; i<nsfwResults.data.length; i++){
 
-                if(nsfwResults.data[i].className === 'Hentai' && nsfwResults.data[i].probability < 0.2){
-                check1 = true
-                }
-                if(nsfwResults.data[i].className === 'Porn' && nsfwResults.data[i].probability < 0.2){
-                check2 = true
-                }
-            }            
+                    if(nsfwResults.data[i].className === 'Hentai' && nsfwResults.data[i].probability < 0.2){
+                    check1 = true
+                    }
+                    if(nsfwResults.data[i].className === 'Porn' && nsfwResults.data[i].probability < 0.2){
+                    check2 = true
+                    }
+                }            
 
-            if(check1 && check2){
+                if(check1 && check2){
 
-                try {
-                    const response = await axios.post(PUBLIC_MEDIA_URL, 
-                        formData,
-                    );
-        
-                    if(response){
-
-                        if(response.status === 200){
-
-                            const tempProfilePicURL = response.data.Location;
-                            const tempProfilePicKey = response.data.Key;
-                            
-                            const changedProfilePic = await editProfilePic(userId, tempProfilePicKey, tempProfilePicURL, hash)
-        
-                            if(changedProfilePic){
+                    try {
+                        const response = await axios.post(PUBLIC_MEDIA_URL, 
+                            formData,
+                        );
             
-                                setAuth(prev => {
-                                    return {
-                                        ...prev,
-                                        profilePicURL: tempProfilePicURL
-                                    }
-                                });      
-                                
-                                URL.revokeObjectURL(profileImage.photo?.src)
-                                setWaiting(false)
-                                setSuccess(true);
-                            
-                            } else {
+                        if(response){
 
-                                toast.error("Upload was not successful, please try again!", {
-                                    position: "bottom-center",
-                                    autoClose: 1500,
-                                    hideProgressBar: false,
-                                    closeOnClick: true,
-                                    pauseOnHover: true,
-                                    draggable: true,
-                                    progress: undefined,
-                                    theme: "colored",
-                                });
+                            if(response.status === 200){
 
-                                //delete profile pic here
+                                const tempProfilePicURL = response.data.Location;
+                                const tempProfilePicKey = response.data.Key;
                                 
-                                setWaiting(false)
+                                const changedProfilePic = await editProfilePic(userId, tempProfilePicKey, tempProfilePicURL, hash)
+            
+                                if(changedProfilePic){
+                
+                                    setAuth(prev => {
+                                        return {
+                                            ...prev,
+                                            profilePicURL: tempProfilePicURL
+                                        }
+                                    });      
+                                    
+                                    URL.revokeObjectURL(profileImage.photo?.src)
+                                    setWaiting(false)
+                                    setSuccess(true);
+                                
+                                } else {
+
+                                    toast.error("Upload was not successful, please try again!", {
+                                        position: "bottom-center",
+                                        autoClose: 1500,
+                                        hideProgressBar: false,
+                                        closeOnClick: true,
+                                        pauseOnHover: true,
+                                        draggable: true,
+                                        progress: undefined,
+                                        theme: "colored",
+                                    });
+
+                                    //delete profile pic here
+                                    
+                                    setWaiting(false)
+                                }
                             }
                         }
+            
+                    } catch (err) {
+                        console.error(err);
                     }
-        
-                } catch (err) {
-                    console.error(err);
-                }
 
-            } else {
-                
-                toast.error("Your photo did not meet our terms of service. Please check for inappropriate content.", {
-                    position: "bottom-center",
-                    autoClose: 1500,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "colored",
-                });
-            }
+                } else {
+                    
+                    toast.error("Your photo did not meet our terms of service. Please check for inappropriate content.", {
+                        position: "bottom-center",
+                        autoClose: 1500,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "colored",
+                    });
+                }
             }
 
         } else {
@@ -457,28 +467,27 @@ const VerifyPage = () => {
 
         <div className='w-full flex flex-col justify-center items-center pt-[10vh]'>
 
-        <div className='flex flex-col mt-6'>
+            {currentStage >= 1 && <div className='flex flex-col mt-6'>
 
-            <p className='text-base md:text-lg font-bold pb-2'>Step 1: Please Verify Your Phone Number</p>
+                <p className='text-base md:text-lg font-bold pb-2'>Step 1: Please Verify Your Phone Number</p>
 
-            <div className={`text-sm text-gray-700 py-3 px-4 bg-white w-[350px]
-            border-2 rounded-xl hover:scale-[1.01] ease-in-out border-[#00D3E0]/10 }`} >
-            
-            <MuiPhoneNumber sx={{ '& svg': { height: '1em', }, }}
-                defaultCountry={'us'}
-                className='w-full border-2 border-[#00D3E0]/10 rounded-xl
-                    bg-white focus:outline-[#00D3E0]'
-                InputProps={{ disableUnderline: true }}    
-                // regions={['north-america']}
-                onChange={ ( e, data ) => handlePhonePrimary(e, data)} 
-                onFocus={() => setPhonePrimaryFocus(true)}
-                onBlur={() => setPhonePrimaryFocus(false)}
-                required
-            />
-            </div>
-        </div>
-            
-            {sentCode ? <button onClick={(e)=>handleResendCode(e)} className='my-2 px-4 py-3 rounded-2xl border-2 border-[#00D3E0] hover:bg-[#00D3E0] '>
+                <div className={`text-sm text-gray-700 py-3 px-4 bg-white w-[350px]
+                border-2 rounded-xl hover:scale-[1.01] ease-in-out border-[#00D3E0]/10 }`} >
+                
+                <MuiPhoneNumber sx={{ '& svg': { height: '1em', }, }}
+                    defaultCountry={'us'}
+                    className='w-full border-2 border-[#00D3E0]/10 rounded-xl
+                        bg-white focus:outline-[#00D3E0]'
+                    InputProps={{ disableUnderline: true }}    
+                    // regions={['north-america']}
+                    onChange={ ( e, data ) => handlePhonePrimary(e, data)} 
+                    onFocus={() => setPhonePrimaryFocus(true)}
+                    onBlur={() => setPhonePrimaryFocus(false)}
+                    required
+                />
+                </div>
+
+                {sentCode ? <button onClick={(e)=>handleResendCode(e)} className='my-2 px-4 py-3 rounded-2xl border-2 border-[#00D3E0] hover:bg-[#00D3E0] '>
                 Resend verification code</button> : 
                 
                 <button disabled={submittedPhone} onClick={(e)=>handlePhoneCodeRequest(e)} 
@@ -491,7 +500,10 @@ const VerifyPage = () => {
                 <p className='text-sm flex flex-col w-[300px]'>
                 Note: You will receive the code via a SMS text message. Regular charges from your phone plan may apply.</p>
 
-            <div className='w-full flex flex-col justify-center items-center pt-12'>
+            </div>}
+
+            
+            {currentStage >= 1 && <div className='w-full flex flex-col justify-center items-center pt-12'>
                 
             <p className='text-base md:text-lg font-bold pb-2'>Step 2: Please Enter Your Verification Code</p>
                 
@@ -502,49 +514,50 @@ const VerifyPage = () => {
                     length={6}
                 />
 
-                <button disabled={phonePrimary?.length < 7 || submittedPhone} onClick={(e)=>handlePhoneCodeVerify(e)} 
+                <button disabled={phonePrimary?.length < 7 || !submittedPhone} onClick={(e)=>handlePhoneCodeVerify(e)} 
                 className={`my-2 py-4 px-3 rounded-2xl border-2 border-[#00D3E0] 
-                     ${ (phonePrimary?.length < 7 || !submittedPhone || verifiedPhone) ? ' hover:bg-gray-100 cursor-not-allowed ' : ' hover:bg-[#00D3E0] '}`}>
+                     ${ (phonePrimary?.length < 7 || !submittedPhone || verifiedPhone || codeInput?.length < 6 ) ? ' hover:bg-gray-100 cursor-not-allowed ' : ' hover:bg-[#00D3E0] '}`}>
                     Confirm code</button>
-            </div>
+            </div>}
             
-            <div className='w-full flex flex-col justify-center items-center pt-12'>
+            
+            {currentStage >= 2 && <div className='w-full flex flex-col justify-center items-center pt-12'>
 
-            <p className='text-base md:text-lg font-bold pb-2'>Step 3: Create Your SocketJuice Profile</p>
+                <p className='text-base md:text-lg font-bold pb-2'>Step 3: Create Your SocketJuice Profile</p>
 
-            <div className='flex flex-col items-center justify-center'>
+                <div className='flex flex-col items-center justify-center'>
 
-                <p className='text-base md:text-lg font-medium text-center'>a) Upload a profile picture </p>
+                    <p className='text-base md:text-lg font-medium text-center'>a) Upload a profile picture </p>
 
-                <div className='flex flex-col content-center items-center w-full'>
-                    <ProfileCropper setCroppedImage={setCroppedProfileImage} setImage={setProfileImage} 
-                    image={profileImage} profilePicURL={profileImage} />
-                </div>
-
-                <div className="flex w-full flex-col px-4">
-
-                    <div className='flex flex-col justify-center items-center pt-4'>
-                        <p className='text-base md:text-lg font-medium text-center'>
-                            b) Upload photos of driver's license (Front and back)</p>
-                        <p className='text-sm flex flex-col w-[350px] items-center'>
-                        Note: Driver's license will not be shared publicly</p>
+                    <div className='flex flex-col content-center items-center w-full'>
+                        <ProfileCropper setCroppedImage={setCroppedProfileImage} setImage={setProfileImage} 
+                        image={profileImage} profilePicURL={profileImage} />
                     </div>
-                    
-                    <div className="w-full flex justify-center">
-                    
-                    <CameraId croppedImage={croppedImageId} setCroppedImage={setCroppedImageId} croppedImageURL={croppedImageURLId} setCroppedImageURL={setCroppedImageURLId} 
-                        coverIndex={coverIndexId} setCoverIndex={setCoverIndexId} mediaTypes={mediaTypesId} setMediaTypes={setMediaTypesId} videoArray={videoArrayId} setVideoArray={setVideoArrayId} 
-                        videoURLArray={videoURLArrayId} setVideoURLArray={setVideoURLArrayId}  videoThumbnails={videoThumbnailsId} setVideoThumbnails={setVideoThumbnailsId} camera_id={"id"}
-                        oldMediaTrack={oldMediaTrackId} setOldMediaTrack={setOldMediaTrackId} limit={1} />  
-                    
+
+                    <div className="flex w-full flex-col px-4">
+
+                        <div className='flex flex-col justify-center items-center pt-4'>
+                            <p className='text-base md:text-lg font-medium text-center'>
+                                b) Upload photos of driver's license (Front and back)</p>
+                            <p className='text-sm flex flex-col w-[350px] items-center'>
+                            Note: Driver's license will not be shared publicly</p>
+                        </div>
+                        
+                        <div className="w-full flex justify-center">
+                        
+                        <CameraId croppedImage={croppedImageId} setCroppedImage={setCroppedImageId} croppedImageURL={croppedImageURLId} setCroppedImageURL={setCroppedImageURLId} 
+                            coverIndex={coverIndexId} setCoverIndex={setCoverIndexId} mediaTypes={mediaTypesId} setMediaTypes={setMediaTypesId} videoArray={videoArrayId} setVideoArray={setVideoArrayId} 
+                            videoURLArray={videoURLArrayId} setVideoURLArray={setVideoURLArrayId}  videoThumbnails={videoThumbnailsId} setVideoThumbnails={setVideoThumbnailsId} camera_id={"id"}
+                            oldMediaTrack={oldMediaTrackId} setOldMediaTrack={setOldMediaTrackId} limit={1} />  
+                        
+                        </div>
                     </div>
-                </div>
 
-                <button onClick={(e)=>handlePhotosUpload(e)} className='my-2 mb-8 py-4 px-3 rounded-2xl border-2 border-[#00D3E0] hover:bg-[#00D3E0]'>
-                    Submit Photos </button>
+                    <button onClick={(e)=>handlePhotosUpload(e)} className='my-2 mb-8 py-4 px-3 rounded-2xl border-2 border-[#00D3E0] hover:bg-[#00D3E0]'>
+                        Submit Photos </button>
 
-                </div>
-            </div>
+                    </div>
+                </div>}
             </div>
         </div>
 

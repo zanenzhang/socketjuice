@@ -40,8 +40,11 @@ async function sendVerification (req, res) {
 //check verification token
 async function checkVerification (req, res) {
 
-    const {number, code, userId, phonePrimary, phonePrefix, 
+    const {number, code, userId, phonePrefix, 
         phoneCountry, phoneCountryCode} = req.body
+
+    console.log(number, code, userId, phonePrefix, 
+        phoneCountry, phoneCountryCode)
 
     if (!number || !code ) {
         return res.status(400).json({ message: 'Missing required info' })
@@ -55,11 +58,12 @@ async function checkVerification (req, res) {
         .verificationChecks
         .create({to: `${number}`, code: `${code}`})
         .then( verification => async function() {
+            
             console.log(verification.status)
             if(verification.status === 'approved'){
-                
+
                 const updatedUser = await User.updateOne({_id: userId},
-                    {$set:{checkedMobile: true, phonePrimary: phonePrimary, phonePrefix: phonePrefix,
+                    {$set:{checkedMobile: true, phonePrefix: phonePrefix,
                     phoneCountry: phoneCountry, phoneCountryCode: phoneCountryCode}})
 
                 if(updatedUser){
