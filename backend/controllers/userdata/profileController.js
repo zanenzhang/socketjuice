@@ -7,7 +7,7 @@ const UsageLimit = require('../../model/UsageLimit');
 const Flags = require('../../model/Flags');
 const BannedUser = require('../../model/BannedUser');
 
-const { sendPassResetConfirmation, sendVerifiedAccount } = require('../../middleware/mailer');
+const { sendPassResetConfirmation, sendVerifiedAccount, sendVerifiedToAdmin } = require('../../middleware/mailer');
 const bcrypt = require('bcrypt');
 const ObjectId  = require('mongodb').ObjectId;
 
@@ -1047,9 +1047,9 @@ const editUserReceivePayments = async (req, res) => {
 
 const uploadUserPhotos = async (req, res) => {
 
-    const { userId, frontObjectId, backObjectId} = req.body
+    var { userId, currency, chargeRate, frontObjectId, backObjectId} = req.body
 
-    if (!userId || !frontObjectId || !backObjectId) {
+    if (!userId || !currency || !chargeRate || !frontObjectId || !backObjectId) {
         return res.status(400).json({ message: 'User ID Required' })
     }
 
@@ -1065,8 +1065,35 @@ const uploadUserPhotos = async (req, res) => {
 
             console.log("Updating user profile")
 
+            currency = currency.toLowerCase()
+
+            var currencySymbol = "$"
+
+            if(currency === 'usd'){
+                currencySymbol = '$'
+            } else if (currency === 'cad') {
+                currencySymbol = '$'
+            } else if (currency === 'eur'){
+                currencySymbol = '€'
+            } else if (currency === 'gbp'){
+                currencySymbol = '£'
+            } else if (currency === 'inr'){
+                currencySymbol = '₹'
+            } else if (currency === 'jpy'){
+                currencySymbol = '¥'
+            } else if (currency === 'cny'){
+                currencySymbol = '¥'
+            } else if (currency === 'aud'){
+                currencySymbol = '$'
+            } else if (currency === 'nzd'){
+                currencySymbol =  '$'
+            } 
+
             foundUser.frontObjectId = frontObjectId
             foundUser.backObjectId = backObjectId
+            foundUser.currency = currency
+            foundUser.chargeRate = chargeRate
+            foundUser.currencySymbol = currencySymbol
 
             try{
 
@@ -1088,14 +1115,61 @@ const uploadUserPhotos = async (req, res) => {
 
                 foundUser.frontMediaURL = signedURLFrontPhoto
                 foundUser.backMediaURL = signedURLBackPhoto
+                foundUser.currentStage = 3
 
-                sendVerifiedAccount({ toUser: foundUser.email, firstName: foundUser.firstName })
+                const userId = foundUser._id;
+                const firstName = foundUser.firstName;
+                const lastName = foundUser.lastName;
+                const phoneNumber = foundUser.phonePrimary;
+                const profilePicURL = foundUser.profilePicURL;
+                const currency = foundUser.currency;
+                const credits = foundUser.credits;
 
-                const savedUser = await foundUser.save()
+                const lessMotion = foundUser.lessMotion;
+                const pushNotifications = foundUser.pushNotifications;
+                const userTheme = foundUser.userTheme;
 
-                if(savedUser){
-                
-                    return res.status(200).json({"message": "Operation success"})
+                const roles = Object.values(foundUser.roles).filter(Boolean);
+
+                const accessToken = jwt.sign(
+                    {
+                        "UserInfo": {
+                            "userId": userId,
+                            "roles": roles
+                        }
+                    },
+                    process.env.ACCESS_TOKEN_SECRET,
+                    { expiresIn: '7d' }
+                );
+    
+                const refreshToken = jwt.sign(
+                    { "userId": userId },
+                    process.env.REFRESH_TOKEN_SECRET,
+                    { expiresIn: '30d' }
+                );
+
+                if(refreshToken && accessToken){
+
+                    sendVerifiedAccount({ toUser: foundUser.email, firstName: foundUser.firstName })
+                    sendVerifiedToAdmin({verifiedUserId: foundUser._id, verifiedPhone: foundUser.primaryPhone,
+                        verifiedFirstName: foundUser.firstName, verifiedLastame: foundUser.lastName})
+
+                    foundUser.refreshToken = refreshToken;
+
+                    const savedUser = await foundUser.save()
+
+                    if(savedUser){
+                    
+                        res.cookie('socketjuicejwt', refreshToken, { 
+                            httpOnly: true, 
+                            secure: true, 
+                            sameSite: 'None', 
+                            maxAge: 30 * 24 * 60 * 60 * 1000 
+                        });
+
+                        res.status(200).json({ firstName, lastName, userId, roles, accessToken, phoneNumber, profilePicURL, 
+                            currency, lessMotion, pushNotifications, userTheme, FXRates, credits })
+                    }
                 }
 
             } catch(err){

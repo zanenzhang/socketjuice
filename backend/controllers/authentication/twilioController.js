@@ -67,7 +67,7 @@ async function checkVerification (req, res) {
                 console.log(verification.status)
 
                 const updatedUser = await User.updateOne({_id: userId},
-                    {$set:{checkedMobile: true, phonePrefix: phonePrefix,
+                    {$set:{checkedMobile: true, phonePrimary: number, phonePrefix: phonePrefix,
                     phoneCountry: phoneCountry, phoneCountryCode: phoneCountryCode}})
 
                 if(updatedUser){

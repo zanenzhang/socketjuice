@@ -43,6 +43,7 @@ function dataURItoBlob(dataURI) {
 
 const VerifyPage = () => {
 
+    const { setAuth, auth, activeTab, setActiveTab  } = useAuth();
     const search = useLocation().search;
 
     const [userId, setUserId] = useState(new URLSearchParams(search).get("id"))
@@ -63,13 +64,14 @@ const VerifyPage = () => {
     
     const [errorMessage, setErrorMessage] = useState("");
 
+    const [chargeRate, setChargeRate] = useState(3.0);
+    const [currency, setCurrency] = useState("CAD");
+
     const [phonePrimary, setPhonePrimary] = useState("");
     const [phonePrimaryFocus, setPhonePrimaryFocus] = useState(false);
     const [phonePrefix, setPhonePrefix] = useState("");
     const [phoneCountry, setPhoneCountry] = useState("");
     const [phoneCountryCode, setPhoneCountryCode] = useState("");
-
-    const { setAuth, auth, activeTab, setActiveTab  } = useAuth();
 
     const [image, setImage] = useState("../../images/defaultUserPic.svg");
     const [croppedImage, setCroppedImage] = useState("");
@@ -197,6 +199,26 @@ const VerifyPage = () => {
         setPhonePrefix(data?.dialCode);
         setPhoneCountry(data?.name);
         setPhoneCountryCode(data?.countryCode);
+
+        if(phoneCountry == "CA"){
+            setCurrency("CAD")
+        } else if(phoneCountry == "US"){
+            setCurrency("USD")
+        } else if(phoneCountry == "AU"){
+            setCurrency("AUD")
+        } else if(phoneCountry == "NZ"){
+            setCurrency("NZD")
+        } else if(phoneCountry == "GB"){
+            setCurrency("GBP")
+        } else if(phoneCountry == "IN"){
+            setCurrency("INR")
+        } else if(phoneCountry == "JP"){
+            setCurrency("JPY")
+        } else if(phoneCountry == "CN"){
+            setCurrency("CNY")
+        } else {
+            setCurrency("EUR")
+        }
     }
 
     const handlePhoneCodeRequest = (event) => {
@@ -512,7 +534,6 @@ const VerifyPage = () => {
                         } catch (err) {
                             
                             setWaitingPhotos(false);
-
                             setErrorMessage("Failed to upload photo! Please try again!");
 
                             if(finalImageObjArray?.length > 0){
@@ -599,7 +620,7 @@ const VerifyPage = () => {
             try {
 
                 const uploadedUserPhotos = await axios.post('/profile/userphotos', 
-                    JSON.stringify({userId, frontObjectId, backObjectId}),
+                    JSON.stringify({userId, currency, chargeRate, frontObjectId, backObjectId}),
                     {
                         headers: { "Authorization": `Hash ${hash} ${userId}`, 
                             'Content-Type': 'application/json'},
@@ -607,7 +628,31 @@ const VerifyPage = () => {
                     }
                 );
 
-                if(uploadedUserPhotos){
+                if(uploadedUserPhotos && uploadedUserPhotos.status === 200){
+
+                    console.log(uploadedUserPhotos)
+
+                    const firstName = response?.data?.firstName;
+                    const lastName = response?.data?.lastName;
+                    const accessToken = response?.data?.accessToken;
+                    
+                    const roles = response?.data?.roles;
+                    const userId = response?.data?.userId
+                    const profilePicURL = response?.data?.profilePicURL
+                    const currency = response?.data?.currency
+                    
+                    const FXRates = response?.data?.FXRates
+
+                    const lessMotion = response?.data?.lessMotion
+                    const pushNotifications = response?.data?.pushNotifications
+                    const userTheme = response?.data?.userTheme
+
+                    const credits = response?.data?.credits
+
+                    setAuth({ firstName, lastName, userId, roles, accessToken, profilePicURL, 
+                        currency, lessMotion, pushNotifications, userTheme, FXRates, credits });
+
+                    localStorage.setItem("socketjuice-persist", true)
 
                     console.log("Success, photos have been uploaded. We will review and approve shortly.")
                     toast.info("Awesome, your profile has been saved! Welcome to SocketJuice!", {
@@ -805,6 +850,56 @@ const VerifyPage = () => {
                         image={image} profilePicURL={image} />
                     </div>
 
+                    <div className='w-full flex flex-col'>
+                        
+                        <div className="flex flex-row w-full justify-center items-center">
+
+                            <p className="pr-2 font-semibold">Charge Rate Per 30 Min (you can also change this later):</p>
+                            
+                            <select className="pl-6 w-30 md:w-40 h-9 border border-gray-primary rounded w-[200px] justify-center items-center" 
+                            value={chargeRate}
+                            onChange={(event) => {
+                                setChargeRate(event.target.value);
+                            }}>
+                            
+                            <option value={1.0}>$1.00</option>
+                            <option value={2.0}>$2.00</option>
+                            <option value={3.0}>$3.00</option>
+                            <option value={4.0}>$4.00</option>
+                            <option value={5.0}>$5.00</option>
+                            <option value={6.0}>$6.00</option>
+                            <option value={7.0}>$7.00</option>
+                            <option value={8.0}>$8.00</option>
+                            <option value={9.0}>$9.00</option>
+                            <option value={10.0}>$10.00</option>
+                            
+                            </select>
+                        </div>  
+
+                        <div className="flex flex-row w-full justify-center items-center">
+
+                            <label className="flex justify-start font-semibold">Currency:</label>
+
+                            <select onChange={(event)=>setCurrency(event.target.value)}
+                            value={currency}
+                            className={`text-sm w-full mr-4 h-10 text-black
+                            border border-gray-primary mb-2 rounded focus:outline-[#995372] pl-3`}>
+
+                                <option value="USD">$USD</option>
+                                <option value="CAD">$CAD</option>
+                                <option value="EUR">€EUR</option>
+                                <option value="GBP">£GBP</option>
+                                <option value="INR">₹INR</option>
+                                <option value="JPY">¥JPY</option>
+                                <option value="CNY">¥CNY</option>
+                                <option value="AUD">$AUD</option>
+                                <option value="NZD">$NZD</option>
+
+                            </select> 
+
+                        </div>
+                    </div>
+                    
                     <div className="flex w-full flex-col px-4">
 
                         <div className='flex flex-col justify-center items-center pt-4'>
@@ -841,7 +936,7 @@ const VerifyPage = () => {
                         </div>
                         }
 
-                        Submit Photos </button>
+                        Submit Profile </button>
 
                     </div>
                 </div>}

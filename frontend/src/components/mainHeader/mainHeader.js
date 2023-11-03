@@ -32,7 +32,7 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
     
     const navigate = useNavigate();
 
-    const { setAuth, persist, setPersist, newMessages, setNewMessages, auth, activeTab  } = useAuth();
+    const { auth, setAuth, persist, setPersist, newMessages, setNewMessages, activeTab  } = useAuth();
     const [openModalLogin, setOpenModalLogin] = useState(false);
     
     const [newMessagesFill, setNewMessagesFill] = useState(false);
@@ -749,6 +749,15 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
                 </div>
 
                 
+                {auth?.userId ? 
+                
+                    <div className='flex flex-row'>
+                        <p>Settings</p>
+                        <p>Profile</p>
+                    </div>
+
+                :
+                
                 <div className='flex flex-row'>
 
                     <button onClick={(e)=>handleLoginClick(e)} 
@@ -763,7 +772,7 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
 
                         Account
                     </button>
-                </div>
+                </div>}
             </div>
         
         </div>

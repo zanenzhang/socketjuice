@@ -50,7 +50,7 @@ exports.sendConfirmationEmail = function({toUser, userId, hash, firstName}) {
   return sendEmail(message);
 }
 
-exports.sendHostRecordEmail = function({firstName, lastName, address, city, region, country}) {
+exports.sendHostRecordEmail = function({userId, firstName, lastName, address, city, region, country}) {
   
   const regex = /(<([^>]+)>)/gi;
   const checkedFirstName = firstName.replace(regex, "");
@@ -95,6 +95,25 @@ exports.sendVerifiedEmail = function({toUser, firstName}) {
         path: __dirname + '/SocketJuice.png',
         cid: 'myImg'
       }]    
+    }
+  
+    return sendEmail(message);
+  }
+
+
+  exports.sendVerifiedToAdmin = function({verifiedUserId, verifiedPhone, verifiedFirstName, verifiedLastName, verifiedAddress}) {
+    const message = {
+      from: process.env.EMAIL_SUPPORT,
+      // to: toUser.email // in production uncomment this
+      to: process.env.EMAIL_SUPPORT,
+      subject: 'SocketJuice - New Profile Submitted',
+      html: `
+        <p>A new user has uploaded a profile </p>
+        <p>UserId: ${verifiedUserId}</p>
+        <p>Phone Number: ${verifiedPhone}</p>
+        <p>First Name: ${verifiedFirstName}</p>
+        <p>Last Name: ${verifiedLastName}</p>
+      `,
     }
   
     return sendEmail(message);

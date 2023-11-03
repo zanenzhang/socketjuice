@@ -208,6 +208,10 @@ var hostProfileSchema = new Schema({
         type: Boolean,
         default: true,
     },
+    chargeRatePerHalfHour: {
+        type: Number,
+        default: 3
+    },
     hostAppointments: [{  
         _appointmentId: { 
             type: Schema.Types.ObjectId, 

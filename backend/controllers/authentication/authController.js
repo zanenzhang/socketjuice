@@ -88,6 +88,7 @@ const handleLogin = async (req, res) => {
                         const profilePicURL = foundUser.profilePicURL;
                         const currency = foundUser.currency;
                         const credits = foundUser.credits;
+                        const phoneNumber = foundUser.phonePrimary
 
                         const lessMotion = foundUser.lessMotion;
                         const pushNotifications = foundUser.pushNotifications;
@@ -167,7 +168,7 @@ const handleLogin = async (req, res) => {
                                     });
                 
                                     // Send authorization role and access token to user
-                                    res.status(200).json({ firstName, lastName, userId, roles, accessToken, profilePicURL, 
+                                    res.status(200).json({ firstName, lastName, userId, roles, accessToken, profilePicURL, phoneNumber,
                                         currency, lessMotion, pushNotifications, userTheme, FXRates, credits });
                                 }
                             }

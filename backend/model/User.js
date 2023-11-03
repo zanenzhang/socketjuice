@@ -43,7 +43,11 @@ const userSchema = new Schema({
     },
     currency: {
         type: String,
-        default: "CAD"
+        default: "cad"
+    },
+    currencySymbol: {
+        type: String,
+        default: "$"
     },
     active: {
         type: Boolean, //Not verified
