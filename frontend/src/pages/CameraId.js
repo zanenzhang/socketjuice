@@ -711,8 +711,9 @@ const handleSelfieCamera = () => {
 
           { (croppedImageURL?.length >= 1 && croppedImageURL[coverIndex] !== undefined && mediaTypes[coverIndex] !== 'video') &&
             <div className="flex flex-col pt-2">
-              <div className="flex flex-row justify-center pt-2">
-                <img ref={refPhoto} key={'mainCropImage'} src={croppedImageURL[0] || DEFAULT_IMAGE_PATH} width="284" 
+              <div className="flex flex-col justify-center pt-2">
+                <p className="text-md">Driver's License Front:</p>
+                <img key={'licenseFront'} src={croppedImageURL[0] || DEFAULT_IMAGE_PATH} width="284" 
                 className="rounded-xl border" />
               </div>
             </div>
@@ -720,8 +721,9 @@ const handleSelfieCamera = () => {
 
           { (croppedImageURL?.length >= 2 && croppedImageURL[coverIndex] !== undefined && mediaTypes[coverIndex] !== 'video') &&
             <div className="flex flex-col pt-2">
-              <div className="flex flex-row justify-center pt-2">
-                <img ref={refPhoto} key={'mainCropImage'} src={croppedImageURL[1] || DEFAULT_IMAGE_PATH} width="284" 
+              <div className="flex flex-col justify-center pt-2">
+                <p className="text-md">Driver's License Back:</p>
+                <img key={'licenseBack'} src={croppedImageURL[1] || DEFAULT_IMAGE_PATH} width="284" 
                 className="rounded-xl border" />
               </div>
             </div>

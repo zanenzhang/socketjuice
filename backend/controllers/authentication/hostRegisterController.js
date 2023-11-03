@@ -111,7 +111,7 @@ const handleNewHost = async (req, res) => {
                                 "password": hashedPwd,
                                 "firstName": firstName,
                                 "lastName": lastName,
-                                "roles": {User: 2001, Manager: 3780},
+                                "roles": {User: 2001},
                                 "privacySetting": 1,
                                 "primaryGeoData": geoData,
                             });

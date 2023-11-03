@@ -43,10 +43,13 @@ function dataURItoBlob(dataURI) {
 const VerifyPage = () => {
 
     const search = useLocation().search;
-    const userId = new URLSearchParams(search).get("id");
-    const hash = new URLSearchParams(search).get("hash");
+
+    const [userId, setUserId] = useState(new URLSearchParams(search).get("id"))
+    const [hash, setHash] = useState(new URLSearchParams(search).get("hash"))
 
     const IMAGE_UPLOAD_URL = '/s3/singleimage';
+    const PUBLIC_MEDIA_URL = '/s3/single-profilepic';
+
     const VIDEO_UPLOAD_URL = '/s3/singlevideo';
     const PHONE_PRIMARY_REGEX = /^[+]?(1\-|1\s|1|\d{3}\-|\d{3}\s|)?((\(\d{3}\))|\d{3})(\-|\s)?(\d{3})(\-|\s)?(\d{4})$/;
 
@@ -90,14 +93,20 @@ const VerifyPage = () => {
 
     //Put photo limit, 1 for front and back, more for arrays
     
-    const [waiting, setWaiting] = useState(false);
-
-    const PUBLIC_MEDIA_URL = '/s3/single-profilepic';
+    const [waitingRequest, setWaitingRequest] = useState(false);
+    const [waitingVerify, setWaitingVerify] = useState(false);
+    const [waitingPhotos, setWaitingPhotos] = useState(false);
 
     useEffect( ()=> {
 
         setActiveTab("verify")
         setCurrentStage(2)
+
+        const userId = new URLSearchParams(search).get("id")
+
+        if(!userId){
+            navigate("/map")
+        }
 
     }, [])
 
@@ -134,6 +143,8 @@ const VerifyPage = () => {
                             progress: undefined,
                             theme: "colored",
                         });
+
+                        setWaitingRequest(false);
                     }
                 } else {
                     alert("Please try again, the verification process did not work for your provided number")
@@ -147,14 +158,16 @@ const VerifyPage = () => {
             }, '15000')
         }
 
+        if(waitingRequest){
+            return
+        }
+
+        setWaitingRequest(true)
+
         resendSMS()
     }
 
     const handlePhonePrimary = (event, data) => {
-
-        console.log(event);
-        console.log(data);
-
         setPhonePrimary(event);
         setPhonePrefix(data?.dialCode);
         setPhoneCountry(data?.name);
@@ -170,10 +183,13 @@ const VerifyPage = () => {
             const requestedCode = await addCodeRequest(phonePrimary, userId, phoneCountry, hash)
 
             if(requestedCode){
-                console.log(requestedCode)
+
                 if(requestedCode.status === 200 && requestedCode.data.result === 'pending'){
+                    
                     setSentCode(true)
+                    
                     setSubmittedPhone(true);
+                    
                     toast.info("A verification code has been sent to the number provided", {
                         position: "bottom-center",
                         autoClose: 1500,
@@ -184,18 +200,19 @@ const VerifyPage = () => {
                         progress: undefined,
                         theme: "colored",
                     });
-                    setResendCode(true);
 
-                    setTimeout(() => {
-
-                        setResendCode(false)
-        
-                    }, '15000')
+                    setWaitingRequest(false)
                 }
             } else {
                 alert("Please try again, the verification process did not work for your provided number")
             }
         }
+
+        if(waitingRequest){
+            return    
+        }
+
+        setWaitingRequest(true)
 
         handlePhoneRequest()
     }
@@ -227,8 +244,16 @@ const VerifyPage = () => {
                         theme: "colored",
                     });
                 }
+
+                setWaitingVerify(false)
             }
         }
+
+        if(waitingVerify){
+            return
+        }
+
+        setWaitingVerify(true);
 
         handlePhoneVerify()
         
@@ -238,7 +263,7 @@ const VerifyPage = () => {
 
         event.preventDefault();
         
-        if(waiting || croppedImageId?.length < 2 || !croppedImage){
+        if(waitingPhotos || croppedImageId?.length < 2 || !croppedImage){
             return
         }
 
@@ -253,10 +278,9 @@ const VerifyPage = () => {
             theme: "colored",
         });
 
-        setWaiting(true);
+        setWaitingPhotos(true);
         
         var doneProfilePhoto = false;
-        var doneIdPhotos = false;
 
         if(croppedImage){
 
@@ -291,6 +315,7 @@ const VerifyPage = () => {
                 if(check1 && check2){
 
                     try {
+
                         const response = await axios.post(PUBLIC_MEDIA_URL, 
                             formData,
                             {
@@ -356,7 +381,7 @@ const VerifyPage = () => {
                                     );
 
                                     if(deleted){
-                                        setWaiting(false)
+                                        setWaitingPhotos(false)
                                         return
                                     }
                                 }
@@ -460,7 +485,9 @@ const VerifyPage = () => {
                             };
 
                         } catch (err) {
-                            setWaiting(false);
+                            
+                            setWaitingPhotos(false);
+
                             setErrorMessage("Failed to upload photo! Please try again!");
 
                             if(finalImageObjArray?.length > 0){
@@ -478,7 +505,7 @@ const VerifyPage = () => {
                                 );
 
                                 if(deleted){
-                                    setWaiting(false)
+                                    setWaitingPhotos(false)
                                     return
                                 }
                             }
@@ -501,7 +528,9 @@ const VerifyPage = () => {
                             );
 
                             if(deleted){
-                                setWaiting(false)
+                                
+                                setWaitingPhotos(false)
+                                
                                 return
                             }
                         }
@@ -556,7 +585,6 @@ const VerifyPage = () => {
                     if(uploadedUserPhotos){
 
                         toast.info("Success, your photos have been uploaded and will be reviewed. We will send an email shortly after approval")
-                        doneIdPhotos = true
                     }
 
                 } catch(err){
@@ -603,15 +631,44 @@ const VerifyPage = () => {
 
                 {sentCode ? 
                 
-                <button disabled={codeInput?.length > 0 || verifiedPhone} onClick={(e)=>handleResendCode(e)} 
-                className={`my-2 py-4 px-3 rounded-2xl border-2 border-[#00D3E0] 
-                ${ (codeInput?.length > 0 || verifiedPhone ) ? ' hover:bg-gray-100 cursor-not-allowed ' : ' hover:bg-[#00D3E0] '}`}>
+                <button disabled={codeInput?.length > 0 || verifiedPhone || resendCode} onClick={(e)=>handleResendCode(e)} 
+                className={`my-2 py-4 px-3 rounded-2xl border-2 border-[#00D3E0] flex flex-row gap-x-1
+                ${ (codeInput?.length > 0 || verifiedPhone || resendCode ) ? ' hover:bg-gray-100 cursor-not-allowed ' : ' hover:bg-[#00D3E0] '}`}>
+
+                {waitingRequest && 
+                    <div aria-label="Loading..." role="status">
+                        <svg className="h-6 w-6 animate-spin" viewBox="3 3 18 18">
+                        <path
+                            className="fill-gray-200"
+                            d="M12 5C8.13401 5 5 8.13401 5 12C5 15.866 8.13401 19 12 19C15.866 19 19 15.866 19 12C19 8.13401 15.866 5 12 5ZM3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12Z"></path>
+                        <path
+                            className="fill-gray-800"
+                            d="M16.9497 7.05015C14.2161 4.31648 9.78392 4.31648 7.05025 7.05015C6.65973 7.44067 6.02656 7.44067 5.63604 7.05015C5.24551 6.65962 5.24551 6.02646 5.63604 5.63593C9.15076 2.12121 14.8492 2.12121 18.364 5.63593C18.7545 6.02646 18.7545 6.65962 18.364 7.05015C17.9734 7.44067 17.3403 7.44067 16.9497 7.05015Z"></path>
+                        </svg>
+                    </div>
+                }
+
                 Resend verification code</button> : 
                 
                 <button disabled={phonePrimary?.length < 7 || submittedPhone || codeInput?.length > 0} onClick={(e)=>handlePhoneCodeRequest(e)} 
-                className={`my-2 py-4 px-3 rounded-2xl border-2 border-[#00D3E0] 
+                className={`my-2 py-4 px-3 rounded-2xl border-2 border-[#00D3E0] flex flex-row gap-x-1
                 ${ (phonePrimary?.length < 7 || submittedPhone || codeInput?.length > 0 ) ? ' hover:bg-gray-100 cursor-not-allowed ' : ' hover:bg-[#00D3E0] '}`}>
-                    Submit phone number for verification</button>
+                    
+                    {waitingVerify && 
+                    <div aria-label="Loading..." role="status">
+                        <svg className="h-6 w-6 animate-spin" viewBox="3 3 18 18">
+                        <path
+                            className="fill-gray-200"
+                            d="M12 5C8.13401 5 5 8.13401 5 12C5 15.866 8.13401 19 12 19C15.866 19 19 15.866 19 12C19 8.13401 15.866 5 12 5ZM3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12Z"></path>
+                        <path
+                            className="fill-gray-800"
+                            d="M16.9497 7.05015C14.2161 4.31648 9.78392 4.31648 7.05025 7.05015C6.65973 7.44067 6.02656 7.44067 5.63604 7.05015C5.24551 6.65962 5.24551 6.02646 5.63604 5.63593C9.15076 2.12121 14.8492 2.12121 18.364 5.63593C18.7545 6.02646 18.7545 6.65962 18.364 7.05015C17.9734 7.44067 17.3403 7.44067 16.9497 7.05015Z"></path>
+                        </svg>
+                    </div>
+                    }
+
+                    Submit phone number for verification
+                </button>
                 }
 
 
@@ -676,7 +733,23 @@ const VerifyPage = () => {
                         </div>
                     </div>
 
-                    <button onClick={(e)=>handlePhotosUpload(e)} className='my-2 mb-8 py-4 px-3 rounded-2xl border-2 border-[#00D3E0] hover:bg-[#00D3E0]'>
+                    <button onClick={(e)=>handlePhotosUpload(e)} 
+                        className='my-2 mb-8 py-4 px-3 rounded-2xl border-2 
+                            border-[#00D3E0] hover:bg-[#00D3E0] flex flex-row gap-x-1 '>
+
+                        {waitingPhotos && 
+                        <div aria-label="Loading..." role="status">
+                            <svg className="h-6 w-6 animate-spin" viewBox="3 3 18 18">
+                            <path
+                                className="fill-gray-200"
+                                d="M12 5C8.13401 5 5 8.13401 5 12C5 15.866 8.13401 19 12 19C15.866 19 19 15.866 19 12C19 8.13401 15.866 5 12 5ZM3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12Z"></path>
+                            <path
+                                className="fill-gray-800"
+                                d="M16.9497 7.05015C14.2161 4.31648 9.78392 4.31648 7.05025 7.05015C6.65973 7.44067 6.02656 7.44067 5.63604 7.05015C5.24551 6.65962 5.24551 6.02646 5.63604 5.63593C9.15076 2.12121 14.8492 2.12121 18.364 5.63593C18.7545 6.02646 18.7545 6.65962 18.364 7.05015C17.9734 7.44067 17.3403 7.44067 16.9497 7.05015Z"></path>
+                            </svg>
+                        </div>
+                        }
+
                         Submit Photos </button>
 
                     </div>
