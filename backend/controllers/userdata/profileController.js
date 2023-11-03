@@ -2,6 +2,7 @@ const User = require('../../model/User')
 const DriverProfile = require('../../model/DriverProfile');
 const HostProfile = require('../../model/HostProfile');
 const Bookmark = require('../../model/Bookmark');
+const ActivateToken = require('../../model/ActivateToken');
 
 const UsageLimit = require('../../model/UsageLimit');
 const Flags = require('../../model/Flags');
@@ -1053,9 +1054,12 @@ const uploadUserPhotos = async (req, res) => {
         return res.status(400).json({ message: 'User ID Required' })
     }
 
-    const foundUser = await User.findOne({_id: userId})
+    chargeRate = Number(chargeRate)
 
-    if(foundUser ){
+    const foundUser = await User.findOne({_id: userId})
+    const foundHost = await HostProfile.findOne({_userId: userId})
+
+    if(foundUser && foundHost){
 
         if(!foundUser.checkedMobile || foundUser.receivedIdApproval){
         
@@ -1091,9 +1095,13 @@ const uploadUserPhotos = async (req, res) => {
 
             foundUser.frontObjectId = frontObjectId
             foundUser.backObjectId = backObjectId
+            
             foundUser.currency = currency
-            foundUser.chargeRate = chargeRate
             foundUser.currencySymbol = currencySymbol
+
+            foundHost.chargeRatePerHalfHour = chargeRate
+            foundHost.currency = currency
+            foundHost.currencySymbol = currencySymbol
 
             try{
 
@@ -1123,6 +1131,7 @@ const uploadUserPhotos = async (req, res) => {
                 const phoneNumber = foundUser.phonePrimary;
                 const profilePicURL = foundUser.profilePicURL;
                 const currency = foundUser.currency;
+                const currencySymbol = foundUser.currencySymbol;
                 const credits = foundUser.credits;
 
                 const lessMotion = foundUser.lessMotion;
@@ -1157,8 +1166,10 @@ const uploadUserPhotos = async (req, res) => {
                     foundUser.refreshToken = refreshToken;
 
                     const savedUser = await foundUser.save()
+                    const savedHost = await foundHost.save()
+                    const removedToken = await ActivateToken.deleteMany({_userId: foundUser._id})
 
-                    if(savedUser){
+                    if(savedUser && savedHost && removedToken){
                     
                         res.cookie('socketjuicejwt', refreshToken, { 
                             httpOnly: true, 
@@ -1168,7 +1179,7 @@ const uploadUserPhotos = async (req, res) => {
                         });
 
                         res.status(200).json({ firstName, lastName, userId, roles, accessToken, phoneNumber, profilePicURL, 
-                            currency, lessMotion, pushNotifications, userTheme, FXRates, credits })
+                            currency, currencySymbol, lessMotion, pushNotifications, userTheme, FXRates, credits })
                     }
                 }
 
@@ -1494,7 +1505,7 @@ const checkStage = async (req, res) => {
         const foundUser = await User.findOne({_id: userId})
 
         if(foundUser){
-            return res.status(200).json({currentStage: foundUser.currentStage})
+            return res.status(200).json({currentStage: foundUser.currentStage, currency: foundUser.currency})
         }
 
     } catch(err){

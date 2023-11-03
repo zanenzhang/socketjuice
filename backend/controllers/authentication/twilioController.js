@@ -66,9 +66,30 @@ async function checkVerification (req, res) {
                 
                 console.log(verification.status)
 
+                var currency = "cad"
+                if(phoneCountry == "CA"){
+                    currency = "cad"
+                } else if(phoneCountry == "US"){
+                    currency = "usd"
+                } else if(phoneCountry == "AU"){
+                    currency = "aud"
+                } else if(phoneCountry == "NZ"){
+                    currency = "nzd"
+                } else if(phoneCountry == "GB"){
+                    currency = "gbp"
+                } else if(phoneCountry == "IN"){
+                    currency = "inr"
+                } else if(phoneCountry == "JP"){
+                    currency = "jpy"
+                } else if(phoneCountry == "CN"){
+                    currency = "cny"
+                } else {
+                    currency = "eur"
+                }
+
                 const updatedUser = await User.updateOne({_id: userId},
-                    {$set:{checkedMobile: true, phonePrimary: number, phonePrefix: phonePrefix,
-                    phoneCountry: phoneCountry, phoneCountryCode: phoneCountryCode}})
+                    {$set:{checkedMobile: true, phonePrimary: number, phonePrefix: phonePrefix, currentStage: 2,
+                    currency: currency, phoneCountry: phoneCountry, phoneCountryCode: phoneCountryCode}})
 
                 if(updatedUser){
                     console.log("Success")

@@ -210,7 +210,15 @@ var hostProfileSchema = new Schema({
     },
     chargeRatePerHalfHour: {
         type: Number,
-        default: 3
+        default: 3.00
+    },
+    currency: {
+        type: String,
+        default: "cad"
+    },
+    currencySymbol: {
+        type: String,
+        default: "$"
     },
     hostAppointments: [{  
         _appointmentId: { 

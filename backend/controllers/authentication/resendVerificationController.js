@@ -17,7 +17,7 @@ const handleResendVerificationEmail = async (req, res) => {
 
     const foundBan = await BannedUser.findOne({admin: "admin"})
     
-    if(foundBan?.ipAddresses?.some(e=>e.userIP === geoData.IPv4)){
+    if(geoData.IPv4 && foundBan?.ipAddresses?.some(e=>e.userIP === geoData.IPv4)){
 
         return res.status(403).send({"message":"Operation failed"});
     

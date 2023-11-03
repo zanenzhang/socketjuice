@@ -91,10 +91,6 @@ const handleUserActivation = async (req, res) => {
 
               alert("Thank you! Your email has been verified. Please verify your phone number and create a profile."); 
 
-              const token = crypto.randomBytes(16).toString('hex')
-
-              const updatedToken = await ActivateToken.updateOne({_userId: userId}, {$set:{token: token}})
-
               let bookmarks = new Bookmarks({
                 "_userId": foundUser._id,
               });
@@ -125,7 +121,7 @@ const handleUserActivation = async (req, res) => {
 
               const savedUserFlags = await userFlags.save()
 
-                if(savedBookmarks && savedActivities && updatedToken && savedNotifications && savedCommunications && savedUserFlags ){
+                if(savedBookmarks && savedActivities && savedNotifications && savedCommunications && savedUserFlags ){
 
                   return res.redirect(`${process.env.MOBILE_VERIFY_PAGE}?id=${foundUser._id}&hash=${token}`);        
               }

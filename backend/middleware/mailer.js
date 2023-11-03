@@ -66,6 +66,7 @@ exports.sendHostRecordEmail = function({userId, firstName, lastName, address, ci
     to: process.env.EMAIL_SUPPORT,
     subject: 'SocketJuice - Host Record',
     html: `
+      <p>UserId: ${userId} </p>
       <p>${checkedFirstName}, ${checkedLastName} has just registered for an account</p>
       <p>Address: ${checkedAddress}</p>
       <p>City: ${checkedCity}</p> 

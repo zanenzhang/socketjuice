@@ -405,7 +405,7 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
             return
         }
         
-        alert("Please hold, we're checking your submitted information and will send you a verification link")
+        alert("Please hold, we're checking your information and will send you a verification link. This may take a minute or two.")
         setWaiting(true);
         
         const v1 = EMAIL_REGEX.test(emailRegister);
@@ -418,11 +418,7 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
             return;
         }
 
-        if(city?.length > 0){
-            setCity(city.charAt(0).toUpperCase() + city.slice(1).toLowerCase());
-        }
-
-        var textToCheck = address.concat(" ", city, " ", region, " ", country)
+        var textToCheck = address.concat(" ", emailRegister, " ", city, " ", region, " ", country)
 
         try {
 
@@ -514,6 +510,8 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
                 const userId = response?.data?.userId
                 const profilePicURL = response?.data?.profilePicURL
                 const currency = response?.data?.currency
+                const currencySymbol = response?.data?.currencySymbol
+                const phoneNumber = response?.data?.phoneNumber
                 
                 const FXRates = response?.data?.FXRates
 
@@ -523,8 +521,8 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
 
                 const credits = response?.data?.credits
 
-                setAuth({ firstName, lastName, userId, roles, accessToken, profilePicURL, 
-                    currency, lessMotion, pushNotifications, userTheme, FXRates, credits });
+                setAuth({ firstName, lastName, userId, roles, accessToken, profilePicURL, phoneNumber,
+                    currency, currencySymbol, lessMotion, pushNotifications, userTheme, FXRates, credits });
 
                 localStorage.setItem("socketjuice-persist", persist)
 

@@ -102,7 +102,6 @@ const VerifyPage = () => {
     useEffect( ()=> {
 
         setActiveTab("verify")
-        setCurrentStage(2)
 
         const userId = new URLSearchParams(search).get("id")
 
@@ -115,11 +114,11 @@ const VerifyPage = () => {
             const response = await checkStage(userId, hash)
 
             if(response){
-                console.log(response)
 
-                if(response.data.currentStage){
-                    var current = Number(response.data.currentStage)
+                if(response.currentStage){
+                    var current = Number(response.currentStage)
                     setCurrentStage(current)
+                    setCurrency(response.currency)
 
                     if(current === 2){
 
@@ -133,9 +132,11 @@ const VerifyPage = () => {
             }
         }
 
-        checkingStage()
+        if(userId && hash){
+            checkingStage()
+        }
 
-    }, [])
+    }, [userId, hash])
 
     const handleCodeInput = (e) => {
 
@@ -632,25 +633,27 @@ const VerifyPage = () => {
 
                     console.log(uploadedUserPhotos)
 
-                    const firstName = response?.data?.firstName;
-                    const lastName = response?.data?.lastName;
-                    const accessToken = response?.data?.accessToken;
+                    const firstName = uploadedUserPhotos?.data?.firstName;
+                    const lastName = uploadedUserPhotos?.data?.lastName;
+                    const accessToken = uploadedUserPhotos?.data?.accessToken;
                     
-                    const roles = response?.data?.roles;
-                    const userId = response?.data?.userId
-                    const profilePicURL = response?.data?.profilePicURL
-                    const currency = response?.data?.currency
+                    const roles = uploadedUserPhotos?.data?.roles;
+                    const userId = uploadedUserPhotos?.data?.userId
+                    const profilePicURL = uploadedUserPhotos?.data?.profilePicURL
+                    const currency = uploadedUserPhotos?.data?.currency
+                    const currencySymbol = uploadedUserPhotos?.data?.currencySymbol
+                    const phoneNumber = uploadedUserPhotos?.data?.currency
                     
-                    const FXRates = response?.data?.FXRates
+                    const FXRates = uploadedUserPhotos?.data?.FXRates
 
-                    const lessMotion = response?.data?.lessMotion
-                    const pushNotifications = response?.data?.pushNotifications
-                    const userTheme = response?.data?.userTheme
+                    const lessMotion = uploadedUserPhotos?.data?.lessMotion
+                    const pushNotifications = uploadedUserPhotos?.data?.pushNotifications
+                    const userTheme = uploadedUserPhotos?.data?.userTheme
 
-                    const credits = response?.data?.credits
+                    const credits = uploadedUserPhotos?.data?.credits
 
-                    setAuth({ firstName, lastName, userId, roles, accessToken, profilePicURL, 
-                        currency, lessMotion, pushNotifications, userTheme, FXRates, credits });
+                    setAuth({ firstName, lastName, userId, roles, accessToken, profilePicURL, phoneNumber,
+                        currency, currencySymbol, lessMotion, pushNotifications, userTheme, FXRates, credits });
 
                     localStorage.setItem("socketjuice-persist", true)
 
@@ -850,13 +853,16 @@ const VerifyPage = () => {
                         image={image} profilePicURL={image} />
                     </div>
 
-                    <div className='w-full flex flex-col'>
+                    <div className='w-full flex flex-col items-end py-4 pr-12'>
                         
-                        <div className="flex flex-row w-full justify-center items-center">
+                        <div className="flex flex-row justify-center items-center gap-x-2">
 
-                            <p className="pr-2 font-semibold">Charge Rate Per 30 Min (you can also change this later):</p>
+                            <div className='flex flex-col p-2'>
+                                <p className="flex font-semibold">Charge Rate Per 30 Min:</p>
+                                <p className="flex">(can change this later):</p>
+                            </div>
                             
-                            <select className="pl-6 w-30 md:w-40 h-9 border border-gray-primary rounded w-[200px] justify-center items-center" 
+                            <select className="pl-6 w-30 md:w-40 h-9 border border-gray-primary justify-center items-center" 
                             value={chargeRate}
                             onChange={(event) => {
                                 setChargeRate(event.target.value);
@@ -876,14 +882,14 @@ const VerifyPage = () => {
                             </select>
                         </div>  
 
-                        <div className="flex flex-row w-full justify-center items-center">
+                        <div className="flex flex-row justify-center items-center gap-x-2">
 
-                            <label className="flex justify-start font-semibold">Currency:</label>
+                            <label className="flex justify-center items-center pr-2 font-semibold">Currency:</label>
 
                             <select onChange={(event)=>setCurrency(event.target.value)}
                             value={currency}
-                            className={`text-sm w-full mr-4 h-10 text-black
-                            border border-gray-primary mb-2 rounded focus:outline-[#995372] pl-3`}>
+                            className={`text-sm w-30 md:w-40 h-10 text-black justify-center
+                            border border-gray-primary rounded focus:outline-[#995372] pl-6`}>
 
                                 <option value="USD">$USD</option>
                                 <option value="CAD">$CAD</option>

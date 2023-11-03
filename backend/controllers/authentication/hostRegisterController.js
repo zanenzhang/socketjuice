@@ -42,7 +42,7 @@ const handleNewHost = async (req, res) => {
 
     const checkBan = await BannedUser.findOne({admin: "admin"})
 
-    if(geoData?.IPv4 && checkBan?.ipAddresses?.some(e=>e.userIP === geoData?.IPv4)){
+    if(geoData?.IPv4 && checkBan?.ipAddresses?.length > 0 && checkBan?.ipAddresses?.some(e=>e.userIP === geoData?.IPv4)){
 
         return res.status(403).json({"message":"Please check your inbox"})  
     
@@ -55,7 +55,10 @@ const handleNewHost = async (req, res) => {
             safeIP = true;
         }
 
-        const foundWall = await ExternalWall.findOne({userIP: geoData?.IPv4})
+        var foundWall = {}
+        if(geoData?.IPv4){
+            foundWall = await ExternalWall.findOne({userIP: geoData?.IPv4})
+        }
 
         const checkHuman = await axios.post(
             `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.GOOGLE_RECAPTCHA_SECRET_KEY}&response=${recapToken}`
@@ -63,7 +66,7 @@ const handleNewHost = async (req, res) => {
     
         if(!safeIP && checkHuman.status !== 200){
     
-            if(foundWall){
+            if(foundWall && Object.keys(foundWall)?.length > 0){
 
                 foundWall.Total_GoogleRecaptcha = foundWall.Total_GoogleRecaptcha + 1
                 foundWall.Total_Registrations = foundWall.Total_Registrations + 1
@@ -77,17 +80,22 @@ const handleNewHost = async (req, res) => {
 
             } else {
 
-                const newWall = await ExternalWall.create({userIP: geoData.IPv4, Total_GoogleRecaptcha: 1, 
-                    Total_LoginAttempts: 0, Total_LockedLoginAttempts:0, Total_Registrations: 1})
-
-                if(newWall){
+                if(geoData.IPv4){
+                    const newWall = await ExternalWall.create({userIP: geoData.IPv4, Total_GoogleRecaptcha: 1, 
+                        Total_LoginAttempts: 0, Total_LockedLoginAttempts:0, Total_Registrations: 1})
+    
+                    if(newWall){
+                        return res.status(403).json({"message":"Failed recaptcha"})          
+                    }
+                } else {
                     return res.status(403).json({"message":"Failed recaptcha"})          
                 }
+                
             }
         
         } else {
 
-            if(!safeIP && foundWall?.Total_Registrations >= 10){
+            if(!safeIP && Object.keys(foundWall)?.length > 0 && foundWall?.Total_Registrations >= 10){
 
                 return res.status(403).json({"message":"Please check your inbox"})  
 
@@ -153,12 +161,15 @@ const handleNewHost = async (req, res) => {
                                     if(newWall){
                                         updatedWall = true;
                                     }
-                                } else {
+                                } else if(Object.keys(foundWall)?.length > 0) {
+                                
                                     foundWall.Total_Registrations = foundWall.Total_Registrations + 1
                                     const savedWall = await foundWall.save()
                                     if(savedWall){
                                         updatedWall = true;
                                     }
+                                } else {
+                                    updatedWall = true;
                                 }
 
                                 const newLimits = await UsageLimit.create({

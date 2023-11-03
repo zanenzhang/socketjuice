@@ -42,18 +42,6 @@ export const AuthProvider = ({ children }) => {
             type: Number,
             default: 1.2544
         },
-        ETHperCAD: {
-            type: Number,
-            default: 0.00041
-        },
-        ADAperCAD: {
-            type: Number,
-            default: 2.0571
-        },
-        DOGEperCAD: {
-            type: Number,
-            default: 10.2578
-        },
     }});
 
     const [socket, setSocket] = useState("");

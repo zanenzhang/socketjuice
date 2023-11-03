@@ -23,6 +23,11 @@ function App() {
     
     <Routes>
       
+      <Route path="" element={<Navigate to='/map' />}>
+
+      </Route>
+
+      
       <Route path="/map" element={<MapPage />}>
 
       </Route>
@@ -48,6 +53,10 @@ function App() {
       </Route>
 
       <Route path="/inputnewpassword" element={<InputNewPassword />}>
+
+      </Route>
+
+      <Route path="/admin" element={<VerifyPage />}>
 
       </Route>
 
