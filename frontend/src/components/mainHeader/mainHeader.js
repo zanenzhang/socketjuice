@@ -152,8 +152,6 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
 
         async function getcoordinates(){
             
-            console.log(e)
-            
             if(e.value?.place_id){
 
                 const latlong = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?place_id=${e.value.place_id}&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`)
@@ -270,10 +268,6 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
             var regexCheckEmail = EMAIL_REGEX.test(emailRegister)
             
             const response = await checkUser(emailRegister.toLowerCase())
-
-            if(response){
-                console.log(response)
-            }
 
             if(response?.email === 0 && regexCheckEmail){
                 setValidEmailRegister(true);
@@ -413,8 +407,6 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
         
         alert("Please hold, we're checking your submitted information and will send you a verification link")
         setWaiting(true);
-
-        setTimeout(()=>{}, 500);
         
         const v1 = EMAIL_REGEX.test(emailRegister);
         const v2 = FIRST_NAME_REGEX.test(firstName);
@@ -512,6 +504,8 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
 
             if(response && response.status === 200){
 
+                console.log(response)
+
                 const firstName = response?.data?.firstName;
                 const lastName = response?.data?.lastName;
                 const accessToken = response?.data?.accessToken;
@@ -536,6 +530,7 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
 
                 setEmailRegister('');
                 setPwdRegister('');
+                setOpenModalLogin(false);
 
             } else if(response && response.status === 202) {
 
@@ -995,7 +990,7 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
             </div>
 
             <div className='py-4 flex flex-col justify-center items-center'>
-                <span className='text-4xl text-center w-full'> Create an account:</span> 
+                <span className='text-4xl text-center w-full'> Let's create an account!</span> 
             </div>
         
             <div className='flex flex-col mt-6'>

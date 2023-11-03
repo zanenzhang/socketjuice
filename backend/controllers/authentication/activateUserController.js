@@ -14,7 +14,6 @@ const Flags = require('../../model/Flags');
 const BannedUser = require('../../model/BannedUser');
 const ForexRate = require('../../model/ForexRate');
 
-const { sendVerifiedEmail } = require('../../middleware/mailer');
 const alert = require('alert'); 
 const axios = require('axios');
 const ObjectId  = require('mongodb').ObjectId;
@@ -127,11 +126,8 @@ const handleUserActivation = async (req, res) => {
               const savedUserFlags = await userFlags.save()
 
                 if(savedBookmarks && savedActivities && updatedToken && savedNotifications && savedCommunications && savedUserFlags ){
-                  
-                  sendVerifiedEmail({ toUser: foundUser.email, firstName: foundUser.firstName })
 
-                  return res.redirect(`${process.env.MOBILE_VERIFY_PAGE}?id=${foundUser._id}&hash=${token}`);
-              
+                  return res.redirect(`${process.env.MOBILE_VERIFY_PAGE}?id=${foundUser._id}&hash=${token}`);        
               }
             }
           } 

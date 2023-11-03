@@ -8,7 +8,7 @@ const fs = require("fs");
 const upload = require("../common");
 const { uploadFilePic, uploadFileVideo, getFileURL, deleteFile, uploadProfilePic, copyFile } = require("../controllers/media/s3Controller");
 
-const verifyJWT = require('../middleware/verifyJWT')
+const verifyJWT = require('../middleware/verifyJWT');
 
 router.use(verifyJWT)
 
@@ -36,6 +36,7 @@ router.get("/profilepic/:key", (req, res) => {
 
 // upload.single("image"), 
 router.post("/singleimage", upload.single("image"), async (req, res) => {
+    
     console.log("SINGLE PRINT")
 
     console.log(req.file)

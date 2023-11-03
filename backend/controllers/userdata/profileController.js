@@ -7,7 +7,7 @@ const UsageLimit = require('../../model/UsageLimit');
 const Flags = require('../../model/Flags');
 const BannedUser = require('../../model/BannedUser');
 
-const { sendPassResetConfirmation } = require('../../middleware/mailer');
+const { sendPassResetConfirmation, sendVerifiedAccount } = require('../../middleware/mailer');
 const bcrypt = require('bcrypt');
 const ObjectId  = require('mongodb').ObjectId;
 
@@ -1045,8 +1045,392 @@ const editUserReceivePayments = async (req, res) => {
 }
 
 
+const uploadUserPhotos = async (req, res) => {
+
+    const { userId, frontObjectId, backObjectId} = req.body
+
+    if (!userId || !frontObjectId || !backObjectId) {
+        return res.status(400).json({ message: 'User ID Required' })
+    }
+
+    const foundUser = await User.findOne({_id: userId})
+
+    if(foundUser ){
+
+        if(!foundUser.checkedMobile || foundUser.receivedIdApproval){
+        
+            return res.status(400).json({"message": "Operation failed"})
+        
+        } else {
+
+            console.log("Updating user profile")
+
+            foundUser.frontObjectId = frontObjectId
+            foundUser.backObjectId = backObjectId
+
+            try{
+
+                var signParams = {
+                    Bucket: wasabiPrivateBucketUSA, 
+                    Key: frontObjectId, 
+                    Expires: 7200
+                };
+    
+                var signedURLFrontPhoto = s3.getSignedUrl('getObject', signParams);
+    
+                var signParams = {
+                    Bucket: wasabiPrivateBucketUSA, 
+                    Key: backObjectId, 
+                    Expires: 7200
+                };
+    
+                var signedURLBackPhoto = s3.getSignedUrl('getObject', signParams);
+
+                foundUser.frontMediaURL = signedURLFrontPhoto
+                foundUser.backMediaURL = signedURLBackPhoto
+
+                sendVerifiedAccount({ toUser: foundUser.email, firstName: foundUser.firstName })
+
+                const savedUser = await foundUser.save()
+
+                if(savedUser){
+                
+                    return res.status(200).json({"message": "Operation success"})
+                }
+
+            } catch(err){
+
+                console.log(err)
+                return res.status(400).json({"message": ""})
+            }
+        }
+
+    } else {
+
+        return res.status(400).json({"message": "Operation failed"})
+    }
+
+    // if(foundDriver && driverMediaObjectIds?.length > 0){
+
+    //     var signedMediaURLs = []
+
+    //     for(let i=0; i<driverMediaObjectIds?.length; i++){
+
+    //         var signParams = {
+    //             Bucket: wasabiPrivateBucketUSA, 
+    //             Key: driverMediaObjectIds[i], 
+    //             Expires: 7200
+    //         };
+
+    //         var signedURL = s3.getSignedUrl('getObject', signParams);
+    //         signedMediaURLs.push(signedURL)
+    //     }
+
+    //     var signedVideoURLs = []
+
+    //     for(let i=0; i< driverVideoObjectIds?.length; i++){
+
+    //         if(driverVideoObjectIds[i] && driverVideoObjectIds[i] !== 'image'){
+                
+    //             var signParams = {
+    //                 Bucket: wasabiPrivateBucketUSA, 
+    //                 Key: driverVideoObjectIds[i], 
+    //                 Expires: 7200
+    //             };
+
+    //             var signedURL = s3.getSignedUrl('getObject', signParams);
+    //             signedVideoURLs.push(signedURL)
+
+    //         } else {
+
+    //             signedVideoURLs.push("image")
+    //         }
+    //     }
+
+    //     var signedPreviewURL = signedMediaURLs[coverIndex]
+
+    //     driverPreviewMediaObjectId ? foundDriver.previewMediaObjectId = driverPreviewMediaObjectId : null;
+    //     driverMediaObjectIds ? foundDriver.mediaCarouselObjectIds = driverMediaObjectIds : null;
+    //     driverVideoObjectIds ? foundDriver.videoCarouselObjectIds = driverVideoObjectIds : null;
+    //     driverCoverIndex !== null ? foundDriver.coverIndex = driverCoverIndex : null;
+    //     driverObjectTypes ? foundDriver.mediaCarouselObjectTypes = driverObjectTypes : null;
+    //     driverPreviewObjectType ? foundDriver.previewMediaType = driverPreviewObjectType : null;
+
+    //     signedPreviewURL ? foundDriver.previewMediaURL = signedPreviewURL : null;
+    //     signedMediaURLs ? foundDriver.mediaCarouselURLs = signedMediaURLs : null;
+    //     signedVideoURLs ? foundDriver.videoCarouselURLs = signedVideoURLs : null;
+
+    //     const savedDriver = await foundDriver.save()
+
+    //     if(savedDriver){
+    //         doneDriver = true
+    //     }   
+    // } else {
+    //     doneDriver = true
+    // }
+
+    // if(foundHost && hostMediaObjectIds?.length > 0) {
+
+    //     var signedMediaURLs = []
+
+    //     for(let i=0; i<hostMediaObjectIds?.length; i++){
+
+    //         var signParams = {
+    //             Bucket: wasabiPrivateBucketUSA, 
+    //             Key: hostMediaObjectIds[i], 
+    //             Expires: 7200
+    //         };
+
+    //         var signedURL = s3.getSignedUrl('getObject', signParams);
+    //         signedMediaURLs.push(signedURL)
+    //     }
+
+    //     var signedVideoURLs = []
+
+    //     for(let i=0; i< hostVideoObjectIds?.length; i++){
+
+    //         if(hostVideoObjectIds[i] && hostVideoObjectIds[i] !== 'image'){
+                
+    //             var signParams = {
+    //                 Bucket: wasabiPrivateBucketUSA, 
+    //                 Key: hostVideoObjectIds[i], 
+    //                 Expires: 7200
+    //             };
+
+    //             var signedURL = s3.getSignedUrl('getObject', signParams);
+    //             signedVideoURLs.push(signedURL)
+
+    //         } else {
+
+    //             signedVideoURLs.push("image")
+    //         }
+    //     }
+
+    //     var signedPreviewURL = signedMediaURLs[coverIndex]
+
+    //     hostPreviewMediaObjectId ? foundHost.previewMediaObjectId = hostPreviewMediaObjectId : null;
+    //     hostMediaObjectIds ? foundHost.mediaCarouselObjectIds = hostMediaObjectIds : null;
+    //     hostVideoObjectIds ? foundHost.videoCarouselObjectIds = hostVideoObjectIds : null;
+    //     hostCoverIndex !== null ? foundHost.coverIndex = hostCoverIndex : null;
+    //     hostObjectTypes ? foundHost.mediaCarouselObjectTypes = hostObjectTypes : null;
+    //     hostPreviewObjectType ? foundHost.previewMediaType = hostPreviewObjectType : null;
+
+    //     signedPreviewURL ? foundHost.previewMediaURL = signedPreviewURL : null;
+    //     signedMediaURLs ? foundHost.mediaCarouselURLs = signedMediaURLs : null;
+    //     signedVideoURLs ? foundHost.videoCarouselURLs = signedVideoURLs : null;
+
+    //     const savedHost = await foundHost.save()
+
+    //     if(savedHost){
+    //         doneHost = true
+    //     }  
+    
+    // } else {
+
+    //     doneHost = true
+    // }
+
+    // if(doneUser && doneHost && doneDriver){
+
+    //     return res.status(200).json({"message": "Operation success"})
+    
+    // } else {
+
+    //     return res.status(400).json({ message: 'Operation failed' })
+    // }
+}
+
+
+
+const uploadDriverPhotos = async (req, res) => {
+
+    const { userId, driverPreviewMediaObjectId, driverMediaObjectIds, driverVideoObjectIds, driverObjectTypes, driverPreviewObjectType, driverCoverIndex } = req.body
+
+    if (!userId || !driverMediaObjectIds ) {
+        return res.status(400).json({ message: 'User ID Required' })
+    }
+
+    const foundDriver = await DriverProfile.findOne({_id: userId})
+
+    var doneDriver = false;
+
+    if(foundDriver && driverMediaObjectIds?.length > 0){
+
+        var signedMediaURLs = []
+
+        for(let i=0; i<driverMediaObjectIds?.length; i++){
+
+            var signParams = {
+                Bucket: wasabiPrivateBucketUSA, 
+                Key: driverMediaObjectIds[i], 
+                Expires: 7200
+            };
+
+            var signedURL = s3.getSignedUrl('getObject', signParams);
+            signedMediaURLs.push(signedURL)
+        }
+
+        var signedVideoURLs = []
+
+        for(let i=0; i< driverVideoObjectIds?.length; i++){
+
+            if(driverVideoObjectIds[i] && driverVideoObjectIds[i] !== 'image'){
+                
+                var signParams = {
+                    Bucket: wasabiPrivateBucketUSA, 
+                    Key: driverVideoObjectIds[i], 
+                    Expires: 7200
+                };
+
+                var signedURL = s3.getSignedUrl('getObject', signParams);
+                signedVideoURLs.push(signedURL)
+
+            } else {
+
+                signedVideoURLs.push("image")
+            }
+        }
+
+        var signedPreviewURL = signedMediaURLs[coverIndex]
+
+        driverPreviewMediaObjectId ? foundDriver.previewMediaObjectId = driverPreviewMediaObjectId : null;
+        driverMediaObjectIds ? foundDriver.mediaCarouselObjectIds = driverMediaObjectIds : null;
+        driverVideoObjectIds ? foundDriver.videoCarouselObjectIds = driverVideoObjectIds : null;
+        driverCoverIndex !== null ? foundDriver.coverIndex = driverCoverIndex : null;
+        driverObjectTypes ? foundDriver.mediaCarouselObjectTypes = driverObjectTypes : null;
+        driverPreviewObjectType ? foundDriver.previewMediaType = driverPreviewObjectType : null;
+
+        signedPreviewURL ? foundDriver.previewMediaURL = signedPreviewURL : null;
+        signedMediaURLs ? foundDriver.mediaCarouselURLs = signedMediaURLs : null;
+        signedVideoURLs ? foundDriver.videoCarouselURLs = signedVideoURLs : null;
+
+        const savedDriver = await foundDriver.save()
+
+        if(savedDriver){
+            doneDriver = true
+        }   
+    } else {
+        doneDriver = true
+    }
+
+    if(doneDriver){
+
+        return res.status(200).json({"message": "Operation success"})
+    
+    } else {
+
+        return res.status(400).json({ message: 'Operation failed' })
+    }
+}
+
+
+const uploadHostPhotos = async (req, res) => {
+
+    const { userId, hostPreviewMediaObjectId, hostMediaObjectIds, hostVideoObjectIds, hostObjectTypes, hostPreviewObjectType, hostCoverIndex } = req.body
+
+    if (!userId || !hostMediaObjectIds ) {
+        return res.status(400).json({ message: 'User ID Required' })
+    }
+
+    const foundHost = await HostProfile.findOne({_id: userId})
+
+    var doneHost = false;
+
+    if(foundHost && hostMediaObjectIds?.length > 0) {
+
+        var signedMediaURLs = []
+
+        for(let i=0; i<hostMediaObjectIds?.length; i++){
+
+            var signParams = {
+                Bucket: wasabiPrivateBucketUSA, 
+                Key: hostMediaObjectIds[i], 
+                Expires: 7200
+            };
+
+            var signedURL = s3.getSignedUrl('getObject', signParams);
+            signedMediaURLs.push(signedURL)
+        }
+
+        var signedVideoURLs = []
+
+        for(let i=0; i< hostVideoObjectIds?.length; i++){
+
+            if(hostVideoObjectIds[i] && hostVideoObjectIds[i] !== 'image'){
+                
+                var signParams = {
+                    Bucket: wasabiPrivateBucketUSA, 
+                    Key: hostVideoObjectIds[i], 
+                    Expires: 7200
+                };
+
+                var signedURL = s3.getSignedUrl('getObject', signParams);
+                signedVideoURLs.push(signedURL)
+
+            } else {
+
+                signedVideoURLs.push("image")
+            }
+        }
+
+        var signedPreviewURL = signedMediaURLs[coverIndex]
+
+        hostPreviewMediaObjectId ? foundHost.previewMediaObjectId = hostPreviewMediaObjectId : null;
+        hostMediaObjectIds ? foundHost.mediaCarouselObjectIds = hostMediaObjectIds : null;
+        hostVideoObjectIds ? foundHost.videoCarouselObjectIds = hostVideoObjectIds : null;
+        hostCoverIndex !== null ? foundHost.coverIndex = hostCoverIndex : null;
+        hostObjectTypes ? foundHost.mediaCarouselObjectTypes = hostObjectTypes : null;
+        hostPreviewObjectType ? foundHost.previewMediaType = hostPreviewObjectType : null;
+
+        signedPreviewURL ? foundHost.previewMediaURL = signedPreviewURL : null;
+        signedMediaURLs ? foundHost.mediaCarouselURLs = signedMediaURLs : null;
+        signedVideoURLs ? foundHost.videoCarouselURLs = signedVideoURLs : null;
+
+        const savedHost = await foundHost.save()
+
+        if(savedHost){
+            doneHost = true
+        }
+    
+    } else {
+
+        doneHost = true
+    }
+
+    if(doneHost){
+
+        return res.status(200).json({"message": "Operation success"})
+    
+    } else {
+
+        return res.status(400).json({ message: 'Operation failed' })
+    }
+}
+
+const checkStage = async (req, res) => {
+    
+    const { userId } = req.query
+
+    if (!userId ) {
+        return res.status(400).json({ message: 'Missing required info' })
+    }
+
+    try {
+
+        const foundUser = await User.findOne({_id: userId})
+
+        if(foundUser){
+            return res.status(200).json({currentStage: foundUser.currentStage})
+        }
+
+    } catch(err){
+
+        console.log(err)
+    }
+}
+
 
 module.exports = { getDriverProfile, editSettingsUserProfile, editSettingsUserPass, editSettingsUserGeneral, 
     editProfilePic, getUserIdByUsername, getProfilePicByUserId, checkUser, getProfileData, 
-    deleteOldProfilePic, addUserBan, removeUserBan, makePrivate, makePublic, 
-    editUserReceivePayments }
+    deleteOldProfilePic, addUserBan, removeUserBan, makePrivate, makePublic, checkStage,
+    editUserReceivePayments, uploadUserPhotos, uploadDriverPhotos, uploadHostPhotos }

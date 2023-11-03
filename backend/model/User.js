@@ -57,6 +57,10 @@ const userSchema = new Schema({
         type: Boolean,
         default: false
     },
+    currentStage: {
+        type: Number,
+        default : 1 //1 - starting on phone, 2-finished phone verification, 3 finished photos
+    },
     deactivated: {
         type: Boolean, //Banned
         default: false
@@ -150,16 +154,16 @@ const userSchema = new Schema({
         default: new Date("1/1/23"),
         index: true
     },
-    identificationFrontObjectId: { 
+    frontObjectId: { 
         type: String
     },
-    identificationFrontMediaURL: {
+    frontMediaURL: {
         type: String
     },
-    identificationBackObjectId: { 
+    backObjectId: { 
         type: String
     },
-    identificationBackMediaURL: {
+    backMediaURL: {
         type: String
     },
     lessMotion: { 

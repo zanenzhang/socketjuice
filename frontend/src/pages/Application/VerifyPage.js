@@ -4,6 +4,7 @@ import axios from '../../api/axios';
 import addCodeRequest from '../../helpers/Twilio/addCodeRequest';
 import addCodeVerify from '../../helpers/Twilio/addCodeVerify';
 import VerificationInput from "react-verification-input";
+import checkStage from '../../helpers/DriverData/checkStage';
 
 import CameraId from '../CameraId';
 import ProfileCropper from '../SettingPanels/ProfileOptions/profileCropper';
@@ -57,9 +58,8 @@ const VerifyPage = () => {
     const [success, setSuccess] = useState(false);
     
     const [submittedPhone, setSubmittedPhone] = useState(false);
-    const [submittedPhotos, setSubmittedPhotos] = useState(false);
     const [verifiedPhone, setVerifiedPhone] = useState(false);
-    const [verifiedPhotos, setVerifiedPhotos] = useState(false);
+    const [submittedPhotos, setSubmittedPhotos] = useState(false);
     
     const [errorMessage, setErrorMessage] = useState("");
 
@@ -107,6 +107,31 @@ const VerifyPage = () => {
         if(!userId){
             navigate("/map")
         }
+
+        async function checkingStage(){
+
+            const response = await checkStage(userId, hash)
+
+            if(response){
+                console.log(response)
+
+                if(response.data.currentStage){
+                    var current = Number(response.data.currentStage)
+                    setCurrentStage(current)
+
+                    if(current === 2){
+
+                        setVerifiedPhone(true)
+
+                    }else if (current === 3){
+
+                        setSubmittedPhotos(true)
+                    }
+                }
+            }
+        }
+
+        checkingStage()
 
     }, [])
 
@@ -568,30 +593,48 @@ const VerifyPage = () => {
 
             if(finalImageObjArray?.length === mediaLength){
 
-                const identificationFrontObjectId = finalImageObjArray[0]
-                const identificationBackObjectId = finalImageObjArray[1]
-        
-                try {
+            const frontObjectId = finalImageObjArray[0]
+            const backObjectId = finalImageObjArray[1]
+    
+            try {
 
-                    const uploadedUserPhotos = await axios.post("/auth/useridphotos", 
-                        JSON.stringify({userId, identificationFrontObjectId, identificationBackObjectId}),
-                        {
-                            headers: { "Authorization": `Hash ${hash} ${userId}`, 
-                                'Content-Type': 'application/json'},
-                            withCredentials: true
-                        }
-                    );
-
-                    if(uploadedUserPhotos){
-
-                        toast.info("Success, your photos have been uploaded and will be reviewed. We will send an email shortly after approval")
+                const uploadedUserPhotos = await axios.post('/profile/userphotos', 
+                    JSON.stringify({userId, frontObjectId, backObjectId}),
+                    {
+                        headers: { "Authorization": `Hash ${hash} ${userId}`, 
+                            'Content-Type': 'application/json'},
+                        withCredentials: true
                     }
+                );
 
-                } catch(err){
+                if(uploadedUserPhotos){
 
-                    console.log(err)
+                    console.log("Success, photos have been uploaded. We will review and approve shortly.")
+                    toast.info("Awesome, your profile has been saved! Welcome to SocketJuice!", {
+                        position: "bottom-center",
+                        autoClose: 1500,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "colored",
+                    });
+
+                    setSubmittedPhotos(true)
+                    
+                    setTimeout( ()=> {
+
+                        navigate("/map")
+
+                    }, '3000')
                 }
+
+            } catch(err){
+
+                console.log(err)
             }
+        }
         }
     }
 
@@ -613,7 +656,7 @@ const VerifyPage = () => {
 
                 <p className='text-base md:text-lg font-bold pb-2'>Step 1: Please Verify Your Phone Number</p>
 
-                <div className={`text-sm text-gray-700 py-3 px-4 bg-white w-[350px]
+                <div className={`text-sm text-gray-700 py-3 px-2 bg-white w-[300px] flex justify-center items-center
                 border-2 rounded-xl hover:scale-[1.01] ease-in-out border-[#00D3E0]/10 }`} >
                 
                 <MuiPhoneNumber sx={{ '& svg': { height: '1em', }, }}
@@ -632,7 +675,7 @@ const VerifyPage = () => {
                 {sentCode ? 
                 
                 <button disabled={codeInput?.length > 0 || verifiedPhone || resendCode} onClick={(e)=>handleResendCode(e)} 
-                className={`my-2 py-4 px-3 rounded-2xl border-2 border-[#00D3E0] flex flex-row gap-x-1
+                className={`my-2 py-4 px-3 rounded-2xl border-2 border-[#00D3E0] flex flex-row gap-x-1 justify-center
                 ${ (codeInput?.length > 0 || verifiedPhone || resendCode ) ? ' hover:bg-gray-100 cursor-not-allowed ' : ' hover:bg-[#00D3E0] '}`}>
 
                 {waitingRequest && 
@@ -648,13 +691,21 @@ const VerifyPage = () => {
                     </div>
                 }
 
+                {!waitingRequest && 
+                    <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" 
+                    className="w-6 h-6">
+                        <path strokeLinecap="round" strokeLinejoin="round" 
+                        d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                    </svg>
+                }
+
                 Resend verification code</button> : 
                 
                 <button disabled={phonePrimary?.length < 7 || submittedPhone || codeInput?.length > 0} onClick={(e)=>handlePhoneCodeRequest(e)} 
-                className={`my-2 py-4 px-3 rounded-2xl border-2 border-[#00D3E0] flex flex-row gap-x-1
+                className={`my-2 py-4 px-3 rounded-2xl border-2 border-[#00D3E0] flex flex-row gap-x-1 justify-center
                 ${ (phonePrimary?.length < 7 || submittedPhone || codeInput?.length > 0 ) ? ' hover:bg-gray-100 cursor-not-allowed ' : ' hover:bg-[#00D3E0] '}`}>
                     
-                    {waitingVerify && 
+                    {waitingRequest && 
                     <div aria-label="Loading..." role="status">
                         <svg className="h-6 w-6 animate-spin" viewBox="3 3 18 18">
                         <path
@@ -664,7 +715,14 @@ const VerifyPage = () => {
                             className="fill-gray-800"
                             d="M16.9497 7.05015C14.2161 4.31648 9.78392 4.31648 7.05025 7.05015C6.65973 7.44067 6.02656 7.44067 5.63604 7.05015C5.24551 6.65962 5.24551 6.02646 5.63604 5.63593C9.15076 2.12121 14.8492 2.12121 18.364 5.63593C18.7545 6.02646 18.7545 6.65962 18.364 7.05015C17.9734 7.44067 17.3403 7.44067 16.9497 7.05015Z"></path>
                         </svg>
-                    </div>
+                    </div>}
+
+                    {!waitingRequest && 
+                        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" 
+                        className="w-6 h-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" 
+                            d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                        </svg>
                     }
 
                     Submit phone number for verification
@@ -691,11 +749,44 @@ const VerifyPage = () => {
 
                 {!verifiedPhone ? 
                 <button disabled={phonePrimary?.length < 7 || !submittedPhone} onClick={(e)=>handlePhoneCodeVerify(e)} 
-                className={`my-2 py-4 px-3 rounded-2xl border-2 border-[#00D3E0] 
+                className={`my-2 py-4 px-3 rounded-2xl border-2 border-[#00D3E0] flex flex-row gap-x-1 justify-center
                      ${ (phonePrimary?.length < 7 || !submittedPhone || verifiedPhone || codeInput?.length < 6 ) ? ' hover:bg-gray-100 cursor-not-allowed ' : ' hover:bg-[#00D3E0] '}`}>
+                    
+                    {waitingVerify && 
+                    <div aria-label="Loading..." role="status">
+                        <svg className="h-6 w-6 animate-spin" viewBox="3 3 18 18">
+                        <path
+                            className="fill-gray-200"
+                            d="M12 5C8.13401 5 5 8.13401 5 12C5 15.866 8.13401 19 12 19C15.866 19 19 15.866 19 12C19 8.13401 15.866 5 12 5ZM3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12Z"></path>
+                        <path
+                            className="fill-gray-800"
+                            d="M16.9497 7.05015C14.2161 4.31648 9.78392 4.31648 7.05025 7.05015C6.65973 7.44067 6.02656 7.44067 5.63604 7.05015C5.24551 6.65962 5.24551 6.02646 5.63604 5.63593C9.15076 2.12121 14.8492 2.12121 18.364 5.63593C18.7545 6.02646 18.7545 6.65962 18.364 7.05015C17.9734 7.44067 17.3403 7.44067 16.9497 7.05015Z"></path>
+                        </svg>
+                    </div>
+                    }
                     Confirm code</button>
                 :    
-                <button disabled={true} className={`my-2 py-4 px-3 cursor-not-allowed rounded-2xl border-2 border-[#00D3E0] `}>
+                <button disabled={true} 
+                className={`my-2 py-4 px-3 cursor-not-allowed rounded-2xl 
+                border-2 border-[#00D3E0] flex flex-row gap-x-1 justify-center `}>
+                    {waitingVerify && 
+                    <div aria-label="Loading..." role="status">
+                        <svg className="h-6 w-6 animate-spin" viewBox="3 3 18 18">
+                        <path
+                            className="fill-gray-200"
+                            d="M12 5C8.13401 5 5 8.13401 5 12C5 15.866 8.13401 19 12 19C15.866 19 19 15.866 19 12C19 8.13401 15.866 5 12 5ZM3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12Z"></path>
+                        <path
+                            className="fill-gray-800"
+                            d="M16.9497 7.05015C14.2161 4.31648 9.78392 4.31648 7.05025 7.05015C6.65973 7.44067 6.02656 7.44067 5.63604 7.05015C5.24551 6.65962 5.24551 6.02646 5.63604 5.63593C9.15076 2.12121 14.8492 2.12121 18.364 5.63593C18.7545 6.02646 18.7545 6.65962 18.364 7.05015C17.9734 7.44067 17.3403 7.44067 16.9497 7.05015Z"></path>
+                        </svg>
+                    </div>
+                    }
+
+                    {!waitingVerify && 
+                        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#38a169" className="w-6 h-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>}
+
                     Phone Number Is Verified</button>
                 }
             </div>}
@@ -733,7 +824,7 @@ const VerifyPage = () => {
                         </div>
                     </div>
 
-                    <button onClick={(e)=>handlePhotosUpload(e)} 
+                    <button disabled={submittedPhotos} onClick={(e)=>handlePhotosUpload(e)} 
                         className='my-2 mb-8 py-4 px-3 rounded-2xl border-2 
                             border-[#00D3E0] hover:bg-[#00D3E0] flex flex-row gap-x-1 '>
 

@@ -30,16 +30,7 @@ const verifyJWT = async (req, res, next) => {
                     console.log(hash)
 
                     const foundToken = await ActivateToken.findOne({_userId: userId})
-                    const foundUser = await User.findOne({_id: userId, checkedMobile: true, 
-                        receivedIdApproval:false, deactivated:false })
-
-                    if(foundToken){
-                        console.log("Found token")
-                    }
-
-                    if(foundUser){
-                        console.log("Found user")
-                    }
+                    const foundUser = await User.findOne({_id: userId, deactivated:false })
 
                     if(foundToken && foundUser){
 

@@ -100,6 +100,30 @@ exports.sendVerifiedEmail = function({toUser, firstName}) {
     return sendEmail(message);
   }
 
+  exports.sendVerifiedAccount = function({toUser, firstName}) {
+    const message = {
+      from: process.env.EMAIL_SUPPORT,
+      // to: toUser.email // in production uncomment this
+      to: toUser,
+      subject: 'SocketJuice - Account Verified',
+      html: `
+        <img src = "cid:myImg" style="width:200px;"/>
+        <h3> Hello ${firstName}! </h3>
+        <p>Thanks for verifying your email and phone number! Your profile looks great and welcome again to SocketJuice! </p>
+        <p></p>
+        <p>Cheers,</p>
+        <p>The ${process.env.MAIL_FROM_NAME} team</p>
+      `,
+      attachments: [{
+        filename: 'SocketJuiceLogo.png',
+        path: __dirname + '/SocketJuice.png',
+        cid: 'myImg'
+      }]    
+    }
+  
+    return sendEmail(message);
+  }
+
   exports.sendInvitationEmail = function({toUser, friendname, type, username}) {
 
     const regex = /(<([^>]+)>)/gi;
