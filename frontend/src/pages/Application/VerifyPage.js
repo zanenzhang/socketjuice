@@ -152,7 +152,7 @@ const VerifyPage = () => {
 
                 setResendCode(true);
     
-                const requestedCode = await addCodeRequest(phonePrimary, userId, phoneCountry, hash)
+                const requestedCode = await addCodeRequest(phonePrimary, userId, phoneCountryCode, hash)
 
                 if(requestedCode){
 
@@ -197,28 +197,30 @@ const VerifyPage = () => {
 
     const handlePhonePrimary = (event, data) => {
         setPhonePrimary(event);
+        
+        console.log(data)
         setPhonePrefix(data?.dialCode);
         setPhoneCountry(data?.name);
         setPhoneCountryCode(data?.countryCode);
 
-        if(phoneCountry == "CA"){
-            setCurrency("CAD")
-        } else if(phoneCountry == "US"){
-            setCurrency("USD")
-        } else if(phoneCountry == "AU"){
-            setCurrency("AUD")
-        } else if(phoneCountry == "NZ"){
-            setCurrency("NZD")
-        } else if(phoneCountry == "GB"){
-            setCurrency("GBP")
-        } else if(phoneCountry == "IN"){
-            setCurrency("INR")
-        } else if(phoneCountry == "JP"){
-            setCurrency("JPY")
-        } else if(phoneCountry == "CN"){
-            setCurrency("CNY")
+        if(phoneCountryCode == "ca"){
+            setCurrency("cad")
+        } else if(phoneCountryCode == "us"){
+            setCurrency("usd")
+        } else if(phoneCountryCode == "au"){
+            setCurrency("aud")
+        } else if(phoneCountryCode == "nz"){
+            setCurrency("nzd")
+        } else if(phoneCountryCode == "gb"){
+            setCurrency("gbp")
+        } else if(phoneCountryCode == "in"){
+            setCurrency("inr")
+        } else if(phoneCountryCode == "jp"){
+            setCurrency("jpy")
+        } else if(phoneCountryCode == "cn"){
+            setCurrency("cny")
         } else {
-            setCurrency("EUR")
+            setCurrency("eur")
         }
     }
 
@@ -228,7 +230,7 @@ const VerifyPage = () => {
 
         async function handlePhoneRequest() {
 
-            const requestedCode = await addCodeRequest(phonePrimary, userId, phoneCountry, hash)
+            const requestedCode = await addCodeRequest(phonePrimary, userId, phoneCountryCode, hash)
 
             if(requestedCode){
 
@@ -891,15 +893,15 @@ const VerifyPage = () => {
                             className={`text-sm w-30 md:w-40 h-10 text-black justify-center
                             border border-gray-primary rounded focus:outline-[#995372] pl-6`}>
 
-                                <option value="USD">$USD</option>
-                                <option value="CAD">$CAD</option>
-                                <option value="EUR">€EUR</option>
-                                <option value="GBP">£GBP</option>
-                                <option value="INR">₹INR</option>
-                                <option value="JPY">¥JPY</option>
-                                <option value="CNY">¥CNY</option>
-                                <option value="AUD">$AUD</option>
-                                <option value="NZD">$NZD</option>
+                                <option value="usd">$USD</option>
+                                <option value="cad">$CAD</option>
+                                <option value="eur">€EUR</option>
+                                <option value="gbp">£GBP</option>
+                                <option value="inr">₹INR</option>
+                                <option value="jpy">¥JPY</option>
+                                <option value="cny">¥CNY</option>
+                                <option value="aud">$AUD</option>
+                                <option value="nzd">$NZD</option>
 
                             </select> 
 

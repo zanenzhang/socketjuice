@@ -12,7 +12,6 @@ import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { profanity } from '@2toad/profanity';
 import { cityData } from '../../../listdata/cities';
 
 import editSettingsStoreProfile from '../../../helpers/StoreData/editSettingsStoreProfile';
@@ -784,125 +783,104 @@ const CHAINID_REGEX = /^.{4,48}$/;
 
     var textToCheck = address.concat(" ", city, " ", region, " ", regionCode, " ", country);
 
-    profanity.removeWords(['arse', "ass", 'asses', 'cok',"balls",  "boob", "boobs", "bum", "bugger", 'butt',]);
+    if(croppedImage){
 
-    const profanityCheck = profanity.exists(textToCheck)
-        
-    if(!profanityCheck){
+        toast.info("Checking image, please wait...", {
+            position: "bottom-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+        });
 
-        if(croppedImage){
+        const formData = new FormData();
+        const file = new File([croppedImage], `${auth.userId}.jpeg`, { type: "image/jpeg" })
+        formData.append("image", file);
 
-            toast.info("Checking image, please wait...", {
-                position: "bottom-center",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "colored",
-            });
+        const nsfwResults = await axios.post("/nsfw/check", 
+        formData,
+        {
+        headers: { "Authorization": `Bearer ${auth.accessToken} ${auth.userId}`, 
+        'Content-Type': 'multipart/form-data'},
+            withCredentials: true
+        }
+        );
 
-            const formData = new FormData();
-            const file = new File([croppedImage], `${auth.userId}.jpeg`, { type: "image/jpeg" })
-            formData.append("image", file);
+        if (nsfwResults){
 
-            const nsfwResults = await axios.post("/nsfw/check", 
-            formData,
-            {
-            headers: { "Authorization": `Bearer ${auth.accessToken} ${auth.userId}`, 
-            'Content-Type': 'multipart/form-data'},
-                withCredentials: true
+            var check1 = null;
+            var check2 = null;
+
+            for(let i=0; i<nsfwResults.data.length; i++){
+
+            if(nsfwResults.data[i].className === 'Hentai' && nsfwResults.data[i].probability < 0.2){
+                check1 = true
             }
-            );
+            if(nsfwResults.data[i].className === 'Porn' && nsfwResults.data[i].probability < 0.2){
+                check2 = true
+            }
+            }            
 
-            if (nsfwResults){
+            if(check1 && check2){
 
-                var check1 = null;
-                var check2 = null;
-
-                for(let i=0; i<nsfwResults.data.length; i++){
-
-                if(nsfwResults.data[i].className === 'Hentai' && nsfwResults.data[i].probability < 0.2){
-                    check1 = true
-                }
-                if(nsfwResults.data[i].className === 'Porn' && nsfwResults.data[i].probability < 0.2){
-                    check2 = true
-                }
-                }            
-
-                if(check1 && check2){
-
-                    try {
-                        const response = await axios.post(PUBLIC_MEDIA_URL, 
-                            formData,
-                            {
-                                headers: { "Authorization": `Bearer ${auth.accessToken} ${auth.userId}`,
-                                'Content-Type': "multipart/form-data" },
-                                withCredentials: true
-                            }
-                        );
-
-                        if(response?.status == 200){
-
-                            const profilePicURL = response.data.Location;
-                            const profilePicKey = response.data.key;
-                            
-                            const editedSettings = await editSettingsStoreProfile(auth.userId, phonePrimary, profilePicKey, profilePicURL,  
-                            regularHoursMondayStart, regularHoursMondayFinish, regularHoursTuesdayStart, regularHoursTuesdayFinish, regularHoursWednesdayStart, regularHoursWednesdayFinish, regularHoursThursdayStart, regularHoursThursdayFinish,
-                            regularHoursFridayStart, regularHoursFridayFinish, regularHoursSaturdayStart, regularHoursSaturdayFinish, regularHoursSundayStart, regularHoursSundayFinish,
-                            holidayHoursStart, holidayHoursFinish, 
-                            closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays,
-                            address, city, region, regionCode, country, manager, chain,
-                            chainId, auth.accessToken)
-
-                            if(editedSettings){
-
-                                setAuth(prev => {
-                                    return {
-                                        ...prev,
-                                        city: city,
-                                        region: region,
-                                        country: country,
-                                        profilePicURL: profilePicURL
-                                    }
-                                });
-
-                                toast.success("Success! Changed user profile!", {
-                                    position: "bottom-center",
-                                    autoClose: 1500,
-                                    hideProgressBar: false,
-                                    closeOnClick: true,
-                                    pauseOnHover: true,
-                                    draggable: true,
-                                    progress: undefined,
-                                    theme: "colored",
-                                });
-                                    
-                                URL.revokeObjectURL(image.photo?.src)
-                                setIsLoading(false);
-                            }
+                try {
+                    const response = await axios.post(PUBLIC_MEDIA_URL, 
+                        formData,
+                        {
+                            headers: { "Authorization": `Bearer ${auth.accessToken} ${auth.userId}`,
+                            'Content-Type': "multipart/form-data" },
+                            withCredentials: true
                         }
-                    
-                    } catch (err) {
-                        console.error(err);
-                        setIsLoading(false);
-                        toast.error("Failed to save profile settings! Please try again!", {
-                            position: "bottom-center",
-                            autoClose: 1500,
-                            hideProgressBar: false,
-                            closeOnClick: true,
-                            pauseOnHover: true,
-                            draggable: true,
-                            progress: undefined,
-                            theme: "colored",
-                        });
-                        setErrorMessage("Failed to save profile settings! Please try again!");
+                    );
+
+                    if(response?.status == 200){
+
+                        const profilePicURL = response.data.Location;
+                        const profilePicKey = response.data.key;
+                        
+                        const editedSettings = await editSettingsStoreProfile(auth.userId, phonePrimary, profilePicKey, profilePicURL,  
+                        regularHoursMondayStart, regularHoursMondayFinish, regularHoursTuesdayStart, regularHoursTuesdayFinish, regularHoursWednesdayStart, regularHoursWednesdayFinish, regularHoursThursdayStart, regularHoursThursdayFinish,
+                        regularHoursFridayStart, regularHoursFridayFinish, regularHoursSaturdayStart, regularHoursSaturdayFinish, regularHoursSundayStart, regularHoursSundayFinish,
+                        holidayHoursStart, holidayHoursFinish, 
+                        closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays,
+                        address, city, region, regionCode, country, manager, chain,
+                        chainId, auth.accessToken)
+
+                        if(editedSettings){
+
+                            setAuth(prev => {
+                                return {
+                                    ...prev,
+                                    city: city,
+                                    region: region,
+                                    country: country,
+                                    profilePicURL: profilePicURL
+                                }
+                            });
+
+                            toast.success("Success! Changed user profile!", {
+                                position: "bottom-center",
+                                autoClose: 1500,
+                                hideProgressBar: false,
+                                closeOnClick: true,
+                                pauseOnHover: true,
+                                draggable: true,
+                                progress: undefined,
+                                theme: "colored",
+                            });
+                                
+                            URL.revokeObjectURL(image.photo?.src)
+                            setIsLoading(false);
+                        }
                     }
                 
-                } else {
-
-                    toast.error("Your post content did not meet our terms of service. Please check for inappropriate content.", {
+                } catch (err) {
+                    console.error(err);
+                    setIsLoading(false);
+                    toast.error("Failed to save profile settings! Please try again!", {
                         position: "bottom-center",
                         autoClose: 1500,
                         hideProgressBar: false,
@@ -912,40 +890,12 @@ const CHAINID_REGEX = /^.{4,48}$/;
                         progress: undefined,
                         theme: "colored",
                     });
-
-                    setErrorMessage("Your post content did not meet our terms of service. Please check for inappropriate content.");    
-                    const warnUser = await addWarnings(auth.userId, auth.accessToken)
-                    if(warnUser?.status == 202){
-                        logout();
-                    }
+                    setErrorMessage("Failed to save profile settings! Please try again!");
                 }
-            }
+            
+            } else {
 
-        } else {
-
-
-        toast.info("Checking content, please wait...", {
-            position: "bottom-center",
-            autoClose: 500,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "colored",
-        });
-
-            const editedSettings = await editSettingsStoreProfile(auth.userId,  
-            phonePrimary, "", "", regularHoursMondayStart, regularHoursMondayFinish, regularHoursTuesdayStart, regularHoursTuesdayFinish, 
-            regularHoursWednesdayStart, regularHoursWednesdayFinish, regularHoursThursdayStart, regularHoursThursdayFinish,
-            regularHoursFridayStart, regularHoursFridayFinish, regularHoursSaturdayStart, regularHoursSaturdayFinish, regularHoursSundayStart, regularHoursSundayFinish,
-            closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays,
-            address, city, region, regionCode, country, manager, chain,
-            chainId, auth.accessToken)
-
-            if(editedSettings){
-
-                toast.success("Success! Changed user information!", {
+                toast.error("Your post content did not meet our terms of service. Please check for inappropriate content.", {
                     position: "bottom-center",
                     autoClose: 1500,
                     hideProgressBar: false,
@@ -954,21 +904,55 @@ const CHAINID_REGEX = /^.{4,48}$/;
                     draggable: true,
                     progress: undefined,
                     theme: "colored",
-                    });
-                
-                URL.revokeObjectURL(image.photo?.src)
-                setIsLoading(false);
+                });
+
+                setErrorMessage("Your post content did not meet our terms of service. Please check for inappropriate content.");    
+                const warnUser = await addWarnings(auth.userId, auth.accessToken)
+                if(warnUser?.status == 202){
+                    logout();
+                }
             }
         }
-    
+
     } else {
 
-        setErrorMessage("Failed to save user profile settings. Please check for inappropriate content!");
-        const warnUser = await addWarnings(auth.userId, auth.accessToken)
-        if(warnUser?.status == 202){
-            logout();
+
+    toast.info("Checking content, please wait...", {
+        position: "bottom-center",
+        autoClose: 500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+    });
+
+        const editedSettings = await editSettingsStoreProfile(auth.userId,  
+        phonePrimary, "", "", regularHoursMondayStart, regularHoursMondayFinish, regularHoursTuesdayStart, regularHoursTuesdayFinish, 
+        regularHoursWednesdayStart, regularHoursWednesdayFinish, regularHoursThursdayStart, regularHoursThursdayFinish,
+        regularHoursFridayStart, regularHoursFridayFinish, regularHoursSaturdayStart, regularHoursSaturdayFinish, regularHoursSundayStart, regularHoursSundayFinish,
+        closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays,
+        address, city, region, regionCode, country, manager, chain,
+        chainId, auth.accessToken)
+
+        if(editedSettings){
+
+            toast.success("Success! Changed user information!", {
+                position: "bottom-center",
+                autoClose: 1500,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+                });
+            
+            URL.revokeObjectURL(image.photo?.src)
+            setIsLoading(false);
         }
-    }     
+    }
   };
 
   

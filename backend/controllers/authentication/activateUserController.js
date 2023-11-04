@@ -43,7 +43,7 @@ const handleUserActivation = async (req, res) => {
 
         return res.status(401).send({msg:'We were unable to find a user for this verification. Please register!'});
 
-      } else if (foundUser?.active){
+      } else if (foundUser?.active && foundUser.currentStage === 3){
 
         return res.status(200).send('User has been already verified. Please Login');
       
@@ -123,7 +123,7 @@ const handleUserActivation = async (req, res) => {
 
                 if(savedBookmarks && savedActivities && savedNotifications && savedCommunications && savedUserFlags ){
 
-                  return res.redirect(`${process.env.MOBILE_VERIFY_PAGE}?id=${foundUser._id}&hash=${token}`);        
+                  return res.redirect(`${process.env.MOBILE_VERIFY_PAGE}?id=${foundUser._id}&hash=${hash}`);        
               }
             }
           } 

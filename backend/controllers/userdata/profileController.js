@@ -7,6 +7,7 @@ const ActivateToken = require('../../model/ActivateToken');
 const UsageLimit = require('../../model/UsageLimit');
 const Flags = require('../../model/Flags');
 const BannedUser = require('../../model/BannedUser');
+const ForexRate = require('../../model/ForexRate');
 
 const { sendPassResetConfirmation, sendVerifiedAccount, sendVerifiedToAdmin } = require('../../middleware/mailer');
 const bcrypt = require('bcrypt');
@@ -1140,6 +1141,16 @@ const uploadUserPhotos = async (req, res) => {
 
                 const roles = Object.values(foundUser.roles).filter(Boolean);
 
+                var FXRates = null;
+
+                if(currency){
+
+                    const rates = await ForexRate.findOne({admin: "admin"}).select(`${currency}`)
+                    if(rates){
+                        FXRates = rates;
+                    }
+                }
+
                 const accessToken = jwt.sign(
                     {
                         "UserInfo": {
@@ -1511,6 +1522,7 @@ const checkStage = async (req, res) => {
     } catch(err){
 
         console.log(err)
+        
     }
 }
 

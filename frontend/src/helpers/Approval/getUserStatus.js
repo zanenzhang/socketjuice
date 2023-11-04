@@ -1,11 +1,12 @@
 import axios from "../../api/axios";
 
-async function getUserStatus (accessToken, authUserId) {
+async function getUserStatus (authUserId, accessToken) {
 
     try {
-        const response = await axios.get('/verifyuser/userstatus/', 
+        const response = await axios.get('/verifyuser/userstatus', 
         {
             headers: { "Authorization": `Bearer ${accessToken} ${authUserId}`},
+            withCredentials: true
         });
         
         if(response){

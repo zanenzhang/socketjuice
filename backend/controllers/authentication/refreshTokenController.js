@@ -29,12 +29,10 @@ const handleRefreshToken = async (req, res) => {
                 const profilePicURL = foundUser.profilePicURL
                 const privacySetting = foundUser.privacySetting
                 const currency = foundUser.currency
-                const showFXPriceSetting = foundUser.showFXPriceSetting
+                const currencySymbol = foundUser.currencySymbol
+
                 const blockedUsers = foundUser.blockedUsers
                 const credits = foundUser.credits
-                const gender = foundUser.gender
-                const retailerIds = foundUser.initialRetailers
-                const genderSet = foundUser.genderSet
 
                 var lessMotion = null;
                 var pushNotifications = null;
@@ -139,8 +137,8 @@ const handleRefreshToken = async (req, res) => {
     
                     if(accessToken){
                         res.status(200).json({ username, roles, userId, accessToken, profilePicURL, privacySetting, 
-                            currency, showFXPriceSetting, lessMotion, pushNotifications, birthDate, userTheme, 
-                            blockedUsers, FXRates, city, region, country, credits, gender, retailerIds, genderSet })
+                            currency, currencySymbol, lessMotion, pushNotifications, birthDate, userTheme, 
+                            blockedUsers, FXRates, city, region, country, credits,  })
                     } else {
                         res.status(401)
                     }

@@ -4,7 +4,7 @@ const User = require('../../model/User');
 
 async function sendVerification (req, res) {
 
-    const {number, phoneCountry, userId} = req.body
+    const {number, phoneCountryCode, userId} = req.body
 
     if (!number ) {
         return res.status(400).json({ message: 'Missing required info' })
@@ -14,7 +14,7 @@ async function sendVerification (req, res) {
 
     if(foundUser && !foundUser.checkedMobile){
 
-        const checkedNumber = phoneUtil.parseAndKeepRawInput(number, phoneCountry);
+        const checkedNumber = phoneUtil.parseAndKeepRawInput(number, phoneCountryCode?.toUpperCase());
 
         if(phoneUtil.isValidNumber(checkedNumber)){
 
@@ -67,21 +67,21 @@ async function checkVerification (req, res) {
                 console.log(verification.status)
 
                 var currency = "cad"
-                if(phoneCountry == "CA"){
+                if(phoneCountryCode == "ca"){
                     currency = "cad"
-                } else if(phoneCountry == "US"){
+                } else if(phoneCountryCode == "us"){
                     currency = "usd"
-                } else if(phoneCountry == "AU"){
+                } else if(phoneCountryCode == "au"){
                     currency = "aud"
-                } else if(phoneCountry == "NZ"){
+                } else if(phoneCountryCode == "nz"){
                     currency = "nzd"
-                } else if(phoneCountry == "GB"){
+                } else if(phoneCountryCode == "gb"){
                     currency = "gbp"
-                } else if(phoneCountry == "IN"){
+                } else if(phoneCountryCode == "in"){
                     currency = "inr"
-                } else if(phoneCountry == "JP"){
+                } else if(phoneCountryCode == "jp"){
                     currency = "jpy"
-                } else if(phoneCountry == "CN"){
+                } else if(phoneCountryCode == "cn"){
                     currency = "cny"
                 } else {
                     currency = "eur"

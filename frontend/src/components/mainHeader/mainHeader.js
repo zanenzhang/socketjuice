@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import * as ROUTES from '../../constants/routes';
 import axios from '../../api/axios';
 import useAuth from '../../hooks/useAuth';
-import { Profanity, ProfanityOptions } from '@2toad/profanity';
 // import NotificationsDropdown from '../notifications/notificationsDropdown';
 // import SettingsDropdown from '../settings/settingsDropdown';
 
@@ -53,11 +52,6 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
     const RESEND_VERIFICATION_URL = '/resendverification/email';
     const LOGIN_URL = '/auth';
     const REGISTER_URL = '/hostregister';
-
-    const options = new ProfanityOptions();
-    options.wholeWord = false;
-    const profanity = new Profanity(options);
-    profanity.removeWords(['arse', "ass", 'asses', 'cok',"balls",  "boob", "boobs", "bum", "bugger", 'butt',]);
 
     const EMAIL_REGEX = /^(?=^.{4,48}$)\S+@\S+\.\S+$/;
     const FIRST_NAME_REGEX = /^.{1,48}$/;
@@ -418,39 +412,38 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
             return;
         }
 
-        var textToCheck = address.concat(" ", emailRegister, " ", city, " ", region, " ", country)
+        if(city?.length > 0){
+            setCity(city.charAt(0).toUpperCase() + city.slice(1).toLowerCase());
+        }
 
         try {
 
-            const profanityCheck = profanity.exists(textToCheck)
-                
-            if(!profanityCheck){
-
-                const response = await axios.post(REGISTER_URL,
-                    JSON.stringify({ email: emailRegister.toLowerCase(), pwd: pwdRegister, firstName, lastName, long, lat,
-                        address, city, region, regionCode, country, birthdate, recapToken }),
-                    {
-                        headers: { 'Content-Type': 'application/json' },
-                        withCredentials: true
-                    }
-                );
-
-                if(response){
-                    
-                    setSuccess(true);
-                    setPwdRegister('');
-                    setMatchPwd('');
-                    alert("Registered! Please check your email inbox to activate the account!")
-
-                } else {
-                    alert("Account creation failed, please try again")
-                    setSuccess(false);
-                    setWaiting(false);
+            const response = await axios.post(REGISTER_URL,
+                JSON.stringify({ email: emailRegister.toLowerCase(), pwd: pwdRegister, firstName, lastName, long, lat,
+                    address, city, region, regionCode, country, birthdate, recapToken }),
+                {
+                    headers: { 'Content-Type': 'application/json' },
+                    withCredentials: true
                 }
+            );
+
+            if(response && response?.status === 201){
+                
+                setSuccess(true);
+                setPwdRegister('');
+                setMatchPwd('');
+                alert("Registered! Please check your email inbox to activate the account!")
+
+            } else if(response?.status === 402){
+
+                alert("Inappropriate content detected, please try again")
+                setSuccess(false);
+                setWaiting(false);
             
             } else {
-                setErrMsg('Inappropriate content detected');
-                setSuccess(true);
+                alert("Account creation failed, please try again")
+                setSuccess(false);
+                setWaiting(false);
             }
             
         } catch (err) {

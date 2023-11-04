@@ -25,6 +25,32 @@ function sendEmail(message) {
   })
 }
 
+exports.sendReverifyEmail = function({toUser, userId, hash, firstName}) {
+
+  const message = {
+    from: process.env.EMAIL_SUPPORT,
+    // to: toUser.email // in production uncomment this
+    to: toUser,
+    subject: 'SocketJuice - Please Reupload Photos For Profile',
+    html: `
+      <img src = "cid:myImg" style="width:200px;"/>
+      <h3> Hello ${firstName}! </h3>
+      <p>Welcome again to ${process.env.MAIL_FROM_NAME}!</p>
+      <p>Would it be possible to reupload photos for your profile? One or more of your ID photos was unclear. Apologies for the inconvenience!</p>
+      <p><a target="_" href="${process.env.API}/activate/${userId}/${hash}">${process.env.MAIL_FROM_NAME}/activate </a></p>
+      <p>Thanks,</p>
+      <p>The ${process.env.MAIL_FROM_NAME} team</p>
+    `,
+    attachments: [{
+      filename: 'SocketJuiceLogo.png',
+      path: __dirname + '/SocketJuice.png',
+      cid: 'myImg'
+    }]
+  }
+
+  return sendEmail(message);
+}
+
 exports.sendConfirmationEmail = function({toUser, userId, hash, firstName}) {
 
   const message = {

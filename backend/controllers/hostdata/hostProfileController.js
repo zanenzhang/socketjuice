@@ -248,6 +248,8 @@ const getHostProfiles = async (req, res) => {
     
     const { hostProfiles, loggedUserId, ipAddress, language, currency } = req.query
 
+    //Take coordinates and get host profiles
+
     if (!hostProfiles || !loggedUserId ) {
         return res.status(400).json({ message: 'Missing required info' })
     }

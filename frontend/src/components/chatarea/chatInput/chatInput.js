@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import EmojiPicker from "../../emojiPicker/emojiPicker";
 import useAuth from "../../../hooks/useAuth";
-import { profanity } from '@2toad/profanity';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import addMessage from "../../../helpers/Chats/addMessage";
@@ -19,14 +18,6 @@ const ChatInput = ({loggedUserId, loggedUsername, selectedChat,
 
   var waiting = false;
 
-  // useEffect( () => {
-
-  //   if(profanity){
-  //     profanity.removeWords(['arse', "ass", 'asses', 'cok',"balls",  "boob", "boobs", "bum", "bugger", 'butt',]);
-  //   }
-
-  // }, [profanity])
-
   const handleSubmitMessage = async () => {
 
     if(!socket || !selectedChat){
@@ -36,10 +27,6 @@ const ChatInput = ({loggedUserId, loggedUsername, selectedChat,
       setCurrentTyping(false);
 
       socket.emit("typingStop", {chatId: selectedChat, username: loggedUsername});  
-
-      // const profanityCheck = profanity.exists(messageContent)
-          
-      // if(!profanityCheck){
         
       const addedMessage = await addMessage(loggedUserId, loggedUsername, selectedChat, messageContent, auth.accessToken)
     

@@ -9,7 +9,6 @@ import useLogout from '../../../hooks/useLogout';
 import MuiPhoneNumber from 'material-ui-phone-number';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { profanity } from '@2toad/profanity';
 
 import editSettingsUserProfile from "../../../helpers/UserData/editSettingsUserProfile";
 import getProfileData from '../../../helpers/UserData/getProfileData';
@@ -277,172 +276,155 @@ export default function ChangeProfileMainUser({loggedUserId }) {
 
     var textToCheck = fullname.concat(" ", relationshipStatus, " ", region, " ", regionCode);
 
-    profanity.removeWords(['arse', "ass", 'asses', 'cok',"balls",  "boob", "boobs", "bum", "bugger", 'butt',]);
+      if(croppedImage){
 
-    const profanityCheck = profanity.exists(textToCheck)
-        
-    if(!profanityCheck){
+        toast.info("Checking image, please wait...", {
+          position: "bottom-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+      });
 
-    // put file into form data
+        const formData = new FormData();
+        const file = new File([croppedImage], `${loggedUserId}.jpeg`, { type: "image/jpeg" })
+        formData.append("image", file);
 
-        if(croppedImage){
+        const nsfwResults = await axios.post("/nsfw/check", 
+        formData,
+        {
+          headers: { "Authorization": `Bearer ${auth.accessToken} ${loggedUserId}`, 
+          'Content-Type': 'multipart/form-data'},
+            withCredentials: true
+        }
+        );
 
-          toast.info("Checking image, please wait...", {
-            position: "bottom-center",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "colored",
-        });
+          if (nsfwResults){
 
-          const formData = new FormData();
-          const file = new File([croppedImage], `${loggedUserId}.jpeg`, { type: "image/jpeg" })
-          formData.append("image", file);
+            var check1 = null;
+            var check2 = null;
 
-          const nsfwResults = await axios.post("/nsfw/check", 
-          formData,
-          {
-            headers: { "Authorization": `Bearer ${auth.accessToken} ${loggedUserId}`, 
-            'Content-Type': 'multipart/form-data'},
-              withCredentials: true
-          }
-          );
+            for(let i=0; i<nsfwResults.data.length; i++){
 
-            if (nsfwResults){
+              if(nsfwResults.data[i].className === 'Hentai' && nsfwResults.data[i].probability < 0.2){
+                check1 = true
+              }
+              if(nsfwResults.data[i].className === 'Porn' && nsfwResults.data[i].probability < 0.2){
+                check2 = true
+              }
+            }            
 
-              var check1 = null;
-              var check2 = null;
+            if(check1 && check2){
 
-              for(let i=0; i<nsfwResults.data.length; i++){
+              try {
+                const response = await axios.post(PUBLIC_MEDIA_URL, 
+                    formData,
+                    {
+                        headers: { "Authorization": `Bearer ${auth.accessToken} ${loggedUserId}`,
+                        'Content-Type': "multipart/form-data" },
+                        withCredentials: true
+                    }
+                );
 
-                if(nsfwResults.data[i].className === 'Hentai' && nsfwResults.data[i].probability < 0.2){
-                  check1 = true
-                }
-                if(nsfwResults.data[i].className === 'Porn' && nsfwResults.data[i].probability < 0.2){
-                  check2 = true
-                }
-              }            
+                if(response?.status === 200){
 
-              if(check1 && check2){
+                    const profilePicURL = response.data.Location;
+                    const profilePicKey = response.data.key;
 
-                try {
-                  const response = await axios.post(PUBLIC_MEDIA_URL, 
-                      formData,
-                      {
-                          headers: { "Authorization": `Bearer ${auth.accessToken} ${loggedUserId}`,
-                          'Content-Type': "multipart/form-data" },
-                          withCredentials: true
-                      }
-                  );
+                    const editedSettings = await editSettingsUserProfile(loggedUserId, fullname, phonePrimary, 
+                        relationshipStatus, profilePicKey, profilePicURL, birthdate, region, regionCode, 
+                        country, auth.accessToken)
 
-                  if(response?.status === 200){
+                    if(editedSettings){
 
-                      const profilePicURL = response.data.Location;
-                      const profilePicKey = response.data.key;
+                        setAuth(prev => {
+                            return {
+                                ...prev,
+                                region: region,
+                                country: country,
+                                profilePicURL: profilePicURL
+                            }
+                        });
 
-                      const editedSettings = await editSettingsUserProfile(loggedUserId, fullname, phonePrimary, 
-                          relationshipStatus, profilePicKey, profilePicURL, birthdate, region, regionCode, 
-                          country, auth.accessToken)
-
-                      if(editedSettings){
-
-                          setAuth(prev => {
-                              return {
-                                  ...prev,
-                                  region: region,
-                                  country: country,
-                                  profilePicURL: profilePicURL
-                              }
+                        toast.success("Success! Changed user profile and settings!", {
+                          position: "bottom-center",
+                          autoClose: 1500,
+                          hideProgressBar: false,
+                          closeOnClick: true,
+                          pauseOnHover: true,
+                          draggable: true,
+                          progress: undefined,
+                          theme: "colored",
                           });
 
-                          toast.success("Success! Changed user profile and settings!", {
-                            position: "bottom-center",
-                            autoClose: 1500,
-                            hideProgressBar: false,
-                            closeOnClick: true,
-                            pauseOnHover: true,
-                            draggable: true,
-                            progress: undefined,
-                            theme: "colored",
-                            });
-
-                          URL.revokeObjectURL(image.photo?.src)
-                          setIsLoading(false);
-                      }
-                  }
-
-                } catch (err) {
-                    console.error(err);
-                    setIsLoading(false);
-                    toast.error("Failed to save profile settings! Please try again!", {
-                      position: "bottom-center",
-                      autoClose: 1500,
-                      hideProgressBar: false,
-                      closeOnClick: true,
-                      pauseOnHover: true,
-                      draggable: true,
-                      progress: undefined,
-                      theme: "colored",
-                  });
-                    setErrorMessage("Failed to save profile settings! Please try again!");
+                        URL.revokeObjectURL(image.photo?.src)
+                        setIsLoading(false);
+                    }
                 }
 
-              } else {
-
-                toast.error("Your post content did not meet our terms of service. Please check for inappropriate content.", {
-                  position: "bottom-center",
-                  autoClose: 1500,
-                  hideProgressBar: false,
-                  closeOnClick: true,
-                  pauseOnHover: true,
-                  draggable: true,
-                  progress: undefined,
-                  theme: "colored",
-              });
-
-                setErrorMessage("Your post content did not meet our terms of service. Please check for inappropriate content.");    
-                const warnUser = await addWarnings(loggedUserId, auth.accessToken)
-                if(warnUser?.status === 202){
-                  logout();
-                }
-
+              } catch (err) {
+                  console.error(err);
+                  setIsLoading(false);
+                  toast.error("Failed to save profile settings! Please try again!", {
+                    position: "bottom-center",
+                    autoClose: 1500,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "colored",
+                });
+                  setErrorMessage("Failed to save profile settings! Please try again!");
               }
-            }
 
-        } else {
+            } else {
 
-          const editedSettings = await editSettingsUserProfile(loggedUserId, fullname, phonePrimary, 
-            relationshipStatus, "", "", birthdate, region, regionCode, country, auth.accessToken)
-
-        if(editedSettings){
-
-          toast.success("Success! Changed user information!", {
-            position: "bottom-center",
-            autoClose: 1500,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "colored",
+              toast.error("Your post content did not meet our terms of service. Please check for inappropriate content.", {
+                position: "bottom-center",
+                autoClose: 1500,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
             });
-            
-            URL.revokeObjectURL(image.photo?.src)
-            setIsLoading(false);
-          }
-        }
-    
-    } else {
 
-      setErrorMessage("Failed to save user profile settings. Please check for inappropriate content!");
-        const warnUser = await addWarnings(loggedUserId, auth.accessToken)
-        if(warnUser?.status === 202){
-            logout();
+              setErrorMessage("Your post content did not meet our terms of service. Please check for inappropriate content.");    
+              const warnUser = await addWarnings(loggedUserId, auth.accessToken)
+              if(warnUser?.status === 202){
+                logout();
+              }
+
+            }
+          }
+
+      } else {
+
+        const editedSettings = await editSettingsUserProfile(loggedUserId, fullname, phonePrimary, 
+          relationshipStatus, "", "", birthdate, region, regionCode, country, auth.accessToken)
+
+      if(editedSettings){
+
+        toast.success("Success! Changed user information!", {
+          position: "bottom-center",
+          autoClose: 1500,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+          });
+          
+          URL.revokeObjectURL(image.photo?.src)
+          setIsLoading(false);
         }
-    }
+      }
   };
   
   return (

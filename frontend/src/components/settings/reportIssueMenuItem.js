@@ -8,7 +8,6 @@ import addWarnings from '../../helpers/UserData/addWarnings';
 import addEmailReport from '../../helpers/Emails/addEmailReport';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { profanity } from '@2toad/profanity';
 
 
 const ReportIssueMenuItem = ({loggedUserId, setOpenMenu}) => {
@@ -67,57 +66,13 @@ const ReportIssueMenuItem = ({loggedUserId, setOpenMenu}) => {
       return
     }
 
-    waiting = true;;
+    waiting = true;
 
-    profanity.removeWords(['arse', "ass", 'asses', 'cok',"balls",  "boob", "boobs", "bum", "bugger", 'butt',]);
-    const profanityCheck = profanity.exists(message)
-
-    if(!profanityCheck){
-
-      const submitted = await addEmailReport(loggedUserId, message, auth.accessToken)
+    const submitted = await addEmailReport(loggedUserId, message, auth.accessToken)
+  
+    if(submitted){
     
-      if(submitted){
-      
-        toast.success("Invite sent!", {
-          position: "bottom-center",
-          autoClose: 1500,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-          });
-
-        setSentInvite(true);
-        waiting = false;;
-
-        setOpenModal(false);
-        setOpenMenu(false);
-
-      } else {
-
-        toast.error("Sorry, invite was not sent, please try again", {
-          position: "bottom-center",
-          autoClose: 1500,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-          });
-
-        const warnUser = await addWarnings(loggedUserId, auth.accessToken)
-        if(warnUser?.status === 202){
-          logout();
-        } else {
-          waiting = false;;
-        } 
-      }
-
-    }else {
-      toast.error("This post appears to have inappropriate language, please try again", {
+      toast.success("Invite sent!", {
         position: "bottom-center",
         autoClose: 1500,
         hideProgressBar: false,
@@ -128,12 +83,31 @@ const ReportIssueMenuItem = ({loggedUserId, setOpenMenu}) => {
         theme: "colored",
         });
 
-        const warnUser = await addWarnings(loggedUserId, auth.accessToken)
-        if(warnUser?.status === 202){
-          logout();
-        } else {
-          waiting = false;;
-        } 
+      setSentInvite(true);
+      waiting = false;;
+
+      setOpenModal(false);
+      setOpenMenu(false);
+
+    } else {
+
+      toast.error("Sorry, invite was not sent, please try again", {
+        position: "bottom-center",
+        autoClose: 1500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+        });
+
+      const warnUser = await addWarnings(loggedUserId, auth.accessToken)
+      if(warnUser?.status === 202){
+        logout();
+      } else {
+        waiting = false;;
+      } 
     }
   }
 
