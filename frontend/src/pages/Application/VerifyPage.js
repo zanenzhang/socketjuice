@@ -15,6 +15,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import { useLocation } from 'react-router';
 
 import useAuth from '../../hooks/useAuth';
+import evconnectors from "../../images/evconnectors.jpeg";
 
 
 function isNumeric(n) {
@@ -64,8 +65,11 @@ const VerifyPage = () => {
     
     const [errorMessage, setErrorMessage] = useState("");
 
+    const [offeringCharging, setOfferingCharging] = useState("Yes")
     const [chargeRate, setChargeRate] = useState(3.0);
-    const [currency, setCurrency] = useState("CAD");
+    const [currency, setCurrency] = useState("cad");
+    const [connectorType, setConnectorType] = useState("AC-J1772-Type1");
+    const [chargingLevel, setChargingLevel] = useState("Level 1")
 
     const [phonePrimary, setPhonePrimary] = useState("");
     const [phonePrimaryFocus, setPhonePrimaryFocus] = useState(false);
@@ -115,6 +119,8 @@ const VerifyPage = () => {
 
             if(response){
 
+                console.log(response)
+
                 if(response.currentStage){
                     var current = Number(response.currentStage)
                     setCurrentStage(current)
@@ -124,7 +130,7 @@ const VerifyPage = () => {
 
                         setVerifiedPhone(true)
 
-                    }else if (current === 3){
+                    } else if (current === 3){
 
                         setSubmittedPhotos(true)
                     }
@@ -217,6 +223,7 @@ const VerifyPage = () => {
             setCurrency("inr")
         } else if(phoneCountryCode == "jp"){
             setCurrency("jpy")
+
         } else if(phoneCountryCode == "cn"){
             setCurrency("cny")
         } else {
@@ -617,74 +624,74 @@ const VerifyPage = () => {
 
             if(finalImageObjArray?.length === mediaLength){
 
-            const frontObjectId = finalImageObjArray[0]
-            const backObjectId = finalImageObjArray[1]
-    
-            try {
+                const frontObjectId = finalImageObjArray[0]
+                const backObjectId = finalImageObjArray[1]
+        
+                try {
 
-                const uploadedUserPhotos = await axios.post('/profile/userphotos', 
-                    JSON.stringify({userId, currency, chargeRate, frontObjectId, backObjectId}),
-                    {
-                        headers: { "Authorization": `Hash ${hash} ${userId}`, 
-                            'Content-Type': 'application/json'},
-                        withCredentials: true
+                    const uploadedUserPhotos = await axios.post('/profile/userphotos', 
+                        JSON.stringify({userId, frontObjectId, backObjectId}),
+                        {
+                            headers: { "Authorization": `Hash ${hash} ${userId}`, 
+                                'Content-Type': 'application/json'},
+                            withCredentials: true
+                        }
+                    );
+
+                    if(uploadedUserPhotos && uploadedUserPhotos.status === 200){
+
+                        console.log(uploadedUserPhotos)
+
+                        const firstName = uploadedUserPhotos?.data?.firstName;
+                        const lastName = uploadedUserPhotos?.data?.lastName;
+                        const accessToken = uploadedUserPhotos?.data?.accessToken;
+                        
+                        const roles = uploadedUserPhotos?.data?.roles;
+                        const userId = uploadedUserPhotos?.data?.userId
+                        const profilePicURL = uploadedUserPhotos?.data?.profilePicURL
+                        const currency = uploadedUserPhotos?.data?.currency
+                        const currencySymbol = uploadedUserPhotos?.data?.currencySymbol
+                        const phoneNumber = uploadedUserPhotos?.data?.currency
+                        
+                        const FXRates = uploadedUserPhotos?.data?.FXRates
+
+                        const lessMotion = uploadedUserPhotos?.data?.lessMotion
+                        const pushNotifications = uploadedUserPhotos?.data?.pushNotifications
+                        const userTheme = uploadedUserPhotos?.data?.userTheme
+
+                        const credits = uploadedUserPhotos?.data?.credits
+
+                        setAuth({ firstName, lastName, userId, roles, accessToken, profilePicURL, phoneNumber,
+                            currency, currencySymbol, lessMotion, pushNotifications, userTheme, FXRates, credits });
+
+                        localStorage.setItem("socketjuice-persist", true)
+
+                        console.log("Success, photos have been uploaded. We will review and approve shortly.")
+                        toast.info("Awesome, your profile has been saved! Welcome to SocketJuice!", {
+                            position: "bottom-center",
+                            autoClose: 1500,
+                            hideProgressBar: false,
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            draggable: true,
+                            progress: undefined,
+                            theme: "colored",
+                        });
+
+                        setSubmittedPhotos(true)
+                        
+                        setTimeout( ()=> {
+
+                            navigate("/map")
+
+                        }, '1000')
                     }
-                );
 
-                if(uploadedUserPhotos && uploadedUserPhotos.status === 200){
+                } catch(err){
 
-                    console.log(uploadedUserPhotos)
-
-                    const firstName = uploadedUserPhotos?.data?.firstName;
-                    const lastName = uploadedUserPhotos?.data?.lastName;
-                    const accessToken = uploadedUserPhotos?.data?.accessToken;
-                    
-                    const roles = uploadedUserPhotos?.data?.roles;
-                    const userId = uploadedUserPhotos?.data?.userId
-                    const profilePicURL = uploadedUserPhotos?.data?.profilePicURL
-                    const currency = uploadedUserPhotos?.data?.currency
-                    const currencySymbol = uploadedUserPhotos?.data?.currencySymbol
-                    const phoneNumber = uploadedUserPhotos?.data?.currency
-                    
-                    const FXRates = uploadedUserPhotos?.data?.FXRates
-
-                    const lessMotion = uploadedUserPhotos?.data?.lessMotion
-                    const pushNotifications = uploadedUserPhotos?.data?.pushNotifications
-                    const userTheme = uploadedUserPhotos?.data?.userTheme
-
-                    const credits = uploadedUserPhotos?.data?.credits
-
-                    setAuth({ firstName, lastName, userId, roles, accessToken, profilePicURL, phoneNumber,
-                        currency, currencySymbol, lessMotion, pushNotifications, userTheme, FXRates, credits });
-
-                    localStorage.setItem("socketjuice-persist", true)
-
-                    console.log("Success, photos have been uploaded. We will review and approve shortly.")
-                    toast.info("Awesome, your profile has been saved! Welcome to SocketJuice!", {
-                        position: "bottom-center",
-                        autoClose: 1500,
-                        hideProgressBar: false,
-                        closeOnClick: true,
-                        pauseOnHover: true,
-                        draggable: true,
-                        progress: undefined,
-                        theme: "colored",
-                    });
-
-                    setSubmittedPhotos(true)
-                    
-                    setTimeout( ()=> {
-
-                        navigate("/map")
-
-                    }, '3000')
+                    console.log(err)
                 }
-
-            } catch(err){
-
-                console.log(err)
             }
-        }
         }
     }
 
@@ -702,7 +709,7 @@ const VerifyPage = () => {
 
         <div className='w-full flex flex-col justify-center items-center pt-[10vh]'>
 
-            {currentStage >= 1 && <div className='flex flex-col mt-6'>
+            {currentStage >= 1 && <div className='flex flex-col mt-6 justify-center items-center'>
 
                 <p className='text-base md:text-lg font-bold pb-2'>Step 1: Please Verify Your Phone Number</p>
 
@@ -722,10 +729,10 @@ const VerifyPage = () => {
                 />
                 </div>
 
-                {sentCode ? 
+                {(sentCode || currentStage >= 2) ? 
                 
                 <button disabled={codeInput?.length > 0 || verifiedPhone || resendCode} onClick={(e)=>handleResendCode(e)} 
-                className={`my-2 py-4 px-3 rounded-2xl border-2 border-[#00D3E0] flex flex-row gap-x-1 justify-center
+                className={`my-2 py-4 rounded-2xl border-2 border-[#00D3E0] flex flex-row gap-x-1 justify-center items-center w-[250px]
                 ${ (codeInput?.length > 0 || verifiedPhone || resendCode ) ? ' hover:bg-gray-100 cursor-not-allowed ' : ' hover:bg-[#00D3E0] '}`}>
 
                 {waitingRequest && 
@@ -735,13 +742,13 @@ const VerifyPage = () => {
                             className="fill-gray-200"
                             d="M12 5C8.13401 5 5 8.13401 5 12C5 15.866 8.13401 19 12 19C15.866 19 19 15.866 19 12C19 8.13401 15.866 5 12 5ZM3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12Z"></path>
                         <path
-                            className="fill-gray-800"
+                            className="fill-[#00D3E0]"
                             d="M16.9497 7.05015C14.2161 4.31648 9.78392 4.31648 7.05025 7.05015C6.65973 7.44067 6.02656 7.44067 5.63604 7.05015C5.24551 6.65962 5.24551 6.02646 5.63604 5.63593C9.15076 2.12121 14.8492 2.12121 18.364 5.63593C18.7545 6.02646 18.7545 6.65962 18.364 7.05015C17.9734 7.44067 17.3403 7.44067 16.9497 7.05015Z"></path>
                         </svg>
                     </div>
                 }
 
-                {!waitingRequest && 
+                { (!waitingRequest && currentStage < 2) && 
                     <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" 
                     className="w-6 h-6">
                         <path strokeLinecap="round" strokeLinejoin="round" 
@@ -749,11 +756,19 @@ const VerifyPage = () => {
                     </svg>
                 }
 
-                Resend verification code</button> : 
+                { (!waitingRequest && currentStage >= 2) && 
+                    <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#38a169" className="w-6 h-6">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                }
+
+                {currentStage >= 2 ? "Phone Number Is Verified" : "Resend verification code"}</button> : 
                 
-                <button disabled={phonePrimary?.length < 7 || submittedPhone || codeInput?.length > 0} onClick={(e)=>handlePhoneCodeRequest(e)} 
-                className={`my-2 py-4 px-3 rounded-2xl border-2 border-[#00D3E0] flex flex-row gap-x-1 justify-center
-                ${ (phonePrimary?.length < 7 || submittedPhone || codeInput?.length > 0 ) ? ' hover:bg-gray-100 cursor-not-allowed ' : ' hover:bg-[#00D3E0] '}`}>
+                <button disabled={phonePrimary?.length < 7 || submittedPhone || codeInput?.length > 0 || currentStage >= 2} 
+                   onClick={(e)=>handlePhoneCodeRequest(e)} 
+                    className={`my-2 py-4 rounded-2xl border-2 border-[#00D3E0] flex flex-row gap-x-1 justify-center w-[250px]
+                
+                ${ (phonePrimary?.length < 7 || submittedPhone || codeInput?.length > 0 || currentStage >= 2 ) ? ' hover:bg-gray-100 cursor-not-allowed ' : ' hover:bg-[#00D3E0] '}`}>
                     
                     {waitingRequest && 
                     <div aria-label="Loading..." role="status">
@@ -762,7 +777,7 @@ const VerifyPage = () => {
                             className="fill-gray-200"
                             d="M12 5C8.13401 5 5 8.13401 5 12C5 15.866 8.13401 19 12 19C15.866 19 19 15.866 19 12C19 8.13401 15.866 5 12 5ZM3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12Z"></path>
                         <path
-                            className="fill-gray-800"
+                            className="fill-[#00D3E0]"
                             d="M16.9497 7.05015C14.2161 4.31648 9.78392 4.31648 7.05025 7.05015C6.65973 7.44067 6.02656 7.44067 5.63604 7.05015C5.24551 6.65962 5.24551 6.02646 5.63604 5.63593C9.15076 2.12121 14.8492 2.12121 18.364 5.63593C18.7545 6.02646 18.7545 6.65962 18.364 7.05015C17.9734 7.44067 17.3403 7.44067 16.9497 7.05015Z"></path>
                         </svg>
                     </div>}
@@ -775,7 +790,7 @@ const VerifyPage = () => {
                         </svg>
                     }
 
-                    Submit phone number for verification
+                    Submit phone number
                 </button>
                 }
 
@@ -799,7 +814,7 @@ const VerifyPage = () => {
 
                 {!verifiedPhone ? 
                 <button disabled={phonePrimary?.length < 7 || !submittedPhone} onClick={(e)=>handlePhoneCodeVerify(e)} 
-                className={`my-2 py-4 px-3 rounded-2xl border-2 border-[#00D3E0] flex flex-row gap-x-1 justify-center
+                className={`my-2 py-4 px-3 rounded-2xl border-2 border-[#00D3E0] flex flex-row gap-x-1 justify-center w-[250px]
                      ${ (phonePrimary?.length < 7 || !submittedPhone || verifiedPhone || codeInput?.length < 6 ) ? ' hover:bg-gray-100 cursor-not-allowed ' : ' hover:bg-[#00D3E0] '}`}>
                     
                     {waitingVerify && 
@@ -809,7 +824,7 @@ const VerifyPage = () => {
                             className="fill-gray-200"
                             d="M12 5C8.13401 5 5 8.13401 5 12C5 15.866 8.13401 19 12 19C15.866 19 19 15.866 19 12C19 8.13401 15.866 5 12 5ZM3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12Z"></path>
                         <path
-                            className="fill-gray-800"
+                            className="fill-[#00D3E0]"
                             d="M16.9497 7.05015C14.2161 4.31648 9.78392 4.31648 7.05025 7.05015C6.65973 7.44067 6.02656 7.44067 5.63604 7.05015C5.24551 6.65962 5.24551 6.02646 5.63604 5.63593C9.15076 2.12121 14.8492 2.12121 18.364 5.63593C18.7545 6.02646 18.7545 6.65962 18.364 7.05015C17.9734 7.44067 17.3403 7.44067 16.9497 7.05015Z"></path>
                         </svg>
                     </div>
@@ -817,7 +832,7 @@ const VerifyPage = () => {
                     Confirm code</button>
                 :    
                 <button disabled={true} 
-                className={`my-2 py-4 px-3 cursor-not-allowed rounded-2xl 
+                className={`my-2 py-4 cursor-not-allowed rounded-2xl w-[250px]
                 border-2 border-[#00D3E0] flex flex-row gap-x-1 justify-center `}>
                     {waitingVerify && 
                     <div aria-label="Loading..." role="status">
@@ -826,7 +841,7 @@ const VerifyPage = () => {
                             className="fill-gray-200"
                             d="M12 5C8.13401 5 5 8.13401 5 12C5 15.866 8.13401 19 12 19C15.866 19 19 15.866 19 12C19 8.13401 15.866 5 12 5ZM3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12Z"></path>
                         <path
-                            className="fill-gray-800"
+                            className="fill-[#00D3E0]"
                             d="M16.9497 7.05015C14.2161 4.31648 9.78392 4.31648 7.05025 7.05015C6.65973 7.44067 6.02656 7.44067 5.63604 7.05015C5.24551 6.65962 5.24551 6.02646 5.63604 5.63593C9.15076 2.12121 14.8492 2.12121 18.364 5.63593C18.7545 6.02646 18.7545 6.65962 18.364 7.05015C17.9734 7.44067 17.3403 7.44067 16.9497 7.05015Z"></path>
                         </svg>
                     </div>
@@ -854,67 +869,16 @@ const VerifyPage = () => {
                         <ProfileCropper setCroppedImage={setCroppedImage} setImage={setImage} 
                         image={image} profilePicURL={image} />
                     </div>
-
-                    <div className='w-full flex flex-col items-end py-4 pr-12'>
-                        
-                        <div className="flex flex-row justify-center items-center gap-x-2">
-
-                            <div className='flex flex-col p-2'>
-                                <p className="flex font-semibold">Charge Rate Per 30 Min:</p>
-                                <p className="flex">(can change this later):</p>
-                            </div>
-                            
-                            <select className="pl-6 w-30 md:w-40 h-9 border border-gray-primary justify-center items-center" 
-                            value={chargeRate}
-                            onChange={(event) => {
-                                setChargeRate(event.target.value);
-                            }}>
-                            
-                            <option value={1.0}>$1.00</option>
-                            <option value={2.0}>$2.00</option>
-                            <option value={3.0}>$3.00</option>
-                            <option value={4.0}>$4.00</option>
-                            <option value={5.0}>$5.00</option>
-                            <option value={6.0}>$6.00</option>
-                            <option value={7.0}>$7.00</option>
-                            <option value={8.0}>$8.00</option>
-                            <option value={9.0}>$9.00</option>
-                            <option value={10.0}>$10.00</option>
-                            
-                            </select>
-                        </div>  
-
-                        <div className="flex flex-row justify-center items-center gap-x-2">
-
-                            <label className="flex justify-center items-center pr-2 font-semibold">Currency:</label>
-
-                            <select onChange={(event)=>setCurrency(event.target.value)}
-                            value={currency}
-                            className={`text-sm w-30 md:w-40 h-10 text-black justify-center
-                            border border-gray-primary rounded focus:outline-[#995372] pl-6`}>
-
-                                <option value="usd">$USD</option>
-                                <option value="cad">$CAD</option>
-                                <option value="eur">€EUR</option>
-                                <option value="gbp">£GBP</option>
-                                <option value="inr">₹INR</option>
-                                <option value="jpy">¥JPY</option>
-                                <option value="cny">¥CNY</option>
-                                <option value="aud">$AUD</option>
-                                <option value="nzd">$NZD</option>
-
-                            </select> 
-
-                        </div>
-                    </div>
                     
                     <div className="flex w-full flex-col px-4">
 
-                        <div className='flex flex-col justify-center items-center pt-4'>
+                        <div className='flex flex-col justify-center items-center pt-6'>
                             <p className='text-base md:text-lg font-medium text-center'>
-                                b) Upload photos of driver's license (Front and back)</p>
-                            <p className='text-sm flex flex-col w-[350px] items-center'>
+                                b) Upload photos of driver's license (Front and back) </p>
+                            
+                            <p className='text-sm flex flex-col w-[350px] items-center pb-4'>
                             Note: Driver's license will not be shared publicly</p>
+                            
                         </div>
                         
                         <div className="w-full flex justify-center">
@@ -928,8 +892,9 @@ const VerifyPage = () => {
                     </div>
 
                     <button disabled={submittedPhotos} onClick={(e)=>handlePhotosUpload(e)} 
-                        className='my-2 mb-8 py-4 px-3 rounded-2xl border-2 
-                            border-[#00D3E0] hover:bg-[#00D3E0] flex flex-row gap-x-1 '>
+                        className={`my-2 mb-8 py-4 px-3 rounded-2xl border-2 
+                            border-[#00D3E0]  flex flex-row gap-x-1 
+                            ${submittedPhotos ? "bg-gray-200 cursor-not-allowed " : 'hover:bg-[#00D3E0]' }   `}>
 
                         {waitingPhotos && 
                         <div aria-label="Loading..." role="status">
@@ -938,7 +903,7 @@ const VerifyPage = () => {
                                 className="fill-gray-200"
                                 d="M12 5C8.13401 5 5 8.13401 5 12C5 15.866 8.13401 19 12 19C15.866 19 19 15.866 19 12C19 8.13401 15.866 5 12 5ZM3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12Z"></path>
                             <path
-                                className="fill-gray-800"
+                                className="fill-[#00D3E0]"
                                 d="M16.9497 7.05015C14.2161 4.31648 9.78392 4.31648 7.05025 7.05015C6.65973 7.44067 6.02656 7.44067 5.63604 7.05015C5.24551 6.65962 5.24551 6.02646 5.63604 5.63593C9.15076 2.12121 14.8492 2.12121 18.364 5.63593C18.7545 6.02646 18.7545 6.65962 18.364 7.05015C17.9734 7.44067 17.3403 7.44067 16.9497 7.05015Z"></path>
                             </svg>
                         </div>

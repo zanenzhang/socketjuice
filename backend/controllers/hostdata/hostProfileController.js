@@ -244,53 +244,38 @@ const getHostProfile = async (req, res) => {
 }
 
 
-const getHostProfiles = async (req, res) => {
+const getHostProfilesCoord = async (req, res) => {
     
-    const { hostProfiles, loggedUserId, ipAddress, language, currency } = req.query
+    var { coordinatesInput, loggedUserId } = req.query
 
-    //Take coordinates and get host profiles
-
-    if (!hostProfiles || !loggedUserId ) {
+    if (!coordinatesInput || !loggedUserId ) {
         return res.status(400).json({ message: 'Missing required info' })
     }
 
-    hostProfiles = JSON.parse(hostProfiles)
+    coordinatesInput = JSON.parse(coordinatesInput)
 
     try {
 
-        const foundHostProfiles = await HostProfile.find({_userId: hostProfiles.map(e => e._userId)})
-        const userFound = await User.findOne({_id: profileUserId})
+        const foundHostProfiles = await HostProfile.find({
+            offeringCharging: true,
+            deactivated: false,
+            location:
+              { $near:
+                 {
+                   $geometry: { type: "Point",  coordinates: coordinatesInput },
+                   $maxDistance: 10000
+                 }
+              }
+          })
+
         const bookmarksFound = await Bookmark.findOne({_userId: loggedUserId})
+        const flaggedList = await Flags.findOne({_userId: loggedUserId})
 
         let doneProfileData = false;
-        let doneFlags = false;
 
-        let profilePicURL = null;
-        let flaggedProfile = null;
+        if(foundHostProfiles?.length > 0){
 
-        if(flaggedList){
-
-            if(flaggedList.userFlags?.some(e=>e._userId.toString() === ((profileUserId)))){
-                flaggedProfile = 1
-            } else {
-                flaggedProfile = 0
-            }
-
-            doneFlags = true;
-        } 
-
-        if(userFound){
-
-            if(userFound.deactivated === true){
-                return res.status(403).json({"message":"Operation failed"})
-            }
-
-            profilePicURL = userFound.profilePicURL;
-
-            doneLoggedBlocked = true;
-        } 
-
-        if(foundHostProfiles.length > 0){
+            console.log(foundHostProfiles)
 
             foundHostProfiles?.forEach(function(item, index){
 
@@ -410,47 +395,7 @@ const getHostProfiles = async (req, res) => {
                     item.markModified('videoCarouselURLs')
                     item.markModified('previewMediaURL')
                 
-                } else if(!item.previewMediaURL && item.mediaCarouselObjectIds?.length === 0){
-    
-                    var signParams = {
-                        Bucket: wasabiPrivateBucketUSA, 
-                        Key: item.previewMediaObjectId, 
-                        Expires: 7200
-                    };
-    
-                    var url = s3.getSignedUrl('getObject', signParams);
-    
-                    item.previewMediaURL = url
-                    item.markModified('previewMediaURL')
-                
-                } else if(item.mediaCarouselObjectIds?.length === 0) {
-    
-                    var signedUrl = item.previewMediaURL
-    
-                    const params = new URLSearchParams(signedUrl)
-                    const expiry = Number(params.get("Expires")) * 1000
-                    // const creationDate = fns.parseISO(params['X-Amz-Date']);
-                    // const expiresInSecs = Number(params['X-Amz-Expires']);
-                    
-                    // const expiryDate = fns.addSeconds(creationDate, expiresInSecs);
-                    // const expiry = Number(params['Expires']);
-                    const expiryTime = new Date(expiry)
-                    const isExpired = expiryTime < new Date();
-    
-                    if (isExpired){
-    
-                        var signParams = {
-                            Bucket: wasabiPrivateBucketUSA, 
-                            Key: item.previewMediaObjectId,
-                            Expires: 7200
-                        };
-            
-                        var url = s3.getSignedUrl('getObject', signParams);
-            
-                        item.previewMediaURL = url
-                        item.markModified('previewMediaURL')
-                    }
-                }    
+                }  
     
                 item.update()
             })
@@ -458,12 +403,13 @@ const getHostProfiles = async (req, res) => {
             doneProfileData = true;
 
         }  else {
+
             doneProfileData = true;
         }
 
-        if(doneProfileData && profilePicURL && bookmarksFound && doneFlags ){
+        if(doneProfileData && flaggedList && bookmarksFound ){
             
-                return res.status(200).json({foundHostProfiles, profilePicURL, bookmarksFound, flaggedProfile })
+                return res.status(200).json({foundHostProfiles, bookmarksFound, flaggedList })
         
         } else {
 
@@ -726,4 +672,4 @@ const editSettingsHostGeneral = async (req, res) => {
     })
 }
 
-module.exports = { getHostProfile, getHostProfiles, editSettingsHostProfile }
+module.exports = { getHostProfile, getHostProfilesCoord, editSettingsHostProfile }

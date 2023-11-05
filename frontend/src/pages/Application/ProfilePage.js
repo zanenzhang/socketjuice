@@ -16,6 +16,124 @@ import { useRef, useState, useEffect } from 'react'
   
   const ProfilePage = () => {
     
+
+    // <img className='w-[375px] py-2' src={evconnectors} />
+
+  //   <div className='w-full flex flex-col items-end pt-4 pr-12'>
+
+  //     <div className="flex flex-row justify-center items-center gap-x-2">
+
+  //         <div className='flex flex-col py-4'>
+  //             <p className="flex justify-center items-center pr-2 font-semibold">Offering Charging?</p>
+  //             <p className="flex">(can change this later):</p>
+  //         </div>
+
+  //         <select onChange={(event)=>setOfferingCharging(event.target.value)}
+  //         value={offeringCharging}
+  //         className={`text-sm w-30 md:w-40 h-10 text-black justify-center
+  //         border border-gray-primary rounded focus:outline-[#00D3E0] pl-6`}>
+
+  //             <option value="Yes">Yes</option>
+  //             <option value="No">No</option>
+
+  //         </select> 
+
+  //     </div>
+
+  //     {offeringCharging === "Yes" ?
+
+  //     <div className='w-full flex flex-col items-end gap-y-4'>
+
+  //         <div className="flex flex-row justify-center items-center gap-x-2">
+
+  //             <div className='flex flex-col p-2'>
+  //                 <p className="flex font-semibold">Charge Rate Per 30 Min:</p>
+  //             </div>
+              
+  //             <select className="pl-6 w-30 md:w-40 h-9 border border-gray-primary justify-center items-center" 
+  //             value={chargeRate}
+  //             onChange={(event) => {
+  //                 setChargeRate(event.target.value);
+  //             }}>
+              
+  //             <option value={1.0}>$1.00</option>
+  //             <option value={2.0}>$2.00</option>
+  //             <option value={3.0}>$3.00</option>
+  //             <option value={4.0}>$4.00</option>
+  //             <option value={5.0}>$5.00</option>
+  //             <option value={6.0}>$6.00</option>
+  //             <option value={7.0}>$7.00</option>
+  //             <option value={8.0}>$8.00</option>
+  //             <option value={9.0}>$9.00</option>
+  //             <option value={10.0}>$10.00</option>
+              
+  //             </select>
+  //         </div>  
+
+  //         <div className="flex flex-row justify-center items-center gap-x-2">
+
+  //             <label className="flex justify-center items-center pr-2 font-semibold">Currency:</label>
+
+  //             <select onChange={(event)=>setCurrency(event.target.value)}
+  //             value={currency}
+  //             className={`pl-6 w-30 md:w-40 h-9 border border-gray-primary justify-center items-center`}>
+
+  //                 <option value="usd">$USD</option>
+  //                 <option value="cad">$CAD</option>
+  //                 <option value="eur">€EUR</option>
+  //                 <option value="gbp">£GBP</option>
+  //                 <option value="inr">₹INR</option>
+  //                 <option value="jpy">¥JPY</option>
+  //                 <option value="cny">¥CNY</option>
+  //                 <option value="aud">$AUD</option>
+  //                 <option value="nzd">$NZD</option>
+
+  //             </select> 
+
+  //         </div>
+
+  //         {/* <div className="flex flex-row justify-center items-center gap-x-2">
+
+  //             <label className="flex justify-center items-center pr-2 font-semibold">Connector Type:</label>
+
+  //             <select onChange={(event)=>setConnectorType(event.target.value)}
+  //             value={connectorType}
+  //             className={`text-sm w-30 md:w-40 h-10 text-black justify-center
+  //             border border-gray-primary rounded focus:outline-[#00D3E0] pl-6`}>
+
+  //                 <option value="AC-J1772-Type1">AC-J1772-Type1</option>
+  //                 <option value="AC-Mennekes-Type2">AC-Mennekes-Type2</option>
+  //                 <option value="AC-GB/T">AC-GB/T</option>
+  //                 <option value="DC-CCS1">DC-CCS1</option>
+  //                 <option value="DC-CCS2">DC-CCS2</option>
+  //                 <option value="DC-CHAdeMO">DC-CHAdeMO</option>
+  //                 <option value="DC-GB/T">DC-GB/T</option>
+
+  //             </select> 
+
+  //         </div> */}
+
+  //         <div className="flex flex-row justify-center items-center gap-x-2">
+
+  //             <label className="flex justify-center items-center pr-2 font-semibold">Charging Level:</label>
+
+  //             <select onChange={(event)=>setChargingLevel(event.target.value)}
+  //             value={chargingLevel}
+  //             className={`text-sm w-30 md:w-40 h-10 text-black justify-center
+  //             border border-gray-primary rounded focus:outline-[#00D3E0] pl-6`}>
+
+  //                 <option value="Level 1">Level 1</option>
+  //                 <option value="Level 2">Level 2</option>
+  //                 <option value="Level 3">Level 3</option>
+
+  //             </select> 
+
+  //         </div>
+      
+  //     </div>: null}
+
+  // </div> 
+
     
     const { auth, setActiveTab, socket, setSocket, setNewMessages, setNewRequests } = useAuth();
 

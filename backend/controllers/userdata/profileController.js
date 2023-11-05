@@ -9,7 +9,7 @@ const Flags = require('../../model/Flags');
 const BannedUser = require('../../model/BannedUser');
 const ForexRate = require('../../model/ForexRate');
 
-const { sendPassResetConfirmation, sendVerifiedAccount, sendVerifiedToAdmin } = require('../../middleware/mailer');
+const { sendPassResetConfirmation } = require('../../middleware/mailer');
 const bcrypt = require('bcrypt');
 const ObjectId  = require('mongodb').ObjectId;
 
@@ -411,8 +411,8 @@ const editProfilePic = async (req, res) => {
 
     if(foundUser){
 
-        if(tempProfilePicKey !== '' && foundUser.profilePicKey !== tempProfilePicKey 
-        && foundUser.profilePicURL !== '/images/avatars/defaultUserPic.svg'){
+        if(tempProfilePicKey !== '' && foundUser.profilePicKey !== tempProfilePicKey && foundUser.profilePicKey !== ""
+            && foundUser.profilePicURL !== '/images/avatars/defaultUserPic.svg'){
 
             const deleted = await deleteFile(foundUser.profilePicKey)
 
@@ -779,16 +779,23 @@ const addUserBan = async (req, res) => {
         } else {
 
             const foundUser = await User.findOne({_id: bannedUserId})
+            const foundHost = await HostProfile.findOne({_userId: bannedUserId})
 
-            if(foundUser){
+            if(foundUser && foundHost){
 
                 if(foundUser.deactivated === false){
 
                     foundUser.deactivated = true;
+                    foundUser.active = false;
+                    foundUser.refreshToken = "";
+                    
+                    foundHost.deactivated = true;
+                    foundHost.verifiedHost = false;
 
                     const updateBan = await BannedUser.updateOne({admin: "admin"}, {$push: {ipAddresses: {userIP: foundUser.primaryGeoData.IPv4}}} )
 
                     const savedUpdate = await foundUser.save()
+                    const savedHost = await foundHost.save()
 
                     if(savedUpdate && updateBan){
                         return res.status(200).json({'message': 'Added new ban'})
@@ -825,16 +832,21 @@ const removeUserBan = async (req, res) => {
         } else {
 
             const foundUser = await User.findOne({_id: bannedUserId})
+            const foundHost = await HostProfile.findOne({_userId: bannedUserId})
 
-            if(foundUser){
+            if(foundUser && foundHost){
 
                 foundUser.deactivated = false;
+                foundUser.active = true;
+
+                foundHost.deactivated = true;
+                foundHost.verifiedHost = false;
 
                 const updateBan = await BannedUser.updateOne({admin: "admin"},{$pull: {ipAddresses: {"userIP": foundUser.primaryGeoData.IPv4}}})
-
                 const savedUpdate = await foundUser.save()
+                const savedHost = await foundHost.save()
 
-                if(savedUpdate && updateBan){
+                if(savedUpdate && updateBan && savedHost){
                     return res.status(200).json({'message': 'Added new ban'})
                 }
             }
@@ -1049,18 +1061,17 @@ const editUserReceivePayments = async (req, res) => {
 
 const uploadUserPhotos = async (req, res) => {
 
-    var { userId, currency, chargeRate, frontObjectId, backObjectId} = req.body
 
-    if (!userId || !currency || !chargeRate || !frontObjectId || !backObjectId) {
+    var { userId, frontObjectId, backObjectId} = req.body
+
+    if (!userId || !frontObjectId || !backObjectId ) {
+
         return res.status(400).json({ message: 'User ID Required' })
     }
 
-    chargeRate = Number(chargeRate)
-
     const foundUser = await User.findOne({_id: userId})
-    const foundHost = await HostProfile.findOne({_userId: userId})
 
-    if(foundUser && foundHost){
+    if(foundUser){
 
         if(!foundUser.checkedMobile || foundUser.receivedIdApproval){
         
@@ -1068,59 +1079,28 @@ const uploadUserPhotos = async (req, res) => {
         
         } else {
 
-            console.log("Updating user profile")
-
-            currency = currency.toLowerCase()
-
-            var currencySymbol = "$"
-
-            if(currency === 'usd'){
-                currencySymbol = '$'
-            } else if (currency === 'cad') {
-                currencySymbol = '$'
-            } else if (currency === 'eur'){
-                currencySymbol = '€'
-            } else if (currency === 'gbp'){
-                currencySymbol = '£'
-            } else if (currency === 'inr'){
-                currencySymbol = '₹'
-            } else if (currency === 'jpy'){
-                currencySymbol = '¥'
-            } else if (currency === 'cny'){
-                currencySymbol = '¥'
-            } else if (currency === 'aud'){
-                currencySymbol = '$'
-            } else if (currency === 'nzd'){
-                currencySymbol =  '$'
-            } 
-
             foundUser.frontObjectId = frontObjectId
             foundUser.backObjectId = backObjectId
-            
-            foundUser.currency = currency
-            foundUser.currencySymbol = currencySymbol
-
-            foundHost.chargeRatePerHalfHour = chargeRate
-            foundHost.currency = currency
-            foundHost.currencySymbol = currencySymbol
 
             try{
 
-                var signParams = {
+                var signParamsFront = {
                     Bucket: wasabiPrivateBucketUSA, 
                     Key: frontObjectId, 
                     Expires: 7200
                 };
     
-                var signedURLFrontPhoto = s3.getSignedUrl('getObject', signParams);
+                var signedURLFrontPhoto = s3.getSignedUrl('getObject', signParamsFront);
     
-                var signParams = {
+
+                var signParamsBack = {
                     Bucket: wasabiPrivateBucketUSA, 
                     Key: backObjectId, 
                     Expires: 7200
                 };
     
-                var signedURLBackPhoto = s3.getSignedUrl('getObject', signParams);
+                var signedURLBackPhoto = s3.getSignedUrl('getObject', signParamsBack);
+
 
                 foundUser.frontMediaURL = signedURLFrontPhoto
                 foundUser.backMediaURL = signedURLBackPhoto
@@ -1170,17 +1150,12 @@ const uploadUserPhotos = async (req, res) => {
 
                 if(refreshToken && accessToken){
 
-                    sendVerifiedAccount({ toUser: foundUser.email, firstName: foundUser.firstName })
-                    sendVerifiedToAdmin({verifiedUserId: foundUser._id, verifiedPhone: foundUser.primaryPhone,
-                        verifiedFirstName: foundUser.firstName, verifiedLastame: foundUser.lastName})
-
                     foundUser.refreshToken = refreshToken;
 
                     const savedUser = await foundUser.save()
-                    const savedHost = await foundHost.save()
                     const removedToken = await ActivateToken.deleteMany({_userId: foundUser._id})
 
-                    if(savedUser && savedHost && removedToken){
+                    if(savedUser && removedToken){
                     
                         res.cookie('socketjuicejwt', refreshToken, { 
                             httpOnly: true, 
@@ -1338,7 +1313,7 @@ const uploadUserPhotos = async (req, res) => {
 
 
 
-const uploadDriverPhotos = async (req, res) => {
+const updateDriverProfile = async (req, res) => {
 
     const { userId, driverPreviewMediaObjectId, driverMediaObjectIds, driverVideoObjectIds, driverObjectTypes, driverPreviewObjectType, driverCoverIndex } = req.body
 
@@ -1420,13 +1395,67 @@ const uploadDriverPhotos = async (req, res) => {
 }
 
 
-const uploadHostPhotos = async (req, res) => {
+const updateHostProfile = async (req, res) => {
 
     const { userId, hostPreviewMediaObjectId, hostMediaObjectIds, hostVideoObjectIds, hostObjectTypes, hostPreviewObjectType, hostCoverIndex } = req.body
 
     if (!userId || !hostMediaObjectIds ) {
         return res.status(400).json({ message: 'User ID Required' })
     }
+
+    // currency = currency.toLowerCase()
+
+    // chargeRate = Number(chargeRate)
+
+    // var currencySymbol = "$"
+
+    // if(currency === 'usd'){
+    //     currencySymbol = '$'
+    // } else if (currency === 'cad') {
+    //     currencySymbol = '$'
+    // } else if (currency === 'eur'){
+    //     currencySymbol = '€'
+    // } else if (currency === 'gbp'){
+    //     currencySymbol = '£'
+    // } else if (currency === 'inr'){
+    //     currencySymbol = '₹'
+    // } else if (currency === 'jpy'){
+    //     currencySymbol = '¥'
+    // } else if (currency === 'cny'){
+    //     currencySymbol = '¥'
+    // } else if (currency === 'aud'){
+    //     currencySymbol = '$'
+    // } else if (currency === 'nzd'){
+    //     currencySymbol =  '$'
+    // }
+    // foundUser.connectorObjectId = connectorObjectId
+    
+    // foundUser.currency = currency
+    // foundUser.currencySymbol = currencySymbol
+
+    // if (offeringCharging === 'No'){
+    //     foundHost.offeringCharging = false
+    // } else {
+    //     foundHost.offeringCharging = true
+    // }
+
+    // foundHost.connectorType = connectorType
+    // foundHost.chargingLevel = chargingLevel
+
+    // foundHost.chargeRatePerHalfHour = chargeRate
+    // foundHost.currency = currency
+    // foundHost.currencySymbol = currencySymbol
+
+    // var signParams = {
+    //     Bucket: wasabiPrivateBucketUSA, 
+    //     Key: connectorObjectId, 
+    //     Expires: 7200
+    // };
+
+    // var signedURLConnectorPhoto = s3.getSignedUrl('getObject', signParams);
+    
+    // foundUser.connectorMediaURL = signedURLConnectorPhoto
+    // foundUser.currentStage = 3
 
     const foundHost = await HostProfile.findOne({_id: userId})
 
@@ -1522,7 +1551,7 @@ const checkStage = async (req, res) => {
     } catch(err){
 
         console.log(err)
-        
+
     }
 }
 
@@ -1530,4 +1559,4 @@ const checkStage = async (req, res) => {
 module.exports = { getDriverProfile, editSettingsUserProfile, editSettingsUserPass, editSettingsUserGeneral, 
     editProfilePic, getUserIdByUsername, getProfilePicByUserId, checkUser, getProfileData, 
     deleteOldProfilePic, addUserBan, removeUserBan, makePrivate, makePublic, checkStage,
-    editUserReceivePayments, uploadUserPhotos, uploadDriverPhotos, uploadHostPhotos }
+    editUserReceivePayments, uploadUserPhotos, updateDriverProfile, updateHostProfile }

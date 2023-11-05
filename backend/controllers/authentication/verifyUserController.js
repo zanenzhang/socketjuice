@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 const S3 = require("aws-sdk/clients/s3");
 const { deleteFile } = require("../media/s3Controller");
 const { sendReverifyEmail } = require("../../middleware/mailer")
+const crypto = require('crypto');
 
 const wasabiPrivateBucketUSA = process.env.WASABI_PRIVATE_BUCKET_NAME_USA;
 const wasabiPublicBucketUSA = process.env.WASABI_PUBLIC_BUCKET_NAME_USA;
@@ -133,19 +134,19 @@ const rejectUserUploads = async (req, res) => {
 
         if(checkUser && actToken){
 
-            checkUser.identificationFrontObjectId = ""
-            checkUser.identificationFrontMediaURL = ""
-            checkUser.identificationBackObjectId = ""
-            checkUser.identificationBackMediaURL = ""
+            checkUser.frontObjectId = ""
+            checkUser.frontMediaURL = ""
+            checkUser.backObjectId = ""
+            checkUser.backMediaURL = ""
             checkUser.profilePicKey = ""
             checkUser.profilePicURL = ""
 
             checkUser.receivedIdApproval = false
             checkUser.currentStage = 2;
-            checkUser.deactivated = true;
 
+            const sentMail = await sendReverifyEmail( {toUser: checkUser.email, userId, hash: token, firstName: checkUser.firstName })
             const savedUser = await checkUser.save()
-            const sentMail = await sendReverifyEmail( {toUser: email, userId, hash: token, firstName: checkUser.firstName })
+
 
             if(savedUser && sentMail){
                 return res.status(200).json({"message": "Success"})
@@ -180,7 +181,9 @@ const getUserStatusPhotos = async (req, res) => {
             }
         )
 
-        const usersToCheck = await User.find({checkedMobile: true, receivedIdApproval: false, currentStage: 3})
+        const usersToCheck = await User.find({checkedMobile: true, 
+            receivedIdApproval: false, currentStage: 3})
+
         var doneDrivers = false;
         var doneHosts = false;
 

@@ -9,11 +9,12 @@ router.use(verifyJWT)
 
 router.get('/driver', profileController.getDriverProfile);
 router.get('/host', hostProfileController.getHostProfile);
+router.get('/hostcoord', hostProfileController.getHostProfilesCoord);
 router.get('/stage', profileController.checkStage);
 
 router.post('/userphotos', profileController.uploadUserPhotos);
-router.post('/driverphotos', profileController.uploadDriverPhotos);
-router.post('/hostphotos', profileController.uploadHostPhotos);
+router.post('/driver', profileController.updateDriverProfile);
+router.post('/host', profileController.updateHostProfile);
 
 router.patch('/usersettings', profileController.editSettingsUserProfile);
 router.patch('/userpass', profileController.editSettingsUserPass);

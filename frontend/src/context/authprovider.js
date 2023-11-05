@@ -8,6 +8,7 @@ export const AuthProvider = ({ children }) => {
     const [persist, setPersist] = useState(JSON.parse(localStorage.getItem("socketjuice-persist")) || true);
     const [browse, setBrowse] = useState(localStorage.getItem("socketjuice-browse") || 'yes');
     const [publicFX, setPublicFX] = useState("CAD");
+    const [open, setOpen] = useState(false);
 
     const [publicRates, setPublicRates] = useState({CAD:{
         USDperCAD: {

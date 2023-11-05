@@ -1,6 +1,9 @@
+const User = require('../../model/User');
+const { sendVerifiedAccount, sendVerifiedToAdmin } = require("../../middleware/mailer");
+
 const client = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 const phoneUtil = require('google-libphonenumber').PhoneNumberUtil.getInstance();
-const User = require('../../model/User');
+
 
 async function sendVerification (req, res) {
 
@@ -42,9 +45,6 @@ async function checkVerification (req, res) {
 
     const {number, code, userId, phonePrefix, 
         phoneCountry, phoneCountryCode} = req.body
-
-    console.log(number, code, userId, phonePrefix, 
-        phoneCountry, phoneCountryCode)
 
     if (!number || !code ) {
         return res.status(400).json({ message: 'Missing required info' })
@@ -89,7 +89,13 @@ async function checkVerification (req, res) {
 
                 const updatedUser = await User.updateOne({_id: userId},
                     {$set:{checkedMobile: true, phonePrimary: number, phonePrefix: phonePrefix, currentStage: 2,
-                    currency: currency, phoneCountry: phoneCountry, phoneCountryCode: phoneCountryCode}})
+                    currency: currency, phoneCountry: phoneCountry, phoneCountryCode: phoneCountryCode,
+                    active: true}})
+
+                sendVerifiedAccount({ toUser: foundUser.email, firstName: foundUser.firstName })
+                
+                sendVerifiedToAdmin({verifiedUserId: foundUser._id, verifiedPhone: foundUser.primaryPhone,
+                    verifiedFirstName: foundUser.firstName, verifiedLastame: foundUser.lastName})
 
                 if(updatedUser){
                     console.log("Success")

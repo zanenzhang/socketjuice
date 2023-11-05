@@ -204,9 +204,13 @@ var hostProfileSchema = new Schema({
         type: Boolean, 
         default: false 
     },
+    deactivated: {
+        type: Boolean, 
+        default: false 
+    },
     offeringCharging: {
         type: Boolean,
-        default: true,
+        default: false,
     },
     chargeRatePerHalfHour: {
         type: Number,

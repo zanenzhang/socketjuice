@@ -103,6 +103,7 @@ app.use('/api/messages', cors(corsOptions), require('./routes/messages'));
 app.use('/api/twilio', cors(corsOptions), require('./routes/twilio')); 
 
 app.use('/api/profile', cors(corsOptions), require('./routes/profile')); 
+app.use('/api/public', cors(corsOptions), require('./routes/public')); 
 app.use('/api/verifyuser', cors(corsOptions), require('./routes/verifyuser')); 
 app.use('/api/checkuser', cors(corsOptions), require('./routes/checkuser')); 
 
