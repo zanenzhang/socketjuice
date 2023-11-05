@@ -6,6 +6,7 @@ import {
   GoogleMap,
   Marker,
   DirectionsRenderer, 
+  AdvancedMarkerElement,
 } from '@react-google-maps/api'
 
 import MainHeader from '../../components/mainHeader/mainHeader';
@@ -18,7 +19,6 @@ const MapPage = () => {
   
   
   const { auth, setActiveTab, socket, setSocket, setNewMessages, setNewRequests } = useAuth();
-
   const [center, setCenter] = useState({ lat: 48.8584, lng: 2.2945 })
   /*global google*/
 
@@ -27,15 +27,29 @@ const MapPage = () => {
   const [distance, setDistance] = useState('')
   const [duration, setDuration] = useState('')
   const [waitingCurrent, setWaitingCurrent] = useState(false);
-  
+  const [currentMarker, setCurrentMarker] = useState()
+
+  const iconRegular = {
+    url: "http://maps.gstatic.com/mapfiles/ms2/micons/ltblue-dot.png",
+    scaledSize: new google.maps.Size(40, 40), // scaled size
+  };
+
+  const iconLarge = {
+    url: "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png",
+    scaledSize: new google.maps.Size(45, 45), // scaled size
+  };
+
   const mapRef = useRef(null);
 
-  const[userLat, setUserLat]= useState();
-  const[userLong, setUserLong]= useState();
-
+  const [userLat, setUserLat]= useState();
+  const [userLong, setUserLong]= useState();
+  const [hostLocations, setHostLocations] = useState([])
   const [address, setAddress] = useState('');
-  const [lat, setLat] = useState(0);
-  const [long, setLong] = useState(0);
+
+  const [windowSize, setWindowSize] = useState({
+      x: window.innerWidth,
+      y: window.innerHeight
+  });
 
   /** @type React.MutableRefObject<HTMLInputElement> */
   const originRef = useRef()
@@ -68,7 +82,9 @@ const MapPage = () => {
 
   useEffect ( ()=> {
 
-    
+    if(auth){
+      console.log("User is logged in")
+    }
 
   }, [auth])
 
@@ -83,8 +99,6 @@ const MapPage = () => {
             if(latlong && latlong.data.results[0].geometry.location.lat && 
               latlong.data.results[0].geometry.location.lng){
 
-                setLat(latlong.data.results[0].geometry.location.lat)
-                setLong(latlong.data.results[0].geometry.location.lng)
                 setAddress(latlong.data.results[0].formatted_address)
                 setCenter({ lat: latlong.data.results[0].geometry.location.lat, lng: latlong.data.results[0].geometry.location.lng })
             }
@@ -100,12 +114,12 @@ const MapPage = () => {
 
       if(newPos && auth.userId){
       
-        console.log(newPos);
         var coordinatesInput = [newPos.lng, newPos.lat]
         const locations = await getHostProfilesCoord(coordinatesInput, auth.userId, auth.accessToken)
 
         if(locations){
           console.log(locations)
+          setHostLocations(locations?.foundHostProfiles)
         }
       }
   }
@@ -130,6 +144,11 @@ const MapPage = () => {
       })
     };
 
+    const handleMarkerClick = (e, host) => {
+
+      console.log(host)
+
+    }
 
   async function calculateRoute() {
     if (originRef.current.value === '' || destinationRef.current.value === '') {
@@ -192,9 +211,20 @@ const MapPage = () => {
               onLoad={(map) => handleOnLoad(map)}
               onCenterChanged={(e)=>debouncedChangeHandleCenter(e)}
           >
-          <button>
-              <Marker position={center} value={"TESTING"} onClick={(e)=>console.log(e)} />
-          </button>
+
+          { hostLocations?.length > 0 ? 
+          
+            hostLocations.map((host)=> (
+              <div key={host._id}>
+                <button>
+                    <Marker position={{lat: host.location.coordinates[1], lng:host.location.coordinates[0]}} 
+                      icon={currentMarker === host._id ? iconLarge : iconRegular}
+                      value={host.address} onClick={(e)=>handleMarkerClick(e, host)} />
+                </button>
+              </div>
+            ))
+          
+           : null}
 
           {/* <div>
               <Marker position={{ lat: 48.8584, lng: 2.2941 }}/>
@@ -208,7 +238,7 @@ const MapPage = () => {
       </div>
 
       {<div className="p-2 rounded-xl m-2 bg-white shadow-sm z-10 
-      flex flex-col border">
+      flex flex-row border items-center justify-center gap-x-2">
 
         <div className='flex flex-row items-center'> 
 
@@ -237,13 +267,15 @@ const MapPage = () => {
                           control: (provided, state) => ({
                               ...provided,
                               width: "250px",
+                              height: "50px",
                               boxShadow: "#00D3E0",
                               paddingTop: "8px",
                               paddingBottom: "8px",
                               paddingLeft: "32px",
+                              borderRadius: "6px",
                               border: state.isFocused
                               ? "2px solid #00D3E0"
-                              : "0.5px solid #00D3E0",
+                              : "1px solid #00D3E0",
                               '&:focus': {
                                   border: "4px solid #00D3E0"
                               },
@@ -268,10 +300,10 @@ const MapPage = () => {
               />
         </div>
 
-        <div className='flex flex-row pt-2'>
+        <div className='flex flex-row'>
 
             <button className='rounded-md px-1 py-3 border border-[#00D3E0] text-gray-500 
-            w-[250px] flex flex-row items-center' 
+            w-[250px] h-[50px] flex flex-row items-center' 
               onClick={(e)=> handlePanLocation(e)}>
                 
                 {waitingCurrent ?

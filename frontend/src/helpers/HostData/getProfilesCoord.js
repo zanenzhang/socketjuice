@@ -9,7 +9,7 @@ async function getHostProfilesCoord(coordinatesInput, loggedUserId, accessToken)
             params: {coordinatesInput: JSON.stringify(coordinatesInput), loggedUserId }});
 
         if(response){
-            return response
+            return response.data
         }
 
     } catch (err) {
