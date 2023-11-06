@@ -103,7 +103,9 @@ app.use('/api/messages', cors(corsOptions), require('./routes/messages'));
 app.use('/api/twilio', cors(corsOptions), require('./routes/twilio')); 
 app.use('/api/google', cors(corsOptions), require('./routes/google')); 
 
-app.use('/api/profile', cors(corsOptions), require('./routes/profile')); 
+app.use('/api/profile', cors(corsOptions), require('./routes/profile'));
+app.use('/api/bookmark', cors(corsOptions), require('./routes/bookmarks')); 
+app.use('/api/appointment', cors(corsOptions), require('./routes/appointments'));  
 app.use('/api/public', cors(corsOptions), require('./routes/public')); 
 app.use('/api/verifyuser', cors(corsOptions), require('./routes/verifyuser')); 
 app.use('/api/checkuser', cors(corsOptions), require('./routes/checkuser')); 

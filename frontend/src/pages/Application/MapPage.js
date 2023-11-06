@@ -1,5 +1,7 @@
 import { React, useRef, useState, useEffect, useMemo, createRef } from 'react';
 import axios from '../../api/axios';  
+import DateTimePicker from 'react-datetime-picker';
+import { Scheduler } from "@aldabil/react-scheduler";
 import GooglePlacesAutocomplete from "react-google-places-autocomplete";
 import {
   useJsApiLoader,
@@ -33,6 +35,11 @@ const MapPage = () => {
   const [currentMarker, setCurrentMarker] = useState("")
   const [currentIcon, setCurrentIcon] = useState("")
   const [scrollRefs, setScrollRefs] = useState([])
+
+  const [bookingLength, setBookingLength] = useState(0.5)
+  const [bookingStart, setBookingStart] = useState(new Date())
+  const [bookingEnd, setBookingEnd] = useState(new Date())
+
 
   const mapRef = useRef(null);
 
@@ -314,7 +321,7 @@ const MapPage = () => {
   }
 
 
-  const colorsList = ["red", "yellow", "orange", "purple", "blue", "aqua", "maroon", "pink", "gray", "lime"]
+  const colorsList = ["red", "#FFE142", "orange", "purple", "blue", "aqua", "maroon", "pink", "gray", "lime"]
 
   const svgMarkerPins = (color) => {
 
@@ -641,9 +648,81 @@ const MapPage = () => {
         >
             <Box sx={{ ...profileStyle, width: 350 }}>
 
-                <div>
-                  <button onClick={(e)=>handleLinkURLDirections(e, destinationAddress)}>
-                    Get Directions
+                <div className='flex flex-col w-full overflow-y-scroll'>
+
+                <div className='pt-1 pb-4'>
+                    <p> Length of Booking </p>
+                      <select className="pl-6 w-30 md:w-40 h-9 border border-gray-primary justify-center items-center" 
+                      value={bookingLength}
+                      onChange={(event) => {
+                          setBookingLength(event.target.value);
+                      }}>
+                      
+                      <option value={0.5}>30 Min</option>
+                      <option value={1.0}>1 Hour</option>
+                      <option value={1.5}>1.5 Hours</option>
+                      <option value={2.0}>2.0 Hours</option>
+                      <option value={2.5}>2.5 Hours</option>
+                      <option value={3.0}>3.0 Hours</option>
+                      <option value={4.0}>4.0 Hours</option>
+                      <option value={5.0}>5.0 Hours</option>
+                      <option value={6.0}>6.0 Hours</option>
+                      <option value={7.0}>7.0 Hours</option>
+                      <option value={8.0}>8.0 Hours</option>
+                      <option value={9.0}>9.0 Hours</option>
+                      <option value={10.0}>10.0 Hours</option>
+                      
+                      </select>
+                  </div>
+                  
+                  <div className='pt-1 pb-4'>
+                    <p> Start Time </p>
+                    <DateTimePicker value={bookingStart} 
+                    onChange={(e)=>setBookingStart(e.target.value)} />
+                  </div>
+
+                  <div className='pt-1 pb-4'>
+                    <p> End Time </p>
+                    <DateTimePicker value={bookingEnd}
+                    onChange={(e)=>setBookingEnd(e.target.value)} />
+                  </div>
+
+              <div className='w-full'>
+              <Scheduler
+                events={[]}
+                className='w-full'
+                view="day"
+                day={{
+                  startHour: 8, 
+                  endHour: 22, 
+                  step: 30,
+                  navigation: true
+                }}
+                disableViewNavigator={true}
+                onSelectedDateChange={(e)=>console.log(e)}
+                editable={false}
+                deletable={false}
+                // week={{
+                //   weekDays: [0, 1, 2, 3, 4, 5, 6],
+                //   weekStartOn: 6,
+                //   startHour: 0,
+                //   endHour: 24,
+                //   step: 30
+                // }}
+                viewerExtraComponent={(fields, event) => {
+                  return (
+                    <div>
+                      <p>Useful to render custom fields...</p>
+                      <p>Description: {event.description || "Nothing..."}</p>
+                    </div>
+                  );
+                }}
+              />
+              </div>
+
+                  <button className='border border-gray-300 px-3 py-2 rounded-xl mt-2'
+                  onClick={(e)=>handleLinkURLDirections(e, destinationAddress)}>
+                    Get Directions (Opens Map)
                   </button>
                 </div>
 

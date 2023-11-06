@@ -15,10 +15,14 @@ var appointmentSchema = new Schema({
         type: String, 
         required: true 
     },
-    appointmentStart: {
+    title: {
+        type: String,
+        default: "Charging Request"
+    },
+    start: {
         type: Date,
     },
-    appointmentEnd: {
+    end: {
         type: Date,
     },
     cancelRequestHostSubmit: {
@@ -41,6 +45,12 @@ var appointmentSchema = new Schema({
         type: Boolean,
         default: false
     },
+    requestDateStart: {
+        type: String,
+    },
+    requestDateEnd: {
+        type: String,
+    }
 });
 
 module.exports = mongoose.model('Appointment', appointmentSchema, 'appointments');

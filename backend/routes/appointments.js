@@ -8,9 +8,14 @@ router.use(verifyJWT)
 
 router.get('/driver', appointmentController.getDriverAppointments);
 router.get('/host', appointmentController.getHostAppointments);
-router.post('/', appointmentController.addAppointment);
-router.delete('/', appointmentController.removeAppointment);
 
+router.post('/', appointmentController.addAppointment);
+router.post('/drivercancelsubmit', appointmentController.driverRequestCancelSubmit);
+router.post('/drivercancelapprove', appointmentController.driverRequestCancelApprove);
+router.post('/hostcancelsubmit', appointmentController.hostRequestCancelSubmit);
+router.post('/hostcancelapprove', appointmentController.hostRequestCancelApprove);
+
+router.delete('/', appointmentController.removeAppointment);
 
 
 module.exports = router;

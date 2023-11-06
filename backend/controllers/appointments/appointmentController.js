@@ -35,22 +35,19 @@ const s3 = new S3({
 
 const getHostAppointments = async (req, res) => {
     
-    var { userId, pageNumber } = req.query
+    var { userId, currentDate } = req.query
 
-    if (!userId || !pageNumber ) {
+    if (!userId || !currentDate ) {
         return res.status(400).json({ message: 'Missing required information' })
     }
 
-    if(Number(pageNumber) === NaN || Number(pageNumber) < 0 || Number(pageNumber) > 1000){
-        return res.status(400).json({ message: 'Content does not meet requirements' })
-    }
-    pageNumber = Number(pageNumber)
-
     const foundHostProfile = await HostProfile.findOne({_userId: userId})
 
-    if(foundHostProfile){
+    if(foundHostProfile){        
 
-        const userAppointments = await Appointment.findOne({ _id: {$in: foundHostProfile?.hostAppointments.map(e => e._appointmentId)} })
+        const userAppointments = await Appointment.findOne({ _id: {$in: foundHostProfile?.hostAppointments.map(e => e._appointmentId)}, 
+            $or: [{requestDateStart: currentDate},{requestDateEnd: currentDate}], status: "Approved" })
+
         const flaggedList = await Flags.findOne({_userId: userId}).select("userFlags")
 
         let foundHostProfiles = null;
@@ -115,22 +112,19 @@ const getHostAppointments = async (req, res) => {
 
 const getDriverAppointments = async (req, res) => {
     
-    var { userId, pageNumber } = req.query
+    var { userId, currentDate } = req.query
 
-    if (!userId || !pageNumber ) {
+    if (!userId || !currentDate ) {
         return res.status(400).json({ message: 'Missing required information' })
     }
-
-    if(Number(pageNumber) === NaN || Number(pageNumber) < 0 || Number(pageNumber) > 1000){
-        return res.status(400).json({ message: 'Content does not meet requirements' })
-    }
-    pageNumber = Number(pageNumber)
 
     const foundDriverProfile = await DriverProfile.findOne({_userId: userId})
 
     if(foundDriverProfile){
 
-        const userAppointments = await Appointment.findOne({ _id: {$in: foundDriverProfile?.userAppointments.map(e => e._appointmentId)} })
+        const userAppointments = await Appointment.findOne({ _id: {$in: foundDriverProfile?.userAppointments.map(e => e._appointmentId)}, 
+            $or: [{requestDateStart: currentDate},{requestDateEnd: currentDate}], status: "Approved" })
+
         const flaggedList = await Flags.findOne({_userId: userId}).select("userFlags")
 
         let foundHostProfiles = null;
@@ -192,7 +186,7 @@ const getDriverAppointments = async (req, res) => {
 }   
 
 
-const addAppointment = async (req, res) => {
+const addAppointmentRequest = async (req, res) => {
 
     const { userId, hostUserId, appointmentStart, appointmentEnd } = req.body
 
@@ -205,6 +199,11 @@ const addAppointment = async (req, res) => {
         const foundLimits = await UsageLimit.findOne({_userId: userId})
 
         var todaysDate = new Date().toLocaleDateString()
+
+        var requestStart = new Date(appointmentStart)
+        var requestEnd = new Date(appointmentEnd)
+        var requestStartString = requestStart.toISOString().slice(0, 10)
+        var requestEndString = requestEnd.toISOString().slice(0, 10)
         
         var doneHostAppointments = false;
         var doneDriverAppointments = false;
@@ -259,66 +258,83 @@ const addAppointment = async (req, res) => {
 
             const newToken = crypto.randomBytes(16).toString('hex')
 
-            const newAppointment = await Appointment.create({_requestUserId: userId, _hostUserId: hostUserId, passcode: newToken,
-                appointmentStart: appointmentStart, appointmentEnd: appointmentEnd})
+            const checkAppointments = await Appointment.findOne(
+                {$or: [{_requestUserId: userId}, {_hostUserId: hostUserId}], 
+                $or: [ 
+                    { start : { $lt: requestStart }, end : { $gt: requestStart } },
+                    { start : { $lt: requestEnd }, end : { $gte: requestEnd } },
+                    { start : { $gt: requestStart }, end : { $lt: requestEnd } }], 
+                status: "Approved" }
+                )
 
-            if(newAppointment){
+            if(!checkAppointments){
 
-                foundHostProfile.numberOfHostAppointments = foundHostProfile.numberOfHostAppointments + 1
-            
-                if(foundHostProfile.hostAppointments?.length > 0){
+                const newAppointment = await Appointment.create({_requestUserId: userId, _hostUserId: hostUserId, passcode: newToken,
+                    start: appointmentStart, end: appointmentEnd, requestDateStart: requestStartString, 
+                    requestDateEnd: requestEndString})
+    
+                if(newAppointment){
+    
+                    foundHostProfile.numberOfHostAppointments = foundHostProfile.numberOfHostAppointments + 1
                 
-                    foundHostProfile.push({_appointmentId: newAppointment._id})
-
-                    const savedHostProfile = await foundHostProfile.save()
-
-                    if(savedHostProfile){
-                        doneHostAppointments= true;
-                    }
-                
-                } else {
-
-                    foundHostProfile.hostAppointments = [{_appointmentId: newAppointment._id}]
+                    if(foundHostProfile.hostAppointments?.length > 0){
                     
-                    const savedHostProfile = await foundHostProfile.save()
-
-                    if(savedHostProfile){
-                        doneHostAppointments= true;
+                        foundHostProfile.push({_appointmentId: newAppointment._id})
+    
+                        const savedHostProfile = await foundHostProfile.save()
+    
+                        if(savedHostProfile){
+                            doneHostAppointments= true;
+                        }
+                    
+                    } else {
+    
+                        foundHostProfile.hostAppointments = [{_appointmentId: newAppointment._id}]
+                        
+                        const savedHostProfile = await foundHostProfile.save()
+    
+                        if(savedHostProfile){
+                            doneHostAppointments= true;
+                        }
+                    }
+    
+                    foundDriverProfile.numberOfHostAppointments = foundDriverProfile.numberOfHostAppointments + 1
+                
+                    if(foundDriverProfile.hostAppointments?.length > 0){
+                    
+                        foundDriverProfile.push({_appointmentId: newAppointment._id})
+    
+                        const savedDriverProfile = await foundDriverProfile.save()
+    
+                        if(savedDriverProfile){
+                            doneDriverAppointments= true;
+                        }
+                    
+                    } else {
+    
+                        foundDriverProfile.hostAppointments = [{_appointmentId: newAppointment._id}]
+                        
+                        const savedDriverProfile = await foundDriverProfile.save()
+    
+                        if(savedDriverProfile){
+                            doneDriverAppointments= true;
+                        }
                     }
                 }
-
-                foundDriverProfile.numberOfHostAppointments = foundDriverProfile.numberOfHostAppointments + 1
-            
-                if(foundDriverProfile.hostAppointments?.length > 0){
-                
-                    foundDriverProfile.push({_appointmentId: newAppointment._id})
-
-                    const savedDriverProfile = await foundDriverProfile.save()
-
-                    if(savedDriverProfile){
-                        doneDriverAppointments= true;
-                    }
+    
+                if(doneHostAppointments && doneDriverAppointments && doneOperation && savedProfile){
+                    
+                    return res.status(201).json({ message: 'Success' })
                 
                 } else {
-
-                    foundDriverProfile.hostAppointments = [{_appointmentId: newAppointment._id}]
-                    
-                    const savedDriverProfile = await foundDriverProfile.save()
-
-                    if(savedDriverProfile){
-                        doneDriverAppointments= true;
-                    }
+    
+                    return res.status(401).json({ message: 'Operation failed' })
                 }
-            }
-
-            if(doneHostAppointments && doneDriverAppointments && doneOperation && savedProfile){
-                
-                return res.status(201).json({ message: 'Success' })
-            
             } else {
 
-                return res.status(401).json({ message: 'Operation failed' })
-            }   
+                console.log("Already have appointment overlapping during this time")
+                return res.status(403).json({ message: 'Overlapping slots' })
+            }  
           
         } else {
 
@@ -331,6 +347,56 @@ const addAppointment = async (req, res) => {
     }
 }
 
+const addAppointmentApproval = async (req, res) => {
+
+    const { userId, hostUserId, appointmentId } = req.body
+
+    if (!userId || !hostUserId ) return res.status(400).json({ 'message': 'Missing required fields!' });
+
+    try {
+
+        const foundAppointment = await Appointment.findOne({_id: appointmentId})
+
+        if(foundAppointment && foundAppointment.status === "Requested"){
+
+            //Check for overlaps
+            const startTime = foundAppointment.start
+            const endTime = foundAppointment.end
+
+            const checkAppointments = await Appointment.findOne(
+                {$or: [{_requestUserId: userId}, {_hostUserId: hostUserId}], 
+                $or: [ 
+                    { start : { $lt: startTime }, end : { $gt: startTime } },
+                    { start : { $lt: endTime }, end : { $gte: endTime } },
+                    { start : { $gt: startTime }, end : { $lt: endTime } }], 
+                status: "Approved" })
+
+            if(!checkAppointments){
+
+                const updatedAppointment = await Appointment.updateOne({_id: appointmentId},{$set:{status: "Approved"}})
+
+                if(updatedAppointment){
+                    
+                    return res.status(201).json({ message: 'Success' })
+
+                } else {
+
+                    return res.status(401).json({ message: 'Operation failed' })
+                }
+
+            } else {
+
+                console.log("Already have appointment overlapping during this time")
+                return res.status(403).json({ message: 'Overlapping slots' })
+            }
+        }
+
+    } catch(err){
+
+
+    }
+}
+
 const driverRequestCancelSubmit = async (req, res) =>{
 
     const { userId, hostUserId, appointmentId } = req.body    
@@ -339,7 +405,7 @@ const driverRequestCancelSubmit = async (req, res) =>{
 
     try {
 
-        const foundAppointment = await Appointment.updateOne({_id: appointmentId, _requestUserId: userId, _hostUserId: hostUserId}, {$set: {cancelRequestDriverSubmit: true}})
+        const foundAppointment = await Appointment.updateOne({_id: appointmentId, _requestUserId: userId, _hostUserId: hostUserId}, {$set: {cancelRequestDriverSubmit: true, status: "CancelSubmitted"}})
         const updateDriverProfile = await DriverProfile.updateOne({_id: userId},{$inc: {numberOfAppointmentCancellations: 1}})
 
         if(foundAppointment && updateDriverProfile){
@@ -366,18 +432,14 @@ const driverRequestCancelApprove = async (req, res) =>{
 
         if(foundAppointment && foundAppointment.cancelRequestHostSubmit){
             
-            const foundDriverProfile = await DriverProfile.findOne({_userId: userId})
-            const foundHostProfile = await HostProfile.findOne({_userId: hostUserId})
+            const foundDriverProfile = await DriverProfile.updateOne({_userId: userId},{$inc: {numberOfAppointmentCancellations: 1}})
+            const foundHostProfile = await HostProfile.updateOne({_userId: hostUserId},{$inc: {numberOfAppointmentCancellations: 1}})
 
             if(foundDriverProfile && foundHostProfile){
 
-                foundDriverProfile?.userAppointments.pull({_appointmentId: appointmentId})
-                foundHostProfile?.hostAppointments.pull({_appointmentId: appointmentId})
+                const updatedAppointment = await Appointment.updateOne({_id: appointmentId},{$set:{status: "Cancelled"}})
 
-                const savedDriver = await foundDriverProfile.save()
-                const savedHost = await foundHostProfile.save()
-
-                if(savedDriver && savedHost){
+                if(updatedAppointment){
 
                     return res.status(201).json({ message: 'Success' })
                 
@@ -407,7 +469,7 @@ const hostRequestCancelSubmit = async (req, res) =>{
 
     try {
 
-        const foundAppointment = await Appointment.updateOne({_id: appointmentId, _requestUserId: userId, _hostUserId: hostUserId}, {$set: {cancelRequestHostSubmit: true}})
+        const foundAppointment = await Appointment.updateOne({_id: appointmentId, _requestUserId: userId, _hostUserId: hostUserId}, {$set: {cancelRequestHostSubmit: true, status: "CancelSubmitted"}})
         const updateHostProfile = await HostProfile.updateOne({_id: hostUserId},{$inc: {numberOfAppointmentCancellations: 1}})
 
         if(foundAppointment && updateHostProfile){
@@ -422,6 +484,7 @@ const hostRequestCancelSubmit = async (req, res) =>{
     }
 }
 
+
 const hostRequestCancelApprove = async (req, res) =>{
 
     const { userId, hostUserId, appointmentId } = req.body    
@@ -434,18 +497,14 @@ const hostRequestCancelApprove = async (req, res) =>{
 
         if(foundAppointment && foundAppointment.cancelRequestDriverSubmit){
             
-            const foundDriverProfile = await DriverProfile.findOne({_userId: userId})
-            const foundHostProfile = await HostProfile.findOne({_userId: hostUserId})
+            const foundDriverProfile = await DriverProfile.updateOne({_userId: userId},{$inc: {numberOfAppointmentCancellations: 1}})
+            const foundHostProfile = await HostProfile.updateOne({_userId: hostUserId},{$inc: {numberOfAppointmentCancellations: 1}})
 
             if(foundDriverProfile && foundHostProfile){
 
-                foundDriverProfile?.userAppointments.pull({_appointmentId: appointmentId})
-                foundHostProfile?.hostAppointments.pull({_appointmentId: appointmentId})
+                const updatedAppointment = await Appointment.updateOne({_id: appointmentId},{$set:{status: "Cancelled"}})
 
-                const savedDriver = await foundDriverProfile.save()
-                const savedHost = await foundHostProfile.save()
-
-                if(savedDriver && savedHost){
+                if(updatedAppointment){
 
                     return res.status(201).json({ message: 'Success' })
                 
@@ -521,6 +580,5 @@ const removeAppointment = async (req, res) => {
 
 
 
-module.exports = { getHostAppointments, getDriverAppointments, addAppointment, 
-    driverRequestCancelSubmit, driverRequestCancelApprove, hostRequestCancelSubmit, 
-    hostRequestCancelApprove, removeAppointment }
+module.exports = { getHostAppointments, getDriverAppointments, addAppointmentRequest, addAppointmentApproval, 
+    driverRequestCancelSubmit, driverRequestCancelApprove, hostRequestCancelSubmit, hostRequestCancelApprove, removeAppointment }

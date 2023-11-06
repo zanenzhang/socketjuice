@@ -97,6 +97,7 @@ const CustomEditor = ({ scheduler }) => {
 
     const [value, setValue] = useState("0")
     const [waiting, setWaiting] = useState(false);
+    const [currentDate, setCurrentDate] = useState("")
 
       useEffect( ()=> {
 
@@ -117,6 +118,21 @@ const CustomEditor = ({ scheduler }) => {
           setWaiting(false);
       };
 
+      useEffect( ()=> {
+
+        if(auth.userId && currentDate){
+
+        }
+
+      }, [auth.userId, currentDate])
+
+
+      const handleNewDate = () => {
+
+
+
+      }
+
     const EVENTS = [
       {
         event_id: 1,
@@ -132,7 +148,7 @@ const CustomEditor = ({ scheduler }) => {
         start: new Date(new Date(new Date().setHours(10)).setMinutes(0)),
         end: new Date(new Date(new Date().setHours(12)).setMinutes(0)),
         admin_id: 2,
-        color: "#50b500"
+        color: "orange"
       },
       {
         event_id: 3,
@@ -157,7 +173,7 @@ const CustomEditor = ({ scheduler }) => {
           )
         ),
         admin_id: 2,
-        color: "#900000"
+        color: "yellow"
       },
       {
         event_id: 5,
@@ -228,8 +244,16 @@ const CustomEditor = ({ scheduler }) => {
           <Scheduler
                 events={EVENTS}
                 view="day"
+                day={{
+                  startHour: 8, 
+                  endHour: 22, 
+                  step: 30,
+                  navigation: true
+                }}
                 disableViewNavigator={true}
                 onSelectedDateChange={(e)=>console.log(e)}
+                editable={false}
+                deletable={false}
                 // week={{
                 //   weekDays: [0, 1, 2, 3, 4, 5, 6],
                 //   weekStartOn: 6,

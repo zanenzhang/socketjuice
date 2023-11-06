@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 // const mongoose_fuzzy_searching = require('mongoose-fuzzy-searching');
 
-var hostProfileSchema = new Schema({
+var chargerSchema = new Schema({
     _userId: { 
         type: Schema.Types.ObjectId, 
         required: true, ref: 'User',
@@ -17,28 +17,6 @@ var hostProfileSchema = new Schema({
         }
     }],
     availabilities: [{
-        startDate: {
-            type: Date,
-        },
-        endDate:{
-            type: Date,
-        }
-    }],
-    chargers: [{
-        _chargerId: {
-            type: Schema.Types.ObjectId, 
-            required: true, ref: 'Charger',
-        },
-    }],
-    numberOfReceivedReviews: {
-        type: Number,
-        default: 0
-    },
-    numberOfTotalStars: {
-        type: Number,
-        default: 0
-    },
-    bookings: [{
         startDate: {
             type: Date,
         },
@@ -150,6 +128,18 @@ var hostProfileSchema = new Schema({
         type: Boolean,
         default: false
     },
+    chargeRatePerHalfHour: {
+        type: Number,
+        default: 3.00
+    },
+    currency: {
+        type: String,
+        default: "cad"
+    },
+    currencySymbol: {
+        type: String,
+        default: "$"
+    },
     hostComments: {
         type: String,
         maxLength: 2000,
@@ -206,83 +196,6 @@ var hostProfileSchema = new Schema({
             required: true
         },
     },
-    verifiedHost: { 
-        type: Boolean, 
-        default: false 
-    },
-    deactivated: {
-        type: Boolean, 
-        default: false 
-    },
-    offeringCharging: {
-        type: Boolean,
-        default: false,
-    },
-    chargeRatePerHalfHour: {
-        type: Number,
-        default: 3.00
-    },
-    numberOfChargesAtLocation:{
-        type: Number,
-        default: 1
-    },
-    currency: {
-        type: String,
-        default: "cad"
-    },
-    currencySymbol: {
-        type: String,
-        default: "$"
-    },
-    hostAppointments: [{  
-        _appointmentId: { 
-            type: Schema.Types.ObjectId, 
-            ref: 'Appointment',
-            index: true
-        },
-        createdAt: {
-            type: Date, 
-            default: Date.now
-        }
-    }],
-    numberOfHostAppointments: {
-        type: Number,
-        default: 0
-    },
-    numberOfAppointmentCancellations: {
-        type: Number,
-        default: 0
-    },
-    incomingPayments: [{  
-        _paymentId: { 
-            type: Schema.Types.ObjectId, 
-            ref: 'Payment',
-            index: true
-        },
-        amount: {
-            type: Number, 
-            default: 0
-        },
-        currency: {
-            type: Number, 
-            default: 0
-        },
-        refunded: {
-            type: Boolean,
-            default: false
-        }
-    }],
-    receivedReviews: [{
-        _reviewId: {
-            type: Schema.Types.ObjectId,
-            ref: 'Review',
-            index: true
-        },
-        reviewStars: {
-            type: Number,
-            default: 3
-        }
-    }],
     bookmarksCount: {
         type: Number,
         default: 0
@@ -322,6 +235,6 @@ var hostProfileSchema = new Schema({
     }
 })
 
-hostProfileSchema.index({location: "2dsphere"})
+chargerSchema.index({location: "2dsphere"})
 
-module.exports = mongoose.model('HostProfile', hostProfileSchema, 'hostprofiles');
+module.exports = mongoose.model('Charger', chargerSchema, 'chargers');
