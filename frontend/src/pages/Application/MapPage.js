@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, useMemo } from 'react';
+import { React, useRef, useState, useEffect, useMemo } from 'react';
 import axios from '../../api/axios';  
 import GooglePlacesAutocomplete from "react-google-places-autocomplete";
 import {
@@ -6,21 +6,24 @@ import {
   GoogleMap,
   Marker,
   DirectionsRenderer, 
-  AdvancedMarkerElement,
-} from '@react-google-maps/api'
+} from '@react-google-maps/api';
+import Modal from '@mui/material/Modal';
+import Box from '@mui/material/Box';
 
 import MainHeader from '../../components/mainHeader/mainHeader';
 import debounce from 'lodash.debounce';
 import useAuth from '../../hooks/useAuth';
 import getHostProfilesCoord from '../../helpers/HostData/getProfilesCoord';
-  
-  
+import getGoogleCoordinates from '../../helpers/Google/getGoogleCoordinates';  
+import getGoogleMatrix from '../../helpers/Google/getGoogleMatrix';
+
+
 const MapPage = () => {
-  
-  
+
+  /*global google*/
+
   const { auth, setActiveTab, socket, setSocket, setNewMessages, setNewRequests } = useAuth();
   const [center, setCenter] = useState({ lat: 48.8584, lng: 2.2945 })
-  /*global google*/
 
   const [map, setMap] = useState(null)
   const [directionsResponse, setDirectionsResponse] = useState(null)
@@ -28,23 +31,19 @@ const MapPage = () => {
   const [duration, setDuration] = useState('')
   const [waitingCurrent, setWaitingCurrent] = useState(false);
   const [currentMarker, setCurrentMarker] = useState()
-
-  const iconRegular = {
-    url: "http://maps.gstatic.com/mapfiles/ms2/micons/ltblue-dot.png",
-    scaledSize: new google.maps.Size(40, 40), // scaled size
-  };
-
-  const iconLarge = {
-    url: "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png",
-    scaledSize: new google.maps.Size(45, 45), // scaled size
-  };
+  const [currentIcon, setCurrentIcon] = useState()
 
   const mapRef = useRef(null);
 
   const [userLat, setUserLat]= useState();
-  const [userLong, setUserLong]= useState();
+  const [userLng, setUserLng]= useState();
   const [hostLocations, setHostLocations] = useState([])
-  const [address, setAddress] = useState('');
+  const [userAddress, setUserAddress] = useState('');
+
+  const [openReserveModal, setOpenReserveModal] = useState(false);
+
+  const [iconLarge, setIconLarge] = useState({})
+  const [iconRegular, setIconRegular] = useState({})
 
   const [windowSize, setWindowSize] = useState({
       x: window.innerWidth,
@@ -56,16 +55,77 @@ const MapPage = () => {
   /** @type React.MutableRefObject<HTMLInputElement> */
   const destinationRef = useRef()
 
-  var { isLoaded } = useJsApiLoader({
-      googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
-      libraries: ['places'],
-    })
+  var {isLoaded} = useJsApiLoader({
+    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+    libraries: ['places'],
+  })
 
   useEffect( ()=> {
 
       setActiveTab("map")
 
   }, [])
+
+  useEffect( () => {
+
+    if(isLoaded && google){
+
+      // setIconRegular({
+      //   url: "http://maps.gstatic.com/mapfiles/ms2/micons/ltblue-dot.png",
+      //   scaledSize: new google.maps.Size(40, 40), // scaled size
+      // })
+    
+      // setIconLarge({
+      //   url: "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png",
+      //   scaledSize: new google.maps.Size(45, 45), // scaled size
+      // })
+
+      const svg = {
+        path: "M45.699 24.145l-7.89-13.293c-.314-.584-1.072-.852-1.721-.852h-7.088v-6c0-1.1-.9-2-2-2h-5c-1.1 0-2 .9-2 2v6h-5.96c-.65 0-1.44.268-1.754.852l-7.921 13.398c-1.301 0-2.365.987-2.365 2.322v12.139c0 1.335 1.064 2.289 2.365 2.289h2.635v3.78c0 2.004 1.328 3.22 3.279 3.22h1.183c1.951 0 3.538-1.216 3.538-3.22v-3.78h20v3.78c0 2.004 1.714 3.22 3.665 3.22h1.184c1.951 0 3.151-1.216 3.151-3.22v-3.78h2.763c1.3 0 2.237-.954 2.237-2.289v-12.139c0-1.335-1-2.427-2.301-2.427zm-37.194 9.71c-1.633 0-2.958-1.358-2.958-3.034 0-1.677 1.324-3.035 2.958-3.035s2.957 1.358 2.957 3.035c0 1.676-1.323 3.034-2.957 3.034zm1.774-9.855l5.384-9.377c.292-.598 1.063-.623 1.713-.623h15.376c.65 0 1.421.025 1.712.623l5.385 9.377h-29.57zm31.343 9.855c-1.632 0-2.957-1.358-2.957-3.034 0-1.677 1.325-3.035 2.957-3.035 1.633 0 2.958 1.358 2.958 3.035 0 1.676-1.325 3.034-2.958 3.034z",
+        fillColor: "cyan",
+        fillOpacity: 1,
+        strokeWeight: 1,
+        rotation: 0,
+        scale: 0.9,
+        anchor: new google.maps.Point(30,30),
+      }
+
+      setCurrentIcon(svg)
+    }
+
+  }, [isLoaded])
+
+
+  async function getDistanceDurationsMatrix(destinations, lat, lng){
+
+    if( ( (!userLat && !userLng) && !userAddress) && (!lat && !lng) || destinations?.length === 0 || !destinations){
+      alert("Please provide an origin address or your current location")
+      return
+    }
+
+    var originString = ""
+    var destinationString = destinations.join(" ")
+    var destinationString = encodeURIComponent(destinationString)
+    
+    if(userLat && userLng){
+      originString = userLat.toString() + " " + userLng.toString()
+      originString = encodeURIComponent(originString)
+    
+    } else if (userAddress) {
+      originString = encodeURIComponent(userAddress)
+    
+    } else if(lat && lng){
+      originString = lat.toString() + " " + lng.toString()
+      originString = encodeURIComponent(originString)
+    } 
+
+    const matrix = await getGoogleMatrix(originString, destinationString, auth.userId, auth.accessToken)
+
+    if(matrix){
+      return matrix.data
+    }
+  
+  }
 
   function createMapURLDirections(destination){
 
@@ -88,28 +148,40 @@ const MapPage = () => {
 
   }, [auth])
 
+
+  const handleReserve = (e) => {
+
+    e.preventDefault()
+
+  }
+
   const handleAddress = (e) => {
 
     async function getcoordinates(){
         
         if(e.value?.place_id){
 
-            const latlong = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?place_id=${e.value.place_id}&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`)
+            const {latlong} = await getGoogleCoordinates(e.value.place_id, auth.userId, auth.accessToken)
 
-            if(latlong && latlong.data.results[0].geometry.location.lat && 
-              latlong.data.results[0].geometry.location.lng){
+            if(latlong && latlong.results[0].geometry.location.lat && 
+              latlong.results[0].geometry.location.lng){
 
-                setAddress(latlong.data.results[0].formatted_address)
-                setCenter({ lat: latlong.data.results[0].geometry.location.lat, lng: latlong.data.results[0].geometry.location.lng })
+                setUserAddress(latlong.results[0].formatted_address)
+                setCenter({ lat: latlong.results[0].geometry.location.lat, lng: latlong.results[0].geometry.location.lng })
             }
         }
     }
 
-    getcoordinates()
+    if(auth.userId){
+      getcoordinates()
+    }
   }
 
   async function handleCenterChanged() {
-      if (!mapRef.current) return;
+      
+    if (!mapRef.current){
+      return
+    } 
       const newPos = mapRef.current.getCenter().toJSON();
 
       if(newPos && auth.userId){
@@ -119,34 +191,117 @@ const MapPage = () => {
 
         if(locations){
           console.log(locations)
-          setHostLocations(locations?.foundHostProfiles)
+
+          var destinations = []
+          var hostIndexHash = {}
+          
+          for(let i=0; i< locations?.foundHostProfiles?.length; i++){
+            
+            if(locations.foundHostProfiles[i]?.address){
+
+              destinations.push(locations.foundHostProfiles[i].address)
+
+              var address_array = locations.foundHostProfiles[i].address?.split(',');
+              locations.foundHostProfiles[i].addressArray = address_array
+
+              hostIndexHash[locations.foundHostProfiles[i].address] = i
+            }
+          }
+          
+          // setHostLocations(locations?.foundHostProfiles)
+          
+          console.log(userLat, userLng)
+          if(locations?.foundHostProfiles?.length > 0){
+            const {matrix} = await getDistanceDurationsMatrix(destinations, newPos.lat, newPos.lng)
+
+            if(matrix){
+              console.log(matrix)
+              console.log("Merging into matrix")
+              console.log(hostIndexHash)
+
+              for(let i=0; i<matrix?.rows[0]?.elements?.length; i++){
+                
+                if(matrix?.destination_addresses[i]){
+                  
+                  var index = hostIndexHash[matrix?.destination_addresses[i]]
+
+                  if(index !== undefined){
+                    
+                    locations.foundHostProfiles[index].durationValue = matrix?.rows[0]?.elements[i].duration?.value
+                    locations.foundHostProfiles[index].durationText = matrix?.rows[0]?.elements[i].duration?.text
+
+                    locations.foundHostProfiles[index].distanceValue = matrix?.rows[0]?.elements[i].distance?.value
+                    locations.foundHostProfiles[index].distanceText = matrix?.rows[0]?.elements[i].distance?.text
+                  }
+                }
+              }
+              
+              locations.foundHostProfiles.sort((a,b) => a.durationValue - b.durationValue)
+              setHostLocations(locations.foundHostProfiles)
+            }
+          }
         }
       }
   }
+
+  const preHandleCenter = (e) => {
+    
+    if(auth.userId){
+      debouncedChangeHandleCenter()
+    }
+  }
+
+
+  const colorsList = ["red", "yellow", "orange", "purple", "blue", "aqua", "maroon", "pink", "gray", "lime"]
+
+  const svgMarkerPins = (color) => {
+
+    if(isLoaded){
+      return (
+
+        {path: "M25 0c-8.284 0-15 6.656-15 14.866 0 8.211 15 35.135 15 35.135s15-26.924 15-35.135c0-8.21-6.716-14.866-15-14.866zm-.049 19.312c-2.557 0-4.629-2.055-4.629-4.588 0-2.535 2.072-4.589 4.629-4.589 2.559 0 4.631 2.054 4.631 4.589 0 2.533-2.072 4.588-4.631 4.588z",
+        fillColor: `${color}`,
+        fillOpacity: 1,
+        strokeWeight: 1,
+        rotation: 0,
+        scale: 0.9,
+        anchor: new google.maps.Point(25,50),
+        }
+      )
+    }
+  } 
   
   const debouncedChangeHandleCenter = useMemo(
       () => debounce(handleCenterChanged, 800)
-  , []);
+  , [auth]);
+
 
   const handlePanLocation = () => {
 
-      setWaitingCurrent(true)
+      if(auth?.userId){
 
-      navigator.geolocation.getCurrentPosition(position =>{
-        setUserLat(position.coords.latitude);
-        setUserLong(position.coords.longitude);
-        console.log(position.coords.latitude, position.coords.longitude);
+        setWaitingCurrent(true)
 
-        if(position.coords.longitude && position.coords.latitude){
-          map.panTo({lat:position.coords.latitude,lng:position.coords.longitude})
-          setWaitingCurrent(false)
-        }
-      })
+        navigator.geolocation.getCurrentPosition(position =>{
+          setUserLat(position.coords.latitude);
+          setUserLng(position.coords.longitude);
+          console.log(position.coords.latitude, position.coords.longitude);
+  
+          if(position.coords.longitude && position.coords.latitude){
+            map.panTo({lat:position.coords.latitude,lng:position.coords.longitude})
+            setWaitingCurrent(false)
+          }
+        })
+      
+      } else {
+        //Open login modal
+      }
     };
 
     const handleMarkerClick = (e, host) => {
 
       console.log(host)
+      setCurrentMarker(host._id)
 
     }
 
@@ -175,9 +330,9 @@ const MapPage = () => {
     destinationRef.current.value = ''
   }
 
-  const handleOnLoad = map => {
-      setMap(map)
-      mapRef.current = map;
+  const handleOnLoad = (mapinput) => {
+      setMap(mapinput)
+      mapRef.current = mapinput;
     };
 
   return (
@@ -200,7 +355,7 @@ const MapPage = () => {
           {/* Google Map Box */}
           <GoogleMap
               center={center}
-              zoom={15}
+              zoom={14}
               mapContainerStyle={{ width: '100%', height: '100%' }}
               options={{
               zoomControl: false,
@@ -209,26 +364,28 @@ const MapPage = () => {
               fullscreenControl: false,
               }}
               onLoad={(map) => handleOnLoad(map)}
-              onCenterChanged={(e)=>debouncedChangeHandleCenter(e)}
+              onCenterChanged={(e)=>preHandleCenter(e)}
           >
+
+          {(userLat && userLng && isLoaded) && <div>
+              <Marker position={{ lat: userLat, lng: userLng }}
+              icon={currentIcon}
+              />
+          </div>}
 
           { hostLocations?.length > 0 ? 
           
-            hostLocations.map((host)=> (
+            hostLocations.map((host, index)=> (
               <div key={host._id}>
                 <button>
                     <Marker position={{lat: host.location.coordinates[1], lng:host.location.coordinates[0]}} 
-                      icon={currentMarker === host._id ? iconLarge : iconRegular}
+                      icon={svgMarkerPins(colorsList[index])}
                       value={host.address} onClick={(e)=>handleMarkerClick(e, host)} />
                 </button>
               </div>
             ))
           
            : null}
-
-          {/* <div>
-              <Marker position={{ lat: 48.8584, lng: 2.2941 }}/>
-          </div> */}
 
           {directionsResponse && (
             <DirectionsRenderer directions={directionsResponse} />
@@ -260,13 +417,13 @@ const MapPage = () => {
                   //     }
                   //   }}
                   selectProps={{
-                      defaultInputValue: address,
+                      defaultInputValue: userAddress,
                       onChange: handleAddress, //save the value gotten from google
-                      placeholder: "Search An Address",
+                      placeholder: "Search",
                       styles: {
                           control: (provided, state) => ({
                               ...provided,
-                              width: "250px",
+                              width: "175px",
                               height: "50px",
                               boxShadow: "#00D3E0",
                               paddingTop: "8px",
@@ -303,7 +460,7 @@ const MapPage = () => {
         <div className='flex flex-row'>
 
             <button className='rounded-md px-1 py-3 border border-[#00D3E0] text-gray-500 
-            w-[250px] h-[50px] flex flex-row items-center' 
+            w-[175px] h-[50px] flex flex-row items-center' 
               onClick={(e)=> handlePanLocation(e)}>
                 
                 {waitingCurrent ?
@@ -332,12 +489,67 @@ const MapPage = () => {
                 </div>
                 }
 
-              <p className='pl-2'>Go To Current Location</p>
+              <p className='pl-2'>Current Location</p>
             </button>
 
         </div>
 
       </div>}
+
+      { windowSize.x > 600 &&
+        
+        <div className='flex w-full justify-start items-start '>
+            
+            <div className='ml-4 py-2 flex flex-col w-[350px] h-[500px] rounded-xl overflow-y-scroll
+              bg-gray-50 border-2 border-[#00D3E0] z-10 items-center px-2'>
+                
+                {hostLocations.map((host, index) => (
+                  
+                  <div key={`${host._id}_leftsquare`} 
+                  className='w-full flex flex-col px-2 bg-[#c1f2f5]
+                  py-2 border border-black rounded-lg'>
+                    
+                    <div className='flex flex-row'>
+                      
+                      <svg version="1.2" baseProfile="tiny" 
+                      xmlns="http://www.w3.org/2000/svg" 
+                      width="25" height="25" viewBox="0 0 50 50" 
+                      fill={colorsList[index]}
+                      overflow="inherit">
+                        <path d="M25 0c-8.284 0-15 6.656-15 14.866 0 8.211 15 35.135 15 35.135s15-26.924 15-35.135c0-8.21-6.716-14.866-15-14.866zm-.049 19.312c-2.557 0-4.629-2.055-4.629-4.588 0-2.535 2.072-4.589 4.629-4.589 2.559 0 4.631 2.054 4.631 4.589 0 2.533-2.072 4.588-4.631 4.588z"/>
+                      </svg>
+
+                      <p className='text-base pl-1'>{host?.addressArray.slice(0, -2).join(", ")}</p>
+                    
+                    </div>
+                    
+                    <div className='flex flex-row w-full gap-x-4 justify-around pt-2'>
+                      <p>Drive Time: {host.durationText}</p>
+                      <p>Distance: {host.distanceText}</p>
+                    </div>
+
+                    <div className='flex flex-row w-full gap-x-4 justify-around'>
+                      <p>Available: Now</p>
+                      
+                      <button 
+                        className='px-3 py-1 bg-[#FFE142] hover:bg-[orange] rounded-lg'
+                        onClick={(e)=>handleReserve(e)}
+                        >
+                          Reserve
+                      </button>
+
+                    </div>
+
+                  </div>
+                ))}
+            </div>
+        </div>}
+       
+       {windowSize.x <= 600 && <div className='flex flex-grow justify-end items-end'>
+            <div className='flex w-[350px] h-[200px] rounded-lg bg-white z-10'>
+
+            </div>
+        </div>}
 
     </div>
 

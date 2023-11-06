@@ -26,6 +26,22 @@ var usageLimitSchema = new Schema({
             type: Number
         }
     }],
+    numberOfGoogleCoordRequests: [{
+        date: { 
+            type: String, 
+        },
+        requestsNumber: {
+            type: Number
+        }
+    }],
+    numberOfGoogleMatrixRequests: [{
+        date: { 
+            type: String, 
+        },
+        requestsNumber: {
+            type: Number
+        }
+    }],
     numberOfAppointments: [{
         date: { 
             type: String, 

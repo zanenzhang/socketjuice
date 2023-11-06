@@ -13,7 +13,6 @@ import InputNewPassword from './pages/Application/InputNewPass';
 import VerifyPage from "./pages/Application/VerifyPage";
 import AdminPage from "./pages/Application/AdminPage";
 
-
 const ROLES = {
   'User': 2001,
   'Manager': 3780,
@@ -34,9 +33,12 @@ function App() {
         <Route path="" element={<Navigate to='/map' />}>
 
         </Route>
-
-
-        <Route path="/map" element={<MapPage />}>
+        
+        <Route path="/map" 
+        
+        element={
+          <MapPage />
+        }>
 
         </Route>
 

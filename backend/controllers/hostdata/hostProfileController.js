@@ -266,7 +266,7 @@ const getHostProfilesCoord = async (req, res) => {
                    $maxDistance: 10000
                  }
               }
-          })
+          }).limit(10)
 
         const bookmarksFound = await Bookmark.findOne({_userId: loggedUserId})
         const flaggedList = await Flags.findOne({_userId: loggedUserId})
