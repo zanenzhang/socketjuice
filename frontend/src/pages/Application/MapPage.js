@@ -579,8 +579,9 @@ const MapPage = () => {
                 {hostLocations.map((host, index) => (
                   
                   <div key={`${host._id}_leftsquare`} 
-                  className='w-full flex flex-col px-2 bg-[#c1f2f5]
-                  py-2 border border-black rounded-lg'>
+                    className={`w-full flex flex-col px-2 bg-[#c1f2f5]
+                    py-2 ${currentMarker === host._id ? 'border-2 border-['.concat(colorsList[index],']')   
+                    : 'border border-gray-300  '} rounded-lg`}>
                     
                     <div className='flex flex-row'>
                       
