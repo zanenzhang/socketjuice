@@ -18,6 +18,7 @@ const CustomEditor = ({ scheduler }) => {
     title: event?.title || "",
     description: event?.description || ""
   });
+
   const [error, setError] = useState("");
 
   const handleChange = (value, name) => {
@@ -103,7 +104,7 @@ const CustomEditor = ({ scheduler }) => {
 
       }, [])  
 
-    const handleChange = (event, newValue) => {
+    const handleTabSwitch = (event, newValue) => {
 
           if(waiting){
               return
@@ -209,7 +210,7 @@ const CustomEditor = ({ scheduler }) => {
 
           <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
               <div className='flex justify-center'>
-              <TabList onChange={handleChange} 
+              <TabList onChange={handleTabSwitch} 
                   aria-label="lab API tabs example"
                   TabIndicatorProps={{style: {background:'#00D3E0'}}}
                   >

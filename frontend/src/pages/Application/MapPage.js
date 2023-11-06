@@ -42,6 +42,7 @@ const MapPage = () => {
   const [userAddress, setUserAddress] = useState('');
 
   const [openReserveModal, setOpenReserveModal] = useState(false);
+  const [destinationAddress, setDestinationAddress] = useState("");
 
   const [iconLarge, setIconLarge] = useState({})
   const [iconRegular, setIconRegular] = useState({})
@@ -164,17 +165,31 @@ const MapPage = () => {
   
   }
 
-  function createMapURLDirections(destination){
+  async function handleLinkURLDirections(e, destination){
 
-      // https://www.google.com/maps/dir/?api=1&parameters
+    // https://www.google.com/maps/dir/?api=1&parameters
       // URL encode origin and destination
       // travelmode=driving
 
-      var destination = "123 Main St, Toronto, ON M4E 2V9"
+      e.preventDefault()
+      console.log(destination)
 
-      var finalAddressEncoding = "https://www.google.com/maps/dir/?api=1&destination=".concat(encodeURIComponent(destination), "&travelmode=driving")
+      var originString = ""
+      if(userLat && userLng){
+        if(userLat && userLng){
+          originString = userLat.toString() + " " + userLng.toString()
+          originString = encodeURIComponent(originString)
+        
+        } else if (userAddress) {
+          originString = encodeURIComponent(userAddress)
+        }
+      }
 
-      console.log(finalAddressEncoding)
+      var destinationString = encodeURIComponent(destination)
+
+      var finalAddressEncoding = `https://www.google.com/maps/dir/?api=1&origin=${originString}&destination=${destinationString}&travelmode=driving`
+
+      window.open(finalAddressEncoding, "_blank", "noreferrer");
   }
 
   useEffect ( ()=> {
@@ -186,10 +201,12 @@ const MapPage = () => {
   }, [auth])
 
 
-  const handleOpenReserveModal = (e) => {
+  const handleOpenReserveModal = (e, address) => {
 
     e.preventDefault()
+    console.log(address)
 
+    setDestinationAddress(address)
     setOpenReserveModal(true)
   }
 
@@ -455,7 +472,7 @@ const MapPage = () => {
 
             <svg xmlns="http://www.w3.org/2000/svg" 
             fill="none" viewBox="0 0 24 24" 
-            className="absolute pl-3 h-6 pointer-events-none z-20"
+            className="absolute pl-2 pt-1 h-7 pointer-events-none z-20"
             strokeWidth="2" stroke="#00D3E0">
               <path strokeLinecap="round" strokeLinejoin="round" 
               d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
@@ -473,7 +490,7 @@ const MapPage = () => {
                   selectProps={{
                       defaultInputValue: userAddress,
                       onChange: handleAddress, //save the value gotten from google
-                      placeholder: "Search",
+                      placeholder: "Address",
                       styles: {
                           control: (provided, state) => ({
                               ...provided,
@@ -482,7 +499,7 @@ const MapPage = () => {
                               boxShadow: "#00D3E0",
                               paddingTop: "8px",
                               paddingBottom: "8px",
-                              paddingLeft: "32px",
+                              paddingLeft: "28px",
                               borderRadius: "6px",
                               border: state.isFocused
                               ? "2px solid #00D3E0"
@@ -510,6 +527,8 @@ const MapPage = () => {
                   }}
               />
         </div>
+
+        <p>or</p>
 
         <div className='flex flex-row'>
 
@@ -578,16 +597,16 @@ const MapPage = () => {
                     </div>
                     
                     <div className='flex flex-row w-full gap-x-4 justify-around pt-2'>
-                      <p>Drive Time: {host.durationText}</p>
-                      <p>Distance: {host.distanceText}</p>
+                      <p>Distance: {host.distanceText} / {host.durationText}</p>
+                      <p>Available: Now</p>
                     </div>
 
                     <div className='flex flex-row w-full gap-x-4 justify-around'>
-                      <p>Available: Now</p>
+                    <p>30 Min Rate: {host.currencySymbol}{host.chargeRatePerHalfHour.toFixed(2)}</p>
                       
                       <button 
                         className='px-3 py-1 bg-[#FFE142] hover:bg-[orange] rounded-lg'
-                        onClick={(e)=>handleOpenReserveModal(e)}
+                        onClick={(e)=>handleOpenReserveModal(e, host.address)}
                         >
                           Reserve
                       </button>
@@ -621,7 +640,11 @@ const MapPage = () => {
         >
             <Box sx={{ ...profileStyle, width: 350 }}>
 
-           
+                <div>
+                  <button onClick={(e)=>handleLinkURLDirections(e, destinationAddress)}>
+                    Get Directions
+                  </button>
+                </div>
 
             </Box>
         </Modal>
