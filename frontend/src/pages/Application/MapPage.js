@@ -1,4 +1,4 @@
-import { React, useRef, useState, useEffect, useMemo } from 'react';
+import { React, useRef, useState, useEffect, useMemo, createRef } from 'react';
 import axios from '../../api/axios';  
 import GooglePlacesAutocomplete from "react-google-places-autocomplete";
 import {
@@ -30,8 +30,9 @@ const MapPage = () => {
   const [distance, setDistance] = useState('')
   const [duration, setDuration] = useState('')
   const [waitingCurrent, setWaitingCurrent] = useState(false);
-  const [currentMarker, setCurrentMarker] = useState()
-  const [currentIcon, setCurrentIcon] = useState()
+  const [currentMarker, setCurrentMarker] = useState("")
+  const [currentIcon, setCurrentIcon] = useState("")
+  const [scrollRefs, setScrollRefs] = useState([])
 
   const mapRef = useRef(null);
 
@@ -49,6 +50,27 @@ const MapPage = () => {
       x: window.innerWidth,
       y: window.innerHeight
   });
+
+  const profileStyle = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 350,
+    bgcolor: 'background.paper',
+    border: '2px solid #995372',
+    boxShadow: 24,
+    pt: 2,
+    px: 2,
+    pb: 3,
+    borderRadius: '10px',
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyItems: "center",
+    height: 425,
+    zIndex: 10001,
+};
 
   /** @type React.MutableRefObject<HTMLInputElement> */
   const originRef = useRef()
@@ -94,6 +116,21 @@ const MapPage = () => {
     }
 
   }, [isLoaded])
+
+  useEffect( ()=> {
+
+    if(hostLocations){
+      
+      const refs = hostLocations.reduce((acc, value) => {
+        acc[value._id] = createRef();
+        return acc;
+      }, {});
+
+      console.log(refs)
+      setScrollRefs(refs)
+    }
+
+  }, [hostLocations])
 
 
   async function getDistanceDurationsMatrix(destinations, lat, lng){
@@ -149,10 +186,18 @@ const MapPage = () => {
   }, [auth])
 
 
-  const handleReserve = (e) => {
+  const handleOpenReserveModal = (e) => {
 
     e.preventDefault()
 
+    setOpenReserveModal(true)
+  }
+
+  const handleCloseReserveModal = (e) => {
+
+    e.preventDefault()
+
+    setOpenReserveModal(false)
   }
 
   const handleAddress = (e) => {
@@ -303,6 +348,13 @@ const MapPage = () => {
       console.log(host)
       setCurrentMarker(host._id)
 
+      if(scrollRefs){
+
+        scrollRefs[host._id].current.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
+      }
     }
 
   async function calculateRoute() {
@@ -337,7 +389,8 @@ const MapPage = () => {
 
   return (
 
-      <div style={{height:'100svh', width:'100svw'}} 
+    <>      
+    <div style={{height:'100svh', width:'100svw'}} 
                   className="bg-white bg-center max-w-full
                       flex flex-col fixed w-full">
 
@@ -376,7 +429,8 @@ const MapPage = () => {
           { hostLocations?.length > 0 ? 
           
             hostLocations.map((host, index)=> (
-              <div key={host._id}>
+              
+              <div key={`${host._id}_marker`} id={host._id} ref={scrollRefs[host._id]}>
                 <button>
                     <Marker position={{lat: host.location.coordinates[1], lng:host.location.coordinates[0]}} 
                       icon={svgMarkerPins(colorsList[index])}
@@ -533,7 +587,7 @@ const MapPage = () => {
                       
                       <button 
                         className='px-3 py-1 bg-[#FFE142] hover:bg-[orange] rounded-lg'
-                        onClick={(e)=>handleReserve(e)}
+                        onClick={(e)=>handleOpenReserveModal(e)}
                         >
                           Reserve
                       </button>
@@ -556,6 +610,22 @@ const MapPage = () => {
         : null }
 
       </div>
+
+      <Modal
+            open={openReserveModal}
+            disableAutoFocus={true}
+            onClose={handleCloseReserveModal}
+            onClick={(event)=>{event.stopPropagation()}}
+            aria-labelledby="child-modal-title"
+            aria-describedby="child-modal-description"
+        >
+            <Box sx={{ ...profileStyle, width: 350 }}>
+
+           
+
+            </Box>
+        </Modal>
+      </>
   )
 }
 
