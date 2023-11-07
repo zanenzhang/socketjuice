@@ -10,6 +10,8 @@ import TabContext from "@material-ui/lab/TabContext";
 import TabList from "@material-ui/lab/TabList";
 import TabPanel from "@material-ui/lab/TabPanel";  
 
+import "./mappage.css";
+
 const CustomEditor = ({ scheduler }) => {
   const event = scheduler.edited;
 
@@ -64,6 +66,7 @@ const CustomEditor = ({ scheduler }) => {
       scheduler.loading(false);
     }
   };
+
   return (
     <div>
       <div style={{ padding: "1rem" }}>
@@ -191,17 +194,6 @@ const CustomEditor = ({ scheduler }) => {
         admin_id: 2,
         editable: true
       },
-      {
-        event_id: 6,
-        title: "Event 6",
-        start: new Date(
-          new Date(new Date(new Date().setHours(10)).setMinutes(30)).setDate(
-            new Date().getDate() - 4
-          )
-        ),
-        end: new Date(new Date(new Date().setHours(14)).setMinutes(0)),
-        admin_id: 2
-      }
     ];
 
     //Make call for static map urls
@@ -242,26 +234,60 @@ const CustomEditor = ({ scheduler }) => {
           <p>Received Bookings From Other EV Drivers</p>
 
           <Scheduler
+                className="flex flex-start"
                 events={EVENTS}
                 view="day"
                 day={{
-                  startHour: 8, 
-                  endHour: 22, 
-                  step: 30,
+                  startHour: 5, 
+                  endHour: 24, 
+                  step: 15,
                   navigation: true
-                }}
-                disableViewNavigator={true}
+                  }}
+                week={null}
+                month={null}
+                disableViewNavigator={false}
                 onSelectedDateChange={(e)=>console.log(e)}
                 editable={false}
                 deletable={false}
-                // week={{
-                //   weekDays: [0, 1, 2, 3, 4, 5, 6],
-                //   weekStartOn: 6,
-                //   startHour: 0,
-                //   endHour: 24,
-                //   step: 30
-                // }}
-                customEditor={(scheduler) => <CustomEditor scheduler={scheduler} />}
+                eventRenderer={({ event, ...props }) => {
+                  
+                    return (
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "space-between",
+                          height: "425px",
+                          background: "#757575"
+                        }}
+                        {...props}
+                      >
+                        <div
+                          style={{ height: 120, background: "#ffffffb5", color: "black" }}
+                        >
+                          {event.start.toLocaleTimeString("en-US", {
+                            timeStyle: "short"
+                          })}
+                        </div>
+                        <div>{event.title}</div>
+                        <div
+                          style={{ height: 120, background: "#ffffffb5", color: "black" }}
+                        >
+                          {event.end.toLocaleTimeString("en-US", { timeStyle: "short" })}
+                        </div>
+                      </div>
+                    );
+                  
+                }}
+                fields={[
+                  {
+                    name: "comments",
+                    type: "input",
+                    default: "Comments",
+                    config: { label: "Comments / Directions", required: false }
+                  }
+                ]}
+                // customEditor={(scheduler) => <CustomEditor scheduler={scheduler} />}
                 viewerExtraComponent={(fields, event) => {
                   return (
                     <div>

@@ -839,8 +839,8 @@ const removeUserBan = async (req, res) => {
                 foundUser.deactivated = false;
                 foundUser.active = true;
 
-                foundHost.deactivated = true;
-                foundHost.verifiedHost = false;
+                foundHost.deactivated = false;
+                foundHost.verifiedHost = true;
 
                 const updateBan = await BannedUser.updateOne({admin: "admin"},{$pull: {ipAddresses: {"userIP": foundUser.primaryGeoData.IPv4}}})
                 const savedUpdate = await foundUser.save()

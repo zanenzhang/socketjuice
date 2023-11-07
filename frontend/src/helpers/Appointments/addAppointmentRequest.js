@@ -1,7 +1,7 @@
 import axios from "../../api/axios";
-const APPOINTMENT_URL = '/appointment'
+const APPOINTMENT_URL = '/appointment/request/'
 
-async function addAppointment (userId, hostUserId, appointmentStart, appointmentEnd, accessToken) {
+async function addAppointmentRequest (userId, hostUserId, appointmentStart, appointmentEnd, accessToken) {
 
     try {
         
@@ -23,6 +23,6 @@ async function addAppointment (userId, hostUserId, appointmentStart, appointment
 
 }
 
-export default addAppointment
+export default addAppointmentRequest
 
 

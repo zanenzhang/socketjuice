@@ -1,8 +1,9 @@
 import { React, useRef, useState, useEffect, useMemo, createRef } from 'react';
 import axios from '../../api/axios';  
-import DateTimePicker from 'react-datetime-picker';
+import { TextField, Button, DialogActions } from "@mui/material";
 import { Scheduler } from "@aldabil/react-scheduler";
 import GooglePlacesAutocomplete from "react-google-places-autocomplete";
+import "./mappage.css";
 import {
   useJsApiLoader,
   GoogleMap,
@@ -18,6 +19,17 @@ import useAuth from '../../hooks/useAuth';
 import getHostProfilesCoord from '../../helpers/HostData/getProfilesCoord';
 import getGoogleCoordinates from '../../helpers/Google/getGoogleCoordinates';  
 import getGoogleMatrix from '../../helpers/Google/getGoogleMatrix';
+
+import dayjs from 'dayjs';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+
+import addAppointmentRequest from '../../helpers/Appointments/addAppointmentRequest';
+import addDriverCancelSubmit from '../../helpers/Appointments/addDriverCancelSubmit';
+import addDriverCancelApprove from '../../helpers/Appointments/addDriverCancelApprove';
+import getDriverAppointments from '../../helpers/Appointments/getDriverAppointments';
+import getHostAppointments from '../../helpers/Appointments/getHostAppointments';
 
 
 const MapPage = () => {
@@ -35,10 +47,6 @@ const MapPage = () => {
   const [currentMarker, setCurrentMarker] = useState("")
   const [currentIcon, setCurrentIcon] = useState("")
   const [scrollRefs, setScrollRefs] = useState([])
-
-  const [bookingLength, setBookingLength] = useState(0.5)
-  const [bookingStart, setBookingStart] = useState(new Date())
-  const [bookingEnd, setBookingEnd] = useState(new Date())
 
 
   const mapRef = useRef(null);
@@ -64,9 +72,9 @@ const MapPage = () => {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 350,
+    width: 375,
     bgcolor: 'background.paper',
-    border: '2px solid #995372',
+    border: '2px solid #00D3E0',
     boxShadow: 24,
     pt: 2,
     px: 2,
@@ -76,8 +84,168 @@ const MapPage = () => {
     flexDirection: "column",
     alignItems: "center",
     justifyItems: "center",
-    height: 425,
+    height: 450,
     zIndex: 10001,
+};
+
+const [bookingStart, setBookingStart] = useState(new Date())
+const [bookingEnd, setBookingEnd] = useState(new Date())
+const [currentDuration, setCurrentDuration] = useState(0)
+const [bookingLengthValue, setBookingLengthValue] = useState(30)
+const [bookingLengthText, setBookingLengthText] = useState("30 Min")
+
+useEffect( ()=> {
+
+  if(currentDuration !== null){
+    console.log(currentDuration)
+
+    var hours = Math.floor(currentDuration / 3600)
+    var min = Math.floor(currentDuration % 3600) / 60
+
+    const today = new Date()
+    const timePlusDuration = new Date(today.getFullYear(), today.getMonth(), today.getDate(), today.getHours()+hours, today.getMinutes()+min);
+    const endOfThirty = new Date(timePlusDuration.getFullYear(), timePlusDuration.getMonth(), timePlusDuration.getDate(), timePlusDuration.getHours(), timePlusDuration.getMinutes()+30);
+
+    console.log(timePlusDuration)
+    console.log(endOfThirty)
+    setBookingStart(dayjs(timePlusDuration))
+    setBookingEnd(dayjs(endOfThirty))
+  }
+
+}, [currentDuration])
+
+const CustomEditor = ({ scheduler }) => {
+  
+  const event = scheduler.edited;
+
+  // Make your own form/state
+  const [state, setState] = useState({
+    title: event?.title || "",
+    description: event?.description || ""
+  });
+
+  const [error, setError] = useState("");
+
+  const handleChange = (value, name) => {
+    setState((prev) => {
+      return {
+        ...prev,
+        [name]: value
+      };
+    });
+  };
+  const handleSubmit = async (e) => {
+    // Your own validation
+
+    console.log("PRINTING STATE")
+    console.log(e)
+    console.log(state)
+    console.log(scheduler.state.start.value)
+    console.log(scheduler.state.end.value)
+
+    setBookingStart(dayjs(scheduler.state.start.value))
+    setBookingEnd(dayjs(scheduler.state.end.value))
+
+    if (state.title.length < 3) {
+      return setError("Min 3 letters");
+    }
+
+    try {
+
+      scheduler.loading(true);
+
+      if(event){
+
+        console.log(event)
+        console.log("editing event")
+        console.log("Only allow editing if status is requested")
+      
+
+
+      } else {
+
+        console.log("New event")
+
+
+      }
+
+      // {
+      //   event_id: event?.event_id || Math.random(),
+      //   start: scheduler.state.start.value,
+      //   end: scheduler.state.end.value,
+      //   title: state.title,
+      //   description: state.description,
+      //   disabled: true,
+      //   status: "Requested"
+      // }
+      /**Simulate remote data saving */
+      var added_updated_event = null
+
+      // await addAppointmentRequest()
+
+      if(added_updated_event){
+
+        scheduler.onConfirm(added_updated_event, event ? "edit" : "create");
+        scheduler.close();
+
+      } else {
+
+        console.log("Error, did not update")
+
+        added_updated_event = {
+          event_id: event?.event_id || Math.random(),
+          title: state.title,
+          start: scheduler.state.start.value,
+          end: scheduler.state.end.value,
+          description: state.description
+        };
+
+        scheduler.onConfirm(added_updated_event, event ? "edit" : "create");
+        scheduler.close();
+      }
+        /**
+         * Make sure the event have 4 mandatory fields
+         * event_id: string|number
+         * title: string
+         * start: Date|string
+         * end: Date|string
+         */
+
+    } finally {
+      scheduler.loading(false);
+    }
+  };
+  
+  return (
+    <div>
+      <div className='p-2 w-[375px] flex flex-col gap-y-3'>
+        
+        <p className='pt-2 text-center'>Schedule Your Booking</p>
+        
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+            
+            <DateTimePicker
+              value={dayjs(scheduler.state.start.value)}
+              onChange={(newValue) => console.log(newValue["$d"])}
+              />
+
+        </LocalizationProvider>
+
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DateTimePicker
+              value={dayjs(scheduler.state.end.value)}
+              onChange={(newValue) => console.log(newValue["$d"])}
+              />
+        </LocalizationProvider>
+        
+      </div>
+
+      <DialogActions>
+        <Button onClick={scheduler.close}>Cancel</Button>
+        <Button onClick={(e)=>handleSubmit(e)}>Confirm</Button>
+      </DialogActions>
+    </div>
+  );
 };
 
   /** @type React.MutableRefObject<HTMLInputElement> */
@@ -134,7 +302,6 @@ const MapPage = () => {
         return acc;
       }, {});
 
-      console.log(refs)
       setScrollRefs(refs)
     }
 
@@ -172,6 +339,12 @@ const MapPage = () => {
   
   }
 
+  const handleSubmitBooking = (e) => {
+
+    
+
+  }
+
   async function handleLinkURLDirections(e, destination){
 
     // https://www.google.com/maps/dir/?api=1&parameters
@@ -179,7 +352,6 @@ const MapPage = () => {
       // travelmode=driving
 
       e.preventDefault()
-      console.log(destination)
 
       var originString = ""
       if(userLat && userLng){
@@ -208,12 +380,12 @@ const MapPage = () => {
   }, [auth])
 
 
-  const handleOpenReserveModal = (e, address) => {
+  const handleOpenReserveModal = (e, address, duration) => {
 
     e.preventDefault()
-    console.log(address)
 
     setDestinationAddress(address)
+    setCurrentDuration(duration)
     setOpenReserveModal(true)
   }
 
@@ -259,6 +431,7 @@ const MapPage = () => {
         const locations = await getHostProfilesCoord(coordinatesInput, auth.userId, auth.accessToken)
 
         if(locations){
+
           console.log(locations)
 
           var destinations = []
@@ -277,16 +450,10 @@ const MapPage = () => {
             }
           }
           
-          // setHostLocations(locations?.foundHostProfiles)
-          
-          console.log(userLat, userLng)
           if(locations?.foundHostProfiles?.length > 0){
             const {matrix} = await getDistanceDurationsMatrix(destinations, newPos.lat, newPos.lng)
 
             if(matrix){
-              console.log(matrix)
-              console.log("Merging into matrix")
-              console.log(hostIndexHash)
 
               for(let i=0; i<matrix?.rows[0]?.elements?.length; i++){
                 
@@ -354,7 +521,6 @@ const MapPage = () => {
         navigator.geolocation.getCurrentPosition(position =>{
           setUserLat(position.coords.latitude);
           setUserLng(position.coords.longitude);
-          console.log(position.coords.latitude, position.coords.longitude);
   
           if(position.coords.longitude && position.coords.latitude){
             map.panTo({lat:position.coords.latitude,lng:position.coords.longitude})
@@ -369,7 +535,6 @@ const MapPage = () => {
 
     const handleMarkerClick = (e, host) => {
 
-      console.log(host)
       setCurrentMarker(host._id)
 
       if(scrollRefs){
@@ -614,7 +779,7 @@ const MapPage = () => {
                       
                       <button 
                         className='px-3 py-1 bg-[#FFE142] hover:bg-[orange] rounded-lg'
-                        onClick={(e)=>handleOpenReserveModal(e, host.address)}
+                        onClick={(e)=>handleOpenReserveModal(e, host.address, host.durationValue)}
                         >
                           Reserve
                       </button>
@@ -646,45 +811,39 @@ const MapPage = () => {
             aria-labelledby="child-modal-title"
             aria-describedby="child-modal-description"
         >
-            <Box sx={{ ...profileStyle, width: 350 }}>
+            <Box sx={{ ...profileStyle }}>
 
                 <div className='flex flex-col w-full overflow-y-scroll'>
 
-                <div className='pt-1 pb-4'>
-                    <p> Length of Booking </p>
-                      <select className="pl-6 w-30 md:w-40 h-9 border border-gray-primary justify-center items-center" 
-                      value={bookingLength}
-                      onChange={(event) => {
-                          setBookingLength(event.target.value);
-                      }}>
-                      
-                      <option value={0.5}>30 Min</option>
-                      <option value={1.0}>1 Hour</option>
-                      <option value={1.5}>1.5 Hours</option>
-                      <option value={2.0}>2.0 Hours</option>
-                      <option value={2.5}>2.5 Hours</option>
-                      <option value={3.0}>3.0 Hours</option>
-                      <option value={4.0}>4.0 Hours</option>
-                      <option value={5.0}>5.0 Hours</option>
-                      <option value={6.0}>6.0 Hours</option>
-                      <option value={7.0}>7.0 Hours</option>
-                      <option value={8.0}>8.0 Hours</option>
-                      <option value={9.0}>9.0 Hours</option>
-                      <option value={10.0}>10.0 Hours</option>
-                      
-                      </select>
-                  </div>
-                  
-                  <div className='pt-1 pb-4'>
-                    <p> Start Time </p>
-                    <DateTimePicker value={bookingStart} 
-                    onChange={(e)=>setBookingStart(e.target.value)} />
-                  </div>
+                <div className='pt-1 pb-4 flex flex-col gap-y-3'>
 
-                  <div className='pt-1 pb-4'>
-                    <p> End Time </p>
-                    <DateTimePicker value={bookingEnd}
-                    onChange={(e)=>setBookingEnd(e.target.value)} />
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+            
+                        <DateTimePicker
+                          value={dayjs(bookingStart)}
+                          onChange={(newValue) => setBookingStart(dayjs(newValue))}
+                          />
+
+                    </LocalizationProvider>
+
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DateTimePicker
+                          value={dayjs(bookingEnd)}
+                          onChange={(newValue) => setBookingEnd(dayjs(newValue))}
+                          />
+                    </LocalizationProvider>
+
+                    <p> Length of Booking: {bookingLengthText}</p>
+
+                    <button className='border border-gray-300 px-3 py-2 rounded-xl'
+                      onClick={(e)=>handleLinkURLDirections(e, destinationAddress)}>
+                      Submit Request
+                    </button>
+
+                    <button className='border border-gray-300 px-3 py-2 rounded-xl'
+                      onClick={(e)=>handleLinkURLDirections(e, destinationAddress)}>
+                        Get Directions (Opens Map)
+                    </button>
                   </div>
 
               <div className='w-full'>
@@ -693,38 +852,73 @@ const MapPage = () => {
                 className='w-full'
                 view="day"
                 day={{
-                  startHour: 8, 
-                  endHour: 22, 
+                  startHour: 0, 
+                  endHour: 24, 
                   step: 30,
                   navigation: true
-                }}
-                disableViewNavigator={true}
+                  }}
+                week={null}
+                month={null}
+                disableViewNavigator={false}
                 onSelectedDateChange={(e)=>console.log(e)}
-                editable={false}
+                editable={true}
                 deletable={false}
-                // week={{
-                //   weekDays: [0, 1, 2, 3, 4, 5, 6],
-                //   weekStartOn: 6,
-                //   startHour: 0,
-                //   endHour: 24,
-                //   step: 30
-                // }}
+                eventRenderer={({ event, ...props }) => {
+                  console.log(event)
+                  console.log(event.start)
+                  console.log(event.end)
+                    return (
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "space-between",
+                          height: "425px",
+                          background: "#757575"
+                        }}
+                        {...props}
+                      >
+                        <div
+                          style={{ height: 20, background: "#ffffffb5", color: "black" }}
+                        >
+                          {event.start.toLocaleTimeString("en-US", {
+                            timeStyle: "short"
+                          })}
+                        </div>
+                        
+                        <div
+                          style={{ height: 20, background: "#ffffffb5", color: "black" }}
+                        >
+                          {event.end.toLocaleTimeString("en-US", { timeStyle: "short" })}
+                        </div>
+                        
+                        <div>{event.title}</div>
+                      </div>
+                    );
+                  }}
+                  customEditor={(scheduler) => <CustomEditor scheduler={scheduler} />}
+                  fields={[
+                    {
+                      name: "comments",
+                      type: "input",
+                      default: "Comments",
+                      config: { label: "Comments / Directions", required: false }
+                    }
+                  ]}
                 viewerExtraComponent={(fields, event) => {
                   return (
                     <div>
                       <p>Useful to render custom fields...</p>
                       <p>Description: {event.description || "Nothing..."}</p>
+                      <button onClick={handleSubmitBooking}>Add Booking</button>
                     </div>
                   );
                 }}
               />
               </div>
 
-                  <button className='border border-gray-300 px-3 py-2 rounded-xl mt-2'
-                  onClick={(e)=>handleLinkURLDirections(e, destinationAddress)}>
-                    Get Directions (Opens Map)
-                  </button>
-                </div>
+              
+              </div>
 
             </Box>
         </Modal>

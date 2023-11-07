@@ -259,6 +259,7 @@ const getHostProfilesCoord = async (req, res) => {
         const foundHostProfiles = await HostProfile.find({
             offeringCharging: true,
             deactivated: false,
+            verifiedHost: true,
             location:
               { $near:
                  {

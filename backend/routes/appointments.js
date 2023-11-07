@@ -9,7 +9,8 @@ router.use(verifyJWT)
 router.get('/driver', appointmentController.getDriverAppointments);
 router.get('/host', appointmentController.getHostAppointments);
 
-router.post('/', appointmentController.addAppointment);
+router.post('/request', appointmentController.addAppointmentRequest);
+router.post('/approval', appointmentController.addAppointmentApproval);
 router.post('/drivercancelsubmit', appointmentController.driverRequestCancelSubmit);
 router.post('/drivercancelapprove', appointmentController.driverRequestCancelApprove);
 router.post('/hostcancelsubmit', appointmentController.hostRequestCancelSubmit);
