@@ -45,6 +45,7 @@ const MapPage = () => {
   const [duration, setDuration] = useState('')
   const [waitingCurrent, setWaitingCurrent] = useState(false);
   const [currentMarker, setCurrentMarker] = useState("")
+  const [hostUserId, setHostUserId] = useState("")
   const [currentIcon, setCurrentIcon] = useState("")
   const [scrollRefs, setScrollRefs] = useState([])
 
@@ -94,6 +95,11 @@ const [currentDuration, setCurrentDuration] = useState(0)
 const [bookingLengthValue, setBookingLengthValue] = useState(30)
 const [bookingLengthText, setBookingLengthText] = useState("30 Min")
 
+const [currentDate, setCurrentDate] = useState(new Date().toISOString().slice(0,10))
+const [hostAppointments, setHostAppointments] = useState([])
+const [driverAppointments, setDriverAppointments] = useState([])
+
+
 useEffect( ()=> {
 
   if(currentDuration !== null){
@@ -113,6 +119,25 @@ useEffect( ()=> {
   }
 
 }, [currentDuration])
+
+useEffect( ()=> {
+
+  if(bookingStart && bookingEnd){
+
+    if(bookingEnd < bookingStart){
+      setBookingEnd(bookingStart)
+      setBookingLengthValue(0)
+      setBookingLengthText("No Booking")
+    } else {
+
+      var timeMin = (bookingEnd - bookingStart)/60000
+      setBookingLengthValue(timeMin)
+      setBookingLengthText(`${timeMin} Min`)
+    }
+
+  }
+
+}, [bookingStart, bookingEnd])
 
 const CustomEditor = ({ scheduler }) => {
   
@@ -339,9 +364,19 @@ const CustomEditor = ({ scheduler }) => {
   
   }
 
-  const handleSubmitBooking = (e) => {
+  const handleEditBooking = (e) => {
 
     
+
+  }
+
+  const handleAddAppointment = (e) => {
+
+    e.preventDefault()
+    console.log(auth.userId, hostUserId, new Date(bookingStart["$d"]).toISOString(), 
+      new Date(bookingEnd["$d"]).toISOString(), auth.accessToken)
+    
+    addAppointmentRequest(auth.userId, hostUserId, bookingStart, bookingEnd, auth.accessToken)
 
   }
 
@@ -377,22 +412,66 @@ const CustomEditor = ({ scheduler }) => {
       console.log("User is logged in")
     }
 
-  }, [auth])
+    async function driverAppointments() {
+
+      const driverresults = await getDriverAppointments(auth.userId, currentDate, auth.accessToken, auth.userId)
+
+      if(driverresults){
+        console.log(driverresults)
+        setDriverAppointments(driverresults)
+      }
+    }
+
+    if(auth.userId && currentDate){
+      driverAppointments()
+    }
+
+  }, [auth, currentDate])
 
 
-  const handleOpenReserveModal = (e, address, duration) => {
+  useEffect( ()=> {
+
+    async function hostAppointments() {
+
+      const hostresults = await getHostAppointments(hostUserId, currentDate, auth.accessToken, auth.userId)
+
+      if(hostresults){
+
+        console.log(hostresults)
+        setHostAppointments(hostresults)
+      }
+    }
+
+    if(hostUserId){
+      hostAppointments()
+    }
+
+  }, [hostUserId])
+
+
+  const handleDateChange = (e) => {
+
+    console.log(e)
+    var newdate = new Date(e).toISOString().slice(0,10)
+    console.l0g(newdate)
+    setCurrentDate(newdate)
+  }
+
+  const handleOpenReserveModal = (e, host, address, duration) => {
 
     e.preventDefault()
 
     setDestinationAddress(address)
     setCurrentDuration(duration)
     setOpenReserveModal(true)
+    setHostUserId(host._userId)
   }
 
   const handleCloseReserveModal = (e) => {
 
     e.preventDefault()
 
+    setHostUserId("")
     setOpenReserveModal(false)
   }
 
@@ -779,7 +858,7 @@ const CustomEditor = ({ scheduler }) => {
                       
                       <button 
                         className='px-3 py-1 bg-[#FFE142] hover:bg-[orange] rounded-lg'
-                        onClick={(e)=>handleOpenReserveModal(e, host.address, host.durationValue)}
+                        onClick={(e)=>handleOpenReserveModal(e, host, host.address, host.durationValue)}
                         >
                           Reserve
                       </button>
@@ -836,7 +915,7 @@ const CustomEditor = ({ scheduler }) => {
                     <p> Length of Booking: {bookingLengthText}</p>
 
                     <button className='border border-gray-300 px-3 py-2 rounded-xl'
-                      onClick={(e)=>handleLinkURLDirections(e, destinationAddress)}>
+                      onClick={(e)=>handleAddAppointment(e)}>
                       Submit Request
                     </button>
 
@@ -860,7 +939,7 @@ const CustomEditor = ({ scheduler }) => {
                 week={null}
                 month={null}
                 disableViewNavigator={false}
-                onSelectedDateChange={(e)=>console.log(e)}
+                onSelectedDateChange={(e)=>handleDateChange(e)}
                 editable={true}
                 deletable={false}
                 eventRenderer={({ event, ...props }) => {
@@ -910,7 +989,7 @@ const CustomEditor = ({ scheduler }) => {
                     <div>
                       <p>Useful to render custom fields...</p>
                       <p>Description: {event.description || "Nothing..."}</p>
-                      <button onClick={handleSubmitBooking}>Add Booking</button>
+                      <button onClick={(e)=>handleEditBooking(e)}>Add Booking</button>
                     </div>
                   );
                 }}

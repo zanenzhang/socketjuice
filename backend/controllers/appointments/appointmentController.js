@@ -45,15 +45,14 @@ const getHostAppointments = async (req, res) => {
 
     if(foundHostProfile){        
 
-        const userAppointments = await Appointment.findOne({ _id: {$in: foundHostProfile?.hostAppointments.map(e => e._appointmentId)}, 
-            $or: [{requestDateStart: currentDate},{requestDateEnd: currentDate}], status: "Approved" })
+        const userAppointments = await Appointment.find({ _id: {$in: foundHostProfile?.hostAppointments.map(e => e._appointmentId)}, 
+            $or: [{requestDateStart: currentDate},{requestDateEnd: currentDate}] })
 
         const flaggedList = await Flags.findOne({_userId: userId}).select("userFlags")
 
+        let userData = null;
+        let doneFlags = null;
         let foundHostProfiles = null;
-
-        let userData = false;
-        let doneFlags = false;
         let flaggedUsers = [];
         let stop = 0;
 
@@ -68,15 +67,22 @@ const getHostAppointments = async (req, res) => {
             doneFlags = true;
         }
 
-        if(userAppointments.length > 0){
+        if(userAppointments && userAppointments?.length > 0){
 
-            foundHostProfiles = await HostProfile.find({_id: {$in: userAppointments.map(e=>e._hostUserId)}})
+            foundHostProfiles = await HostProfile.find({_userId: {$in: userAppointments.map(e=>e._hostUserId)}})
 
-            if(foundHostProfiles?.length > 0){
+            if(foundHostProfiles && foundHostProfiles?.length > 0){
 
                 userData = await User.find({_id: {$in: foundHostProfiles.map(e=>e._userId)}}).select("_id profilePicURL roles")
 
-                doneData = true;
+                if(userData){
+                
+                    doneData = true;
+                
+                } else {
+                
+                    return res.status(401).json({ message: 'Operation failed' })
+                }
 
             } else {
             
@@ -87,6 +93,10 @@ const getHostAppointments = async (req, res) => {
             if(doneFlags && doneData && userData){
 
                 return res.status(201).json({userAppointments, foundHostProfiles, userData, flaggedUsers, stop})
+            
+            } else {
+
+                return res.status(401).json({ message: 'Operation failed' })
             }
         
         } else {
@@ -95,7 +105,6 @@ const getHostAppointments = async (req, res) => {
             donePosts = true;
             userData = []
             foundHostProfiles = []
-            userAppointments = []
 
             if(donePosts && doneFlags){
                 
@@ -105,7 +114,7 @@ const getHostAppointments = async (req, res) => {
     
     } else {
 
-        return res.status(400).json({ message: 'Missing required information' })
+        return res.status(403).json({ message: 'Missing required information' })
     }
 }   
 
@@ -122,15 +131,16 @@ const getDriverAppointments = async (req, res) => {
 
     if(foundDriverProfile){
 
-        const userAppointments = await Appointment.findOne({ _id: {$in: foundDriverProfile?.userAppointments.map(e => e._appointmentId)}, 
-            $or: [{requestDateStart: currentDate},{requestDateEnd: currentDate}], status: "Approved" })
+        console.log("Found driver", foundDriverProfile.userAppointments)
+
+        const userAppointments = await Appointment.find({ _id: {$in: foundDriverProfile?.userAppointments.map(e => e._appointmentId)}, 
+            $or: [{requestDateStart: currentDate},{requestDateEnd: currentDate}]})
 
         const flaggedList = await Flags.findOne({_userId: userId}).select("userFlags")
 
+        let userData = null;
+        let doneFlags = null;
         let foundHostProfiles = null;
-
-        let userData = false;
-        let doneFlags = false;
         let flaggedUsers = [];
         let stop = 0;
 
@@ -145,15 +155,26 @@ const getDriverAppointments = async (req, res) => {
             doneFlags = true;
         }
 
-        if(userAppointments?.length > 0){
+        if(userAppointments && userAppointments?.length > 0){
 
-            foundHostProfiles = await HostProfile.find({_id: {$in: userAppointments.map(e=>e._hostUserId)}})
+            console.log("Found appointments", userAppointments)
 
-            if(foundHostProfiles?.length > 0){
+            foundHostProfiles = await HostProfile.find({_userId: {$in: userAppointments.map(e=>e._hostUserId)}})
+
+            if(foundHostProfiles && foundHostProfiles?.length > 0){
 
                 userData = await User.find({_id: {$in: foundHostProfiles.map(e=>e._userId)}}).select("_id profilePicURL roles")
 
-                doneData = true;
+                if(userData){
+
+                    console.log("USer data here", userData)
+                
+                    doneData = true;
+                
+                } else {
+
+                    return res.status(401).json({ message: 'Operation failed' })
+                }
 
             } else {
             
@@ -164,6 +185,10 @@ const getDriverAppointments = async (req, res) => {
             if(doneFlags && doneData && userData){
 
                 return res.status(201).json({userAppointments, foundHostProfiles, userData, flaggedUsers, stop})
+            
+            } else {
+
+                return res.status(401).json({ message: 'Operation failed' })
             }
         
         } else {
@@ -172,7 +197,6 @@ const getDriverAppointments = async (req, res) => {
             donePosts = true;
             userData = []
             foundHostProfiles = []
-            userAppointments = []
 
             if(donePosts && doneFlags){
                 
@@ -181,7 +205,7 @@ const getDriverAppointments = async (req, res) => {
         }
     } else {
 
-        return res.status(400).json({ message: 'Missing required information' })
+        return res.status(403).json({ message: 'Missing required information' })
     }
 }   
 
@@ -191,6 +215,8 @@ const addAppointmentRequest = async (req, res) => {
     const { userId, hostUserId, appointmentStart, appointmentEnd } = req.body
 
     if (!userId || !hostUserId ) return res.status(400).json({ 'message': 'Missing required fields!' });
+
+    console.log(userId, hostUserId, appointmentStart, appointmentEnd)
 
     try {
 
@@ -208,7 +234,6 @@ const addAppointmentRequest = async (req, res) => {
         var doneHostAppointments = false;
         var doneDriverAppointments = false;
         var doneOperation = false;
-        
 
         if (foundDriverProfile && foundHostProfile && foundLimits ){
 
@@ -259,13 +284,14 @@ const addAppointmentRequest = async (req, res) => {
             const newToken = crypto.randomBytes(16).toString('hex')
 
             const checkAppointments = await Appointment.findOne(
-                {$or: [{_requestUserId: userId}, {_hostUserId: hostUserId}], 
-                $or: [ 
-                    { start : { $lt: requestStart }, end : { $gt: requestStart } },
-                    { start : { $lt: requestEnd }, end : { $gte: requestEnd } },
-                    { start : { $gt: requestStart }, end : { $lt: requestEnd } }], 
-                status: "Approved" }
-                )
+                {$and:[
+                    {$or: [{_requestUserId: userId}, {_hostUserId: hostUserId}]}, 
+                    {$or: [ 
+                        { start : { $lt: requestStart }, end : { $gt: requestStart } },
+                        { start : { $lt: requestEnd }, end : { $gt: requestEnd } },
+                        { start : { $gt: requestStart }, end : { $lt: requestEnd } }]}, 
+                    {$or: [{status: "Approved" }, {status: "Requested" }]}
+                ]})
 
             if(!checkAppointments){
 
@@ -279,7 +305,7 @@ const addAppointmentRequest = async (req, res) => {
                 
                     if(foundHostProfile.hostAppointments?.length > 0){
                     
-                        foundHostProfile.push({_appointmentId: newAppointment._id})
+                        foundHostProfile.hostAppointments.push({_appointmentId: newAppointment._id})
     
                         const savedHostProfile = await foundHostProfile.save()
     
@@ -298,11 +324,11 @@ const addAppointmentRequest = async (req, res) => {
                         }
                     }
     
-                    foundDriverProfile.numberOfHostAppointments = foundDriverProfile.numberOfHostAppointments + 1
+                    foundDriverProfile.numberOfCustAppointments = foundDriverProfile.numberOfCustAppointments + 1
                 
-                    if(foundDriverProfile.hostAppointments?.length > 0){
+                    if(foundDriverProfile.userAppointments?.length > 0){
                     
-                        foundDriverProfile.push({_appointmentId: newAppointment._id})
+                        foundDriverProfile.userAppointments.push({_appointmentId: newAppointment._id})
     
                         const savedDriverProfile = await foundDriverProfile.save()
     
@@ -312,7 +338,7 @@ const addAppointmentRequest = async (req, res) => {
                     
                     } else {
     
-                        foundDriverProfile.hostAppointments = [{_appointmentId: newAppointment._id}]
+                        foundDriverProfile.userAppointments = [{_appointmentId: newAppointment._id}]
                         
                         const savedDriverProfile = await foundDriverProfile.save()
     
@@ -322,7 +348,7 @@ const addAppointmentRequest = async (req, res) => {
                     }
                 }
     
-                if(doneHostAppointments && doneDriverAppointments && doneOperation && savedProfile){
+                if(doneHostAppointments && doneDriverAppointments && doneOperation){
                     
                     return res.status(201).json({ message: 'Success' })
                 
@@ -343,6 +369,7 @@ const addAppointmentRequest = async (req, res) => {
         
     } catch (err) {
 
+        console.log(err)
         return res.status(400).json({ message: 'Failed' })
     }
 }
@@ -360,16 +387,18 @@ const addAppointmentApproval = async (req, res) => {
         if(foundAppointment && foundAppointment.status === "Requested"){
 
             //Check for overlaps
-            const startTime = foundAppointment.start
-            const endTime = foundAppointment.end
+            const requestStart = foundAppointment.start
+            const requestEnd = foundAppointment.end
 
             const checkAppointments = await Appointment.findOne(
-                {$or: [{_requestUserId: userId}, {_hostUserId: hostUserId}], 
-                $or: [ 
-                    { start : { $lt: startTime }, end : { $gt: startTime } },
-                    { start : { $lt: endTime }, end : { $gte: endTime } },
-                    { start : { $gt: startTime }, end : { $lt: endTime } }], 
-                status: "Approved" })
+                {$and:[
+                    {$or: [{_requestUserId: userId}, {_hostUserId: hostUserId}]}, 
+                    {$or: [ 
+                        { start : { $lt: requestStart }, end : { $gt: requestStart } },
+                        { start : { $lt: requestEnd }, end : { $gt: requestEnd } },
+                        { start : { $gt: requestStart }, end : { $lt: requestEnd } }]}, 
+                    {$or: [{status: "Approved" }, {status: "Requested" }]}
+                ]})
 
             if(!checkAppointments){
 
