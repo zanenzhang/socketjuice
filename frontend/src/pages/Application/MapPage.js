@@ -99,6 +99,11 @@ const [currentDate, setCurrentDate] = useState(new Date().toISOString().slice(0,
 const [hostAppointments, setHostAppointments] = useState([])
 const [driverAppointments, setDriverAppointments] = useState([])
 
+const [events, setEvents] = useState([])
+const [hostEvents, setHostEvents] = useState([])
+const [driverEvents, setDriverEvents] = useState([])
+const [currentEvent, setCurrentEvent] = useState({})
+
 
 useEffect( ()=> {
 
@@ -120,24 +125,39 @@ useEffect( ()=> {
 
 }, [currentDuration])
 
-useEffect( ()=> {
+useEffect( () => {
 
   if(bookingStart && bookingEnd){
 
     if(bookingEnd < bookingStart){
+
       setBookingEnd(bookingStart)
       setBookingLengthValue(0)
       setBookingLengthText("No Booking")
+    
     } else {
 
       var timeMin = (bookingEnd - bookingStart)/60000
       setBookingLengthValue(timeMin)
       setBookingLengthText(`${timeMin} Min`)
-    }
 
+      var updatedCurrent = {
+        event_id: `proposed_${auth.userId}`,
+        title: "Proposed Booking Time",
+        start: bookingStart,
+        end: bookingEnd,
+        admin_id: auth.userId,
+        color: "#00D3E0"
+      }
+
+      var filteredevents = events.filter(e => e.event_id !== `proposed_${auth.userId}`)
+      filteredevents = [...filteredevents, updatedCurrent]
+      setEvents(filteredevents)
+    }
   }
 
 }, [bookingStart, bookingEnd])
+
 
 const CustomEditor = ({ scheduler }) => {
   
@@ -149,97 +169,43 @@ const CustomEditor = ({ scheduler }) => {
     description: event?.description || ""
   });
 
-  const [error, setError] = useState("");
-
-  const handleChange = (value, name) => {
-    setState((prev) => {
-      return {
-        ...prev,
-        [name]: value
-      };
-    });
-  };
   const handleSubmit = async (e) => {
-    // Your own validation
 
     console.log("PRINTING STATE")
     console.log(e)
     console.log(state)
-    console.log(scheduler.state.start.value)
-    console.log(scheduler.state.end.value)
+    console.log(scheduleStartTime)
+    console.log(scheduleEndTime)
 
-    setBookingStart(dayjs(scheduler.state.start.value))
-    setBookingEnd(dayjs(scheduler.state.end.value))
+    var current = new Date()
+    
+    if(bookingStart < current || bookingEnd < current){
+    
+      alert("The proposed time has already passed, please check again")
+    
+    } else {
 
-    if (state.title.length < 3) {
-      return setError("Min 3 letters");
+      //update main timeinputs
+      setBookingStart(dayjs(scheduleStartTime))
+      setBookingEnd(dayjs(scheduleEndTime))
     }
 
-    try {
-
-      scheduler.loading(true);
-
-      if(event){
-
-        console.log(event)
-        console.log("editing event")
-        console.log("Only allow editing if status is requested")
-      
-
-
-      } else {
-
-        console.log("New event")
-
-
-      }
-
-      // {
-      //   event_id: event?.event_id || Math.random(),
-      //   start: scheduler.state.start.value,
-      //   end: scheduler.state.end.value,
-      //   title: state.title,
-      //   description: state.description,
-      //   disabled: true,
-      //   status: "Requested"
-      // }
-      /**Simulate remote data saving */
-      var added_updated_event = null
-
-      // await addAppointmentRequest()
-
-      if(added_updated_event){
-
-        scheduler.onConfirm(added_updated_event, event ? "edit" : "create");
-        scheduler.close();
-
-      } else {
-
-        console.log("Error, did not update")
-
-        added_updated_event = {
-          event_id: event?.event_id || Math.random(),
-          title: state.title,
-          start: scheduler.state.start.value,
-          end: scheduler.state.end.value,
-          description: state.description
-        };
-
-        scheduler.onConfirm(added_updated_event, event ? "edit" : "create");
-        scheduler.close();
-      }
-        /**
-         * Make sure the event have 4 mandatory fields
-         * event_id: string|number
-         * title: string
-         * start: Date|string
-         * end: Date|string
-         */
-
-    } finally {
-      scheduler.loading(false);
-    }
+    scheduler.loading(false);
+    scheduler.close();
   };
+
+  const [scheduleStartTime, setScheduleStartTime] = useState(dayjs(scheduler.state.start.value))
+  const [scheduleEndTime, setScheduleEndTime] = useState(dayjs(scheduler.state.end.value))
+
+  const handleStartTime = (e) => {
+
+    setScheduleStartTime(e["$d"])
+  }
+
+  const handleEndTime = (e) => {
+
+    setScheduleEndTime(e["$d"])
+  }
   
   return (
     <div>
@@ -250,16 +216,16 @@ const CustomEditor = ({ scheduler }) => {
         <LocalizationProvider dateAdapter={AdapterDayjs}>
             
             <DateTimePicker
-              value={dayjs(scheduler.state.start.value)}
-              onChange={(newValue) => console.log(newValue["$d"])}
+              value={scheduleStartTime}
+              onChange={(newValue) => handleStartTime(newValue)}
               />
 
         </LocalizationProvider>
 
         <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DateTimePicker
-              value={dayjs(scheduler.state.end.value)}
-              onChange={(newValue) => console.log(newValue["$d"])}
+              value={scheduleEndTime}
+              onChange={(newValue) => handleEndTime(newValue)}
               />
         </LocalizationProvider>
         
@@ -419,6 +385,29 @@ const CustomEditor = ({ scheduler }) => {
       if(driverresults){
         console.log(driverresults)
         setDriverAppointments(driverresults)
+        setDriverEvents()
+
+        var newevents = [];
+
+        for (let i=0; i<driverresults?.length; i++){
+          
+          var instance = {
+            event_id: `booking_${auth.userId}`,
+            title: "Booked Time",
+            start: driverresults[i].start,
+            end: driverresults[i].end,
+            admin_id: auth.userId,
+            color: "#FFE142",
+            disabled: true
+          }
+
+          newevents.push(instance)
+        }
+
+        setDriverEvents(newevents)
+        var combined = [...hostEvents, ... newevents]
+        setEvents(combined)
+
       }
     }
 
@@ -437,8 +426,28 @@ const CustomEditor = ({ scheduler }) => {
 
       if(hostresults){
 
-        console.log(hostresults)
         setHostAppointments(hostresults)
+
+        var newevents = [];
+
+        for (let i=0; i<hostresults?.length; i++){
+          
+          var instance = {
+            event_id: `booking_${hostresults[i]._hostUserId}`,
+            title: "Booked Time",
+            start: hostresults[i].start,
+            end: hostresults[i].end,
+            admin_id: hostresults[i]._hostUserId,
+            color: "#e5e7eb",
+            disabled: true
+          }
+
+          newevents.push(instance)
+        }
+
+        setHostEvents(newevents)
+        var combined = [...driverEvents, ... newevents]
+        setEvents(combined)
       }
     }
 
@@ -927,7 +936,7 @@ const CustomEditor = ({ scheduler }) => {
 
               <div className='w-full'>
               <Scheduler
-                events={[]}
+                events={events}
                 className='w-full'
                 view="day"
                 day={{
@@ -935,7 +944,7 @@ const CustomEditor = ({ scheduler }) => {
                   endHour: 24, 
                   step: 30,
                   navigation: true
-                  }}
+                }}
                 week={null}
                 month={null}
                 disableViewNavigator={false}
@@ -943,9 +952,6 @@ const CustomEditor = ({ scheduler }) => {
                 editable={true}
                 deletable={false}
                 eventRenderer={({ event, ...props }) => {
-                  console.log(event)
-                  console.log(event.start)
-                  console.log(event.end)
                     return (
                       <div
                         style={{
