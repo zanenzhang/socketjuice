@@ -1,7 +1,6 @@
 import { React, useRef, useState, useEffect, useMemo, createRef } from 'react';
 import axios from '../../api/axios';  
 import { TextField, Button, DialogActions } from "@mui/material";
-import { Scheduler } from "@aldabil/react-scheduler";
 import GooglePlacesAutocomplete from "react-google-places-autocomplete";
 import "./mappage.css";
 import {
@@ -83,9 +82,7 @@ const MapPage = () => {
     borderRadius: '10px',
     display: "flex",
     flexDirection: "column",
-    alignItems: "center",
-    justifyItems: "center",
-    height: 450,
+    height: 500,
     zIndex: 10001,
 };
 
@@ -98,6 +95,7 @@ const [bookingLengthText, setBookingLengthText] = useState("30 Min")
 const [currentDate, setCurrentDate] = useState(new Date().toISOString().slice(0,10))
 const [hostAppointments, setHostAppointments] = useState([])
 const [driverAppointments, setDriverAppointments] = useState([])
+const [newrequest, setNewrequest] = useState(false);
 
 const [events, setEvents] = useState([])
 const [hostEvents, setHostEvents] = useState([])
@@ -141,17 +139,36 @@ useEffect( () => {
       setBookingLengthValue(timeMin)
       setBookingLengthText(`${timeMin} Min`)
 
+      console.log("events here 0", bookingStart["$d"])
+      console.log("events here 1", bookingEnd["$d"])
+
+      var test = new Date(bookingStart["$d"])
+      console.log(test)
+
       var updatedCurrent = {
         event_id: `proposed_${auth.userId}`,
         title: "Proposed Booking Time",
-        start: bookingStart,
-        end: bookingEnd,
+        start: new Date(bookingStart["$d"]),
+        end: new Date(bookingEnd["$d"]),
         admin_id: auth.userId,
-        color: "#00D3E0"
+        color: "#00D3E0",
+        disabled: true
+      }
+
+      var test = {
+        event_id: 1,
+        title: "Event 1",
+        start: new Date(new Date(new Date().setHours(9)).setMinutes(0)),
+        end: new Date(new Date(new Date().setHours(10)).setMinutes(0)),
+        disabled: true,
+        admin_id: [1, 2, 3, 4]
       }
 
       var filteredevents = events.filter(e => e.event_id !== `proposed_${auth.userId}`)
-      filteredevents = [...filteredevents, updatedCurrent]
+      filteredevents = [...filteredevents, updatedCurrent, test]
+
+      console.log(filteredevents)
+
       setEvents(filteredevents)
     }
   }
@@ -179,7 +196,7 @@ const CustomEditor = ({ scheduler }) => {
 
     var current = new Date()
     
-    if(bookingStart < current || bookingEnd < current){
+    if(scheduleStartTime < current || scheduleEndTime < current){
     
       alert("The proposed time has already passed, please check again")
     
@@ -336,14 +353,19 @@ const CustomEditor = ({ scheduler }) => {
 
   }
 
-  const handleAddAppointment = (e) => {
+  async function handleAddAppointment(e) {
 
     e.preventDefault()
     console.log(auth.userId, hostUserId, new Date(bookingStart["$d"]).toISOString(), 
-      new Date(bookingEnd["$d"]).toISOString(), auth.accessToken)
-    
-    addAppointmentRequest(auth.userId, hostUserId, bookingStart, bookingEnd, auth.accessToken)
+      new Date(bookingEnd["$d"]).toISOString(), auth.accessToken)  
 
+    const added = await addAppointmentRequest(auth.userId, hostUserId, bookingStart, bookingEnd, auth.accessToken)
+
+    if(added){
+      console.log("Added booking request")
+      //Refresh get driver and get host appointments
+      setNewrequest(!newrequest)
+    }
   }
 
   async function handleLinkURLDirections(e, destination){
@@ -415,7 +437,7 @@ const CustomEditor = ({ scheduler }) => {
       driverAppointments()
     }
 
-  }, [auth, currentDate])
+  }, [auth, currentDate, newrequest])
 
 
   useEffect( ()=> {
@@ -455,14 +477,14 @@ const CustomEditor = ({ scheduler }) => {
       hostAppointments()
     }
 
-  }, [hostUserId])
+  }, [hostUserId, newrequest])
 
 
   const handleDateChange = (e) => {
 
     console.log(e)
     var newdate = new Date(e).toISOString().slice(0,10)
-    console.l0g(newdate)
+    console.log(newdate)
     setCurrentDate(newdate)
   }
 
@@ -901,7 +923,7 @@ const CustomEditor = ({ scheduler }) => {
         >
             <Box sx={{ ...profileStyle }}>
 
-                <div className='flex flex-col w-full overflow-y-scroll'>
+              <div className='flex flex-col w-full overflow-y-scroll'>
 
                 <div className='pt-1 pb-4 flex flex-col gap-y-3'>
 
@@ -932,75 +954,7 @@ const CustomEditor = ({ scheduler }) => {
                       onClick={(e)=>handleLinkURLDirections(e, destinationAddress)}>
                         Get Directions (Opens Map)
                     </button>
-                  </div>
-
-              <div className='w-full'>
-              <Scheduler
-                events={events}
-                className='w-full'
-                view="day"
-                day={{
-                  startHour: 0, 
-                  endHour: 24, 
-                  step: 30,
-                  navigation: true
-                }}
-                week={null}
-                month={null}
-                disableViewNavigator={false}
-                onSelectedDateChange={(e)=>handleDateChange(e)}
-                editable={true}
-                deletable={false}
-                eventRenderer={({ event, ...props }) => {
-                    return (
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          justifyContent: "space-between",
-                          height: "425px",
-                          background: "#757575"
-                        }}
-                        {...props}
-                      >
-                        <div
-                          style={{ height: 20, background: "#ffffffb5", color: "black" }}
-                        >
-                          {event.start.toLocaleTimeString("en-US", {
-                            timeStyle: "short"
-                          })}
-                        </div>
-                        
-                        <div
-                          style={{ height: 20, background: "#ffffffb5", color: "black" }}
-                        >
-                          {event.end.toLocaleTimeString("en-US", { timeStyle: "short" })}
-                        </div>
-                        
-                        <div>{event.title}</div>
-                      </div>
-                    );
-                  }}
-                  customEditor={(scheduler) => <CustomEditor scheduler={scheduler} />}
-                  fields={[
-                    {
-                      name: "comments",
-                      type: "input",
-                      default: "Comments",
-                      config: { label: "Comments / Directions", required: false }
-                    }
-                  ]}
-                viewerExtraComponent={(fields, event) => {
-                  return (
-                    <div>
-                      <p>Useful to render custom fields...</p>
-                      <p>Description: {event.description || "Nothing..."}</p>
-                      <button onClick={(e)=>handleEditBooking(e)}>Add Booking</button>
-                    </div>
-                  );
-                }}
-              />
-              </div>
+                </div>
 
               
               </div>
