@@ -2,7 +2,10 @@ import { React, useRef, useState, useEffect, useMemo, createRef } from 'react';
 import axios from '../../api/axios';  
 import { TextField, Button, DialogActions } from "@mui/material";
 import GooglePlacesAutocomplete from "react-google-places-autocomplete";
-import "./mappage.css";
+import { Calendar, dayjsLocalizer } from "react-big-calendar";
+import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
+import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
+import "react-big-calendar/lib/css/react-big-calendar.css";
 import {
   useJsApiLoader,
   GoogleMap,
@@ -35,13 +38,18 @@ const MapPage = () => {
 
   /*global google*/
 
+  const localizer = dayjsLocalizer(dayjs);
+  const DnDCalendar = withDragAndDrop(Calendar);
+
   const { auth, setActiveTab, socket, setSocket, setNewMessages, setNewRequests } = useAuth();
   const [center, setCenter] = useState({ lat: 48.8584, lng: 2.2945 })
 
   const [map, setMap] = useState(null)
+  const [date, setDate] = useState(new Date())
   const [directionsResponse, setDirectionsResponse] = useState(null)
   const [distance, setDistance] = useState('')
   const [duration, setDuration] = useState('')
+  
   const [waitingCurrent, setWaitingCurrent] = useState(false);
   const [currentMarker, setCurrentMarker] = useState("")
   const [hostUserId, setHostUserId] = useState("")
@@ -86,8 +94,8 @@ const MapPage = () => {
     zIndex: 10001,
 };
 
-const [bookingStart, setBookingStart] = useState(new Date())
-const [bookingEnd, setBookingEnd] = useState(new Date())
+const [bookingStart, setBookingStart] = useState(dayjs(new Date()))
+const [bookingEnd, setBookingEnd] = useState(dayjs(new Date()))
 const [currentDuration, setCurrentDuration] = useState(0)
 const [bookingLengthValue, setBookingLengthValue] = useState(30)
 const [bookingLengthText, setBookingLengthText] = useState("30 Min")
@@ -142,119 +150,77 @@ useEffect( () => {
       console.log("events here 0", bookingStart["$d"])
       console.log("events here 1", bookingEnd["$d"])
 
-      var test = new Date(bookingStart["$d"])
-      console.log(test)
-
       var updatedCurrent = {
-        event_id: `proposed_${auth.userId}`,
+        id: `proposed_${auth.userId}`,
         title: "Proposed Booking Time",
         start: new Date(bookingStart["$d"]),
         end: new Date(bookingEnd["$d"]),
-        admin_id: auth.userId,
-        color: "#00D3E0",
-        disabled: true
+        isDraggable: true
       }
 
+      var today = new Date();
       var test = {
-        event_id: 1,
-        title: "Event 1",
-        start: new Date(new Date(new Date().setHours(9)).setMinutes(0)),
-        end: new Date(new Date(new Date().setHours(10)).setMinutes(0)),
-        disabled: true,
-        admin_id: [1, 2, 3, 4]
+        id: `proposed_${auth.userId}`,
+        title: 'Test Event 1',
+        start: new Date(),
+        end: new Date(today.getFullYear(), today.getMonth(), today.getDate(), today.getHours()+2),
+        isDraggable: true
       }
 
-      var filteredevents = events.filter(e => e.event_id !== `proposed_${auth.userId}`)
+      var filteredevents = driverEvents.filter(e => e.id !== `proposed_${auth.userId}`)
       filteredevents = [...filteredevents, updatedCurrent, test]
 
       console.log(filteredevents)
 
-      setEvents(filteredevents)
+      setHostEvents(filteredevents)
+      setEvents([...filteredevents, ...hostEvents])
     }
   }
 
 }, [bookingStart, bookingEnd])
 
 
-const CustomEditor = ({ scheduler }) => {
+const handleSelectSlot = (e) => {
+
+  console.log(e)
+}
+
+const handleSelectEvent = (e) => {
+
+  console.log(e)
+
+}
+
+const handleEventResize = (e) => {
+
+  console.log(e)
   
-  const event = scheduler.edited;
+}
 
-  // Make your own form/state
-  const [state, setState] = useState({
-    title: event?.title || "",
-    description: event?.description || ""
-  });
-
-  const handleSubmit = async (e) => {
-
-    console.log("PRINTING STATE")
-    console.log(e)
-    console.log(state)
-    console.log(scheduleStartTime)
-    console.log(scheduleEndTime)
-
-    var current = new Date()
-    
-    if(scheduleStartTime < current || scheduleEndTime < current){
-    
-      alert("The proposed time has already passed, please check again")
-    
-    } else {
-
-      //update main timeinputs
-      setBookingStart(dayjs(scheduleStartTime))
-      setBookingEnd(dayjs(scheduleEndTime))
-    }
-
-    scheduler.loading(false);
-    scheduler.close();
-  };
-
-  const [scheduleStartTime, setScheduleStartTime] = useState(dayjs(scheduler.state.start.value))
-  const [scheduleEndTime, setScheduleEndTime] = useState(dayjs(scheduler.state.end.value))
-
-  const handleStartTime = (e) => {
-
-    setScheduleStartTime(e["$d"])
-  }
-
-  const handleEndTime = (e) => {
-
-    setScheduleEndTime(e["$d"])
-  }
+const handleNavigate = (e) => {
+  console.log(e)
   
-  return (
-    <div>
-      <div className='p-2 w-[375px] flex flex-col gap-y-3'>
-        
-        <p className='pt-2 text-center'>Schedule Your Booking</p>
-        
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-            
-            <DateTimePicker
-              value={scheduleStartTime}
-              onChange={(newValue) => handleStartTime(newValue)}
-              />
+  var newdate = new Date()
+  var currentdate = new Date(newdate.getFullYear(), newdate.getMonth(), newdate.getDate()-1)
+  var datestring = currentdate.toISOString().slice(0,10)
+  
+  setCurrentDate(datestring)
+  setDate(new Date(e))
+}
 
-        </LocalizationProvider>
+const handleEventMove = ({event, start, end}) => {
 
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DateTimePicker
-              value={scheduleEndTime}
-              onChange={(newValue) => handleEndTime(newValue)}
-              />
-        </LocalizationProvider>
-        
-      </div>
+  console.log(event)
+  
+}
 
-      <DialogActions>
-        <Button onClick={scheduler.close}>Cancel</Button>
-        <Button onClick={(e)=>handleSubmit(e)}>Confirm</Button>
-      </DialogActions>
-    </div>
-  );
-};
+const {scrollToTime} = useMemo(
+  () => ({
+    scrollToTime: new Date(),
+  }),
+  []
+)
+
 
   /** @type React.MutableRefObject<HTMLInputElement> */
   const originRef = useRef()
@@ -356,6 +322,7 @@ const CustomEditor = ({ scheduler }) => {
   async function handleAddAppointment(e) {
 
     e.preventDefault()
+
     console.log(auth.userId, hostUserId, new Date(bookingStart["$d"]).toISOString(), 
       new Date(bookingEnd["$d"]).toISOString(), auth.accessToken)  
 
@@ -405,22 +372,19 @@ const CustomEditor = ({ scheduler }) => {
       const driverresults = await getDriverAppointments(auth.userId, currentDate, auth.accessToken, auth.userId)
 
       if(driverresults){
-        console.log(driverresults)
-        setDriverAppointments(driverresults)
-        setDriverEvents()
+        console.log(driverresults.driverAppointments)
+        setDriverAppointments(driverresults.driverAppointments)
 
         var newevents = [];
 
-        for (let i=0; i<driverresults?.length; i++){
+        for (let i=0; i<driverresults.driverAppointments?.length; i++){
           
           var instance = {
-            event_id: `booking_${auth.userId}`,
+            id: `booking_${auth.userId}`,
             title: "Booked Time",
-            start: driverresults[i].start,
-            end: driverresults[i].end,
-            admin_id: auth.userId,
-            color: "#FFE142",
-            disabled: true
+            start: new Date(driverresults[i].start),
+            end: new Date(driverresults[i].end),
+            isDraggable: true
           }
 
           newevents.push(instance)
@@ -433,6 +397,7 @@ const CustomEditor = ({ scheduler }) => {
       }
     }
 
+    console.log(currentDate)
     if(auth.userId && currentDate){
       driverAppointments()
     }
@@ -448,45 +413,39 @@ const CustomEditor = ({ scheduler }) => {
 
       if(hostresults){
 
-        setHostAppointments(hostresults)
+        console.log(hostresults.hostAppointments)
+        setHostAppointments(hostresults.hostAppointments)
 
         var newevents = [];
 
-        for (let i=0; i<hostresults?.length; i++){
+        for (let i=0; i<hostresults?.hostAppointments.length; i++){
           
           var instance = {
-            event_id: `booking_${hostresults[i]._hostUserId}`,
+            id: `booking_${hostresults.hostAppointments[i]._hostUserId}`,
             title: "Booked Time",
-            start: hostresults[i].start,
-            end: hostresults[i].end,
-            admin_id: hostresults[i]._hostUserId,
-            color: "#e5e7eb",
-            disabled: true
+            start: new Date(hostresults.hostAppointments[i].start),
+            end: new Date(hostresults.hostAppointments[i].end),
+            isDraggable: true
           }
 
           newevents.push(instance)
         }
 
+        console.log(newevents)
         setHostEvents(newevents)
-        var combined = [...driverEvents, ... newevents]
+        var combined = [...driverEvents, ...newevents]
         setEvents(combined)
       }
     }
 
-    if(hostUserId){
+    console.log(hostUserId)
+    console.log(currentDate)
+    if(hostUserId && currentDate){
       hostAppointments()
     }
 
-  }, [hostUserId, newrequest])
+  }, [hostUserId, newrequest, currentDate])
 
-
-  const handleDateChange = (e) => {
-
-    console.log(e)
-    var newdate = new Date(e).toISOString().slice(0,10)
-    console.log(newdate)
-    setCurrentDate(newdate)
-  }
 
   const handleOpenReserveModal = (e, host, address, duration) => {
 
@@ -954,11 +913,41 @@ const CustomEditor = ({ scheduler }) => {
                       onClick={(e)=>handleLinkURLDirections(e, destinationAddress)}>
                         Get Directions (Opens Map)
                     </button>
+
+                    <div className='flex flex-col'>
+
+                    <p className='text-lg text-center pt-4 pb-2'>Location Schedule</p>
+
+                    <DnDCalendar
+
+                      style={{ height: "500px" }}
+
+                      date={date}
+                      defaultView="day"
+                      events={events}
+                      localizer={localizer}
+                      
+                      startAccessor="start"
+                      endAccessor="end"
+                      draggableAccessor="isDraggable"
+
+                      views={['day']}
+
+                      onSelectEvent={(e)=>handleSelectEvent(e)}
+                      onEventDrop={(e)=>handleEventMove(e)}
+                      onEventResize={(e)=>handleEventResize(e)}
+                      
+                      onSelectSlot={(e)=>handleSelectSlot(e)}
+                      scrollToTime={scrollToTime}
+                      onNavigate={date=>handleNavigate(date)}
+
+                      selectable
+                      resizable
+                  />
+                  </div>
+
                 </div>
-
-              
               </div>
-
             </Box>
         </Modal>
       </>

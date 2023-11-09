@@ -37,6 +37,8 @@ const getHostAppointments = async (req, res) => {
     
     var { userId, currentDate } = req.query
 
+    console.log(userId, currentDate)
+
     if (!userId || !currentDate ) {
         return res.status(400).json({ message: 'Missing required information' })
     }
@@ -45,7 +47,9 @@ const getHostAppointments = async (req, res) => {
 
     if(foundHostProfile){        
 
-        const userAppointments = await Appointment.find({ _id: {$in: foundHostProfile?.hostAppointments.map(e => e._appointmentId)}, 
+        console.log("Found host profile", foundHostProfile.hostAppointments.length)
+
+        const hostAppointments = await Appointment.find({ _id: {$in: foundHostProfile?.hostAppointments.map(e => e._appointmentId)}, 
             $or: [{requestDateStart: currentDate},{requestDateEnd: currentDate}] })
 
         const flaggedList = await Flags.findOne({_userId: userId}).select("userFlags")
@@ -67,11 +71,15 @@ const getHostAppointments = async (req, res) => {
             doneFlags = true;
         }
 
-        if(userAppointments && userAppointments?.length > 0){
+        if(hostAppointments && hostAppointments?.length > 0){
 
-            foundHostProfiles = await HostProfile.find({_userId: {$in: userAppointments.map(e=>e._hostUserId)}})
+            console.log("Host appointments", hostAppointments.length)
+
+            foundHostProfiles = await HostProfile.find({_userId: {$in: hostAppointments.map(e=>e._hostUserId)}})
 
             if(foundHostProfiles && foundHostProfiles?.length > 0){
+
+                console.log("Host profiles nested", foundHostProfiles)
 
                 userData = await User.find({_id: {$in: foundHostProfiles.map(e=>e._userId)}}).select("_id profilePicURL roles")
 
@@ -92,7 +100,7 @@ const getHostAppointments = async (req, res) => {
 
             if(doneFlags && doneData && userData){
 
-                return res.status(201).json({userAppointments, foundHostProfiles, userData, flaggedUsers, stop})
+                return res.status(201).json({hostAppointments, foundHostProfiles, userData, flaggedUsers, stop})
             
             } else {
 
@@ -108,7 +116,7 @@ const getHostAppointments = async (req, res) => {
 
             if(donePosts && doneFlags){
                 
-                return res.status(201).json({userAppointments, foundHostProfiles, userData, flaggedUsers, stop})
+                return res.status(201).json({hostAppointments, foundHostProfiles, userData, flaggedUsers, stop})
             }
         }
     
@@ -123,6 +131,8 @@ const getDriverAppointments = async (req, res) => {
     
     var { userId, currentDate } = req.query
 
+    console.log(userId, currentDate)
+
     if (!userId || !currentDate ) {
         return res.status(400).json({ message: 'Missing required information' })
     }
@@ -131,7 +141,7 @@ const getDriverAppointments = async (req, res) => {
 
     if(foundDriverProfile){
 
-        console.log("Found driver", foundDriverProfile.userAppointments)
+        console.log("Found driver profile", foundDriverProfile.userAppointments.length)
 
         const userAppointments = await Appointment.find({ _id: {$in: foundDriverProfile?.userAppointments.map(e => e._appointmentId)}, 
             $or: [{requestDateStart: currentDate},{requestDateEnd: currentDate}]})
@@ -157,7 +167,7 @@ const getDriverAppointments = async (req, res) => {
 
         if(userAppointments && userAppointments?.length > 0){
 
-            console.log("Found appointments", userAppointments)
+            console.log("Found appointments", userAppointments.length)
 
             foundHostProfiles = await HostProfile.find({_userId: {$in: userAppointments.map(e=>e._hostUserId)}})
 
