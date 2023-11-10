@@ -38,7 +38,7 @@ var appointmentSchema = new Schema({
     },
     status: {
         type: String,
-        default: "Requested", //Requested, Approved, CancelSubmitted, Cancelled, 
+        default: "Requested", //Requested, Approved, CancelSubmitted, Cancelled, Completed
     },
     reviewed: {
         type: Boolean,

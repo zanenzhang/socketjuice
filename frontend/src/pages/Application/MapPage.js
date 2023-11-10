@@ -54,8 +54,15 @@ const MapPage = () => {
   const [currentMarker, setCurrentMarker] = useState("")
   const [hostUserId, setHostUserId] = useState("")
   const [currentIcon, setCurrentIcon] = useState("")
-  const [selectedEvent, setSelectedEvent] = useState("")
   const [scrollRefs, setScrollRefs] = useState([])
+
+  const [selectedEventId, setSelectedEventId] = useState("")
+  const [selectedAddress, setSelectedAddress] = useState("")
+  const [selectedEventStatus, setSelectedEventStatus] = useState("")
+  const [selectedEventStart, setSelectedEventStart] = useState("")
+  const [selectedEventEnd, setSelectedEventEnd] = useState("")
+  const [selectedLat, setSelectedLat] = useState("")
+  const [selectedLng, setSelectedLng] = useState("")
 
   const mapRef = useRef(null);
 
@@ -102,8 +109,6 @@ const [bookingLengthValue, setBookingLengthValue] = useState(30)
 const [bookingLengthText, setBookingLengthText] = useState("30 Min")
 
 const [currentDate, setCurrentDate] = useState(new Date().toISOString().slice(0,10))
-const [hostAppointments, setHostAppointments] = useState([])
-const [driverAppointments, setDriverAppointments] = useState([])
 const [newrequest, setNewrequest] = useState(false);
 
 const [events, setEvents] = useState([])
@@ -153,7 +158,7 @@ useEffect( () => {
 
       var timeMin = (bookingEnd - bookingStart)/60000
       setBookingLengthValue(timeMin)
-      setBookingLengthText(`${timeMin} Min`)
+      setBookingLengthText(`${Math.round(timeMin)} Min`)
 
       console.log("events here 0", bookingStart["$d"])
       console.log("events here 1", bookingEnd["$d"])
@@ -190,34 +195,54 @@ const handleSelectSlot = (e) => {
 
   console.log(e)
 
-  setBookingStart(dayjs(new Date(e.start)))
-  setBookingEnd(dayjs(new Date(e.end)))
+  var today = new Date()
+  var newproposedstart = new Date(e.start)
 
-  var updatedCurrent = {
-    id: `proposed_${auth.userId}`,
-    title: "Proposed Booking Time",
-    start: new Date(e.start),
-    end: new Date(e.end),
-    isDraggable: true
+  if(newproposedstart < today){
+  
+    alert("Proposed start time has already passed")
+  
+  } else {
+
+    setBookingStart(dayjs(new Date(e.start)))
+    setBookingEnd(dayjs(new Date(e.end)))
+
+    var updatedCurrent = {
+      id: `proposed_${auth.userId}`,
+      title: "Proposed Booking Time",
+      start: new Date(e.start),
+      end: new Date(e.end),
+      isDraggable: true
+    }
+
+    var filteredevents = proposedEvents.filter(e => e.id !== `proposed_${auth.userId}`)
+    filteredevents = [...filteredevents, updatedCurrent]
+
+    console.log(filteredevents)
+
+    setProposedEvents([...filteredevents])
+    setEvents([...filteredevents, ...hostEvents]) 
   }
-
-  var filteredevents = proposedEvents.filter(e => e.id !== `proposed_${auth.userId}`)
-  filteredevents = [...filteredevents, updatedCurrent]
-
-  console.log(filteredevents)
-
-  setProposedEvents([...filteredevents])
-  setEvents([...filteredevents, ...hostEvents]) 
 }
 
 const handleSelectEvent = (e) => {
 
   console.log(e)
+  console.log("Details here")
+  console.log(auth.userId)
 
-  if(e.id === `proposed_${auth.userId}`){
+  if(e.requesterId === auth.userId){
   
-    setBookingStart(dayjs(new Date(e.start)))
-    setBookingEnd(dayjs(new Date(e.end)))
+    setOpenDetailsModal(true)
+
+    setSelectedEventId(e.appointmentId)
+    setSelectedAddress(e.address)
+    setSelectedEventStart(e.start.toLocaleTimeString())
+    setSelectedEventEnd(e.end.toLocaleTimeString())
+    setSelectedEventStatus(e.status)
+
+    setSelectedLat(e.location[0])
+    setSelectedLng(e.location[1])
   
   } else {
   
@@ -230,10 +255,19 @@ const handleEventResize = (e) => {
 
   console.log(e)
   
-  if(e.id === `proposed_${auth.userId}`){
+  if(e.event.id === `proposed_${auth.userId}`){
   
-    setBookingStart(dayjs(new Date(e.start)))
-    setBookingEnd(dayjs(new Date(e.end)))
+    var today = new Date()
+    var newproposedstart = new Date(e.start)
+
+    if(newproposedstart < today){
+    
+      alert("Proposed start time has already passed")
+    
+    } else {
+      setBookingStart(dayjs(new Date(e.start)))
+      setBookingEnd(dayjs(new Date(e.end)))
+    }
   
   } else {
   
@@ -252,10 +286,19 @@ const handleEventMove = (e) => {
 
   console.log(e)
   
-  if(e.id === `proposed_${auth.userId}`){
+  if(e.event.id === `proposed_${auth.userId}`){
   
-    setBookingStart(dayjs(new Date(e.start)))
-    setBookingEnd(dayjs(new Date(e.end)))
+    var today = new Date()
+    var newproposedstart = new Date(e.start)
+
+    if(newproposedstart < today){
+    
+      alert("Proposed start time has already passed")
+    
+    } else {
+      setBookingStart(dayjs(new Date(e.start)))
+      setBookingEnd(dayjs(new Date(e.end)))
+    }
   
   } else {
   
@@ -365,8 +408,13 @@ const {scrollToTime} = useMemo(
 
   async function handleCancelRequest(e){
 
+    const requestedcancel = await addDriverCancelSubmit(auth.userId, hostUserId, selectedEventId, auth.userId, auth.accessToken)
 
-    
+    if(requestedcancel){
+      console.log("Submitted cancel request for booking")
+      setNewrequest(!newrequest)
+    }
+
   }
 
 
@@ -392,15 +440,17 @@ const {scrollToTime} = useMemo(
       e.preventDefault()
 
       var originString = ""
-      if(userLat && userLng){
-        if(userLat && userLng){
-          originString = userLat.toString() + " " + userLng.toString()
-          originString = encodeURIComponent(originString)
         
-        } else if (userAddress) {
-          originString = encodeURIComponent(userAddress)
-        }
+      if(userLat !== undefined && userLng !== undefined){
+        originString = userLat.toString() + " " + userLng.toString()
+        originString = encodeURIComponent(originString)
+      
+      } else if (userAddress) {
+        originString = encodeURIComponent(userAddress)
       }
+
+      console.log("data", userLat, userLng, userAddress)
+      console.log("origin", originString)
 
       var destinationString = encodeURIComponent(destination)
 
@@ -423,7 +473,6 @@ const {scrollToTime} = useMemo(
       if(hostresults){
 
         console.log(hostresults)
-        setHostAppointments(hostresults.hostAppointments)
 
         var newevents = [];
         var hostprofiledata = {};
@@ -444,31 +493,41 @@ const {scrollToTime} = useMemo(
         console.log(hostprofiledata)
         console.log(hostuserdata)
 
-        //Combine appointment and host data
-        for (let i=0; i<hostresults?.hostAppointments.length; i++){
-          
-          if(hostresults?.hostAppointments[i]._hostUserId === hostUserId){
+        var appointmentTrack = {}
 
-            if(hostprofiledata[hostresults?.hostAppointments[i]._hostUserId]){
-              hostresults.hostAppointments[i].address = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.address
-              hostresults.hostAppointments[i].locationlat = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.location?.coordinates[1]
-              hostresults.hostAppointments[i].locationlng = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.location?.coordinates[0]
+        for (let i=0; i<hostresults?.hostAppointments.length; i++){
+
+          if(appointmentTrack[hostresults?.hostAppointments[i]._id] === undefined){
+          
+            appointmentTrack[hostresults?.hostAppointments[i]._id] = hostresults?.hostAppointments[i]._id
+          
+          } else {
+
+            if(hostresults?.hostAppointments[i]._hostUserId === hostUserId 
+              && hostresults?.hostAppointments[i].status !== 'Cancelled'){
+
+              if(hostprofiledata[hostresults?.hostAppointments[i]._hostUserId]){
+                hostresults.hostAppointments[i].address = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.address
+                hostresults.hostAppointments[i].locationlat = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.location?.coordinates[1]
+                hostresults.hostAppointments[i].locationlng = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.location?.coordinates[0]
+              }
+              
+              var instance = {
+                id: `booking_${hostresults.hostAppointments[i]._hostUserId}`,
+                appointmentId: hostresults.hostAppointments[i]._id, 
+                title: "Booked Time",
+                address: hostresults.hostAppointments[i].address,
+                location: [hostresults.hostAppointments[i].locationlat, hostresults.hostAppointments[i].locationlng],
+                status: hostresults.hostAppointments[i].status,
+                start: new Date(hostresults.hostAppointments[i].start),
+                end: new Date(hostresults.hostAppointments[i].end),
+                hostId: hostresults.hostAppointments[i]._hostUserId,
+                requesterId: hostresults.hostAppointments[i]._requestUserId,
+                isDraggable: true
+              }
+    
+              newevents.push(instance)
             }
-            
-            var instance = {
-              id: `booking_${hostresults.hostAppointments[i]._hostUserId}`,
-              title: "Booked Time",
-              address: hostresults.hostAppointments[i].address,
-              location: [hostresults.hostAppointments[i].locationlat, hostresults.hostAppointments[i].locationlng],
-              status: hostresults.hostAppointments[i].status,
-              start: new Date(hostresults.hostAppointments[i].start),
-              end: new Date(hostresults.hostAppointments[i].end),
-              hostId: hostresults.hostAppointments[i]._hostUserId,
-              requesterId: hostresults.hostAppointments[i]._requestUserId,
-              isDraggable: true
-            }
-  
-            newevents.push(instance)
           }
         }
 
@@ -508,7 +567,7 @@ const {scrollToTime} = useMemo(
 
     e.preventDefault()
 
-    setSelectedEvent("")
+    setSelectedEventId("")
     setOpenDetailsModal(false)
   }
 
@@ -931,6 +990,8 @@ const {scrollToTime} = useMemo(
 
               <div className='flex flex-col w-full overflow-y-scroll'>
 
+                <p className='text-lg text-center font-semibold'> Enter Requested Time Below: </p>
+
                 <div className='pt-1 pb-4 flex flex-col gap-y-3'>
 
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -951,14 +1012,11 @@ const {scrollToTime} = useMemo(
 
                     <p> Length of Booking: {bookingLengthText}</p>
 
-                    <button className='border border-gray-300 px-3 py-2 rounded-xl'
+                    <button className='border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] 
+                      hover:bg-[#00D3E0]'
+
                       onClick={(e)=>handleAddAppointment(e)}>
                       Submit Request
-                    </button>
-
-                    <button className='border border-gray-300 px-3 py-2 rounded-xl'
-                      onClick={(e)=>handleLinkURLDirections(e, destinationAddress)}>
-                        Get Directions (Opens Map)
                     </button>
 
                     <div className='flex flex-col'>
@@ -1026,26 +1084,27 @@ const {scrollToTime} = useMemo(
             aria-labelledby="child-modal-title"
             aria-describedby="child-modal-description"
         >
-            <Box sx={{ ...profileStyle, height: "400px" }}>
+            <Box sx={{ ...profileStyle, height: "450px" }}>
 
               <div className='flex flex-col w-full overflow-y-scroll'>
 
                 <div className='pt-1 pb-4 flex flex-col gap-y-3'>
 
-                    <p>Details of Booking Request</p>
-                    <p>{selectedEvent.location}</p>
-                    <p>{selectedEvent.start}</p>
-                    <p>{selectedEvent.end}</p>
-                    <p>{selectedEvent.status}</p>
+                    <p className='text-center text-lg font-semibold'>Details of Booking Request</p>
 
-                    <p> Length of Booking: {bookingLengthText}</p>
+                    <img className='w-[350px] h-[350px]' src={`https://maps.googleapis.com/maps/api/staticmap?center=${selectedAddress}&zoom=14&size=300x300&markers=color:yellow%7C${selectedLat},${selectedLng}&maptype=roadmap&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`} />
+                    
+                    <p>Start Time: {selectedEventStart}</p>
+                    <p>End Time: {selectedEventEnd}</p>
+                    <p>Status: {selectedEventStatus === "Approved" ? "Approved" : (selectedEventStatus === "CancelSumbitted" ? "Asked To Cancel" : "Request Submitted") }</p>
 
-                    <button className='border border-gray-300 px-3 py-2 rounded-xl'
+                    <button disabled={selectedEventStatus === "CancelSubmitted"} className={`border border-gray-300 px-3 py-2 rounded-xl 
+                    ${selectedEventStatus === "Approved" ? "bg-[#c1f2f5] cursor-not-allowed" : (selectedEventStatus === "CancelSumbitted" ? "cursor-not-allowed bg-gray-300" : "bg-[#c1f2f5] hover:bg-[#00D3E0]") }} ${selectedEventStatus === "CancelSubmitted" ? "cursor-not-allowed bg-gray-300" : "bg-[#c1f2f5] hover:bg-[#00D3E0] " } `}
                       onClick={(e)=>handleCancelRequest(e)}>
-                      Cancel Request
+                        {selectedEventStatus === "Approved" ? "Approved" : (selectedEventStatus === "CancelSumbitted" ? "Asked To Cancel" : "Request Submitted") }
                     </button>
 
-                    <button className='border border-gray-300 px-3 py-2 rounded-xl'
+                    <button className='border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]'
                       onClick={(e)=>handleLinkURLDirections(e, destinationAddress)}>
                         Get Directions (Opens Map)
                     </button>

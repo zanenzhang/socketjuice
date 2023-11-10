@@ -37,8 +37,6 @@ const getHostAppointments = async (req, res) => {
     
     var { userId, currentDate } = req.query
 
-    console.log(userId, currentDate)
-
     if (!userId || !currentDate ) {
         return res.status(400).json({ message: 'Missing required information' })
     }
@@ -91,7 +89,7 @@ const getHostAppointments = async (req, res) => {
 
                 console.log("Host profiles nested", foundHostProfiles)
 
-                userData = await User.find({_id: {$in: foundHostProfiles.map(e=>e._userId)}}).select("_id profilePicURL")
+                userData = await User.find({_id: {$in: foundHostProfiles.map(e=>e._userId)}}).select("_id profilePicURL phonePrimary")
 
                 if(userData){
 
@@ -189,7 +187,7 @@ const getDriverAppointments = async (req, res) => {
 
             if(foundHostProfiles && foundHostProfiles?.length > 0){
 
-                userData = await User.find({_id: {$in: foundHostProfiles.map(e=>e._userId)}}).select("_id profilePicURL")
+                userData = await User.find({_id: {$in: foundHostProfiles.map(e=>e._userId)}}).select("_id profilePicURL phonePrimary")
 
                 if(userData){
 
@@ -271,9 +269,9 @@ const addAppointmentRequest = async (req, res) => {
 
                         if(foundLimits.numberOfAppointments[i].date === todaysDate){
     
-                            if(foundLimits.numberOfAppointments[i].appointmentsNumber >= 30){
+                            if(foundLimits.numberOfAppointments[i].appointmentsNumber >= 5){
                                 
-                                return res.status(401).json({ message: 'Reached bookmarks limit for today' })
+                                return res.status(401).json({ message: 'Reached appointment limit for today' })
                             
                             } else {
     
@@ -449,7 +447,39 @@ const addAppointmentApproval = async (req, res) => {
 
     } catch(err){
 
+        console.log(err)
+        return res.status(400).json({ message: 'Failed' })
+    }
+}
 
+const addAppointmentCompletion = async (req, res) => {
+
+    const { userId, hostUserId, appointmentId } = req.body
+
+    if (!userId || !hostUserId ) return res.status(400).json({ 'message': 'Missing required fields!' });
+
+    try {
+
+        const foundAppointment = await Appointment.findOne({_id: appointmentId})
+
+        if(foundAppointment && foundAppointment.status !== "Completed"){
+
+            const updatedAppointment = await Appointment.updateOne({_id: appointmentId},{$set:{status: "Completed"}})
+
+            if(updatedAppointment){
+                
+                return res.status(201).json({ message: 'Success' })
+
+            } else {
+
+                return res.status(401).json({ message: 'Operation failed' })
+            }
+        }
+
+    } catch(err){
+
+        console.log(err)
+        return res.status(400).json({ message: 'Failed' })
     }
 }
 
@@ -636,5 +666,5 @@ const removeAppointment = async (req, res) => {
 
 
 
-module.exports = { getHostAppointments, getDriverAppointments, addAppointmentRequest, addAppointmentApproval, 
+module.exports = { getHostAppointments, getDriverAppointments, addAppointmentRequest, addAppointmentApproval, addAppointmentCompletion, 
     driverRequestCancelSubmit, driverRequestCancelApprove, hostRequestCancelSubmit, hostRequestCancelApprove, removeAppointment }
