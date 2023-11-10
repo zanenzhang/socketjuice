@@ -54,8 +54,8 @@ const MapPage = () => {
   const [currentMarker, setCurrentMarker] = useState("")
   const [hostUserId, setHostUserId] = useState("")
   const [currentIcon, setCurrentIcon] = useState("")
+  const [selectedEvent, setSelectedEvent] = useState("")
   const [scrollRefs, setScrollRefs] = useState([])
-
 
   const mapRef = useRef(null);
 
@@ -65,6 +65,7 @@ const MapPage = () => {
   const [userAddress, setUserAddress] = useState('');
 
   const [openReserveModal, setOpenReserveModal] = useState(false);
+  const [openDetailsModal, setOpenDetailsModal] = useState(false);
   const [destinationAddress, setDestinationAddress] = useState("");
 
   const [iconLarge, setIconLarge] = useState({})
@@ -107,8 +108,7 @@ const [newrequest, setNewrequest] = useState(false);
 
 const [events, setEvents] = useState([])
 const [hostEvents, setHostEvents] = useState([])
-const [driverEvents, setDriverEvents] = useState([])
-const [currentEvent, setCurrentEvent] = useState({})
+const [proposedEvents, setProposedEvents] = useState([])
 
 
 useEffect( ()=> {
@@ -131,9 +131,17 @@ useEffect( ()=> {
 
 }, [currentDuration])
 
+
+useEffect( ()=> {
+
+  console.log(events)
+
+}, [events])
+
+
 useEffect( () => {
 
-  if(bookingStart && bookingEnd){
+  if(bookingStart && bookingEnd && auth.userId){
 
     if(bookingEnd < bookingStart){
 
@@ -167,27 +175,54 @@ useEffect( () => {
         isDraggable: true
       }
 
-      var filteredevents = driverEvents.filter(e => e.id !== `proposed_${auth.userId}`)
-      filteredevents = [...filteredevents, updatedCurrent, test]
+      var filteredevents = proposedEvents.filter(e => e.id !== `proposed_${auth.userId}`)
+      filteredevents = [...filteredevents, test, updatedCurrent]
 
-      console.log(filteredevents)
-
-      setHostEvents(filteredevents)
+      setProposedEvents([...filteredevents])
       setEvents([...filteredevents, ...hostEvents])
     }
   }
 
-}, [bookingStart, bookingEnd])
+}, [bookingStart, bookingEnd, auth.userId])
 
 
 const handleSelectSlot = (e) => {
 
   console.log(e)
+
+  setBookingStart(dayjs(new Date(e.start)))
+  setBookingEnd(dayjs(new Date(e.end)))
+
+  var updatedCurrent = {
+    id: `proposed_${auth.userId}`,
+    title: "Proposed Booking Time",
+    start: new Date(e.start),
+    end: new Date(e.end),
+    isDraggable: true
+  }
+
+  var filteredevents = proposedEvents.filter(e => e.id !== `proposed_${auth.userId}`)
+  filteredevents = [...filteredevents, updatedCurrent]
+
+  console.log(filteredevents)
+
+  setProposedEvents([...filteredevents])
+  setEvents([...filteredevents, ...hostEvents]) 
 }
 
 const handleSelectEvent = (e) => {
 
   console.log(e)
+
+  if(e.id === `proposed_${auth.userId}`){
+  
+    setBookingStart(dayjs(new Date(e.start)))
+    setBookingEnd(dayjs(new Date(e.end)))
+  
+  } else {
+  
+    return
+  }
 
 }
 
@@ -195,23 +230,37 @@ const handleEventResize = (e) => {
 
   console.log(e)
   
+  if(e.id === `proposed_${auth.userId}`){
+  
+    setBookingStart(dayjs(new Date(e.start)))
+    setBookingEnd(dayjs(new Date(e.end)))
+  
+  } else {
+  
+    return
+  }
 }
 
 const handleNavigate = (e) => {
   console.log(e)
   
-  var newdate = new Date()
-  var currentdate = new Date(newdate.getFullYear(), newdate.getMonth(), newdate.getDate()-1)
-  var datestring = currentdate.toISOString().slice(0,10)
-  
-  setCurrentDate(datestring)
-  setDate(new Date(e))
+  setCurrentDate(new Date().toISOString().slice(0,10))
+  setDate(dayjs(new Date(e)))
 }
 
-const handleEventMove = ({event, start, end}) => {
+const handleEventMove = (e) => {
 
-  console.log(event)
+  console.log(e)
   
+  if(e.id === `proposed_${auth.userId}`){
+  
+    setBookingStart(dayjs(new Date(e.start)))
+    setBookingEnd(dayjs(new Date(e.end)))
+  
+  } else {
+  
+    return
+  }
 }
 
 const {scrollToTime} = useMemo(
@@ -313,18 +362,17 @@ const {scrollToTime} = useMemo(
   
   }
 
-  const handleEditBooking = (e) => {
+
+  async function handleCancelRequest(e){
+
 
     
-
   }
+
 
   async function handleAddAppointment(e) {
 
     e.preventDefault()
-
-    console.log(auth.userId, hostUserId, new Date(bookingStart["$d"]).toISOString(), 
-      new Date(bookingEnd["$d"]).toISOString(), auth.accessToken)  
 
     const added = await addAppointmentRequest(auth.userId, hostUserId, bookingStart, bookingEnd, auth.accessToken)
 
@@ -361,51 +409,12 @@ const {scrollToTime} = useMemo(
       window.open(finalAddressEncoding, "_blank", "noreferrer");
   }
 
-  useEffect ( ()=> {
+
+  useEffect( ()=> {
 
     if(auth){
       console.log("User is logged in")
     }
-
-    async function driverAppointments() {
-
-      const driverresults = await getDriverAppointments(auth.userId, currentDate, auth.accessToken, auth.userId)
-
-      if(driverresults){
-        console.log(driverresults.driverAppointments)
-        setDriverAppointments(driverresults.driverAppointments)
-
-        var newevents = [];
-
-        for (let i=0; i<driverresults.driverAppointments?.length; i++){
-          
-          var instance = {
-            id: `booking_${auth.userId}`,
-            title: "Booked Time",
-            start: new Date(driverresults[i].start),
-            end: new Date(driverresults[i].end),
-            isDraggable: true
-          }
-
-          newevents.push(instance)
-        }
-
-        setDriverEvents(newevents)
-        var combined = [...hostEvents, ... newevents]
-        setEvents(combined)
-
-      }
-    }
-
-    console.log(currentDate)
-    if(auth.userId && currentDate){
-      driverAppointments()
-    }
-
-  }, [auth, currentDate, newrequest])
-
-
-  useEffect( ()=> {
 
     async function hostAppointments() {
 
@@ -413,38 +422,68 @@ const {scrollToTime} = useMemo(
 
       if(hostresults){
 
-        console.log(hostresults.hostAppointments)
+        console.log(hostresults)
         setHostAppointments(hostresults.hostAppointments)
 
         var newevents = [];
+        var hostprofiledata = {};
+        var hostuserdata = {};
 
-        for (let i=0; i<hostresults?.hostAppointments.length; i++){
-          
-          var instance = {
-            id: `booking_${hostresults.hostAppointments[i]._hostUserId}`,
-            title: "Booked Time",
-            start: new Date(hostresults.hostAppointments[i].start),
-            end: new Date(hostresults.hostAppointments[i].end),
-            isDraggable: true
+        for (let i=0; i<hostresults.foundHostProfiles?.length; i++){
+          if(hostprofiledata[hostresults.foundHostProfiles[i]._userId] === undefined){
+            hostprofiledata[hostresults.foundHostProfiles[i]._userId] = hostresults.foundHostProfiles[i]
           }
-
-          newevents.push(instance)
         }
 
-        console.log(newevents)
-        setHostEvents(newevents)
-        var combined = [...driverEvents, ...newevents]
-        setEvents(combined)
+        for (let i=0; i<hostresults.userData?.length; i++){
+          if(hostuserdata[hostresults.userData[i]._id] === undefined){
+            hostuserdata[hostresults.userData[i]._id] = hostresults.userData[i]
+          }
+        }
+
+        console.log(hostprofiledata)
+        console.log(hostuserdata)
+
+        //Combine appointment and host data
+        for (let i=0; i<hostresults?.hostAppointments.length; i++){
+          
+          if(hostresults?.hostAppointments[i]._hostUserId === hostUserId){
+
+            if(hostprofiledata[hostresults?.hostAppointments[i]._hostUserId]){
+              hostresults.hostAppointments[i].address = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.address
+              hostresults.hostAppointments[i].locationlat = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.location?.coordinates[1]
+              hostresults.hostAppointments[i].locationlng = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.location?.coordinates[0]
+            }
+            
+            var instance = {
+              id: `booking_${hostresults.hostAppointments[i]._hostUserId}`,
+              title: "Booked Time",
+              address: hostresults.hostAppointments[i].address,
+              location: [hostresults.hostAppointments[i].locationlat, hostresults.hostAppointments[i].locationlng],
+              status: hostresults.hostAppointments[i].status,
+              start: new Date(hostresults.hostAppointments[i].start),
+              end: new Date(hostresults.hostAppointments[i].end),
+              hostId: hostresults.hostAppointments[i]._hostUserId,
+              requesterId: hostresults.hostAppointments[i]._requestUserId,
+              isDraggable: true
+            }
+  
+            newevents.push(instance)
+          }
+        }
+
+        console.log("host events", newevents)
+
+        setHostEvents([...newevents])
+        setEvents([...proposedEvents, ...newevents])
       }
     }
 
-    console.log(hostUserId)
-    console.log(currentDate)
-    if(hostUserId && currentDate){
+    if(hostUserId && currentDate && auth.userId){
       hostAppointments()
     }
 
-  }, [hostUserId, newrequest, currentDate])
+  }, [hostUserId, newrequest, currentDate, auth])
 
 
   const handleOpenReserveModal = (e, host, address, duration) => {
@@ -463,6 +502,14 @@ const {scrollToTime} = useMemo(
 
     setHostUserId("")
     setOpenReserveModal(false)
+  }
+
+  const handleCloseDetailsModal = (e) => {
+
+    e.preventDefault()
+
+    setSelectedEvent("")
+    setOpenDetailsModal(false)
   }
 
   const handleAddress = (e) => {
@@ -890,7 +937,7 @@ const {scrollToTime} = useMemo(
             
                         <DateTimePicker
                           value={dayjs(bookingStart)}
-                          onChange={(newValue) => setBookingStart(dayjs(newValue))}
+                          onChange={(newValue) => setBookingStart(dayjs(new Date(newValue)))}
                           />
 
                     </LocalizationProvider>
@@ -898,7 +945,7 @@ const {scrollToTime} = useMemo(
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DateTimePicker
                           value={dayjs(bookingEnd)}
-                          onChange={(newValue) => setBookingEnd(dayjs(newValue))}
+                          onChange={(newValue) => setBookingEnd(dayjs(new Date(newValue)))}
                           />
                     </LocalizationProvider>
 
@@ -941,10 +988,67 @@ const {scrollToTime} = useMemo(
                       scrollToTime={scrollToTime}
                       onNavigate={date=>handleNavigate(date)}
 
+                      eventPropGetter={
+                        (event) => {
+                          let newStyle = {
+                            backgroundColor: "lightgrey",
+                            color: 'black',
+                            borderRadius: "0px",
+                            border: "none"
+                          };
+                    
+                          if (event.requesterId === auth.userId){
+                            newStyle.backgroundColor = "#FFE142"
+                          }
+                    
+                          return {
+                            className: "",
+                            style: newStyle
+                          };
+                        }
+                      }
+
                       selectable
                       resizable
                   />
                   </div>
+
+                </div>
+              </div>
+            </Box>
+        </Modal>
+
+        <Modal
+            open={openDetailsModal}
+            disableAutoFocus={true}
+            onClose={handleCloseDetailsModal}
+            onClick={(event)=>{event.stopPropagation()}}
+            aria-labelledby="child-modal-title"
+            aria-describedby="child-modal-description"
+        >
+            <Box sx={{ ...profileStyle, height: "400px" }}>
+
+              <div className='flex flex-col w-full overflow-y-scroll'>
+
+                <div className='pt-1 pb-4 flex flex-col gap-y-3'>
+
+                    <p>Details of Booking Request</p>
+                    <p>{selectedEvent.location}</p>
+                    <p>{selectedEvent.start}</p>
+                    <p>{selectedEvent.end}</p>
+                    <p>{selectedEvent.status}</p>
+
+                    <p> Length of Booking: {bookingLengthText}</p>
+
+                    <button className='border border-gray-300 px-3 py-2 rounded-xl'
+                      onClick={(e)=>handleCancelRequest(e)}>
+                      Cancel Request
+                    </button>
+
+                    <button className='border border-gray-300 px-3 py-2 rounded-xl'
+                      onClick={(e)=>handleLinkURLDirections(e, destinationAddress)}>
+                        Get Directions (Opens Map)
+                    </button>
 
                 </div>
               </div>

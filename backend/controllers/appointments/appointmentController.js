@@ -43,14 +43,20 @@ const getHostAppointments = async (req, res) => {
         return res.status(400).json({ message: 'Missing required information' })
     }
 
+    var dateConv = new Date(currentDate)
+    const yesterday = new Date(dateConv.getFullYear(), dateConv.getMonth(), dateConv.getDate()-2);
+    const tomorrow = new Date(dateConv.getFullYear(), dateConv.getMonth(), dateConv.getDate()+2);
+
     const foundHostProfile = await HostProfile.findOne({_userId: userId})
 
     if(foundHostProfile){        
 
-        console.log("Found host profile", foundHostProfile.hostAppointments.length)
+        console.log("Found host profile for host appointments", foundHostProfile.hostAppointments)
+        console.log(yesterday)
+        console.log(tomorrow)
 
         const hostAppointments = await Appointment.find({ _id: {$in: foundHostProfile?.hostAppointments.map(e => e._appointmentId)}, 
-            $or: [{requestDateStart: currentDate},{requestDateEnd: currentDate}] })
+             start: {$gte: yesterday}, end: {$lte: tomorrow}})
 
         const flaggedList = await Flags.findOne({_userId: userId}).select("userFlags")
 
@@ -71,6 +77,10 @@ const getHostAppointments = async (req, res) => {
             doneFlags = true;
         }
 
+        if(hostAppointments){
+            console.log(hostAppointments)
+        }
+
         if(hostAppointments && hostAppointments?.length > 0){
 
             console.log("Host appointments", hostAppointments.length)
@@ -81,9 +91,11 @@ const getHostAppointments = async (req, res) => {
 
                 console.log("Host profiles nested", foundHostProfiles)
 
-                userData = await User.find({_id: {$in: foundHostProfiles.map(e=>e._userId)}}).select("_id profilePicURL roles")
+                userData = await User.find({_id: {$in: foundHostProfiles.map(e=>e._userId)}}).select("_id profilePicURL")
 
                 if(userData){
+
+                    console.log("User data here", userData)
                 
                     doneData = true;
                 
@@ -137,6 +149,10 @@ const getDriverAppointments = async (req, res) => {
         return res.status(400).json({ message: 'Missing required information' })
     }
 
+    var dateConv = new Date(currentDate)
+    const yesterday = new Date(dateConv.getFullYear(), dateConv.getMonth(), dateConv.getDate()-2);
+    const tomorrow = new Date(dateConv.getFullYear(), dateConv.getMonth(), dateConv.getDate()+2);
+
     const foundDriverProfile = await DriverProfile.findOne({_userId: userId})
 
     if(foundDriverProfile){
@@ -144,7 +160,7 @@ const getDriverAppointments = async (req, res) => {
         console.log("Found driver profile", foundDriverProfile.userAppointments.length)
 
         const userAppointments = await Appointment.find({ _id: {$in: foundDriverProfile?.userAppointments.map(e => e._appointmentId)}, 
-            $or: [{requestDateStart: currentDate},{requestDateEnd: currentDate}]})
+        start: {$gte: yesterday}, end: {$lte: tomorrow} })
 
         const flaggedList = await Flags.findOne({_userId: userId}).select("userFlags")
 
@@ -173,7 +189,7 @@ const getDriverAppointments = async (req, res) => {
 
             if(foundHostProfiles && foundHostProfiles?.length > 0){
 
-                userData = await User.find({_id: {$in: foundHostProfiles.map(e=>e._userId)}}).select("_id profilePicURL roles")
+                userData = await User.find({_id: {$in: foundHostProfiles.map(e=>e._userId)}}).select("_id profilePicURL")
 
                 if(userData){
 
@@ -306,8 +322,9 @@ const addAppointmentRequest = async (req, res) => {
             if(!checkAppointments){
 
                 const newAppointment = await Appointment.create({_requestUserId: userId, _hostUserId: hostUserId, passcode: newToken,
-                    start: appointmentStart, end: appointmentEnd, requestDateStart: requestStartString, 
-                    requestDateEnd: requestEndString})
+                    start: appointmentStart, end: appointmentEnd, requestDateStart: requestStartString, status: "Requested",
+                    requestDateEnd: requestEndString, address: foundHostProfile.address, locationlat: foundHostProfile.location.coordinates[1], 
+                    locationlng: foundHostProfile.location.coordinates[0]})
     
                 if(newAppointment){
     
@@ -407,7 +424,7 @@ const addAppointmentApproval = async (req, res) => {
                         { start : { $lt: requestStart }, end : { $gt: requestStart } },
                         { start : { $lt: requestEnd }, end : { $gt: requestEnd } },
                         { start : { $gt: requestStart }, end : { $lt: requestEnd } }]}, 
-                    {$or: [{status: "Approved" }, {status: "Requested" }]}
+                    {$or: [{status: "Approved" }]}
                 ]})
 
             if(!checkAppointments){
@@ -570,7 +587,7 @@ const removeAppointment = async (req, res) => {
 
     if (!userId || !appointmentId || !hostUserId ) return res.status(400).json({ 'message': 'Missing required fields!' });
 
-    const foundUser = await User.findOne({_id: userId}).select("_id deactivated roles")
+    const foundUser = await User.findOne({_id: userId}).select("_id deactivated")
 
     if(!foundUser){
 

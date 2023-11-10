@@ -19,6 +19,9 @@ var appointmentSchema = new Schema({
         type: String,
         default: "Charging Request"
     },
+    address: {
+        type: String,
+    },
     start: {
         type: Date,
     },
