@@ -50,8 +50,6 @@ const getHostAppointments = async (req, res) => {
     if(foundHostProfile){        
 
         console.log("Found host profile for host appointments", foundHostProfile.hostAppointments)
-        console.log(yesterday)
-        console.log(tomorrow)
 
         const hostAppointments = await Appointment.find({ _id: {$in: foundHostProfile?.hostAppointments.map(e => e._appointmentId)}, 
              start: {$gte: yesterday}, end: {$lte: tomorrow}})
@@ -73,10 +71,6 @@ const getHostAppointments = async (req, res) => {
             }
 
             doneFlags = true;
-        }
-
-        if(hostAppointments){
-            console.log(hostAppointments)
         }
 
         if(hostAppointments && hostAppointments?.length > 0){
@@ -610,6 +604,7 @@ const hostRequestCancelApprove = async (req, res) =>{
         return res.status(401).json({ message: 'Failed' })
     }
 }
+
 
 const removeAppointment = async (req, res) => {
 

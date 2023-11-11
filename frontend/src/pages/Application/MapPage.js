@@ -1,6 +1,4 @@
 import { React, useRef, useState, useEffect, useMemo, createRef } from 'react';
-import axios from '../../api/axios';  
-import { TextField, Button, DialogActions } from "@mui/material";
 import GooglePlacesAutocomplete from "react-google-places-autocomplete";
 import { Calendar, dayjsLocalizer } from "react-big-calendar";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
@@ -30,7 +28,6 @@ import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import addAppointmentRequest from '../../helpers/Appointments/addAppointmentRequest';
 import addDriverCancelSubmit from '../../helpers/Appointments/addDriverCancelSubmit';
 import addDriverCancelApprove from '../../helpers/Appointments/addDriverCancelApprove';
-import getDriverAppointments from '../../helpers/Appointments/getDriverAppointments';
 import getHostAppointments from '../../helpers/Appointments/getHostAppointments';
 
 
@@ -405,17 +402,41 @@ const {scrollToTime} = useMemo(
   
   }
 
+  const handleEventActionDriver = async (e) => {
 
-  async function handleCancelRequest(e){
+    console.log(e)
 
-    const requestedcancel = await addDriverCancelSubmit(auth.userId, hostUserId, selectedEventId, auth.userId, auth.accessToken)
+    if(driverRequestedCancel){
+      return
+    }
 
-    if(requestedcancel){
-      console.log("Submitted cancel request for booking")
+    if(hostRequestedCancel){
+
+      const approvedCancel = await addDriverCancelApprove(auth.userId, e.hostId, selectedEventId, auth.userId, auth.accessToken)
+
+      if(approvedCancel){
+        console.log("Booking completed")
+        setNewrequest(!newrequest)
+      }
+
+    } 
+  }
+
+
+  const handleEventCancelDriver = async (e) => {
+
+    console.log(e)
+
+    const submitted = await addDriverCancelSubmit(e.userId, auth.userId, e.appointmentId, auth.userId, auth.accessToken)
+
+    if(submitted){
+      console.log("Cancel submitted")
       setNewrequest(!newrequest)
     }
 
   }
+
+
 
 
   async function handleAddAppointment(e) {
@@ -661,7 +682,6 @@ const {scrollToTime} = useMemo(
       debouncedChangeHandleCenter()
     }
   }
-
 
   const colorsList = ["red", "#FFE142", "orange", "purple", "blue", "aqua", "maroon", "pink", "gray", "lime"]
 
@@ -1096,13 +1116,19 @@ const {scrollToTime} = useMemo(
                     
                     <p>Start Time: {selectedEventStart}</p>
                     <p>End Time: {selectedEventEnd}</p>
-                    <p>Status: {selectedEventStatus === "Approved" ? "Approved" : (selectedEventStatus === "CancelSumbitted" ? "Asked To Cancel" : "Request Submitted") }</p>
+                    <p>Status: {driverRequestedCancel ? "Driver Requested To Cancel" : (hostRequestedCancel ? "You Asked to Cancel" : (selectedEventStatus === "Requested" ? "Booking Requested" : (selectedEventStatus === "Approved" ? "Approved" : "Completed"))) }</p>
 
-                    <button disabled={selectedEventStatus === "CancelSubmitted"} className={`border border-gray-300 px-3 py-2 rounded-xl 
-                    ${selectedEventStatus === "Approved" ? "bg-[#c1f2f5] cursor-not-allowed" : (selectedEventStatus === "CancelSumbitted" ? "cursor-not-allowed bg-gray-300" : "bg-[#c1f2f5] hover:bg-[#00D3E0]") }} ${selectedEventStatus === "CancelSubmitted" ? "cursor-not-allowed bg-gray-300" : "bg-[#c1f2f5] hover:bg-[#00D3E0] " } `}
-                      onClick={(e)=>handleCancelRequest(e)}>
-                        {selectedEventStatus === "Approved" ? "Approved" : (selectedEventStatus === "CancelSumbitted" ? "Asked To Cancel" : "Request Submitted") }
+                    <button disabled={selectedEventStatus === "Approved"} 
+                      className={`border border-gray-300 px-3 py-2 rounded-xl 
+                      ${selectedEventStatus === "Completed" ? "bg-[#c1f2f5] cursor-not-allowed" : "bg-[#c1f2f5] hover:bg-[#00D3E0] " } `}
+                      onClick={(e)=>handleEventActionDriver(e)}>
+                        {driverRequestedCancel ? "Driver Requested To Cancel" : (hostRequestedCancel ? "You Asked to Cancel" : (selectedEventStatus === "Requested" ? "Approve Booking" : (selectedEventStatus === "Approved" ? "Mark Completed" : "Completed"))) }
                     </button>
+
+                    {selectedEventStatus === "Requested" && 
+                      <button 
+                      className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]`}
+                      onClick={(e)=>handleEventCancelDriver(e)}></button>}
 
                     <button className='border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]'
                       onClick={(e)=>handleLinkURLDirections(e, destinationAddress)}>
