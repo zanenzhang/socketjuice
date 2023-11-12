@@ -405,12 +405,30 @@ const {scrollToTime} = useMemo(
 
     console.log(e)
 
-    const submitted = await addDriverCancelSubmit(auth.userId, selectedHostUserId, selectedEventId, auth.userId, auth.accessToken)
-
-    if(submitted){
-      console.log("Cancel submitted")
-      setNewrequest(!newrequest)
+    if(driverRequestedCancel){
+      return
     }
+
+    if(!hostRequestedCancel){
+
+      const submitted = await addDriverCancelSubmit(auth.userId, selectedHostUserId, selectedEventId, auth.userId, auth.accessToken)
+
+      if(submitted){
+        console.log("Cancel submitted")
+        setNewrequest(!newrequest)
+      }
+    
+    } else {
+
+      const approved = await addDriverCancelApprove(auth.userId, selectedHostUserId, selectedEventId, auth.userId, auth.accessToken)
+
+      if(approved){
+        console.log("Cancel submitted")
+        setNewrequest(!newrequest)
+      }
+    }
+
+    
 
   }
 
@@ -1098,8 +1116,8 @@ const {scrollToTime} = useMemo(
 
                     <button 
                       className={`border border-gray-300 px-3 py-2 rounded-xl 
-                        ${(selectedEventStatus === "CancelSubmitted" || selectedEventStatus === "Cancelled" ) 
-                        ? "cursor-not-allowed bg-gray-300" : "bg-[#c1f2f5] hover:bg-[#00D3E0]" }`}
+                        ${( (selectedEventStatus === "CancelSubmitted" && driverRequestedCancel) || selectedEventStatus === "Cancelled" ) 
+                        ? "cursor-not-allowed bg-gray-300" : "bg-[rgb(193,242,245)] hover:bg-[#00D3E0]" }`}
                       onClick={(e)=>handleEventCancelDriver(e)}>
                         {(selectedEventStatus === "Requested" && !driverRequestedCancel) && <p>Requested - Ask To Cancel</p> }
                         {(selectedEventStatus === "CancelSubmitted" && driverRequestedCancel) && <p>You Asked To Cancel</p> }

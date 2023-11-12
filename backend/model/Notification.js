@@ -2,20 +2,20 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 var notificationSchema = new Schema({
-    _userId: { 
+    _receivingUserId: { 
         type: Schema.Types.ObjectId, 
         required: true, ref: 'User',
         index: true 
     },
-    _otherUserId: { 
+    _sendingUserId: { 
         type: Schema.Types.ObjectId,
         ref: 'User' 
     }, 
     notificationType: {
-        type: String //appointment approved, appointment requested, message, review
+        type: String //Approved (appointment), Requested, Cancelled, Message, Completed, Review
     },
     _relatedAppointment: {
-        type: Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,    
         ref: 'Appointment' 
     },
     _relatedChat: {
