@@ -55,6 +55,7 @@ const BookingsPage = () => {
   const [selectedEventId, setSelectedEventId] = useState("")
   
   const [selectedHostUserId, setSelectedHostUserId] = useState("")
+  const [selectedDriverUserId, setSelectedDriverUserId] = useState("")
   const [selectedAddress, setSelectedAddress] = useState("")
   const [selectedEventStatus, setSelectedEventStatus] = useState("")
   const [selectedEventStart, setSelectedEventStart] = useState("")
@@ -126,7 +127,7 @@ const BookingsPage = () => {
 
       if(driverRequestedCancel){
 
-        const approvedCancel = await addHostCancelApprove(e.requesterId, auth.userId, selectedEventId, auth.userId, auth.accessToken)
+        const approvedCancel = await addHostCancelApprove(selectedDriverUserId, auth.userId, selectedEventId, auth.userId, auth.accessToken)
 
         if(approvedCancel){
           console.log("Booking completed")
@@ -218,12 +219,13 @@ const BookingsPage = () => {
       setOpenDetailsModalHost(false)
     }
 
-    const handleSelectEvent = (e) => {
+    const handleSelectEventHost = (e) => {
 
       console.log(e)
-      console.log("Details here")
+      console.log("Details here host")
       console.log(auth.userId)
       
+      setSelectedDriverUserId(e.requesterId)
       setSelectedHostUserId(e.hostId)
       setSelectedEventId(e.appointmentId)
       setSelectedAddress(e.address)
@@ -238,7 +240,32 @@ const BookingsPage = () => {
       setSelectedLng(e.location[1])
       setSelectProfilePic(e.profilePicURL)
       
-      setOpenDetailsModal(true)
+      setOpenDetailsModalHost(true)
+    }
+
+
+    const handleSelectEventDriver = (e) => {
+
+      console.log(e)
+      console.log("Details here driver")
+      console.log(auth.userId)
+      
+      setSelectedDriverUserId(e.requesterId)
+      setSelectedHostUserId(e.hostId)
+      setSelectedEventId(e.appointmentId)
+      setSelectedAddress(e.address)
+      setSelectedEventStart(e.start.toLocaleTimeString())
+      setSelectedEventEnd(e.end.toLocaleTimeString())
+      setSelectedEventStatus(e.status)
+      
+      setDriverRequestedCancel(e.driverRequestedCancel)
+      setHostRequestedCancel(e.hostRequestedCancel)
+  
+      setSelectedLat(e.location[0])
+      setSelectedLng(e.location[1])
+      setSelectProfilePic(e.profilePicURL)
+      
+      setOpenDetailsModalDriver(true)
     }
 
 
@@ -279,6 +306,10 @@ const BookingsPage = () => {
               hostresults.hostAppointments[i].locationlat = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.location?.coordinates[1]
               hostresults.hostAppointments[i].locationlng = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.location?.coordinates[0]
             }
+
+            if(hostuserdata[hostresults.hostAppointments[i]._hostUserId]){
+              hostresults.hostAppointments[i].profilePicURL = hostuserdata[hostresults.hostAppointments[i]._hostUserId].profilePicURL
+            }
             
             var instance = {
               id: `booking_${hostresults.hostAppointments[i]._hostUserId}`,
@@ -293,14 +324,12 @@ const BookingsPage = () => {
               requesterId: hostresults.hostAppointments[i]._requestUserId,
               driverRequestedCancel: hostresults.hostAppointments[i].cancelRequestDriverSubmit,
               hostRequestedCancel: hostresults.hostAppointments[i].cancelRequestHostSubmit,
+              profilePicURL: hostresults.hostAppointments[i].profilePicURL,
               isDraggable: true
             }
   
             newevents.push(instance)
           }
-  
-          console.log("host events", newevents)
-          console.log("host appointments", hostresults.hostAppointments)
   
           setHostAppointments([...hostresults.hostAppointments])
           setHostEvents(newevents)
@@ -311,7 +340,7 @@ const BookingsPage = () => {
         hostAppointments()
       }
   
-    }, [currentDateHost, auth, value])
+    }, [currentDateHost, auth, value, newrequest])
 
 
     const handleLinkURLDirections = (e) => {
@@ -338,7 +367,7 @@ const BookingsPage = () => {
   
         if(driverresults){
   
-          console.log(driverresults)
+          console.log("driver results", driverresults)
   
           var newevents = [];
           var hostprofiledata = {};
@@ -363,6 +392,10 @@ const BookingsPage = () => {
               driverresults.userAppointments[i].locationlat = hostprofiledata[driverresults.userAppointments[i]._hostUserId]?.location?.coordinates[1]
               driverresults.userAppointments[i].locationlng = hostprofiledata[driverresults.userAppointments[i]._hostUserId]?.location?.coordinates[0]
             }
+
+            if(hostuserdata[driverresults.userAppointments[i]._hostUserId]){
+              driverresults.userAppointments[i].profilePicURL = hostuserdata[driverresults.userAppointments[i]._hostUserId].profilePicURL
+            }
             
             var instance = {
               id: `booking_${driverresults.userAppointments[i]._hostUserId}`,
@@ -377,6 +410,7 @@ const BookingsPage = () => {
               requesterId: driverresults.userAppointments[i]._requestUserId,
               driverRequestedCancel: driverresults.userAppointments[i].cancelRequestDriverSubmit,
               hostRequestedCancel: driverresults.userAppointments[i].cancelRequestHostSubmit,
+              profilePicURL: driverresults.userAppointments[i].profilePicURL,
               isDraggable: true
             }
 
@@ -394,7 +428,7 @@ const BookingsPage = () => {
         driverAppointments()
       }
   
-    }, [currentDateDriver, auth, value])
+    }, [currentDateDriver, auth, value, newrequest])
 
 
     useEffect( ()=> {
@@ -473,7 +507,7 @@ const BookingsPage = () => {
 
                       views={['day']}
 
-                      onSelectEvent={(e)=>handleSelectEvent(e)}
+                      onSelectEvent={(e)=>handleSelectEventHost(e)}
                       scrollToTime={scrollToTime}
                       onNavigate={date=>handleNavigateHost(date)}
 
@@ -539,7 +573,7 @@ const BookingsPage = () => {
 
                           views={['day']}
 
-                          onSelectEvent={(e)=>handleSelectEvent(e)}
+                          onSelectEvent={(e)=>handleSelectEventDriver(e)}
                           scrollToTime={scrollToTime}
                           onNavigate={date=>handleNavigateDriver(date)}
 
@@ -591,19 +625,20 @@ const BookingsPage = () => {
                     
                     <p>Start Time: {selectedEventStart}</p>
                     <p>End Time: {selectedEventEnd}</p>
-                    <p>Status: {driverRequestedCancel ? "Driver Requested To Cancel" : (hostRequestedCancel ? "You Asked to Cancel" : (selectedEventStatus === "Requested" ? "Booking Requested" : (selectedEventStatus === "Approved" ? "Approved" : "Completed"))) }</p>
+                    <p>Status: {(driverRequestedCancel && selectedEventStatus !== "Cancelled") ? "You Requested To Cancel" : ( (hostRequestedCancel && selectedEventStatus !== "Cancelled" ) ? "You Asked to Cancel" : (selectedEventStatus === "Requested" ? "Booking Requested" : (selectedEventStatus === "Approved" ? "Approved" : (selectedEventStatus === "Cancelled" ? "Cancelled" : "Completed")))) }</p>
 
-                    <button disabled={selectedEventStatus === "Approved"} 
+                    <button disabled={selectedEventStatus === "Approved" || driverRequestedCancel} 
                       className={`border border-gray-300 px-3 py-2 rounded-xl 
-                      ${selectedEventStatus === "Completed" ? "bg-[#c1f2f5] cursor-not-allowed" : "bg-[#c1f2f5] hover:bg-[#00D3E0] " } `}
+                      ${ (selectedEventStatus === "Completed" || selectedEventStatus === "Cancelled" || driverRequestedCancel) ? "bg-[#c1f2f5] cursor-not-allowed" : "bg-[#c1f2f5] hover:bg-[#00D3E0] " } `}
                       onClick={(e)=>handleEventActionDriver(e)}>
-                        {driverRequestedCancel ? "Driver Requested To Cancel" : (hostRequestedCancel ? "You Asked to Cancel" : (selectedEventStatus === "Requested" ? "Approve Booking" : (selectedEventStatus === "Approved" ? "Mark Completed" : "Completed"))) }
+                        { (driverRequestedCancel && selectedEventStatus !== "Cancelled") ? "You Requested To Cancel" : ( (hostRequestedCancel && selectedEventStatus !== "Cancelled") ? "Approve Host Cancellation" : (selectedEventStatus === "Requested" ? "Approve Booking" : (selectedEventStatus === "Approved" ? "Mark Completed" : (selectedEventStatus === "Cancelled" ? "Cancelled" : "Completed")))) }
                     </button>
 
                     {selectedEventStatus === "Requested" && 
                       <button 
                       className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]`}
-                      onClick={(e)=>handleEventCancelDriver(e)}></button>}
+                      onClick={(e)=>handleEventCancelDriver(e)}>
+                        Ask To Cancel</button>}
 
                     {(selectedAddress && selectedHostUserId !== auth.userId) && <button className='border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]'
                       onClick={(e)=>handleLinkURLDirections(e, selectedAddress)}>
@@ -636,20 +671,20 @@ const BookingsPage = () => {
                     
                     <p>Start Time: {selectedEventStart}</p>
                     <p>End Time: {selectedEventEnd}</p>
+                    <p>Status: {(driverRequestedCancel && selectedEventStatus !== "Cancelled") ? "Driver Requested To Cancel" : (( hostRequestedCancel && selectedEventStatus !== "Cancelled" ) ? "You Asked to Cancel" : (selectedEventStatus === "Requested" ? "Booking Requested" : (selectedEventStatus === "Approved" ? "Approved" : (selectedEventStatus === "Cancelled" ? "Cancelled" : "Completed")))) }</p>
 
-                    <p>Status: {driverRequestedCancel ? "Driver Requested To Cancel" : (hostRequestedCancel ? "You Asked to Cancel" : (selectedEventStatus === "Requested" ? "Booking Requested" : (selectedEventStatus === "Approved" ? "Approved" : "Completed"))) }</p>
-
-                    <button disabled={selectedEventStatus === "Approved"} 
+                    <button disabled={(selectedEventStatus === "Approved" || selectedEventStatus === "Cancelled" || hostRequestedCancel )} 
                       className={`border border-gray-300 px-3 py-2 rounded-xl 
-                      ${selectedEventStatus === "Completed" ? "bg-[#c1f2f5] cursor-not-allowed" : "bg-[#c1f2f5] hover:bg-[#00D3E0] " } `}
+                      ${(selectedEventStatus === "Completed" || selectedEventStatus === "Cancelled" || hostRequestedCancel) ? "bg-[#c1f2f5] cursor-not-allowed" : "bg-[#c1f2f5] hover:bg-[#00D3E0] " } `}
                       onClick={(e)=>handleEventActionHost(e)}>
-                        {driverRequestedCancel ? "Driver Requested To Cancel" : (hostRequestedCancel ? "You Asked to Cancel" : (selectedEventStatus === "Requested" ? "Approve Booking" : (selectedEventStatus === "Approved" ? "Mark Completed" : "Completed"))) }
+                        {(driverRequestedCancel && selectedEventStatus !== "Cancelled") ? "Approve Driver Cancellation" : ( (hostRequestedCancel && selectedEventStatus !== "Cancelled" ) ? "You Asked to Cancel" : (selectedEventStatus === "Requested" ? "Approve Booking" : (selectedEventStatus === "Approved" ? "Mark Completed" : (selectedEventStatus === "Cancelled" ? "Cancelled" : "Completed")))) }
                     </button>
 
                     {selectedEventStatus === "Requested" && 
                       <button 
                         className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]`}
                         onClick={(e)=>handleEventCancelHost(e)}>
+                          Ask To Cancel
                         </button>}
 
                     {(selectedAddress && selectedHostUserId !== auth.userId) && <button className='border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]'
