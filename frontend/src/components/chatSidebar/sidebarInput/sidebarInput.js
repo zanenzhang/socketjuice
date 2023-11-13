@@ -10,7 +10,6 @@ import GroupInviteMenuItem from "./groupInviteMenuItem";
 import SingleInviteMenuItem from "./singleInviteMenuItem";
 import SearchMenuItem from "./searchMenuItem";
 
-import getFollowersPrefix from "../../../helpers/UserData/getFollowersPrefix";
 import addChat from "../../../helpers/Chats/addChat";
 import { Divider } from "@mui/material";
 
@@ -125,43 +124,6 @@ const SidebarInput = ({loggedUserId, loggedUsername, chatsList,
   },[usernameModal])
 
 
-    useEffect( () => {
-
-      async function fetchData(){
-
-          if(username.length > 0){
-              const response = await getFollowersPrefix(username, loggedUsername, loggedUserId, auth.accessToken)
-
-              if (response){
-                  setUsers(response.data)
-              }
-          }
-      }
-
-      fetchData();
-
-  }, [username])
-
-
-
-  useEffect( () => {
-
-    async function fetchData(){
-
-        if(usernameModal.length > 0){
-            const response = await getFollowersPrefix(usernameModal, loggedUsername, loggedUserId, auth.accessToken)
-
-            if (response){
-                setUsersModal(response.data)
-            }
-        }
-    }
-
-    fetchData();
-
-}, [usernameModal])
-
-
   useEffect( ()=> {
 
     if(users.length > 0){
@@ -261,7 +223,7 @@ async function handleNewGroupChat(){
 
   return (
     
-    <div className="bg-white w-full h-[10vh] sm:h-[12vh] md:[h-15vh] flex items-center justify-items-center pl-4 pr-2">
+    <div className="bg-white w-full h-[7vh] sm:h-[6vh] md:[h-5vh] flex items-center justify-items-center pl-4 pr-2">
       
       <input 
           type="text" 

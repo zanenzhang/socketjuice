@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import * as ROUTES from '../../constants/routes';
 import axios from '../../api/axios';
 import useAuth from '../../hooks/useAuth';
-// import NotificationsDropdown from '../notifications/notificationsDropdown';
+import NotificationsDropdown from '../notifications/notificationsDropdown';
 // import SettingsDropdown from '../settings/settingsDropdown';
 
 import GooglePlacesAutocomplete from "react-google-places-autocomplete";
@@ -604,12 +604,6 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
         setWaiting(false);
     };
 
-    const handleLoginModalClose = () => {
-
-
-        setOpenModalLogin(false)
-    }
-
     const handleLoginClick = () => {
 
         if(!auth.userId){
@@ -744,7 +738,9 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
                 {auth?.userId ? 
                 
                     <div className='flex flex-row'>
-                        <p>Settings</p>
+                        
+                        <NotificationsDropdown />
+
                         <p>Profile</p>
                     </div>
 
@@ -1586,64 +1582,6 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
                     </>
                 )}
             </div>  
-
-            {/* <div className='mt-6 pl-2 flex items-start'>
-                <div>
-                    <input  
-                        type="checkbox" 
-                        id='termsagree'
-                        onChange={toggleAcceptTerms}
-                        checked={acceptTerms}
-                    />
-                    <label className='ml-2 text-sm font-medium md:text-base' htmlFor="termsagree">{`I agree to the `}
-                    <button className='text-blue-900 underline' onClick={handleOpenModalTerms}> 
-                        Terms of Service</button></label>
-                </div>
-            </div>
-
-            <div className='mt-2 pl-2 flex items-start'>
-                <div>
-                <input  
-                        type="checkbox" 
-                        id='privacyagree'
-                        onChange={toggleAcceptPrivacy}
-                        checked={acceptPrivacy}
-                    />
-                    <label className='ml-2 font-medium text-sm md:text-base' htmlFor="privacyagree">{`I agree to the `}
-                    <button className='text-blue-900 underline' onClick={handleOpenModalPrivacy}> 
-                        Privacy Policy</button></label>
-                </div>
-            </div> */}
-
-            {/* <div className='flex flex-row mx-2 gap-x-2 mt-1'>
-            {(acceptTerms && acceptPrivacy) ? 
-                (
-                    <>
-                    <div className='flex flex-col justify-center'>
-                    <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#38a169" className="w-6 h-6">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    </div>
-                    <div className='flex flex-col justify-center'>
-                        <span className="text-sm md:text-base text-green-600">Please review the Terms of Service and Privacy Policy</span>
-                    </div>
-                    </>
-                )
-                : 
-                ( 
-                    <>
-                    <div className='flex flex-col justify-center'>
-                    <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#e53e3e" className="w-6 h-6" >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    </div>
-                    <div className='flex flex-col justify-center'>
-                        <span className="text-sm md:text-base text-red-600">Please review the Terms of Service and Privacy Policy</span>
-                    </div>
-                    </>
-                )
-            }
-            </div>  */}
 
             {errMsg && <p className='font-medium text-base md:text-lg text-center text-red-500 mt-8'>{errMsg}</p>}
 

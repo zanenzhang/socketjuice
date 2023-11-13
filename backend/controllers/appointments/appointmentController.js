@@ -564,7 +564,7 @@ const driverRequestCancelApprove = async (req, res) =>{
 
 const hostRequestCancelSubmit = async (req, res) =>{
 
-    const { userId, hostUserId, appointmentId } = req.body    
+    const { userId, hostUserId, appointmentId } = req.body 
 
     if (!userId || !appointmentId || !hostUserId ) return res.status(400).json({ 'message': 'Missing required fields!' });
 
@@ -605,7 +605,7 @@ const hostRequestCancelApprove = async (req, res) =>{
             const foundHostProfile = await HostProfile.updateOne({_userId: hostUserId},{$inc: {numberOfAppointmentCancellations: 1}})
 
             const newNoti = await Notification.create({_receivingUserId: userId, _sendingUserId: hostUserId, notificationType: "Cancelled", 
-                        _relatedAppointment: foundAppointment._id})    
+                    _relatedAppointment: foundAppointment._id})
 
             if(foundDriverProfile && foundHostProfile && newNoti){
 

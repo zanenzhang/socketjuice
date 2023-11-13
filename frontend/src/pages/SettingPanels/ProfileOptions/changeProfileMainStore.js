@@ -1585,6 +1585,7 @@ const CHAINID_REGEX = /^.{4,48}$/;
                 <div className='flex flex-col w-full md:w-[45vh] mt-4 md:mt-0 px-4 md:px-0'>
 
                 <label className='text-base font-semibold pl-2'>State/Province/Region:</label>
+
                     <select onChange={(event) => handleRegionChange(event)}
                         value={region}
                         placeholder="Store Address - State/Province/Region"
@@ -1614,8 +1615,8 @@ const CHAINID_REGEX = /^.{4,48}$/;
                         required
                         disabled={countrySet}
                         className={`w-full border-2 border-gray-100 rounded-xl h-16 sm:h-auto pl-4
-                        p-4 mb-2 bg-white focus:outline-[#8BEDF3] ${country === 'Select Country' ? 'text-gray-400' : 'text-black'}`}
-                        >
+                        p-4 mb-2 bg-white focus:outline-[#8BEDF3] ${country === 'Select Country' ? 'text-gray-400' : 'text-black'}`}>
+
                         {countryData?.length > 0 ? countryData
                         .filter(country => (country !== "Select All"))
                         .map((item, index) => (
@@ -1627,7 +1628,6 @@ const CHAINID_REGEX = /^.{4,48}$/;
                     </select> 
                 </div>
             </div>
-
 
             <div className='flex flex-col items-center md:flex-row md:justify-center w-full gap-x-6'>
 

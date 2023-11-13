@@ -155,40 +155,27 @@ http.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 io.use(socketioJwt.authorize({
     secret: process.env.ACCESS_TOKEN_SECRET,
     handshake: true
-  }));
+}));
   
 io.on('connection', function(socket){
-  console.log('a user connected');
 
-  socket.on('disconnect', function(){
-    console.log('User Disconnected');
-    //if userId in hashmap, remove
-  });
+    console.log('a user connected');
 
-  socket.on("setup", (auth) => {
+    socket.on('disconnect', function(){
+        console.log('User Disconnected');
+        //if userId in hashmap, remove
+    });
 
-    if(auth.username !== socket.decoded_token.UserInfo.username){
-        console.log("Auth error!")
-        return
-    }
-    // authenticatedUserIds[userId] = userId
-    socket.join(auth.userId);
-    socket.emit("connected")
+    socket.on("setup", (auth) => {
 
-  }) 
-
-  socket.on("notifications", (account) =>{
-
-    if(account.username !== socket.decoded_token.UserInfo.username){
-        console.log("Auth error!")
-        return
-    }
-
-        console.log("Setting up main room")
-        console.log(account.username)
-        socket.join(account.username);
-        socket.emit("linkedNotis")
-    })
+        if(auth.userId !== socket.decoded_token.UserInfo.userId){
+            console.log("Auth error!")
+            return
+        }
+        // authenticatedUserIds[userId] = userId
+        socket.join(auth.userId);
+        socket.emit("connected")
+    }) 
 
     socket.on("join", (data) => {
         console.log("Chat id here");
@@ -205,14 +192,13 @@ io.on('connection', function(socket){
     })
 
     socket.on("typingStart", (data) => {
-        io.to(data.chatId).emit("othersTypingStart", data.username)
+        io.to(data.chatId).emit("othersTypingStart", data.userId)
     });
 
     socket.on("typingStop", (data) => {
-        io.to(data.chatId).emit("othersTypingStop", data.username)
+        io.to(data.chatId).emit("othersTypingStop", data.userId)
         //Can add broadcast if not in testing
     });
-
 });
 
 

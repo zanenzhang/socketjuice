@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import ChatSlot from "../chatContact/chatSlot";
-import addChat from "../../../helpers/Chats/addChat";
 import useAuth from "../../../hooks/useAuth";
 
 const Chatsbar = ({chatsList, changedData, setChangedData, loggedUserId, 
@@ -63,7 +62,7 @@ const Chatsbar = ({chatsList, changedData, setChangedData, loggedUserId,
 
 
     return (
-        <div className="h-[70-vh] overflow-y-auto max-h-[70-vh] 
+        <div className="h-[70vh] overflow-y-auto max-h-[70vh] 
           border-b-2 border-solid border-[#8BEDF3]/20">
 
           {chatsList?.userChats ? chatsList.userChats.map((item) => (

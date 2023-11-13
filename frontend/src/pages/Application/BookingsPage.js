@@ -33,9 +33,10 @@ const BookingsPage = () => {
   const localizer = dayjsLocalizer(dayjs);
   const DnDCalendar = withDragAndDrop(Calendar);
 
-  const { auth, setActiveTab, socket, setSocket, setNewMessages, setNewRequests } = useAuth();
+  const { auth, setActiveTab, socket, setSocket, setNewMessages, 
+    setNewRequests, setNewIndividualChat } = useAuth();
 
-  const [value, setValue] = useState("0")
+  const [value, setValue] = useState("0");
   const [waiting, setWaiting] = useState(false);
 
   const [pickerDateDriver, setPickerDateDriver] = useState(new Date())
@@ -66,6 +67,17 @@ const BookingsPage = () => {
   const [selectedLat, setSelectedLat] = useState("")
   const [selectedLng, setSelectedLng] = useState("")
   const [selectProfilePic, setSelectProfilePic] = useState("")
+
+  const handleMessage = async () => {
+
+    if(!auth.userId){
+        navigate('/map');
+        return
+    }
+
+    setNewIndividualChat({userId: profileUserId});
+    navigate(`/messages`);
+  }
 
   const profileStyle = {
     position: 'absolute',
@@ -114,7 +126,6 @@ const BookingsPage = () => {
         console.log("Cancel submitted")
         setNewrequest(!newrequest)
       }
-
     }
     
     const handleEventActionHost =  async (e) => {
@@ -645,6 +656,10 @@ const BookingsPage = () => {
                         Get Directions (Opens Map)
                     </button>}
 
+                    <button onClick={(e)=>handleMessage(e)}>
+                      Send Message
+                    </button>
+
                 </div>
               </div>
             </Box>
@@ -691,6 +706,8 @@ const BookingsPage = () => {
                       onClick={(e)=>handleLinkURLDirections(e, selectedAddress)}>
                         Get Directions (Opens Map)
                     </button>}
+
+                    
 
                 </div>
               </div>

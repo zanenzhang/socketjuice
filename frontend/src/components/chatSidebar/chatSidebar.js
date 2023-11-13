@@ -1,18 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Link } from 'react-router-dom';
 import useAuth from "../../hooks/useAuth";
 
-import SidebarInput from "./sidebarInput/sidebarInput";
 import Chatsbar from "./chatsbar/chatsbar";
 import Box from '@mui/material/Box';
 import SwipeableDrawer from '@mui/material/SwipeableDrawer';
 
 import getUserChats from "../../helpers/Chats/getUserChats";
-import PageFooter from "../pageFooter";
+
 
 const ChatSidebar = ({loggedUserId, loggedUsername, selectedChat, 
-    setSelectedChat, chatsList, setChatsList, socketConnected,
-    setPageNumber}) => {
+    setSelectedChat, chatsList, setChatsList, socketConnected, setPageNumber}) => {
 
   const {auth, setActiveTab} = useAuth();
   const [changedData, setChangedData] = useState(false);
@@ -24,7 +21,7 @@ const ChatSidebar = ({loggedUserId, loggedUsername, selectedChat,
 
     async function fetchChatsData(){
 
-      let newChatsList = await getUserChats(loggedUserId, auth.accessToken);
+      let newChatsList = await getUserChats(auth.userId, auth.accessToken);
 
       if(newChatsList){
 
@@ -76,38 +73,25 @@ const handleDrawerOpen = (event) => {
 }
 
 const toggleDrawer = (anchor, open) => (event) => {
-  
     setDrawerState({ ...drawerState, [anchor]: open });
-  };
+};
 
   const list = (anchor) => (
     <Box
       sx={{ width: 300, height: '100%' }}
-      role="chatPresentation"
-    >
+      role="chatPresentation">
 
-    <div className="bg-[#fff7fc] h-full pt-[12vh] sm:pt-[13vh] md:pt-[15vh]">
-        <div className="h-full w-full overflow-y-auto">
-          
-          <SidebarInput chatsList={chatsList} setChatsList={setChatsList}
-            changedData={changedData} setChangedData={setChangedData} 
-            loggedUserId={loggedUserId} loggedUsername={loggedUsername}
-            setSelectedChat={setSelectedChat}
-            drawerState={drawerState} setDrawerState={setDrawerState}
+      <div className="bg-[#fff7fc] h-full pt-[6vh] sm:pt-[7vh] md:pt-[8vh]">
+          <div className="h-full w-full overflow-y-auto">
+
+            <Chatsbar chatsList={chatsList} setChatsList={setChatsList} changedData={changedData} setChangedData={setChangedData} 
+              loggedUserId={loggedUserId} selectedChat={selectedChat} setSelectedChat={setSelectedChat}
+              setPageNumber={setPageNumber} drawerState={drawerState} setDrawerState={setDrawerState}
             />
 
-          <Chatsbar chatsList={chatsList} setChatsList={setChatsList} 
-            changedData={changedData} setChangedData={setChangedData} 
-            loggedUserId={loggedUserId} loggedUsername={loggedUsername}
-            selectedChat={selectedChat} setSelectedChat={setSelectedChat}
-            setPageNumber={setPageNumber}
-            drawerState={drawerState} setDrawerState={setDrawerState}
-          />
-
-          <PageFooter />
           </div>
         </div>
-      </Box>
+    </Box>
   )
 
     return (

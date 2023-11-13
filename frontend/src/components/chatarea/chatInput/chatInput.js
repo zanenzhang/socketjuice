@@ -1,14 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
-import EmojiPicker from "../../emojiPicker/emojiPicker";
 import useAuth from "../../../hooks/useAuth";
-import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import addMessage from "../../../helpers/Chats/addMessage";
 import addMessageNoti from "../../../helpers/Notifications/addMessageNoti";
 
 
-const ChatInput = ({loggedUserId, loggedUsername, selectedChat, 
-    messages, setMessages, socket}) => {
+const ChatInput = ({loggedUserId, selectedChat, messages, setMessages, socket}) => {
 
   const {auth} = useAuth();
   const [messageContent, setMessageContent] = useState("");
@@ -16,46 +13,32 @@ const ChatInput = ({loggedUserId, loggedUsername, selectedChat,
   const [disable, setDisable] = useState(false);
   const messageRef = useRef();
 
-  var waiting = false;
+  const [waiting, setWaiting] = useState(false);
 
   const handleSubmitMessage = async () => {
 
     if(!socket || !selectedChat){
       return
     }
-      waiting = true;
-      setCurrentTyping(false);
-
-      socket.emit("typingStop", {chatId: selectedChat, username: loggedUsername});  
-        
-      const addedMessage = await addMessage(loggedUserId, loggedUsername, selectedChat, messageContent, auth.accessToken)
-    
-      if(addedMessage){
-        const addedNoti = await addMessageNoti(loggedUserId, selectedChat, auth.accessToken)  
-
-        if(addedNoti){
-          setMessageContent("");
-          waiting = false;
-        }
-
-      } else {
-        waiting = false
-      }
       
-      // } else {
+    setWaiting(true);
+    setCurrentTyping(false);
 
-      //   toast.error("Your message may violate our terms, please try again!", {
-      //     position: "bottom-center",
-      //     autoClose: 1500,
-      //     hideProgressBar: false,
-      //     closeOnClick: true,
-      //     pauseOnHover: true,
-      //     draggable: true,
-      //     progress: undefined,
-      //     theme: "colored",
-      //     });
+    socket.emit("typingStop", {chatId: selectedChat});  
+      
+    const addedMessage = await addMessage(loggedUserId, selectedChat, messageContent, auth.accessToken)
+  
+    if(addedMessage){
+      const addedNoti = await addMessageNoti(loggedUserId, selectedChat, auth.accessToken)  
 
-      // }
+      if(addedNoti){
+        setMessageContent("");
+        setWaiting(false);
+      }
+
+    } else {
+      setWaiting(false)
+    }
   }
 
   const onEnterPress = (event) => {
@@ -80,7 +63,7 @@ const ChatInput = ({loggedUserId, loggedUsername, selectedChat,
     }
 
     if (!currentTyping) {
-      socket.emit("typingStart", {chatId: selectedChat, username: loggedUsername})
+      socket.emit("typingStart", {chatId: selectedChat})
       setCurrentTyping(true);
     }
 
@@ -92,7 +75,7 @@ const ChatInput = ({loggedUserId, loggedUsername, selectedChat,
       var timeDiff = timeNow - lastTypingTime;
 
       if ( (timeDiff >= timerLength) && (currentTyping || messageContent.length === 0) ) {
-        socket.emit("typingStop", {chatId: selectedChat, username: loggedUsername})  
+        socket.emit("typingStop", {chatId: selectedChat})  
         setCurrentTyping(false);
       }
       return () => {
@@ -119,10 +102,6 @@ const ChatInput = ({loggedUserId, loggedUsername, selectedChat,
     return (
       <div className="h-[10vh] bg-[#f6f6f6] w-full 
         sm:pr-[5vw] flex items-center justify-center">
-          
-          <div className="">
-            <EmojiPicker content={messageContent} setContent={setMessageContent} disabled={disable} />
-          </div>
 
           <input
             type="text"

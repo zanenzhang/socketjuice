@@ -187,7 +187,9 @@ const ChatArea = ({loggedUserId, loggedUsername, selectedChat, chatsList, setCha
             if(messageData.messagesByChat[i].createdAt.slice(0,10) > recentDate){
               recentDate = messageData.messagesByChat[i].createdAt.slice(0,10)
               messageData.messagesByChat[i].showDate = true
+            
             } else {
+
               messageData.messagesByChat[i].showDate = false
             }
 
@@ -199,7 +201,7 @@ const ChatArea = ({loggedUserId, loggedUsername, selectedChat, chatsList, setCha
         
         } else if (selectedChat === 'cleared'){
           
-          setMessages([])
+          setMessages([]);
         }
       }
 
@@ -215,12 +217,6 @@ const ChatArea = ({loggedUserId, loggedUsername, selectedChat, chatsList, setCha
         }
 
         if(Object.keys(socket).length !== 0){
-          
-          socket.emit("setup", {userId: loggedUserId, username: loggedUsername});
-    
-          socket.on("connected", () => {
-            console.log("Chat Connected")
-          });
       
           socket.on("updatedChats", (update) => {
             //Setchatslist
@@ -261,7 +257,7 @@ const ChatArea = ({loggedUserId, loggedUsername, selectedChat, chatsList, setCha
           scrollStop={scrollStop} 
           messagesHash={messagesHash}
           setMessagesHash={setMessagesHash}
-          />
+        />
 
         <div key={"chatInputContainer"} 
         className="flex flex-col items-end justify-items-end">

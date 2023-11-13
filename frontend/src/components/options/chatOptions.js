@@ -11,7 +11,6 @@ import { DEFAULT_IMAGE_PATH } from '../../constants/paths';
 
 import addUserToChat from '../../helpers/Chats/addUserToChat';
 import removeUserFromChat from '../../helpers/Chats/removeUserFromChat';
-import getFollowersPrefix from '../../helpers/UserData/getFollowersPrefix';
 
 
 export default function ChatOptions({chatId, loggedUserId, loggedUsername,
@@ -97,26 +96,6 @@ useEffect( ()=> {
     }
 
   }, [users])
-
-useEffect( () => {
-
-    async function fetchData(){
-
-        if(username.length > 0){
-
-            const response = await getFollowersPrefix(username, loggedUsername, loggedUserId, auth.accessToken)
-
-            if (response){
-                setUsers(response.data)
-            }
-        }
-    }
-
-    if(username?.length > 0){
-        fetchData();
-    }
-
-}, [username])
 
 
   useEffect(() => {

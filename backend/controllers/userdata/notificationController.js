@@ -375,9 +375,9 @@ const addFollowApprovedNoti = async (req, res) => {
 
 const addMessageNoti = async (req, res) => {
 
-    const { loggedUserId, chatId } = req.body;
+    const { sendingUserId, chatId } = req.body;
 
-    if ( !loggedUserId || !chatId ) return res.status(400).json({ 'message': 'Missing required fields!' });
+    if ( !sendingUserId || !chatId ) return res.status(400).json({ 'message': 'Missing required fields!' });
 
     try {
 
@@ -385,9 +385,17 @@ const addMessageNoti = async (req, res) => {
 
         if(foundChat){
 
-            const settings = await NotificationSettings.updateMany({$and: [{_userId: {$in: foundChat?.participants?.map(e=>e._userId)}},{_userId: {$ne: loggedUserId}}]},{$set:{"newMessages": true}})
+            var receiverUserId = null
+            for(let i=0; i<foundChat?.participants?.length; i++){
+                if(foundChat?.participants[i]._userId !== sendingUserId){
+                    receiverUserId = foundChat?.participants[i]._userId
+                }
+            }
 
-            if( settings ){
+            const settings = await NotificationSettings.updateMany({$and: [{_userId: {$in: foundChat?.participants?.map(e=>e._userId)}},{_userId: {$ne: sendingUserId}}]},{$set:{"newMessages": true}})
+            const newNoti = await Notification.create({_receivingUserId: receiverUserId, _sendingUserId: sendingUserId, notificationType: "Message", _relatedChat: chatId})
+
+            if(settings && newNoti){
                 
                 return res.status(201).json({ message: 'Success' })
             
