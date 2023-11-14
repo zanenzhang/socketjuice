@@ -184,6 +184,14 @@ const userSchema = new Schema({
         type: Boolean, 
         default: true 
     },
+    emailNotifications: { 
+        type: Boolean, 
+        default: true 
+    },
+    smsNotifications: { 
+        type: Boolean, 
+        default: true 
+    },
     userTheme: { 
         type: String,
         default: 'light',

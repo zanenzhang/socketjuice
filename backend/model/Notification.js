@@ -12,7 +12,7 @@ var notificationSchema = new Schema({
         ref: 'User' 
     }, 
     notificationType: {
-        type: String //Approved (appointment), Requested, Cancelled, Message, Completed, Review
+        type: String //Approved (appointment), Requested, CancelSubmitted, Cancelled, Message, Completed, Review
     },
     _relatedAppointment: {
         type: Schema.Types.ObjectId,    

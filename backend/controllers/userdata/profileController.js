@@ -711,6 +711,36 @@ const getProfileData = async (req, res) => {
 
 }
 
+
+const getUserData = async (req, res) => {
+
+    const {userId} = req.query
+
+    if (!userId) {
+        return res.status(400).json({ message: 'Missing required info' })
+    }
+
+    try {
+
+        const foundUser = await User.findOne({_id: userId}).select("_id checkedMobile receivedIdApproval")
+        const foundHost = await HostProfile.findOne({_userId: userId}).select("_id verifiedHost deactivated offeringCharging")
+
+        if(foundUser && foundHost){
+
+            return res.status(200).json({foundUser, foundHost}) 
+
+        } else {
+
+            return res.status(401).json({ message: 'Failed' })
+        }
+    
+    } catch (err) {
+
+        return res.status(400).json({ message: 'Failed' })
+    }
+
+}
+
 const deleteOldProfilePic = async (req, res) => {
 
     const { loggedUserId } = req.query
@@ -1558,5 +1588,5 @@ const checkStage = async (req, res) => {
 
 module.exports = { getDriverProfile, editSettingsUserProfile, editSettingsUserPass, editSettingsUserGeneral, 
     editProfilePic, getUserIdByUsername, getProfilePicByUserId, checkUser, getProfileData, 
-    deleteOldProfilePic, addUserBan, removeUserBan, makePrivate, makePublic, checkStage,
+    deleteOldProfilePic, addUserBan, removeUserBan, makePrivate, makePublic, checkStage, getUserData,
     editUserReceivePayments, uploadUserPhotos, updateDriverProfile, updateHostProfile }

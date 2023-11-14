@@ -703,6 +703,18 @@ const {scrollToTime} = useMemo(
   , [auth]);
 
 
+  const handleMessage = async () => {
+
+    if(!auth.userId){
+        navigate('/map');
+        return
+    }
+
+    setNewIndividualChat({userId: profileUserId});
+    navigate(`/messages`);
+  }
+
+
   const handlePanLocation = () => {
 
       if(auth?.userId){
@@ -1129,6 +1141,11 @@ const {scrollToTime} = useMemo(
                       onClick={(e)=>handleLinkURLDirections(e, destinationAddress)}>
                         Get Directions (Opens Map)
                     </button>
+
+                    {(selectedEventStatus === "Requested" || selectedEventStatus === "Completed") 
+                    && <button onClick={(e)=>handleMessage(e)}>
+                      Send Message
+                    </button>}
 
                 </div>
               </div>

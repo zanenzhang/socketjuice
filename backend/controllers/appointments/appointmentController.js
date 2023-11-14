@@ -8,6 +8,8 @@ const Flags = require('../../model/Flags');
 const UsageLimit = require('../../model/UsageLimit');
 const BannedUser = require("../../model/BannedUser");
 const  {deleteFile} = require("../../controllers/media/s3Controller");
+const { sendNotiEmail } = require("../../middleware/mailer")
+
 
 const ObjectId  = require('mongodb').ObjectId;
 const crypto = require('crypto');
@@ -242,6 +244,7 @@ const addAppointmentRequest = async (req, res) => {
         const foundHostProfile = await HostProfile.findOne({_userId: hostUserId})
         const foundDriverProfile = await DriverProfile.findOne({_userId: userId})
         const foundLimits = await UsageLimit.findOne({_userId: userId})
+        const foundUser = await User.fineOne({_id: userId})
 
         var todaysDate = new Date().toLocaleDateString()
 
@@ -253,9 +256,12 @@ const addAppointmentRequest = async (req, res) => {
         var doneHostAppointments = false;
         var doneDriverAppointments = false;
         var doneOperation = false;
+        
         var doneNoti = false;
+        var doneEmail = false;
+        var doneSms = false;
 
-        if (foundDriverProfile && foundHostProfile && foundLimits ){
+        if (foundDriverProfile && foundHostProfile && foundLimits && foundUser){
 
             if(foundLimits.numberOfAppointments?.length > 0){
 
@@ -324,6 +330,24 @@ const addAppointmentRequest = async (req, res) => {
 
                     const newNoti = await Notification.create({_receivingUserId: hostUserId, _sendingUserId: userId, notificationType: "Requested", 
                         _relatedAppointment: newAppointment._id})
+
+                    if(foundUser.emailNotifications){
+                        const success = await sendNotiEmail({firstName: foundUser.firstName, toUser:foundUser.email, notificationType: "Requested"})
+                        if(success){
+                            doneEmail = true
+                        }
+                    } else {
+                        doneEmail = true
+                    }
+
+                    if(foundUser.smsNotifications){
+                        const success = await sendSmsNotification({receivingUserId: hostUserId, notificationType: "Requested"})
+                        if(success){
+                            doneSms = true
+                        }
+                    } else {
+                        doneSms = true
+                    }
     
                     foundHostProfile.numberOfHostAppointments = foundHostProfile.numberOfHostAppointments + 1
                 
@@ -376,7 +400,8 @@ const addAppointmentRequest = async (req, res) => {
                     }
                 }
     
-                if(doneHostAppointments && doneDriverAppointments && doneOperation && doneNoti){
+                if(doneHostAppointments && doneDriverAppointments && doneOperation 
+                    && doneNoti && doneEmail && doneSms ){
                     
                     return res.status(201).json({ message: 'Success' })
                 

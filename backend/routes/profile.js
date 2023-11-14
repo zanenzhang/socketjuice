@@ -15,6 +15,7 @@ router.get('/stage', profileController.checkStage);
 router.post('/userphotos', profileController.uploadUserPhotos);
 router.post('/driver', profileController.updateDriverProfile);
 router.post('/host', profileController.updateHostProfile);
+router.post('/userdata', profileController.getUserData);
 
 router.patch('/usersettings', profileController.editSettingsUserProfile);
 router.patch('/userpass', profileController.editSettingsUserPass);

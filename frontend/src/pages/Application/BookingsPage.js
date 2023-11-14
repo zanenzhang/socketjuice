@@ -14,8 +14,11 @@ import addDriverCancelApprove from '../../helpers/Appointments/addDriverCancelAp
 import addDriverCancelSubmit from '../../helpers/Appointments/addDriverCancelSubmit';
 import addHostCancelApprove from '../../helpers/Appointments/addHostCancelApprove';
 import addHostCancelSubmit from '../../helpers/Appointments/addHostCancelSubmit';
+
+import getUserData from '../../helpers/Userdata/getUserData';
 import getDriverAppointments from '../../helpers/Appointments/getDriverAppointments';
 import getHostAppointments from '../../helpers/Appointments/getHostAppointments';
+
 import addAppointmentApproval from '../../helpers/Appointments/addAppointmentApproval';
 import addAppointmentCompletion from '../../helpers/Appointments/addAppointmentCompletion';
 
@@ -50,6 +53,9 @@ const BookingsPage = () => {
 
   const [hostEvents, setHostEvents] = useState([])
   const [driverEvents, setDriverEvents] = useState([])
+
+  const [verifiedHost, setVerifiedHost] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
 
   const [openDetailsModalDriver, setOpenDetailsModalDriver] = useState(false);
   const [openDetailsModalHost, setOpenDetailsModalHost] = useState(false);
@@ -100,9 +106,26 @@ const BookingsPage = () => {
 
     useEffect( ()=> {
 
-      setActiveTab("bookings")
+      async function getUser() {
+        
+        const userdata = await getUserData()
 
-    }, [])
+        if(userdata){
+          console.log(userdata)
+        }
+      }
+
+      if(auth){
+
+        getUser()
+
+      } else {
+        
+        setActiveTab("bookings")
+      }
+
+    }, [auth])
+
 
     const handleEventCancelHost = async (e) => {
 
@@ -462,6 +485,8 @@ const BookingsPage = () => {
         profilePicURL={auth.profilePicURL} roles={auth.roles}
     />
 
+      {(verifiedHost && submitted ) && 
+      
       <div className='flex relative flex-col items-center pt-[6vh] sm:pt-[7vh] 
               md:pt-[8vh] h-[100svh] w-[100svw] overflow-y-scroll'>
 
@@ -613,8 +638,27 @@ const BookingsPage = () => {
           </TabPanel>
 
           </TabContext>
-          </div>
-        </div>
+        </div>}
+
+        {(!verifiedHost && submitted) && 
+        
+        <div>
+        
+          <p>We are currently reviewing your charging location, please hold</p>
+        
+        </div> }
+
+
+        {(!verifiedHost && !submitted) && 
+        
+        <div>
+        
+          <p>Please submit the information below for your charging equipment</p>
+          <p>After approval, drivers will be able to request bookings and you will be able to earn income</p>
+        
+        </div> }
+
+      </div>
 
         <Modal
             open={openDetailsModalDriver}
@@ -656,9 +700,10 @@ const BookingsPage = () => {
                         Get Directions (Opens Map)
                     </button>}
 
-                    <button onClick={(e)=>handleMessage(e)}>
+                    {(selectedEventStatus === "Requested" || selectedEventStatus === "Completed") 
+                    && <button onClick={(e)=>handleMessage(e)}>
                       Send Message
-                    </button>
+                    </button>}
 
                 </div>
               </div>

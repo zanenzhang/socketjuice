@@ -40,7 +40,7 @@ async function sendVerification (req, res) {
     }
 }
 
-//check verification token
+
 async function checkVerification (req, res) {
 
     const {number, code, userId, phonePrefix, 
@@ -119,4 +119,65 @@ async function checkVerification (req, res) {
 }
 
 
-module.exports = { sendVerification, checkVerification }
+async function sendSmsNotification (req, res) {
+
+    const {receivingUserId, notificationType} = req.body
+
+    if (!receivingUserId || !notificationType ) {
+        return res.status(400).json({ message: 'Missing required info' })
+    }
+
+    const foundReceiver = await User.findOne({_id: receivingUserId})
+
+    if(foundReceiver && foundReceiver.checkedMobile ){
+
+        try {
+
+            console.log("Sending notification")
+
+            var message = ""
+
+            if(notificationType === "Approved"){
+                message = `Hi ${foundReceiver.firstName}, your booking request was approved. 
+                    Please open the app to get directions at www.socketjuice.com`
+            } else if (notificationType === "Rejected"){
+                message = `Hi ${foundReceiver.firstName}, your booking request was approved. 
+                    Please open the app to make a new booking at www.socketjuice.com`
+            } else if (notificationType === "Requested"){
+                message = `Hi ${foundReceiver.firstName}, a booking request was made. 
+                    Please open the app to review the request, and approve or reject at www.socketjuice.com`
+            } else if (notificationType === "CancelSubmitted"){
+                message = `Hi ${foundReceiver.firstName}, a booking cancellation request was made. 
+                    Please open the app to review the request, and approve or reject at www.socketjuice.com`
+            }
+
+            const sent = await client.messages
+            .create({
+               body: `${message}`,
+               from: `${process.env.TWILIO_PHONE_NUM}`,
+               to: `${foundReceiver.phonePrimary}`
+             })
+
+            if(sent && sent.status === 'sent'){
+                
+                console.log("Success")
+                res.status(200).send({result: sent.status})
+                
+            } else {
+                res.status(400);    
+            }
+
+        } catch(err){
+
+            res.status(400);    
+            console.log(err)
+        }
+
+    } else {
+
+        return res.status(401).json({ message: 'Already approved' })
+    } 
+}
+
+
+module.exports = { sendVerification, checkVerification, sendSmsNotification }
