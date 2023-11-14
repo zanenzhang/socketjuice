@@ -437,8 +437,13 @@ const addAppointmentApproval = async (req, res) => {
     try {
 
         const foundAppointment = await Appointment.findOne({_id: appointmentId})
+        const foundUser = await User.findOne({_id: userId})
 
-        if(foundAppointment && foundAppointment.status === "Requested"){
+        var doneNoti = false;
+        var doneEmail = false;
+        var doneSms = false;
+
+        if(foundAppointment && foundAppointment.status === "Requested" && foundUser){
 
             const requestStart = foundAppointment.start
             const requestEnd = foundAppointment.end
@@ -460,7 +465,25 @@ const addAppointmentApproval = async (req, res) => {
                 const newNoti = await Notification.create({_receivingUserId: userId, _sendingUserId: hostUserId, notificationType: "Approved", 
                         _relatedAppointment: foundAppointment._id})
 
-                if(updatedAppointment && newNoti){
+                if(foundUser.emailNotifications){
+                    const success = await sendNotiEmail({firstName: foundUser.firstName, toUser:foundUser.email, notificationType: "Approval"})
+                    if(success){
+                        doneEmail = true
+                    }
+                } else {
+                    doneEmail = true
+                }
+
+                if(foundUser.smsNotifications){
+                    const success = await sendSmsNotification({receivingUserId: hostUserId, notificationType: "Approval"})
+                    if(success){
+                        doneSms = true
+                    }
+                } else {
+                    doneSms = true
+                }
+
+                if(updatedAppointment && newNoti && doneNoti && doneEmail && doneSms){
                     
                     return res.status(201).json({ message: 'Success' })
 
@@ -492,15 +515,38 @@ const addAppointmentCompletion = async (req, res) => {
     try {
 
         const foundAppointment = await Appointment.findOne({_id: appointmentId})
+        const foundUser = await User.findOne({_id: userId})
 
-        if(foundAppointment && foundAppointment.status !== "Completed"){
+        var doneNoti = false;
+        var doneEmail = false;
+        var doneSms = false;
+
+        if(foundAppointment && foundAppointment.status !== "Completed" && foundUser){
 
             const updatedAppointment = await Appointment.updateOne({_id: appointmentId},{$set:{status: "Completed"}})
 
             const newNoti = await Notification.create({_receivingUserId: userId, _sendingUserId: hostUserId, notificationType: "Completed", 
                         _relatedAppointment: foundAppointment._id})
 
-            if(updatedAppointment && newNoti){
+            if(foundUser.emailNotifications){
+                const success = await sendNotiEmail({firstName: foundUser.firstName, toUser:foundUser.email, notificationType: "Completed"})
+                if(success){
+                    doneEmail = true
+                }
+            } else {
+                doneEmail = true
+            }
+
+            if(foundUser.smsNotifications){
+                const success = await sendSmsNotification({receivingUserId: hostUserId, notificationType: "Completed"})
+                if(success){
+                    doneSms = true
+                }
+            } else {
+                doneSms = true
+            }
+
+            if(updatedAppointment && newNoti && doneNoti && doneEmail && doneSms){
                 
                 return res.status(201).json({ message: 'Success' })
 
@@ -525,15 +571,45 @@ const driverRequestCancelSubmit = async (req, res) =>{
 
     try {
 
-        const foundAppointment = await Appointment.updateOne({_id: appointmentId, _requestUserId: userId, _hostUserId: hostUserId}, {$set: {cancelRequestDriverSubmit: true, status: "CancelSubmitted"}})
-        const updateDriverProfile = await DriverProfile.updateOne({_id: userId},{$inc: {numberOfAppointmentCancellations: 1}})
+        const foundUser = await User.findOne({_id: userId})
 
-        const newNoti = await Notification.create({_receivingUserId: hostUserId, _sendingUserId: userId, notificationType: "CancelSubmitted", 
-                        _relatedAppointment: foundAppointment._id})
+        var doneNoti = false;
+        var doneEmail = false;
+        var doneSms = false;
 
-        if(foundAppointment && updateDriverProfile && newNoti){
+        if(foundUser){
 
-            return res.status(201).json({ message: 'Success' })
+            const foundAppointment = await Appointment.updateOne({_id: appointmentId, _requestUserId: userId, _hostUserId: hostUserId}, {$set: {cancelRequestDriverSubmit: true, status: "CancelSubmitted"}})
+            const updateDriverProfile = await DriverProfile.updateOne({_id: userId},{$inc: {numberOfAppointmentCancellations: 1}})
+
+            const newNoti = await Notification.create({_receivingUserId: hostUserId, _sendingUserId: userId, notificationType: "CancelSubmitted", 
+                            _relatedAppointment: foundAppointment._id})
+
+            if(foundUser.emailNotifications){
+                const success = await sendNotiEmail({firstName: foundUser.firstName, toUser:foundUser.email, notificationType: "CancelSubmitted"})
+                if(success){
+                    doneEmail = true
+                }
+            } else {
+                doneEmail = true
+            }
+
+            if(foundUser.smsNotifications){
+                const success = await sendSmsNotification({receivingUserId: hostUserId, notificationType: "CancelSubmitted"})
+                if(success){
+                    doneSms = true
+                }
+            } else {
+                doneSms = true
+            }
+
+            if(foundAppointment && updateDriverProfile && newNoti && doneNoti && doneEmail && doneSms){
+
+                return res.status(201).json({ message: 'Success' })
+            }
+        
+        } else {
+            return res.status(401).json({ message: 'Failed' })
         }
 
     } catch(err){
@@ -551,33 +627,60 @@ const driverRequestCancelApprove = async (req, res) =>{
 
     try {
 
-        var foundAppointment = await Appointment.findOne({_id: appointmentId})
+        const foundUser = await User.findOne({_id: userId})
 
-        if(foundAppointment && foundAppointment.cancelRequestHostSubmit){
-            
-            const foundDriverProfile = await DriverProfile.updateOne({_userId: userId},{$inc: {numberOfAppointmentCancellations: 1}})
-            const foundHostProfile = await HostProfile.updateOne({_userId: hostUserId},{$inc: {numberOfAppointmentCancellations: 1}})
+        var doneNoti = false;
+        var doneEmail = false;
+        var doneSms = false;
 
-            const newNoti = await Notification.create({_receivingUserId: hostUserId, _sendingUserId: userId, notificationType: "Cancelled", 
-                        _relatedAppointment: foundAppointment._id})    
+        if(foundUser){
 
-            if(foundDriverProfile && foundHostProfile && newNoti){
+            var foundAppointment = await Appointment.findOne({_id: appointmentId})
 
-                const updatedAppointment = await Appointment.updateOne({_id: appointmentId},{$set:{status: "Cancelled"}})
-
-                if(updatedAppointment){
-
-                    return res.status(201).json({ message: 'Success' })
+            if(foundAppointment && foundAppointment.cancelRequestHostSubmit){
                 
+                const foundDriverProfile = await DriverProfile.updateOne({_userId: userId},{$inc: {numberOfAppointmentCancellations: 1}})
+                const foundHostProfile = await HostProfile.updateOne({_userId: hostUserId},{$inc: {numberOfAppointmentCancellations: 1}})
+
+                const newNoti = await Notification.create({_receivingUserId: hostUserId, _sendingUserId: userId, notificationType: "Cancelled", 
+                            _relatedAppointment: foundAppointment._id})    
+
+                if(foundUser.emailNotifications){
+                    const success = await sendNotiEmail({firstName: foundUser.firstName, toUser:foundUser.email, notificationType: "Cancelled"})
+                    if(success){
+                        doneEmail = true
+                    }
                 } else {
-        
-                    return res.status(400).json({ message:'Operation Failed' });
+                    doneEmail = true
                 }
+
+                if(foundUser.smsNotifications){
+                    const success = await sendSmsNotification({receivingUserId: hostUserId, notificationType: "Cancelled"})
+                    if(success){
+                        doneSms = true
+                    }
+                } else {
+                    doneSms = true
+                }
+
+                if(foundDriverProfile && foundHostProfile && newNoti && doneNoti && doneEmail && doneSms){
+
+                    const updatedAppointment = await Appointment.updateOne({_id: appointmentId},{$set:{status: "Cancelled"}})
+
+                    if(updatedAppointment){
+
+                        return res.status(201).json({ message: 'Success' })
+                    
+                    } else {
+            
+                        return res.status(400).json({ message:'Operation Failed' });
+                    }
+                }
+            
+            } else {
+            
+                return res.status(401).json({ message: 'Failed' })
             }
-        
-        } else {
-        
-            return res.status(401).json({ message: 'Failed' })
         }
 
     } catch(err){
@@ -593,17 +696,48 @@ const hostRequestCancelSubmit = async (req, res) =>{
 
     if (!userId || !appointmentId || !hostUserId ) return res.status(400).json({ 'message': 'Missing required fields!' });
 
+    var doneNoti = false;
+    var doneEmail = false;
+    var doneSms = false;
+
     try {
 
-        const foundAppointment = await Appointment.updateOne({_id: appointmentId, _requestUserId: userId, _hostUserId: hostUserId}, {$set: {cancelRequestHostSubmit: true, status: "CancelSubmitted"}})
-        const updateHostProfile = await HostProfile.updateOne({_id: hostUserId},{$inc: {numberOfAppointmentCancellations: 1}})
+        const foundUser = await User.findOne({_id: userId})
 
-        const newNoti = await Notification.create({_receivingUserId: userId, _sendingUserId: hostUserId, notificationType: "CancelSubmitted", 
-                        _relatedAppointment: foundAppointment._id})    
+        if(foundUser){
 
-        if(foundAppointment && updateHostProfile && newNoti){
+            const foundAppointment = await Appointment.updateOne({_id: appointmentId, _requestUserId: userId, _hostUserId: hostUserId}, {$set: {cancelRequestHostSubmit: true, status: "CancelSubmitted"}})
+            const updateHostProfile = await HostProfile.updateOne({_id: hostUserId},{$inc: {numberOfAppointmentCancellations: 1}})
 
-            return res.status(201).json({ message: 'Success' })
+            const newNoti = await Notification.create({_receivingUserId: userId, _sendingUserId: hostUserId, notificationType: "CancelSubmitted", 
+                            _relatedAppointment: foundAppointment._id})    
+
+            if(foundUser.emailNotifications){
+                const success = await sendNotiEmail({firstName: foundUser.firstName, toUser:foundUser.email, notificationType: "CancelSubmitted"})
+                if(success){
+                    doneEmail = true
+                }
+            } else {
+                doneEmail = true
+            }
+
+            if(foundUser.smsNotifications){
+                const success = await sendSmsNotification({receivingUserId: hostUserId, notificationType: "CancelSubmitted"})
+                if(success){
+                    doneSms = true
+                }
+            } else {
+                doneSms = true
+            }
+
+            if(foundAppointment && updateHostProfile && newNoti && doneNoti && doneEmail && doneSms){
+
+                return res.status(201).json({ message: 'Success' })
+            }
+
+        } else {
+
+            return res.status(401).json({ message: 'Failed' })
         }
 
     } catch(err){
@@ -622,32 +756,63 @@ const hostRequestCancelApprove = async (req, res) =>{
 
     try {
 
-        var foundAppointment = await Appointment.findOne({_id: appointmentId})
+        const foundUser = await User.findOne({_id: userId})
 
-        if(foundAppointment && foundAppointment.cancelRequestDriverSubmit){
-            
-            const foundDriverProfile = await DriverProfile.updateOne({_userId: userId},{$inc: {numberOfAppointmentCancellations: 1}})
-            const foundHostProfile = await HostProfile.updateOne({_userId: hostUserId},{$inc: {numberOfAppointmentCancellations: 1}})
+        var doneNoti = false;
+        var doneEmail = false;
+        var doneSms = false;
 
-            const newNoti = await Notification.create({_receivingUserId: userId, _sendingUserId: hostUserId, notificationType: "Cancelled", 
-                    _relatedAppointment: foundAppointment._id})
+        if(foundUser){
 
-            if(foundDriverProfile && foundHostProfile && newNoti){
+            var foundAppointment = await Appointment.findOne({_id: appointmentId})
 
-                const updatedAppointment = await Appointment.updateOne({_id: appointmentId},{$set:{status: "Cancelled"}})
-
-                if(updatedAppointment){
-
-                    return res.status(201).json({ message: 'Success' })
+            if(foundAppointment && foundAppointment.cancelRequestDriverSubmit){
                 
+                const foundDriverProfile = await DriverProfile.updateOne({_userId: userId},{$inc: {numberOfAppointmentCancellations: 1}})
+                const foundHostProfile = await HostProfile.updateOne({_userId: hostUserId},{$inc: {numberOfAppointmentCancellations: 1}})
+
+                const newNoti = await Notification.create({_receivingUserId: userId, _sendingUserId: hostUserId, notificationType: "Cancelled", 
+                        _relatedAppointment: foundAppointment._id})
+
+                if(foundUser.emailNotifications){
+                    const success = await sendNotiEmail({firstName: foundUser.firstName, toUser:foundUser.email, notificationType: "CancelSubmitted"})
+                    if(success){
+                        doneEmail = true
+                    }
                 } else {
-        
-                    return res.status(400).json({ message:'Operation Failed' });
+                    doneEmail = true
                 }
+    
+                if(foundUser.smsNotifications){
+                    const success = await sendSmsNotification({receivingUserId: hostUserId, notificationType: "CancelSubmitted"})
+                    if(success){
+                        doneSms = true
+                    }
+                } else {
+                    doneSms = true
+                }
+
+                if(foundDriverProfile && foundHostProfile && newNoti && doneNoti && doneEmail && doneSms){
+
+                    const updatedAppointment = await Appointment.updateOne({_id: appointmentId},{$set:{status: "Cancelled"}})
+
+                    if(updatedAppointment){
+
+                        return res.status(201).json({ message: 'Success' })
+                    
+                    } else {
+            
+                        return res.status(400).json({ message:'Operation Failed' });
+                    }
+                }
+            
+            } else {
+            
+                return res.status(401).json({ message: 'Failed' })
             }
-        
+
         } else {
-        
+
             return res.status(401).json({ message: 'Failed' })
         }
 
