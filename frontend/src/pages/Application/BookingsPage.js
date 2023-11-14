@@ -57,6 +57,15 @@ const BookingsPage = () => {
   const [verifiedHost, setVerifiedHost] = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
+  const [croppedImageURL, setCroppedImageURL] = useState([]);
+  const [croppedImage, setCroppedImage] = useState([]);
+  const [coverIndex, setCoverIndex] = useState(0);
+  const [mediaTypes, setMediaTypes] = useState([]);
+  const [videoArray, setVideoArray] = useState([]);
+  const [videoURLArray, setVideoURLArray] = useState([]);
+  const [videoThumbnails, setVideoThumbnails] = useState([]);
+  const [oldMediaTrack, setOldMediaTrack] = useState([]);
+
   const [openDetailsModalDriver, setOpenDetailsModalDriver] = useState(false);
   const [openDetailsModalHost, setOpenDetailsModalHost] = useState(false);
   const [selectedEventId, setSelectedEventId] = useState("")
@@ -251,6 +260,203 @@ const BookingsPage = () => {
   
       setSelectedEventId("")
       setOpenDetailsModalHost(false)
+    }
+
+    const handlePhotosUpload = async (event) => {
+
+      event.preventDefault();
+      
+      if(waiting || (croppedImage?.length !== croppedImageURL?.length) || (croppedImage?.length === 0) ){
+        return
+      }
+
+      toast.info("Checking for inappropriate content, please wait...", {
+          position: "bottom-center",
+          autoClose: 7000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+      });
+
+        setWaiting(true);
+
+        let currentIndex = 0;
+        let mediaLength = 0;
+        let finalImageObjArray = [];
+        let finalVideoObjArray = [];
+
+        mediaLength = croppedImageId?.length
+
+        while (mediaLength > 0 && currentIndex < mediaLength){
+
+            if(croppedImageURLId?.length > 0 && croppedImageId[currentIndex] !== undefined){
+        
+                const formData = new FormData();
+                const file = new File([croppedImageId[currentIndex]], `${userId}.jpeg`, { type: "image/jpeg" })
+                formData.append("image", file);
+                
+                const nsfwResults = await axios.post("/nsfw/check", 
+                    formData,
+                    {
+                        headers: { "Authorization": `Hash ${hash} ${userId}`, 
+                        'Content-Type': 'multipart/form-data'},
+                        withCredentials: true
+                    }
+                );
+
+                if (nsfwResults?.status !== 413){
+
+                    var check1 = null;
+                    var check2 = null;
+
+                    for(let i=0; i<nsfwResults.data.length; i++){
+
+                    if(nsfwResults.data[i].className === 'Hentai' && nsfwResults.data[i].probability < 0.2){
+                        check1 = true
+                    }
+                    if(nsfwResults.data[i].className === 'Porn' && nsfwResults.data[i].probability < 0.2){
+                        check2 = true
+                    }
+                }            
+
+                if(check1 && check2){
+
+                    try {
+                        const response = await axios.post(IMAGE_UPLOAD_URL, 
+                            formData,
+                            {
+                                headers: { "Authorization": `Hash ${hash} ${userId}`, 
+                                'Content-Type': 'multipart/form-data'},
+                                withCredentials: true
+                            }
+                        );
+
+                        if(response?.status === 200){
+
+                            const returnedObjId = response.data.key
+
+                            finalImageObjArray.push(returnedObjId)
+                            finalVideoObjArray.push("image")
+
+                            currentIndex += 1
+                        };
+
+                    } catch (err) {
+                        
+                        setWaiting(false);
+                        setErrorMessage("Failed to upload photo! Please try again!");
+
+                        if(finalImageObjArray?.length > 0){
+
+                            const deleted = await axios.delete("/s3/deletemany", 
+                                {
+                                    data: {
+                                        userId,
+                                        finalImageObjArray
+                                    },
+                                    headers: { "Authorization": `Hash ${hash} ${userId}`, 
+                                        'Content-Type': 'application/json'},
+                                    withCredentials: true
+                                }
+                            );
+
+                            if(deleted){
+                                setWaiting(false)
+                                return
+                            }
+                        }
+                    }
+                
+                } else {
+
+                    if(finalImageObjArray?.length > 0){
+
+                        const deleted = await axios.delete("/s3/deletemany", 
+                            {
+                                data: {
+                                    userId,
+                                    finalImageObjArray
+                                },
+                                headers: { "Authorization": `Hash ${hash} ${userId}`, 
+                                    'Content-Type': 'application/json'},
+                                withCredentials: true
+                            }
+                        );
+
+                        if(deleted){
+                            
+                            setWaiting(false)
+                            
+                            return
+                        }
+                    }
+                }
+            
+            } else {
+
+                toast.error("The photo is too large, please upload a new photo!", {
+                position: "bottom-center",
+                autoClose: 7000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+                });
+                break
+            }
+
+        } else {
+            toast.error("This post does not have an attached photo", {
+                position: "bottom-center",
+                autoClose: 7000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+            });
+            break
+        }
+
+        if(finalImageObjArray?.length === mediaLength){
+
+          const previewMediaObjectId = finalImageObjArray[coverIndex]
+          const previewMediaType = mediaTypes[coverIndex]
+    
+            try {
+
+                const uploadedHostPhotos = await addHostPhotos(auth.userId, previewMediaObjectId, finalImageObjArray, finalVideoObjArray,
+                  mediaTypes, previewMediaType, coverIndex, auth.accessToken)
+
+                if(uploadedHostPhotos && uploadedHostPhotos.status === 200){
+
+                    setSubmitted(true);
+
+                    console.log("Success, photos have been uploaded. We will review and approve shortly.")
+                    toast.info("Awesome, your charger details have been saved! We will review and approve shortly", {
+                        position: "bottom-center",
+                        autoClose: 1500,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "colored",
+                    });
+                }
+
+            } catch(err){
+
+                console.log(err)
+            }
+        }
+      }
     }
 
     const handleSelectEventHost = (e) => {
@@ -651,10 +857,18 @@ const BookingsPage = () => {
 
         {(!verifiedHost && !submitted) && 
         
-        <div>
+        <div className="flex w-full flex-col px-4">
         
           <p>Please submit the information below for your charging equipment</p>
           <p>After approval, drivers will be able to request bookings and you will be able to earn income</p>
+
+          <div className="w-full flex justify-center">
+            <Camera croppedImage={croppedImage} setCroppedImage={setCroppedImage} croppedImageURL={croppedImageURL} setCroppedImageURL={setCroppedImageURL} 
+              coverIndex={coverIndex} setCoverIndex={setCoverIndex} mediaTypes={mediaTypes} setMediaTypes={setMediaTypes} videoArray={videoArray} setVideoArray={setVideoArray} 
+              videoURLArray={videoURLArray} setVideoURLArray={setVideoURLArray}  videoThumbnails={videoThumbnails} setVideoThumbnails={setVideoThumbnails} 
+              oldMediaTrack={oldMediaTrack} setOldMediaTrack={setOldMediaTrack} />
+            
+          </div>
         
         </div> }
 
@@ -751,8 +965,6 @@ const BookingsPage = () => {
                       onClick={(e)=>handleLinkURLDirections(e, selectedAddress)}>
                         Get Directions (Opens Map)
                     </button>}
-
-                    
 
                 </div>
               </div>
