@@ -15,7 +15,6 @@ import { ToastContainer, toast } from 'react-toastify';
 import { useLocation } from 'react-router';
 
 import useAuth from '../../hooks/useAuth';
-import evconnectors from "../../images/evconnectors.jpeg";
 
 
 function isNumeric(n) {
@@ -50,6 +49,10 @@ const VerifyPage = () => {
     const [userId, setUserId] = useState(new URLSearchParams(search).get("id"))
     const [hash, setHash] = useState(new URLSearchParams(search).get("hash"))
 
+    const [pushNotifications, setPushNotifications] = useState(true)
+    const [emailNotifications, setEmailNotifications] = useState(true)
+    const [smsNotifications, setSmsNotifications] = useState(true)
+
     const IMAGE_UPLOAD_URL = '/s3/singleimage';
     const PUBLIC_MEDIA_URL = '/s3/single-profilepic';
 
@@ -65,7 +68,6 @@ const VerifyPage = () => {
     
     const [errorMessage, setErrorMessage] = useState("");
 
-    const [offeringCharging, setOfferingCharging] = useState("Yes")
     const [chargeRate, setChargeRate] = useState(3.0);
     const [currency, setCurrency] = useState("cad");
     const [connectorType, setConnectorType] = useState("AC-J1772-Type1");
@@ -890,6 +892,43 @@ const VerifyPage = () => {
                         
                         </div>
                     </div>
+
+                    <div className='flex flex-col md:justify-center px-6'>
+
+                        <div className="w-[300px] flex flex-col pt-4">
+                            <div className='flex justify-start'>
+                                <label className='text-lg font-medium'>Toggle Email Notifications</label>
+                            </div>
+                            <div className='flex justify-start pl-2'>
+                                <FormControlLabel control={
+                                    <Switch checked={emailNotifications} onChange={(e)=>setEmailNotifications(e.target.checked)} />
+                                } label="Push Notifications" />
+                            </div>
+                        </div>
+
+                        <div className="w-[300px] flex flex-col pt-4">
+                            <div className='flex justify-start'>
+                                <label className='text-lg font-medium'>Toggle Push Notifications</label>
+                            </div>
+                            <div className='flex justify-start pl-2'>
+                                <FormControlLabel control={
+                                    <Switch checked={pushNotifications} onChange={(e)=>setPushNotifications(e.target.checked)} />
+                                } label="Push Notifications" />
+                            </div>
+                        </div>
+
+                        <div className="w-[300px] flex flex-col pt-4">
+                            <div className='flex justify-start'>
+                                <label className='text-lg font-medium'>SMS(Text Message) Notifications</label>
+                            </div>
+                            <div className='flex justify-start pl-2'>
+                                <FormControlLabel control={
+                                    <Switch checked={smsNotifications} onChange={(e)=>setSmsNotifications(e.target.checked)} />
+                                } label="Push Notifications" />
+                            </div>
+                        </div>
+                    </div>
+
 
                     <button disabled={submittedPhotos} onClick={(e)=>handlePhotosUpload(e)} 
                         className={`my-2 mb-8 py-4 px-3 rounded-2xl border-2 

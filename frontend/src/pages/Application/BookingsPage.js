@@ -10,12 +10,17 @@ import TabList from "@material-ui/lab/TabList";
 import TabPanel from "@material-ui/lab/TabPanel";  
 import { Calendar, dayjsLocalizer } from "react-big-calendar";
 
+import evconnectors from "../../images/evconnectors.jpeg";
+import evcharger from "../../images/ev_charger.jpeg";
+import evplug from "../../images/ev_connector_plug.jpg"
+
 import addDriverCancelApprove from '../../helpers/Appointments/addDriverCancelApprove';
 import addDriverCancelSubmit from '../../helpers/Appointments/addDriverCancelSubmit';
 import addHostCancelApprove from '../../helpers/Appointments/addHostCancelApprove';
 import addHostCancelSubmit from '../../helpers/Appointments/addHostCancelSubmit';
 
 import getUserData from '../../helpers/Userdata/getUserData';
+import addHostProfile from '../../helpers/Media/addHostProfile';
 import getDriverAppointments from '../../helpers/Appointments/getDriverAppointments';
 import getHostAppointments from '../../helpers/Appointments/getHostAppointments';
 
@@ -41,6 +46,7 @@ const BookingsPage = () => {
 
   const [value, setValue] = useState("0");
   const [waiting, setWaiting] = useState(false);
+  const IMAGE_UPLOAD_URL = '/s3/singleimage';
 
   const [pickerDateDriver, setPickerDateDriver] = useState(new Date())
   const [pickerDateHost, setPickerDateHost] = useState(new Date())
@@ -56,6 +62,153 @@ const BookingsPage = () => {
 
   const [verifiedHost, setVerifiedHost] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+
+  const [chargeRate, setChargeRate] = useState(3.0);
+  const [currency, setCurrency] = useState("cad");
+  const [currencySymbol, setCurrencySymbol] = useState("$");
+  const [connectorType, setConnectorType] = useState("AC-J1772-Type1");
+  const [chargingLevel, setChargingLevel] = useState("Level 1")
+
+  const [closedOnMonday, setClosedOnMonday] = useState(false);
+  const [closedOnTuesday, setClosedOnTuesday] = useState(false);
+  const [closedOnWednesday, setClosedOnWednesday] = useState(false);
+  const [closedOnThursday, setClosedOnThursday] = useState(false);
+  const [closedOnFriday, setClosedOnFriday] = useState(false);
+  const [closedOnSaturday, setClosedOnSaturday] = useState(false);
+  const [closedOnSunday, setClosedOnSunday] = useState(false);
+  const [closedOnHolidays, setClosedOnHolidays] = useState(false);
+
+  const [hoursMondayStart, setHoursMondayStart] = useState('');
+  const [validhoursMondayStart, setValidhoursMondayStart] = useState(false);
+  const [hoursMondayStartFocus, setHoursMondayStartFocus] = useState(false);
+
+  const [hoursMondayFinish, setHoursMondayFinish] = useState('');
+  const [validhoursMondayFinish, setValidhoursMondayFinish] = useState(false);
+  const [hoursMondayFinishFocus, setHoursMondayFinishFocus] = useState(false);
+
+  const [hoursTuesdayStart, setHoursTuesdayStart] = useState('');
+  const [validhoursTuesdayStart, setValidhoursTuesdayStart] = useState(false);
+  const [hoursTuesdayStartFocus, setHoursTuesdayStartFocus] = useState(false);
+
+  const [hoursTuesdayFinish, setHoursTuesdayFinish] = useState('');
+  const [validhoursTuesdayFinish, setValidhoursTuesdayFinish] = useState(false);
+  const [hoursTuesdayFinishFocus, setHoursTuesdayFinishFocus] = useState(false);
+
+  const [hoursWednesdayStart, setHoursWednesdayStart] = useState('');
+  const [validhoursWednesdayStart, setValidhoursWednesdayStart] = useState(false);
+  const [hoursWednesdayStartFocus, setHoursWednesdayStartFocus] = useState(false);
+
+  const [hoursWednesdayFinish, setHoursWednesdayFinish] = useState('');
+  const [validhoursWednesdayFinish, setValidhoursWednesdayFinish] = useState(false);
+  const [hoursWednesdayFinishFocus, setHoursWednesdayFinishFocus] = useState(false);
+
+  const [hoursThursdayStart, setHoursThursdayStart] = useState('');
+  const [validhoursThursdayStart, setValidhoursThursdayStart] = useState(false);
+  const [hoursThursdayStartFocus, setHoursThursdayStartFocus] = useState(false);
+
+  const [hoursThursdayFinish, setHoursThursdayFinish] = useState('');
+  const [validhoursThursdayFinish, setValidhoursThursdayFinish] = useState(false);
+  const [hoursThursdayFinishFocus, setHoursThursdayFinishFocus] = useState(false);
+
+  const [hoursFridayStart, setHoursFridayStart] = useState('');
+  const [validhoursFridayStart, setValidhoursFridayStart] = useState(false);
+  const [hoursFridayStartFocus, setHoursFridayStartFocus] = useState(false);
+
+  const [hoursFridayFinish, setHoursFridayFinish] = useState('');
+  const [validhoursFridayFinish, setValidhoursFridayFinish] = useState(false);
+  const [hoursFridayFinishFocus, setHoursFridayFinishFocus] = useState(false);
+
+  const [hoursSaturdayStart, setHoursSaturdayStart] = useState('');
+  const [validhoursSaturdayStart, setValidhoursSaturdayStart] = useState(false);
+  const [hoursSaturdayStartFocus, setHoursSaturdayStartFocus] = useState(false);
+
+  const [hoursSaturdayFinish, setHoursSaturdayFinish] = useState('');
+  const [validhoursSaturdayFinish, setValidhoursSaturdayFinish] = useState(false);
+  const [hoursSaturdayFinishFocus, setHoursSaturdayFinishFocus] = useState(false);
+
+  const [hoursSundayStart, setHoursSundayStart] = useState('');
+  const [validhoursSundayStart, setValidhoursSundayStart] = useState(false);
+  const [hoursSundayStartFocus, setHoursSundayStartFocus] = useState(false);
+
+  const [hoursSundayFinish, setHoursSundayFinish] = useState('');
+  const [validhoursSundayFinish, setValidhoursSundayFinish] = useState(false);
+  const [hoursSundayFinishFocus, setHoursSundayFinishFocus] = useState(false);
+
+  const [holidayHours, setHolidayHours] = useState('');
+  const [validHolidayHours, setValidHolidayHours] = useState(false);
+  const [holidayHoursFocus, setHolidayHoursFocus] = useState(false);
+
+  const [holidayHoursStart, setHolidayHoursStart] = useState('');
+  const [validHolidayHoursStart, setValidHolidayHoursStart] = useState(false);
+  const [holidayHoursStartFocus, setHolidayHoursStartFocus] = useState(false);
+
+  const [holidayHoursFinish, setHolidayHoursFinish] = useState('');
+  const [validHolidayHoursFinish, setValidHolidayHoursFinish] = useState(false);
+  const [holidayHoursFinishFocus, setHolidayHoursFinishFocus] = useState(false);
+
+  useEffect(() => {
+    setValidhoursMondayStart(REGULAR_HOURS_REGEX_DAILY.test(hoursMondayStart));
+  }, [hoursMondayStart])
+
+  useEffect(() => {
+      setValidhoursMondayFinish(REGULAR_HOURS_REGEX_DAILY.test(hoursMondayFinish));
+  }, [hoursMondayFinish])
+
+  useEffect(() => {
+      setValidhoursTuesdayStart(REGULAR_HOURS_REGEX_DAILY.test(hoursTuesdayStart));
+  }, [hoursTuesdayStart])
+
+  useEffect(() => {
+      setValidhoursTuesdayFinish(REGULAR_HOURS_REGEX_DAILY.test(hoursTuesdayFinish));
+  }, [hoursTuesdayFinish])
+
+  useEffect(() => {
+      setValidhoursWednesdayStart(REGULAR_HOURS_REGEX_DAILY.test(hoursWednesdayStart));
+  }, [hoursWednesdayStart])
+
+  useEffect(() => {
+      setValidhoursWednesdayFinish(REGULAR_HOURS_REGEX_DAILY.test(hoursWednesdayFinish));
+  }, [hoursWednesdayFinish])
+
+  useEffect(() => {
+      setValidhoursThursdayStart(REGULAR_HOURS_REGEX_DAILY.test(hoursThursdayStart));
+  }, [hoursThursdayStart])
+
+  useEffect(() => {
+      setValidhoursThursdayFinish(REGULAR_HOURS_REGEX_DAILY.test(hoursThursdayFinish));
+  }, [hoursThursdayFinish])
+
+  useEffect(() => {
+      setValidhoursFridayStart(REGULAR_HOURS_REGEX_DAILY.test(hoursFridayStart));
+  }, [hoursFridayStart])
+
+  useEffect(() => {
+      setValidhoursFridayFinish(REGULAR_HOURS_REGEX_DAILY.test(hoursFridayFinish));
+  }, [hoursFridayFinish])
+
+  useEffect(() => {
+      setValidhoursSaturdayStart(REGULAR_HOURS_REGEX_DAILY.test(hoursSaturdayStart));
+  }, [hoursSaturdayStart])
+
+  useEffect(() => {
+      setValidhoursSaturdayFinish(REGULAR_HOURS_REGEX_DAILY.test(hoursSaturdayFinish));
+  }, [hoursSaturdayFinish])
+
+  useEffect(() => {
+      setValidhoursSundayStart(REGULAR_HOURS_REGEX_DAILY.test(hoursSundayStart));
+  }, [hoursSundayStart])
+
+  useEffect(() => {
+      setValidhoursSundayFinish(REGULAR_HOURS_REGEX_DAILY.test(hoursSundayFinish));
+  }, [hoursSundayFinish])
+
+  useEffect(() => {
+      setValidHolidayHoursStart(HOLIDAY_HOURS_REGEX.test(holidayHoursStart));
+  }, [holidayHoursStart])
+
+  useEffect(() => {
+      setValidHolidayHoursFinish(HOLIDAY_HOURS_REGEX.test(holidayHoursFinish));
+  }, [holidayHoursFinish])
 
   const [croppedImageURL, setCroppedImageURL] = useState([]);
   const [croppedImage, setCroppedImage] = useState([]);
@@ -94,6 +247,157 @@ const BookingsPage = () => {
     navigate(`/messages`);
   }
 
+  const handleRegularHourChangeBegin = (event, day) => {
+
+    if (day === 'Monday'){
+
+        if(event.target.value < hoursMondayFinish){
+            setHoursMondayStart(event.target.value)
+        } else {
+            setHoursMondayStart(hoursMondayFinish)
+            setClosedOnMonday(true);
+        }
+
+    } else if( day === 'Tuesday'){
+
+        if(event.target.value < hoursMondayFinish){
+            setHoursTuesdayStart(event.target.value)
+        } else {
+            setHoursTuesdayStart(hoursTuesdayFinish)
+            setClosedOnTuesday(true);
+        }
+
+    } else if (day === 'Wednesday'){
+
+        if(event.target.value < hoursWednesdayFinish){
+            setHoursWednesdayStart(event.target.value)
+        } else {
+            setHoursWednesdayStart(hoursWednesdayFinish)
+            setClosedOnWednesday(true);
+        }
+
+    } else if (day === 'Thursday'){
+
+        if(event.target.value < hoursThursdayFinish){
+            setHoursThursdayStart(event.target.value)
+        } else {
+            setHoursThursdayStart(hoursThursdayFinish)
+            setClosedOnThursday(true);
+        }
+
+    } else if (day === 'Friday'){
+
+        if(event.target.value < hoursFridayFinish){
+            setHoursFridayStart(event.target.value)
+        } else {
+            setHoursFridayStart(hoursFridayFinish)
+            setClosedOnFriday(true);
+        }
+
+    } else if (day === 'Saturday'){
+
+        if(event.target.value < hoursSaturdayFinish){
+            setHoursSaturdayStart(event.target.value)
+        } else {
+            setHoursSaturdayStart(hoursSaturdayFinish)
+            setClosedOnSaturday(true);
+        }
+
+    } else if (day === 'Sunday'){
+
+        if(event.target.value < hoursSundayFinish){
+            setHoursSundayStart(event.target.value)
+        } else {
+            setHoursSundayStart(hoursSundayFinish)
+            setClosedOnSunday(true);
+        }
+
+    } else if (day === ' Holiday'){
+
+        if(event.target.value < holidayHoursFinish){
+            setHolidayHoursStart(event.target.value)
+        } else {
+            setHolidayHoursStart(holidayHoursFinish)
+            setClosedOnHolidays(true);
+        }      
+    }
+}
+
+const handleRegularHourChangeEnd = (event, day) => {
+
+    if (day === 'Monday'){
+
+        if(event.target.value > hoursMondayStart){
+            setHoursMondayFinish(event.target.value)
+        } else {
+            setHoursMondayFinish(hoursMondayStart)
+            setClosedOnMonday(true);
+        }
+
+    } else if( day === 'Tuesday'){
+
+        if(event.target.value > hoursMondayStart){
+            setHoursTuesdayFinish(event.target.value)
+        } else {
+            setHoursTuesdayFinish(hoursMondayStart)
+            setClosedOnTuesday(true);
+        }
+
+    } else if (day === 'Wednesday'){
+
+        if(event.target.value > hoursWednesdayStart){
+            setHoursWednesdayFinish(event.target.value)
+        } else {
+            setHoursWednesdayFinish(hoursWednesdayStart)
+            setClosedOnWednesday(true);
+        }
+
+    } else if (day === 'Thursday'){
+
+        if(event.target.value > hoursThursdayStart){
+            setHoursThursdayFinish(event.target.value)
+        } else {
+            setHoursThursdayFinish(hoursThursdayStart)
+            setClosedOnThursday(true);
+        }
+
+    } else if (day === 'Friday'){
+
+        if(event.target.value > hoursFridayStart){
+            setHoursFridayFinish(event.target.value)
+        } else {
+            setHoursFridayFinish(hoursFridayStart)
+            setClosedOnFriday(true);
+        }
+
+    } else if (day === 'Saturday'){
+
+        if(event.target.value > hoursSaturdayStart){
+            setHoursSaturdayFinish(event.target.value)
+        } else {
+            setHoursSaturdayFinish(hoursSaturdayStart)
+            setClosedOnSaturday(true);
+        }
+
+    } else if (day === 'Sunday'){
+
+        if(event.target.value > hoursSundayStart){
+            setHoursSundayFinish(event.target.value)
+        } else {
+            setHoursSundayFinish(hoursSundayStart)
+        }
+
+    } else if (day === ' Holiday'){
+
+        if(event.target.value > holidayHoursStart){
+            setHolidayHoursFinish(event.target.value)
+        } else {
+            setHolidayHoursFinish(holidayHoursStart)
+        }
+        
+    }
+  }
+
   const profileStyle = {
     position: 'absolute',
     top: '50%',
@@ -121,6 +425,11 @@ const BookingsPage = () => {
 
         if(userdata){
           console.log(userdata)
+
+          //Set verified and submitted
+          //check submittedChargingForReview and verifiedHostCharging
+          // setCurrency(userdata.currency)
+          // setCurrencySymbol(userdata.currencySymbol)
         }
       }
 
@@ -262,7 +571,7 @@ const BookingsPage = () => {
       setOpenDetailsModalHost(false)
     }
 
-    const handlePhotosUpload = async (event) => {
+    const handleHostPhotosUpload = async (event) => {
 
       event.preventDefault();
       
@@ -288,21 +597,21 @@ const BookingsPage = () => {
         let finalImageObjArray = [];
         let finalVideoObjArray = [];
 
-        mediaLength = croppedImageId?.length
+        mediaLength = croppedImage?.length
 
         while (mediaLength > 0 && currentIndex < mediaLength){
 
-            if(croppedImageURLId?.length > 0 && croppedImageId[currentIndex] !== undefined){
+            if(croppedImageURL?.length > 0 && croppedImage[currentIndex] !== undefined){
         
                 const formData = new FormData();
-                const file = new File([croppedImageId[currentIndex]], `${userId}.jpeg`, { type: "image/jpeg" })
+                const file = new File([croppedImage[currentIndex]], `${auth.userId}.jpeg`, { type: "image/jpeg" })
                 formData.append("image", file);
                 
                 const nsfwResults = await axios.post("/nsfw/check", 
                     formData,
                     {
-                        headers: { "Authorization": `Hash ${hash} ${userId}`, 
-                        'Content-Type': 'multipart/form-data'},
+                      headers: { "Authorization": `Bearer ${auth.accessToken} ${auth.userId}`, 
+                      'Content-Type': 'multipart/form-data'},
                         withCredentials: true
                     }
                 );
@@ -328,8 +637,8 @@ const BookingsPage = () => {
                         const response = await axios.post(IMAGE_UPLOAD_URL, 
                             formData,
                             {
-                                headers: { "Authorization": `Hash ${hash} ${userId}`, 
-                                'Content-Type': 'multipart/form-data'},
+                              headers: { "Authorization": `Bearer ${auth.accessToken} ${auth.userId}`, 
+                              'Content-Type': 'application/json'},
                                 withCredentials: true
                             }
                         );
@@ -357,9 +666,9 @@ const BookingsPage = () => {
                                         userId,
                                         finalImageObjArray
                                     },
-                                    headers: { "Authorization": `Hash ${hash} ${userId}`, 
-                                        'Content-Type': 'application/json'},
-                                    withCredentials: true
+                                    headers: { "Authorization": `Bearer ${auth.accessToken} ${auth.userId}`, 
+                                    'Content-Type': 'application/json'},
+                                      withCredentials: true
                                 }
                             );
 
@@ -380,9 +689,9 @@ const BookingsPage = () => {
                                     userId,
                                     finalImageObjArray
                                 },
-                                headers: { "Authorization": `Hash ${hash} ${userId}`, 
-                                    'Content-Type': 'application/json'},
-                                withCredentials: true
+                                headers: { "Authorization": `Bearer ${auth.accessToken} ${auth.userId}`, 
+                                'Content-Type': 'application/json'},
+                                  withCredentials: true
                             }
                         );
 
@@ -431,8 +740,15 @@ const BookingsPage = () => {
     
             try {
 
-                const uploadedHostPhotos = await addHostPhotos(auth.userId, previewMediaObjectId, finalImageObjArray, finalVideoObjArray,
-                  mediaTypes, previewMediaType, coverIndex, auth.accessToken)
+                const uploadedHostPhotos = await addHostProfile(
+                  auth.userId, previewMediaObjectId, finalImageObjArray, finalVideoObjArray,
+                  mediaTypes, previewMediaType, coverIndex, 
+                  chargeRate, currency, connectorType, chargingLevel,
+                  hoursMondayStart, hoursMondayFinish, hoursTuesdayStart, hoursTuesdayFinish, hoursWednesdayStart, hoursWednesdayFinish, hoursThursdayStart, hoursThursdayFinish,
+                  hoursFridayStart, hoursFridayFinish, hoursSaturdayStart, hoursSaturdayFinish, hoursSundayStart, hoursSundayFinish,
+                  holidayHoursStart, holidayHoursFinish, 
+                  closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays,
+                  auth.accessToken)
 
                 if(uploadedHostPhotos && uploadedHostPhotos.status === 200){
 
@@ -862,13 +1178,666 @@ const BookingsPage = () => {
           <p>Please submit the information below for your charging equipment</p>
           <p>After approval, drivers will be able to request bookings and you will be able to earn income</p>
 
+          <p>Upload a photo of your charging equipment and a photo of the plug connection. </p>
+          <p>An example is the following: </p>
+
+          <div className='flex flex-row'>
+
+              <img className='w-[375px] py-2' src={evcharger} />
+              <img className='w-[375px] py-2' src={evplug} />
+
+          </div>
+
           <div className="w-full flex justify-center">
+            
             <Camera croppedImage={croppedImage} setCroppedImage={setCroppedImage} croppedImageURL={croppedImageURL} setCroppedImageURL={setCroppedImageURL} 
               coverIndex={coverIndex} setCoverIndex={setCoverIndex} mediaTypes={mediaTypes} setMediaTypes={setMediaTypes} videoArray={videoArray} setVideoArray={setVideoArray} 
               videoURLArray={videoURLArray} setVideoURLArray={setVideoURLArray}  videoThumbnails={videoThumbnails} setVideoThumbnails={setVideoThumbnails} 
               oldMediaTrack={oldMediaTrack} setOldMediaTrack={setOldMediaTrack} />
             
           </div>
+
+            <div className='w-full flex flex-col items-end pt-4 pr-12'>
+
+              <div className='w-full flex flex-col items-end gap-y-4'>
+
+                  <div className="flex flex-row justify-center items-center gap-x-2">
+
+                      <label className="flex justify-center items-center pr-2 font-semibold">Currency:</label>
+
+                      <select onChange={(event)=>setCurrency(event.target.value)}
+                      value={currency}
+                      className={`pl-6 w-30 md:w-40 h-9 border border-gray-primary justify-center items-center`}>
+
+                          <option value="usd">$USD</option>
+                          <option value="cad">$CAD</option>
+                          <option value="eur">€EUR</option>
+                          <option value="gbp">£GBP</option>
+                          <option value="inr">₹INR</option>
+                          <option value="jpy">¥JPY</option>
+                          <option value="cny">¥CNY</option>
+                          <option value="aud">$AUD</option>
+                          <option value="nzd">$NZD</option>
+
+                      </select> 
+
+                  </div>
+
+                  <div className="flex flex-row justify-center items-center gap-x-2">
+
+                      <div className='flex flex-col p-2'>
+                          <p className="flex font-semibold">Charge Rate Per 30 Min:</p>
+                      </div>
+                      
+                      <select className="pl-6 w-30 md:w-40 h-9 border border-gray-primary justify-center items-center" 
+                      value={chargeRate}
+                      onChange={(event) => {
+                          setChargeRate(event.target.value);
+                      }}>
+                      
+                      <option value={1.0}>$1.00</option>
+                      <option value={2.0}>$2.00</option>
+                      <option value={3.0}>$3.00</option>
+                      <option value={4.0}>$4.00</option>
+                      <option value={5.0}>$5.00</option>
+                      <option value={6.0}>$6.00</option>
+                      <option value={7.0}>$7.00</option>
+                      
+                      </select>
+                  </div>  
+
+                  <div className="flex flex-row justify-center items-center gap-x-2">
+
+                      <label className="flex justify-center items-center pr-2 font-semibold">Connector Type:</label>
+
+                      <img className='w-[375px] py-2' src={evconnectors} />
+
+                      <select onChange={(event)=>setConnectorType(event.target.value)}
+                      value={connectorType}
+                      className={`text-sm w-30 md:w-40 h-10 text-black justify-center
+                      border border-gray-primary rounded focus:outline-[#00D3E0] pl-6`}>
+
+                          <option value="AC-J1772-Type1">AC-J1772-Type1</option>
+                          <option value="AC-Mennekes-Type2">AC-Mennekes-Type2</option>
+                          <option value="AC-GB/T">AC-GB/T</option>
+                          <option value="DC-CCS1">DC-CCS1</option>
+                          <option value="DC-CCS2">DC-CCS2</option>
+                          <option value="DC-CHAdeMO">DC-CHAdeMO</option>
+                          <option value="DC-GB/T">DC-GB/T</option>
+
+                      </select> 
+
+                  </div>
+
+                  <div className="flex flex-row justify-center items-center gap-x-2">
+
+                      <label className="flex justify-center items-center pr-2 font-semibold">Charging Level:</label>
+
+                      <select onChange={(event)=>setChargingLevel(event.target.value)}
+                      value={chargingLevel}
+                      className={`text-sm w-30 md:w-40 h-10 text-black justify-center
+                      border border-gray-primary rounded focus:outline-[#00D3E0] pl-6`}>
+
+                          <option value="Level 1">Level 1</option>
+                          <option value="Level 2">Level 2</option>
+                          <option value="Level 3">Level 3</option>
+
+                      </select> 
+
+                  </div>
+              
+              </div>
+
+              <div className='flex flex-col items-center md:flex-row md:justify-center w-full gap-x-6'>
+
+                <div className='flex flex-col px-4 md:px-0 w-full md:w-[35vh] mt-4'>
+
+                    <label className='text-base font-semibold pl-2'>Monday Hours - Start:</label>
+
+                    <input 
+                        aria-label="Regular Hours Monday Start: " 
+                        type="time" 
+                        id="hoursMondayStart"
+                        autoComplete="off"
+                        className='text-sm text-gray-700 w-full py-4 px-4 bg-white
+                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                        onChange={ ( e ) => handleRegularHourChangeBegin(e, "Monday")}
+                        onKeyDown={(e) => 
+                            e.stopPropagation()
+                          }
+                        value={hoursMondayStart}
+                        aria-invalid={validhoursMondayStart ? "false" : "true"}
+                        onFocus={() => setHoursMondayStartFocus(true)}
+                        onBlur={() => setHoursMondayStartFocus(false)}
+                    />
+
+                </div>
+
+                <div className='flex flex-col px-4 md:px-0 w-full md:w-[35vh] mt-4'>
+
+                    <label className='text-base font-semibold pl-2'>Monday Hours - Finish:</label>
+
+                    <input 
+                        aria-label="Regular Hours Monday Finish: " 
+                        type="time" 
+                        id="hoursMondayFinish"
+                        autoComplete="off"
+                        className='text-sm text-gray-700 w-full py-4 px-4 bg-white
+                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                        onChange={ ( e ) => handleRegularHourChangeEnd(e, "Monday")}
+                        onKeyDown={(e) => 
+                            e.stopPropagation()
+                          }
+                        value={hoursMondayFinish}
+                        aria-invalid={validhoursMondayFinish ? "false" : "true"}
+                        onFocus={() => setHoursMondayFinishFocus(true)}
+                        onBlur={() => setHoursMondayFinishFocus(false)}
+                    />
+
+                </div>
+
+                <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
+                    md:w-[27vh] mt-4'>
+
+                    <label className='pb-4 font-bold'>Closed on Monday?</label>
+                        <FormControlLabel
+                            value="Closed on Monday?"
+                            control={
+                            <Checkbox checked={closedOnMonday}
+                                    onChange={()=>setClosedOnMonday(!closedOnMonday)}
+                                    style ={{
+                                    color: "#995372",
+                                    transform: "scale(1.5)",
+                                    paddingBottom: '12pt'
+                                }}
+                                />
+                            }
+                        />
+                </div>
+            </div>
+
+            <div className='flex flex-col items-center md:flex-row md:justify-center w-full gap-x-6'>
+
+                <div className='flex flex-col px-4 md:px-0 w-full md:w-[35vh] mt-4'>
+
+                    <label className='text-base font-semibold pl-2'>Tuesday Hours - Start:</label>
+
+                    <input 
+                        aria-label="Regular Hours Tuesday Start: " 
+                        type="time" 
+                        id="hoursTuesdayStart"
+                        autoComplete="off"
+                        className='text-sm text-gray-700 w-full py-4 px-4 bg-white
+                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                        onChange={ ( e ) => handleRegularHourChangeBegin(e, "Tuesday")}
+                        onKeyDown={(e) => 
+                            e.stopPropagation()
+                          }
+                        value={hoursTuesdayStart}
+                        aria-invalid={validhoursTuesdayStart ? "false" : "true"}
+                        onFocus={() => setHoursTuesdayStartFocus(true)}
+                        onBlur={() => setHoursTuesdayStartFocus(false)}
+                    />
+
+                </div>
+
+                <div className='flex flex-col px-4 md:px-0 w-full md:w-[35vh] mt-4'>
+
+                    <label className='text-base font-semibold pl-2'>Tuesday Hours - Finish:</label>
+
+                    <input 
+                        aria-label="Regular Hours Tuesday Finish: " 
+                        type="time" 
+                        id="hoursTuesdayFinish"
+                        autoComplete="off"
+                        className='text-sm text-gray-700 w-full py-4 px-4 bg-white
+                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                        onChange={ ( e ) => handleRegularHourChangeEnd(e, "Tuesday")}
+                        onKeyDown={(e) => 
+                            e.stopPropagation()
+                          }
+                        value={hoursTuesdayFinish}
+                        aria-invalid={validhoursTuesdayFinish ? "false" : "true"}
+                        onFocus={() => setHoursTuesdayFinishFocus(true)}
+                        onBlur={() => setHoursTuesdayFinishFocus(false)}
+                    />
+                </div>
+
+                <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
+                    md:w-[27vh] mt-4'>
+
+                    <label className='pb-4 font-bold'>Closed on Tuesday?</label>
+                        <FormControlLabel
+                            value="Closed on Tuesday?"
+                            control={
+                            <Checkbox checked={closedOnTuesday}
+                                    onChange={()=>setClosedOnTuesday(!closedOnTuesday)}
+                                    style ={{
+                                    color: "#995372",
+                                    transform: "scale(1.5)",
+                                    paddingBottom: '12pt'
+                                }}
+                                />
+                            }
+                        />
+
+                </div>
+            </div>
+
+            <div className='flex flex-col items-center md:flex-row md:justify-center w-full gap-x-6'>
+
+                <div className='flex flex-col px-4 md:px-0 w-full md:w-[35vh] mt-4'>
+
+                    <label className='text-base font-semibold pl-2'>Wednesday Hours - Start:</label>
+
+                    <input 
+                        aria-label="Regular Hours Wednesday Start: " 
+                        type="time" 
+                        id="hoursWednesdayStart"
+                        autoComplete="off"
+                        className='text-sm text-gray-700 w-full py-4 px-4 bg-white
+                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                        onChange={ ( e ) => handleRegularHourChangeBegin(e, "Wednesday")}
+                        onKeyDown={(e) => 
+                            e.stopPropagation()
+                          }
+                        value={hoursWednesdayStart}
+                        aria-invalid={validhoursWednesdayStart ? "false" : "true"}
+                        onFocus={() => setHoursWednesdayStartFocus(true)}
+                        onBlur={() => setHoursWednesdayStartFocus(false)}
+                    />
+
+                </div>
+
+                <div className='flex flex-col px-4 md:px-0 w-full md:w-[35vh] mt-4'>
+
+                    <label className='text-base font-semibold pl-2'>Wednesday Hours - Finish:</label>
+
+                    <input 
+                        aria-label="Regular Hours Wednesday Finish: " 
+                        type="time" 
+                        id="hoursWednesdayFinish"
+                        autoComplete="off"
+                        className='text-sm text-gray-700 w-full py-4 px-4 bg-white
+                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                        onChange={ ( e ) => handleRegularHourChangeEnd(e, "Wednesday")}
+                        onKeyDown={(e) => 
+                            e.stopPropagation()
+                          }
+                        value={hoursWednesdayFinish}
+                        aria-invalid={validhoursWednesdayFinish ? "false" : "true"}
+                        onFocus={() => setHoursWednesdayFinishFocus(true)}
+                        onBlur={() => setHoursWednesdayFinishFocus(false)}
+                    />
+
+                </div>
+
+                <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
+                    md:w-[27vh] mt-4'>
+
+                    <label className='pb-4 font-bold'>Closed on Wednesday?</label>
+                        <FormControlLabel
+                            value="Closed on Wednesday?"
+                            control={
+                            <Checkbox checked={closedOnWednesday}
+                                    onChange={()=>setClosedOnWednesday(!closedOnWednesday)}
+                                    style ={{
+                                    color: "#995372",
+                                    transform: "scale(1.5)",
+                                    paddingBottom: '12pt'
+                                }}
+                                />
+                            }
+                        />
+
+                </div>
+            </div>
+
+            <div className='flex flex-col items-center md:flex-row md:justify-center w-full gap-x-6'>
+
+                <div className='flex flex-col px-4 md:px-0 w-full md:w-[35vh] mt-4'>
+
+                    <label className='text-base font-semibold pl-2'>Thursday Hours - Start:</label>
+
+                    <input 
+                        aria-label="Regular Hours Thursday Start: " 
+                        type="time" 
+                        id="hoursThursdayStart"
+                        autoComplete="off"
+                        className='text-sm text-gray-700 w-full py-4 px-4 bg-white
+                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                        onChange={ ( e ) => handleRegularHourChangeBegin(e, "Thursday")}
+                        onKeyDown={(e) => 
+                            e.stopPropagation()
+                          }
+                        value={hoursThursdayStart}
+                        aria-invalid={validhoursThursdayStart ? "false" : "true"}
+                        onFocus={() => setHoursThursdayStartFocus(true)}
+                        onBlur={() => setHoursThursdayStartFocus(false)}
+                    />
+
+                </div>
+
+                <div className='flex flex-col px-4 md:px-0 w-full md:w-[35vh] mt-4'>
+
+                    <label className='text-base font-semibold pl-2'>Thursday Hours - Finish:</label>
+
+                    <input 
+                        aria-label="Regular Hours Thursday Finish: " 
+                        type="time" 
+                        id="hoursThursdayFinish"
+                        autoComplete="off"
+                        className='text-sm text-gray-700 w-full py-4 px-4 bg-white
+                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                        onChange={ ( e ) => handleRegularHourChangeEnd(e, "Thursday")}
+                        onKeyDown={(e) => 
+                            e.stopPropagation()
+                          }
+                        value={hoursThursdayFinish}
+                        aria-invalid={validhoursThursdayFinish ? "false" : "true"}
+                        onFocus={() => setHoursThursdayFinishFocus(true)}
+                        onBlur={() => setHoursThursdayFinishFocus(false)}
+                    />
+
+                </div>
+
+                <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
+                    md:w-[27vh] mt-4'>
+
+                    <label className='pb-4 font-bold'>Closed on Thursday?</label>
+                        <FormControlLabel
+                            value="Closed on Thursday?"
+                            control={
+                            <Checkbox checked={closedOnThursday}
+                                    onChange={()=>setClosedOnThursday(!closedOnThursday)}
+                                    style ={{
+                                    color: "#995372",
+                                    transform: "scale(1.5)",
+                                    paddingBottom: '12pt'
+                                }}
+                                />
+                            }
+                        />
+
+                </div>
+            </div>
+
+            <div className='flex flex-col items-center md:flex-row md:justify-center w-full gap-x-6'>
+
+                <div className='flex flex-col px-4 md:px-0 w-full md:w-[35vh] mt-4'>
+
+                    <label className='text-base font-semibold pl-2'>Friday Hours - Start:</label>
+
+                    <input 
+                        aria-label="Regular Hours Friday Start: " 
+                        type="time" 
+                        id="hoursFridayStart"
+                        autoComplete="off"
+                        className='text-sm text-gray-700 w-full py-4 px-4 bg-white
+                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                        onChange={ ( e ) => handleRegularHourChangeBegin(e, "Friday")}
+                        onKeyDown={(e) => 
+                            e.stopPropagation()
+                          }
+                        value={hoursFridayStart}
+                        aria-invalid={validhoursFridayStart ? "false" : "true"}
+                        onFocus={() => setHoursFridayStartFocus(true)}
+                        onBlur={() => setHoursFridayStartFocus(false)}
+                    />
+
+                </div>
+
+                <div className='flex flex-col px-4 md:px-0 w-full md:w-[35vh] mt-4'>
+
+                    <label className='text-base font-semibold pl-2'>Friday Hours - Finish:</label>
+
+                    <input 
+                        aria-label="Regular Hours Friday Finish: " 
+                        type="time" 
+                        id="hoursFridayFinish"
+                        autoComplete="off"
+                        className='text-sm text-gray-700 w-full py-4 px-4 bg-white
+                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                        onChange={ ( e ) => handleRegularHourChangeEnd(e, "Friday")}
+                        onKeyDown={(e) => 
+                            e.stopPropagation()
+                          }
+                        value={hoursFridayFinish}
+                        aria-invalid={validhoursFridayFinish ? "false" : "true"}
+                        onFocus={() => setHoursFridayFinishFocus(true)}
+                        onBlur={() => setHoursFridayFinishFocus(false)}
+                    />
+                </div>
+
+            <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
+                    md:w-[27vh] mt-4'>
+
+                    <label className='pb-4 font-bold'>Closed on Friday?</label>
+                        <FormControlLabel
+                            value="Closed on Friday?"
+                            control={
+                            <Checkbox checked={closedOnFriday}
+                                    onChange={()=>setClosedOnFriday(!closedOnFriday)}
+                                    style ={{
+                                    color: "#995372",
+                                    transform: "scale(1.5)",
+                                    paddingBottom: '12pt'
+                                }}
+                                />
+                            }
+                        />
+
+                </div>
+            </div>
+
+            <div className='flex flex-col items-center md:flex-row md:justify-center w-full gap-x-6'>
+
+                <div className='flex flex-col px-4 md:px-0 w-full md:w-[35vh] mt-4'>
+
+                    <label className='text-base font-semibold pl-2'>Saturday Hours - Start:</label>
+
+                    <input 
+                        aria-label="Regular Hours Saturday Start: " 
+                        type="time" 
+                        id="hoursSaturdayStart"
+                        autoComplete="off"
+                        className='text-sm text-gray-700 w-full py-4 px-4 bg-white
+                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                        onChange={ ( e ) => handleRegularHourChangeBegin(e, "Saturday")}
+                        onKeyDown={(e) => 
+                            e.stopPropagation()
+                          }
+                        value={hoursSaturdayStart}
+                        aria-invalid={validhoursSaturdayStart ? "false" : "true"}
+                        onFocus={() => setHoursSaturdayStartFocus(true)}
+                        onBlur={() => setHoursSaturdayStartFocus(false)}
+                    />
+
+                </div>
+
+                <div className='flex flex-col px-4 md:px-0 w-full md:w-[35vh] mt-4'>
+
+                    <label className='text-base font-semibold pl-2'>Saturday Hours - Finish:</label>
+
+                    <input 
+                        aria-label="Regular Hours Saturday Finish: " 
+                        type="time" 
+                        id="hoursSaturdayFinish"
+                        autoComplete="off"
+                        className='text-sm text-gray-700 w-full py-4 px-4 bg-white
+                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                        onChange={ ( e ) => handleRegularHourChangeEnd(e, "Saturday")}
+                        onKeyDown={(e) => 
+                            e.stopPropagation()
+                          }
+                        value={hoursSaturdayFinish}
+                        aria-invalid={validhoursSaturdayFinish ? "false" : "true"}
+                        onFocus={() => setHoursSaturdayFinishFocus(true)}
+                        onBlur={() => setHoursSaturdayFinishFocus(false)}
+                    />
+
+                </div>
+
+                <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
+                    md:w-[27vh] mt-4'>
+
+                    <label className='pb-4 font-bold'>Closed on Saturday?</label>
+                        <FormControlLabel
+                            value="Closed on Saturday?"
+                            control={
+                            <Checkbox checked={closedOnSaturday}
+                                    onChange={()=>setClosedOnSaturday(!closedOnSaturday)}
+                                    style ={{
+                                    color: "#995372",
+                                    transform: "scale(1.5)",
+                                    paddingBottom: '12pt'
+                                }}
+                                />
+                            }
+                        />
+                </div>
+            </div>
+
+            <div className='flex flex-col items-center md:flex-row md:justify-center w-full gap-x-6'>
+
+                <div className='flex flex-col px-4 md:px-0 w-full md:w-[35vh] mt-4'>
+
+                    <label className='text-base font-semibold pl-2'>Sunday Hours - Start:</label>
+
+                    <input 
+                        aria-label="Regular Hours Sunday Start: " 
+                        type="time" 
+                        id="hoursSundayStart"
+                        autoComplete="off"
+                        className='text-sm text-gray-700 w-full py-4 px-4 bg-white
+                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                        onChange={ ( e ) => handleRegularHourChangeBegin(e, "Sunday")}
+                        onKeyDown={(e) => 
+                            e.stopPropagation()
+                          }
+                        value={hoursSundayStart}
+                        aria-invalid={validhoursSundayStart ? "false" : "true"}
+                        onFocus={() => setHoursSundayStartFocus(true)}
+                        onBlur={() => setHoursSundayStartFocus(false)}
+                    />
+
+                </div>
+
+                <div className='flex flex-col px-4 md:px-0 w-full md:w-[35vh] mt-4'>
+
+                    <label className='text-base font-semibold pl-2'>Sunday Hours - Finish:</label>
+
+                    <input 
+                        aria-label="Regular Hours Sunday Finish: " 
+                        type="time" 
+                        id="hoursSundayFinish"
+                        autoComplete="off"
+                        className='text-sm text-gray-700 w-full py-4 px-4 bg-white
+                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                        onChange={ ( e ) => handleRegularHourChangeEnd(e, "Sunday")}
+                        onKeyDown={(e) => 
+                            e.stopPropagation()
+                          }
+                        value={hoursSundayFinish}
+                        aria-invalid={validhoursSundayFinish ? "false" : "true"}
+                        onFocus={() => setHoursSundayFinishFocus(true)}
+                        onBlur={() => setHoursSundayFinishFocus(false)}
+                    />
+
+                </div>
+
+                <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
+                    md:w-[27vh] mt-4'>
+
+                    <label className='pb-4 font-bold'>Closed on Sunday?</label>
+                        <FormControlLabel
+                            value="Closed on Sunday?"
+                            control={
+                            <Checkbox checked={closedOnSunday}
+                                    onChange={()=>setClosedOnSunday(!closedOnSunday)}
+                                    style ={{
+                                    color: "#995372",
+                                    transform: "scale(1.5)",
+                                    paddingBottom: '12pt'
+                                }}
+                                />
+                            }
+                        />
+
+                </div>
+            </div>
+
+
+            <div className='flex flex-col items-center md:flex-row md:justify-center w-full gap-x-6'>
+
+                <div className='flex flex-col px-4 md:px-0 w-full md:w-[35vh] mt-4'>
+
+                    <label className='text-base font-semibold pl-2'>Holiday Hours - Start:</label>
+
+                    <input 
+                        aria-label="Regular Hours Holiday Start: " 
+                        type="time" 
+                        id="holidayHoursStart"
+                        autoComplete="off"
+                        className='text-sm text-gray-700 w-full py-4 px-4 bg-white
+                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                        onChange={ ( e ) => handleRegularHourChangeBegin(e, "Holiday")}
+                        onKeyDown={(e) => 
+                            e.stopPropagation()
+                          }
+                        value={holidayHoursStart}
+                        aria-invalid={validHolidayHoursStart ? "false" : "true"}
+                        onFocus={() => setHolidayHoursStartFocus(true)}
+                        onBlur={() => setHolidayHoursStartFocus(false)}
+                    />
+
+                </div>
+
+                <div className='flex flex-col px-4 md:px-0 w-full md:w-[35vh] mt-4'>
+
+                    <label className='text-base font-semibold pl-2'>Holiday Hours - Finish:</label>
+
+                    <input 
+                        aria-label="Regular Hours Holiday Finish: " 
+                        type="time" 
+                        id="hoursHolidayFinish"
+                        autoComplete="off"
+                        className='text-sm text-gray-700 w-full py-4 px-4 bg-white
+                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                        onChange={ ( e ) => handleRegularHourChangeEnd(e, "Holiday")}
+                        onKeyDown={(e) => 
+                            e.stopPropagation()
+                          }
+                        value={holidayHoursFinish}
+                        aria-invalid={validHolidayHoursFinish ? "false" : "true"}
+                        onFocus={() => setHolidayHoursFinishFocus(true)}
+                        onBlur={() => setHolidayHoursFinishFocus(false)}
+                    />
+
+                </div>
+
+                <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
+                    md:w-[27vh] mt-4'>
+
+                    <label className='pb-4 font-bold'>Closed on Holidays?</label>
+                        <FormControlLabel
+                            value="Closed on Holidays?"
+                            control={
+                            <Checkbox checked={closedOnHolidays}
+                                    onChange={()=>setClosedOnHolidays(!closedOnHolidays)}
+                                    style ={{
+                                    color: "#995372",
+                                    transform: "scale(1.5)",
+                                    paddingBottom: '12pt'
+                                }}
+                                />
+                            }
+                        />
+
+                  </div>
+              </div>
+
+          </div>           
         
         </div> }
 

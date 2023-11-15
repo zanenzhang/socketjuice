@@ -11,6 +11,9 @@ import getUserStatus from '../../helpers/Approval/getUserStatus';
 import approvePhotos from '../../helpers/Approval/approvePhotos';
 import rejectUser from '../../helpers/Approval/rejectUser';
 
+import getHostsCheck from '../../helpers/Approval/getHostsCheck';
+import approveHost from '../../helpers/Approval/approveHost';
+import rejectHost from '../../helpers/Approval/rejectHost';
 
 import useAuth from '../../hooks/useAuth';
 
@@ -20,6 +23,8 @@ const AdminPage = () => {
 
     const { auth, activeTab, setActiveTab  } = useAuth();
     const [userList, setUserList] = useState([])
+    const [hostList, setHostList] = useState([])
+    const [changed, setChanged] = useState(false);
     
     const navigate = useNavigate();
     
@@ -63,12 +68,39 @@ const AdminPage = () => {
             }
         }
 
+        async function getHostsList(){
+
+            const response = await getHostsCheck(auth.userId, auth.accessToken)
+
+            if(response){
+
+                console.log(response)
+
+                var hostData = {}
+
+                for(let i=0; i<response?.foundHosts?.length; i++){
+                    if(hostData[response?.foundHosts[i]._userId] === undefined){
+                        hostData[response?.foundHosts[i]._userId] = response?.foundHosts[i]
+                    }
+                }
+
+                for(let i=0; i<response?.users?.length; i++){
+                    if(hostData[response.users[i]._id]){
+                        response.users[i].host = hostData[response.users[i]._id]
+                    }
+                }
+
+                setHostList(response?.users)
+            }
+        }
+
         console.log(auth.userId, auth.accessToken)
         if(auth.userId && auth.accessToken){
             getUsersList()
+            getHostsList()
         }
 
-    }, [auth.userId])
+    }, [auth.userId, changed])
 
 
     const handleApproveUser = (e, userId) => {
@@ -82,8 +114,9 @@ const AdminPage = () => {
 
             if(response && response.status === 200){
                 console.log(response)
-                var userListCopy = userList.filter(e => e._id !== userId)
-                setUserList(userListCopy)
+                // var userListCopy = userList.filter(e => e._id !== userId)
+                // setUserList(userListCopy)
+                setChanged(!changed)
             }
         }
 
@@ -100,14 +133,55 @@ const AdminPage = () => {
 
             if(response && response.status === 200){
                 console.log(response)
-                var userListCopy = userList.filter(e => e._id !== userId)
-                setUserList(userListCopy)
+                // var userListCopy = userList.filter(e => e._id !== userId)
+                // setUserList(userListCopy)
+                setChanged(!changed)
             }
         }
 
         reject()
     }
     
+
+    const handleApproveHost = (e, userId) => {
+
+        e.preventDefault()
+
+        async function approve(){
+
+            console.log(userId, auth.userId, auth.accessToken)
+            const response = await approveHost(userId, auth.userId, auth.accessToken)
+
+            if(response && response.status === 200){
+                console.log(response)
+                // var userListCopy = userList.filter(e => e._id !== userId)
+                // setUserList(userListCopy)
+                setChanged(!changed)
+            }
+        }
+
+        approve()
+    }
+
+    const handleRejectHost = (e, userId) => {
+
+        e.preventDefault()
+
+        async function reject(){
+
+            const response = await rejectHost(userId, auth.userId, auth.accessToken)
+
+            if(response && response.status === 200){
+                console.log(response)
+                // var userListCopy = userList.filter(e => e._id !== userId)
+                // setUserList(userListCopy)
+                setChanged(!changed)
+            }
+        }
+
+        reject()
+    }
+
 
     return(
 
@@ -120,7 +194,9 @@ const AdminPage = () => {
                 profilePicURL={auth.profilePicURL} roles={auth.roles}
             />
 
-            <div className='w-full flex flex-col justify-center items-center pt-[10vh]'>
+            <div className='w-full flex flex-col justify-center items-center pt-[10vh] h-[500px] overflow-y-auto'>
+
+                <p className='text-lg font-semibold'>Users to Check</p>
 
                 {userList?.length > 0 ?
 
@@ -160,6 +236,52 @@ const AdminPage = () => {
                 : null}
                 
             </div>
+        
+            <div className='w-full flex flex-col justify-center items-center pt-[10vh] h-[500px] overflow-y-auto'>
+
+                <p className='text-lg font-semibold'>Hosts to Check</p>
+
+                {hostList?.length > 0 ?
+
+                    hostList.map((host) => (
+
+                        <div key={host._id} className='flex flex-col py-10'>
+
+                            <p>{host._id}</p>
+                            <p>{host.firstName} {host.lastName}</p>
+                            <p>{host.host.address}</p>
+                            <p>{host.phonePrimary}</p>
+                            <p>{host.host.city}, {host.host.region}</p>
+
+                            <img className='w-[250px]' src={host.profilePicURL} />
+
+                            <div className='flex flex-wrap'>
+
+                                {hostList.mediaCarouselURLs.map((image) => (
+
+                                    <img className='w-[250px]' src={image} />
+                                ))}
+
+                            </div>
+
+                            <div className='flex flex-row w-full justify-between'>
+
+                                <button onClick={(e)=>handleRejectHost(e, user._id)}>
+                                    Reject
+                                    </button>
+
+                                <button onClick={(e)=>handleApproveHost(e, user._id)}>
+                                    Approve
+                                    </button>
+
+                            </div>
+                        </div>
+                    ))
+
+                : null}
+                
+            </div>
+
         </div>
 
         <ToastContainer

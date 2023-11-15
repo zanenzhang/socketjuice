@@ -5,7 +5,7 @@ const ActivateToken = require("../../model/ActivateToken");
 const jwt = require('jsonwebtoken');
 const S3 = require("aws-sdk/clients/s3");
 const { deleteFile } = require("../media/s3Controller");
-const { sendReverifyEmail } = require("../../middleware/mailer")
+const { sendReverifyEmail, sendRejectedHost } = require("../../middleware/mailer")
 const crypto = require('crypto');
 
 const wasabiPrivateBucketUSA = process.env.WASABI_PRIVATE_BUCKET_NAME_USA;
@@ -51,6 +51,55 @@ const approveUserProfilePhone = async (req, res) => {
     }
 }
 
+const approveHostProfile = async (req, res) => {
+
+    const cookies = req.cookies;
+
+    if (!cookies?.socketjuicejwt) return res.sendStatus(401);
+    const refreshToken = cookies.socketjuicejwt;
+
+    User.findOne({ refreshToken }, async function(err, foundUser){
+
+        if (err || !foundUser) return res.sendStatus(403); 
+    
+        jwt.verify(
+            refreshToken,
+            process.env.REFRESH_TOKEN_SECRET,
+            (err, decoded) => {
+
+                if (err || foundUser.username !== decoded.username || !foundUser._id.toString() === ((decoded.userId)) ) return res.sendStatus(403);
+            }
+        )
+
+        const { userId } = req.body
+
+        if (!userId || !(Object.values(foundUser.roles).includes(5150)) ){
+
+            return res.status(400).json({ 'message': 'Missing required fields!' });
+        }
+
+        const checkUser = await HostProfile.findOne({_id: userId})
+
+        if(checkUser && checkUser.submittedChargingForReview){
+
+            checkUser.submittedChargingForReview = false;
+            checkUser.verifiedHostCharging = true;
+
+            const savedUser = await checkUser.save()
+
+            if(savedUser){
+
+                return res.status(200).json({"message": "Success"})
+            }
+        
+        } else {
+
+            return res.status(402).json({"message": "Failed"})
+        }
+    })
+}
+
+
 const approveUserIdPhotos = async (req, res) => {
 
     const cookies = req.cookies;
@@ -94,6 +143,7 @@ const approveUserIdPhotos = async (req, res) => {
         }
     })
 }
+
 
 const rejectUserUploads = async (req, res) => {
 
@@ -495,4 +545,217 @@ const getUserStatusPhotos = async (req, res) => {
     })
 }
 
-module.exports = { approveUserProfilePhone, approveUserIdPhotos, rejectUserUploads, getUserStatusPhotos }
+
+const getHostsToCheck = async (req, res) => {
+
+    const cookies = req.cookies;
+
+    if (!cookies?.socketjuicejwt) return res.sendStatus(401);
+    
+    const refreshToken = cookies.socketjuicejwt;
+
+    User.findOne({ refreshToken }, async function(err, foundUser){
+
+        if (err || !foundUser) return res.sendStatus(403); 
+    
+        jwt.verify(
+            refreshToken,
+            process.env.REFRESH_TOKEN_SECRET,
+            (err, decoded) => {
+
+                if (err || foundUser.username !== decoded.username || !foundUser._id.toString() === ((decoded.userId)) ) return res.sendStatus(403);
+            }
+        )
+
+        const hostsToCheck = await HostProfile.find({submittedChargingForReview: true})
+
+        if(hostsToCheck){
+
+            const foundUsers = await User.find({_id: hostsToCheck.map(e => e._userId)})
+
+            hostsToCheck?.forEach(function(item, index){
+
+                if(item.mediaCarouselURLs?.length === 0 && item.mediaCarouselObjectIds?.length > 0){
+    
+                    var finalMediaURLs = []
+    
+                    for(let i=0; i<item.mediaCarouselObjectIds?.length; i++){
+                    
+                        var signParams = {
+                            Bucket: wasabiPrivateBucketUSA, 
+                            Key: item.mediaCarouselObjectIds[i],
+                            Expires: 7200
+                            };
+            
+                        var url = s3.getSignedUrl('getObject', signParams);
+            
+                        finalMediaURLs.push(url)
+                    }
+    
+                    var finalVideoURLs = []
+    
+                    for(let i=0; i<item.videoCarouselObjectIds?.length; i++){
+    
+                        if(item.videoCarouselObjectIds[i] !== 'image'){
+    
+                            var signParams = {
+                                Bucket: wasabiPrivateBucketUSA, 
+                                Key: item.videoCarouselObjectIds[i],
+                                Expires: 7200
+                            };
+                
+                            var url = s3.getSignedUrl('getObject', signParams);
+                
+                            finalVideoURLs.push(url)
+    
+                        } else {
+    
+                            finalVideoURLs.push("image")
+                        }
+                    }
+    
+                    item.mediaCarouselURLs = finalMediaURLs
+                    item.videoCarouselURLs = finalVideoURLs
+                    item.previewMediaURL = finalMediaURLs[item.coverIndex]
+                    item.markModified('mediaCarouselURLs')
+                    item.markModified('videoCarouselURLs')
+                    item.markModified('previewMediaURL')
+    
+                } else if(item.mediaCarouselObjectIds?.length > 0) {
+    
+                    for(let i=0; i<item.mediaCarouselURLs?.length; i++){
+                        
+                        var signedUrl = item.mediaCarouselURLs[i];
+    
+                        const params = new URLSearchParams(signedUrl)
+                        const expiry = Number(params.get("Expires")) * 1000
+                        // const creationDate = fns.parseISO(params['X-Amz-Date']);
+                        // const expiresInSecs = Number(params['X-Amz-Expires']);
+                        
+                        // const expiryDate = fns.addSeconds(creationDate, expiresInSecs);
+                        // const expiry = Number(params['Expires']);
+                        const expiryTime = new Date(expiry)
+                        const isExpired = expiryTime < new Date();
+            
+                        if (isExpired){
+            
+                            var signParams = {
+                                Bucket: wasabiPrivateBucketUSA, 
+                                Key: item.mediaCarouselObjectIds[i],
+                                Expires: 7200
+                                };
+                
+                            var url = s3.getSignedUrl('getObject', signParams);
+                
+                            item.mediaCarouselURLs[i] = url
+                        }
+    
+                        if(item.coverIndex === i){
+                            item.previewMediaURL = item.mediaCarouselURLs[i]
+                        }
+                    }
+    
+                    for(let i=0; i<item.videoCarouselURLs?.length; i++){
+    
+                        if(item.videoCarouselURLs[i] !== 'image'){
+    
+                            var signedUrl = item.videoCarouselURLs[i];
+    
+                            const params = new URLSearchParams(signedUrl)
+                            const expiry = Number(params.get("Expires")) * 1000
+                            // const creationDate = fns.parseISO(params['X-Amz-Date']);
+                            // const expiresInSecs = Number(params['X-Amz-Expires']);
+                            
+                            // const expiryDate = fns.addSeconds(creationDate, expiresInSecs);
+                            // const expiry = Number(params['Expires']);
+                            const expiryTime = new Date(expiry)
+                            const isExpired = expiryTime < new Date();
+                
+                            if (isExpired){
+                
+                                var signParams = {
+                                    Bucket: wasabiPrivateBucketUSA, 
+                                    Key: item.videoCarouselObjectIds[i],
+                                    Expires: 7200
+                                };
+                    
+                                var url = s3.getSignedUrl('getObject', signParams);
+                    
+                                item.videoCarouselURLs[i] = url
+                            }
+    
+                        }
+                    }
+    
+                    item.markModified('mediaCarouselURLs')
+                    item.markModified('videoCarouselURLs')
+                    item.markModified('previewMediaURL')
+                
+                } 
+    
+                item.update()
+            })
+              
+            return res.status(200).json({foundHosts:hostsToCheck, users:foundUsers })
+            
+        } else {
+
+            return res.status(400).json({"message": "Failed"})
+        }
+    })
+}
+
+
+const rejectHostProfile = async (req, res) => {
+
+    const cookies = req.cookies;
+
+    if (!cookies?.socketjuicejwt) return res.sendStatus(401);
+    const refreshToken = cookies.socketjuicejwt;
+
+    User.findOne({ refreshToken }, async function(err, foundUser){
+
+        if (err || !foundUser) return res.sendStatus(403); 
+    
+        jwt.verify(
+            refreshToken,
+            process.env.REFRESH_TOKEN_SECRET,
+            (err, decoded) => {
+
+                if (err || foundUser.username !== decoded.username || !foundUser._id.toString() === ((decoded.userId)) || !(Object.values(foundUser.roles).includes(5150)) ) {
+                    return res.sendStatus(403);
+                }
+            }
+        )
+
+        const { userId } = req.body;
+
+        if( !userId ){
+            return res.status(400).json({ 'message': 'Missing required fields!' });
+        }
+
+        const checkUser = await User.findOne({_id: userId})
+        const checkHost = await HostProfile.findOne({_userId: userId})
+
+        if(checkUser && checkHost){
+
+            checkHost.submittedChargingForReview = false;
+            checkHost.verifiedHostCharging = false;
+
+            const sentMail = await sendRejectedHost( {toUser: checkUser.email, firstName: checkUser.firstName })
+            const savedHost = await checkHost.save()
+
+            if(savedHost && sentMail){
+                return res.status(200).json({"message": "Success"})
+            }
+        
+        } else {
+            return res.status(400).json({"message": "Failed"})
+        }
+    })
+}
+
+
+
+module.exports = { approveUserProfilePhone, approveUserIdPhotos, rejectUserUploads, 
+    getUserStatusPhotos, getHostsToCheck, approveHostProfile, rejectHostProfile }

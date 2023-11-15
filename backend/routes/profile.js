@@ -12,9 +12,9 @@ router.get('/host', hostProfileController.getHostProfile);
 router.get('/hostcoord', hostProfileController.getHostProfilesCoord);
 router.get('/stage', profileController.checkStage);
 
+router.post('/host', profileController.addHostProfile);
 router.post('/userphotos', profileController.uploadUserPhotos);
 router.post('/driver', profileController.updateDriverProfile);
-router.post('/host', profileController.updateHostProfile);
 router.post('/userdata', profileController.getUserData);
 
 router.patch('/usersettings', profileController.editSettingsUserProfile);
@@ -22,8 +22,8 @@ router.patch('/userpass', profileController.editSettingsUserPass);
 router.patch('/usergeneral', profileController.editSettingsUserGeneral);
 router.patch('/profilepic', profileController.editProfilePic);
 
-router.patch('/cities', citiesController.updatePreferences);
 router.patch('/hostsettings', hostProfileController.editSettingsHostProfile);
+router.patch('/cities', citiesController.updatePreferences);
 
 router.delete('/oldpic', profileController.deleteOldProfilePic);
 

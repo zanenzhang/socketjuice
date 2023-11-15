@@ -166,6 +166,31 @@ exports.sendVerifiedEmail = function({toUser, firstName}) {
   }
 
 
+  exports.sendRejectedEmail = function({toUser, firstName}) {
+    const message = {
+      from: process.env.EMAIL_SUPPORT,
+      // to: toUser.email // in production uncomment this
+      to: toUser,
+      subject: 'SocketJuice - Require Charging Information',
+      html: `
+        <img src = "cid:myImg" style="width:200px;"/>
+        <h3> Hello ${firstName}! </h3>
+        <p> Would it be possible to reupload your charging information and content? </p>
+        <p> As a reminder, the photo of the plug connector is to allow us to see the connector type (head pattern). </p>
+        <p>Thanks,</p>
+        <p>The ${process.env.MAIL_FROM_NAME} team</p>
+      `,
+      attachments: [{
+        filename: 'SocketJuiceLogo.png',
+        path: __dirname + '/SocketJuice.png',
+        cid: 'myImg'
+      }]    
+    }
+  
+    return sendEmail(message);
+  }
+
+
   exports.sendVerifiedToAdmin = function({verifiedUserId, verifiedPhone, verifiedFirstName, verifiedLastName, verifiedAddress}) {
     const message = {
       from: process.env.EMAIL_SUPPORT,

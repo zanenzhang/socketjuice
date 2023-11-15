@@ -52,75 +52,85 @@ var hostProfileSchema = new Schema({
     connectionType: {
         type: String,
     },
-    regularHoursMondayStart: {
+    hoursMondayStart: {
         type: String,
         maxLength: 100,
         default: "09:00"
     },
-    regularHoursTuesdayStart: {
+    hoursTuesdayStart: {
         type: String,
         maxLength: 100,
         default: "09:00"
     },
-    regularHoursWednesdayStart: {
+    hoursWednesdayStart: {
         type: String,
         maxLength: 100,
         default: "09:00"
     },
-    regularHoursThursdayStart: {
+    hoursThursdayStart: {
         type: String,
         maxLength: 100,
         default: "09:00"
     },
-    regularHoursFridayStart: {
+    hoursFridayStart: {
         type: String,
         maxLength: 100,
         default: "09:00"
     },
-    regularHoursSaturdayStart: {
+    hoursSaturdayStart: {
         type: String,
         maxLength: 100,
         default: "09:00"
     },
-    regularHoursSundayStart: {
+    hoursSundayStart: {
         type: String,
         maxLength: 100,
         default: "09:00"
     },
-    regularHoursMondayFinish: {
+    hoursMondayFinish: {
         type: String,
         maxLength: 100,
         default: "17:00"
     },
-    regularHoursTuesdayFinish: {
+    hoursTuesdayFinish: {
         type: String,
         maxLength: 100,
         default: "17:00"
     },
-    regularHoursWednesdayFinish: {
+    hoursWednesdayFinish: {
         type: String,
         maxLength: 100,
         default: "17:00"
     },
-    regularHoursThursdayFinish: {
+    hoursThursdayFinish: {
         type: String,
         maxLength: 100,
         default: "17:00"
     },
-    regularHoursFridayFinish: {
+    hoursFridayFinish: {
         type: String,
         maxLength: 100,
         default: "17:00"
     },
-    regularHoursSaturdayFinish: {
+    hoursSaturdayFinish: {
         type: String,
         maxLength: 100,
         default: "17:00"
     },
-    regularHoursSundayFinish: {
+    hoursSundayFinish: {
         type: String,
         maxLength: 100,
         default: "17:00"
+    },
+    holidayHoursStart: {
+        type: String,
+        maxLength: 100,
+        default: "10:00"
+    },
+    holidayHoursFinish: {
+        type: String,
+        maxLength: 100,
+        default: "15:00"
     },
     closedOnMonday: {
         type: Boolean,
@@ -147,6 +157,10 @@ var hostProfileSchema = new Schema({
         default: false
     },
     closedOnSunday: {
+        type: Boolean,
+        default: false
+    },
+    closedOnHolidays: {
         type: Boolean,
         default: false
     },
@@ -206,7 +220,11 @@ var hostProfileSchema = new Schema({
             required: true
         },
     },
-    verifiedHost: { 
+    submittedChargingForReview: { 
+        type: Boolean, 
+        default: false 
+    },
+    verifiedHostCharging: { 
         type: Boolean, 
         default: false 
     },
@@ -214,15 +232,11 @@ var hostProfileSchema = new Schema({
         type: Boolean, 
         default: false 
     },
-    offeringCharging: {
-        type: Boolean,
-        default: false,
-    },
     chargeRatePerHalfHour: {
         type: Number,
         default: 3.00
     },
-    numberOfChargesAtLocation:{
+    numberOfChargersAtLocation:{
         type: Number,
         default: 1
     },

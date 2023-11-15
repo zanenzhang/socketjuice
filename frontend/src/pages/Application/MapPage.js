@@ -618,6 +618,12 @@ const {scrollToTime} = useMemo(
       const newPos = mapRef.current.getCenter().toJSON();
 
       if(newPos && auth.userId){
+
+        var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+        const today = new Date()
+        const dayofweek = days[today.getDay()]
+        const time = today.toTimeString().slice(0,5)
       
         var coordinatesInput = [newPos.lng, newPos.lat]
         const locations = await getHostProfilesCoord(coordinatesInput, auth.userId, auth.accessToken)

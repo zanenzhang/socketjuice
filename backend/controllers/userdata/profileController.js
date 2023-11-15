@@ -723,7 +723,7 @@ const getUserData = async (req, res) => {
     try {
 
         const foundUser = await User.findOne({_id: userId}).select("_id checkedMobile receivedIdApproval")
-        const foundHost = await HostProfile.findOne({_userId: userId}).select("_id verifiedHost deactivated offeringCharging")
+        const foundHost = await HostProfile.findOne({_userId: userId}).select("_id verifiedHostCharging submittedChargingForReview deactivated")
 
         if(foundUser && foundHost){
 
@@ -1091,7 +1091,6 @@ const editUserReceivePayments = async (req, res) => {
 
 const uploadUserPhotos = async (req, res) => {
 
-
     var { userId, frontObjectId, backObjectId} = req.body
 
     if (!userId || !frontObjectId || !backObjectId ) {
@@ -1425,141 +1424,161 @@ const updateDriverProfile = async (req, res) => {
 }
 
 
-const updateHostProfile = async (req, res) => {
+const addHostProfile = async (req, res) => {
 
-    const { userId, hostPreviewMediaObjectId, hostMediaObjectIds, hostVideoObjectIds, hostObjectTypes, hostPreviewObjectType, hostCoverIndex } = req.body
+    const { userId, hostPreviewMediaObjectId, hostMediaObjectIds, hostVideoObjectIds, hostObjectTypes, 
+        hostPreviewObjectType, hostCoverIndex, chargeRate, currency, connectorType, chargingLevel,
+        hoursMondayStart, hoursMondayFinish, hoursTuesdayStart, hoursTuesdayFinish, hoursWednesdayStart, hoursWednesdayFinish, hoursThursdayStart, hoursThursdayFinish,
+        hoursFridayStart, hoursFridayFinish, hoursSaturdayStart, hoursSaturdayFinish, hoursSundayStart, hoursSundayFinish,
+        holidayHoursStart, holidayHoursFinish, 
+        closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays,
+         } = req.body
 
-    if (!userId || !hostMediaObjectIds ) {
+    if (!userId || !hostMediaObjectIds || hostMediaObjectIds?.length < 2 ) {
         return res.status(400).json({ message: 'User ID Required' })
     }
 
-    // currency = currency.toLowerCase()
+    const foundUser = await User.findOne({_id: userId})
 
-    // chargeRate = Number(chargeRate)
+    if(foundUser){
 
-    // var currencySymbol = "$"
+        currency = currency.toLowerCase()
 
-    // if(currency === 'usd'){
-    //     currencySymbol = '$'
-    // } else if (currency === 'cad') {
-    //     currencySymbol = '$'
-    // } else if (currency === 'eur'){
-    //     currencySymbol = '€'
-    // } else if (currency === 'gbp'){
-    //     currencySymbol = '£'
-    // } else if (currency === 'inr'){
-    //     currencySymbol = '₹'
-    // } else if (currency === 'jpy'){
-    //     currencySymbol = '¥'
-    // } else if (currency === 'cny'){
-    //     currencySymbol = '¥'
-    // } else if (currency === 'aud'){
-    //     currencySymbol = '$'
-    // } else if (currency === 'nzd'){
-    //     currencySymbol =  '$'
-    // }
-    // foundUser.connectorObjectId = connectorObjectId
-    
-    // foundUser.currency = currency
-    // foundUser.currencySymbol = currencySymbol
+        chargeRate = Number(chargeRate)
 
-    // if (offeringCharging === 'No'){
-    //     foundHost.offeringCharging = false
-    // } else {
-    //     foundHost.offeringCharging = true
-    // }
+        var currencySymbol = "$"
 
-    // foundHost.connectorType = connectorType
-    // foundHost.chargingLevel = chargingLevel
-
-    // foundHost.chargeRatePerHalfHour = chargeRate
-    // foundHost.currency = currency
-    // foundHost.currencySymbol = currencySymbol
-
-    // var signParams = {
-    //     Bucket: wasabiPrivateBucketUSA, 
-    //     Key: connectorObjectId, 
-    //     Expires: 7200
-    // };
-
-    // var signedURLConnectorPhoto = s3.getSignedUrl('getObject', signParams);
-    
-    // foundUser.connectorMediaURL = signedURLConnectorPhoto
-    // foundUser.currentStage = 3
-
-    const foundHost = await HostProfile.findOne({_id: userId})
-
-    var doneHost = false;
-
-    if(foundHost && hostMediaObjectIds?.length > 0) {
-
-        var signedMediaURLs = []
-
-        for(let i=0; i<hostMediaObjectIds?.length; i++){
-
-            var signParams = {
-                Bucket: wasabiPrivateBucketUSA, 
-                Key: hostMediaObjectIds[i], 
-                Expires: 7200
-            };
-
-            var signedURL = s3.getSignedUrl('getObject', signParams);
-            signedMediaURLs.push(signedURL)
+        if(currency === 'usd'){
+            currencySymbol = '$'
+        } else if (currency === 'cad') {
+            currencySymbol = '$'
+        } else if (currency === 'eur'){
+            currencySymbol = '€'
+        } else if (currency === 'gbp'){
+            currencySymbol = '£'
+        } else if (currency === 'inr'){
+            currencySymbol = '₹'
+        } else if (currency === 'jpy'){
+            currencySymbol = '¥'
+        } else if (currency === 'cny'){
+            currencySymbol = '¥'
+        } else if (currency === 'aud'){
+            currencySymbol = '$'
+        } else if (currency === 'nzd'){
+            currencySymbol =  '$'
         }
 
-        var signedVideoURLs = []
+        const foundHost = await HostProfile.findOne({_id: userId})
 
-        for(let i=0; i< hostVideoObjectIds?.length; i++){
+        if(foundHost){
 
-            if(hostVideoObjectIds[i] && hostVideoObjectIds[i] !== 'image'){
-                
+            foundHost.connectorType = connectorType
+            foundHost.chargingLevel = chargingLevel
+
+            foundHost.chargeRatePerHalfHour = chargeRate
+            foundHost.currency = currency
+            foundHost.currencySymbol = currencySymbol
+
+            foundHost.submittedChargingForReview = true;
+
+            var signedMediaURLs = []
+
+            for(let i=0; i<hostMediaObjectIds?.length; i++){
+
                 var signParams = {
                     Bucket: wasabiPrivateBucketUSA, 
-                    Key: hostVideoObjectIds[i], 
+                    Key: hostMediaObjectIds[i], 
                     Expires: 7200
                 };
 
                 var signedURL = s3.getSignedUrl('getObject', signParams);
-                signedVideoURLs.push(signedURL)
-
-            } else {
-
-                signedVideoURLs.push("image")
+                signedMediaURLs.push(signedURL)
             }
-        }
 
-        var signedPreviewURL = signedMediaURLs[coverIndex]
+            var signedVideoURLs = []
 
-        hostPreviewMediaObjectId ? foundHost.previewMediaObjectId = hostPreviewMediaObjectId : null;
-        hostMediaObjectIds ? foundHost.mediaCarouselObjectIds = hostMediaObjectIds : null;
-        hostVideoObjectIds ? foundHost.videoCarouselObjectIds = hostVideoObjectIds : null;
-        hostCoverIndex !== null ? foundHost.coverIndex = hostCoverIndex : null;
-        hostObjectTypes ? foundHost.mediaCarouselObjectTypes = hostObjectTypes : null;
-        hostPreviewObjectType ? foundHost.previewMediaType = hostPreviewObjectType : null;
+            for(let i=0; i< hostVideoObjectIds?.length; i++){
 
-        signedPreviewURL ? foundHost.previewMediaURL = signedPreviewURL : null;
-        signedMediaURLs ? foundHost.mediaCarouselURLs = signedMediaURLs : null;
-        signedVideoURLs ? foundHost.videoCarouselURLs = signedVideoURLs : null;
+                if(hostVideoObjectIds[i] && hostVideoObjectIds[i] !== 'image'){
+                    
+                    var signParams = {
+                        Bucket: wasabiPrivateBucketUSA, 
+                        Key: hostVideoObjectIds[i], 
+                        Expires: 7200
+                    };
 
-        const savedHost = await foundHost.save()
+                    var signedURL = s3.getSignedUrl('getObject', signParams);
+                    signedVideoURLs.push(signedURL)
 
-        if(savedHost){
-            doneHost = true
+                } else {
+
+                    signedVideoURLs.push("image")
+                }
+            }
+
+            var signedPreviewURL = signedMediaURLs[coverIndex]
+
+            hostPreviewMediaObjectId ? foundHost.previewMediaObjectId = hostPreviewMediaObjectId : null;
+            hostMediaObjectIds ? foundHost.mediaCarouselObjectIds = hostMediaObjectIds : null;
+            hostVideoObjectIds ? foundHost.videoCarouselObjectIds = hostVideoObjectIds : null;
+            hostCoverIndex !== null ? foundHost.coverIndex = hostCoverIndex : null;
+            hostObjectTypes ? foundHost.mediaCarouselObjectTypes = hostObjectTypes : null;
+            hostPreviewObjectType ? foundHost.previewMediaType = hostPreviewObjectType : null;
+
+            signedPreviewURL ? foundHost.previewMediaURL = signedPreviewURL : null;
+            signedMediaURLs ? foundHost.mediaCarouselURLs = signedMediaURLs : null;
+            signedVideoURLs ? foundHost.videoCarouselURLs = signedVideoURLs : null;
+            
+            closedOnMonday ?  foundHost.closedOnMonday = closedOnMonday : foundHost.closedOnMonday = false;
+            closedOnTuesday ?  foundHost.closedOnTuesday = closedOnTuesday : foundHost.closedOnTuesday = false;
+            closedOnWednesday ?  foundHost.closedOnWednesday = closedOnWednesday : foundHost.closedOnWednesday = false;
+            closedOnThursday ?  foundHost.closedOnThursday = closedOnThursday : foundHost.closedOnThursday = false;
+            closedOnFriday ?  foundHost.closedOnFriday = closedOnFriday : foundHost.closedOnFriday = false;
+            closedOnSaturday ?  foundHost.closedOnSaturday = closedOnSaturday : foundHost.closedOnSaturday = false;
+            closedOnSunday ?  foundHost.closedOnSunday = closedOnSunday : foundHost.closedOnSunday = false;
+            closedOnHolidays ?  foundHost.closedOnHolidays = closedOnHolidays : foundHost.closedOnHolidays = false;
+
+            hoursMondayStart ? foundHost.hoursMondayStart = hoursMondayStart : foundHost.hoursMondayStart = "";
+            hoursTuesdayStart ? foundHost.hoursTuesdayStart = hoursTuesdayStart : foundHost.hoursTuesdayStart = "";
+            hoursWednesdayStart ? foundHost.hoursWednesdayStart = hoursWednesdayStart : foundHost.hoursWednesdayStart = "";
+            hoursThursdayStart ? foundHost.hoursThursdayStart = hoursThursdayStart : foundHost.hoursThursdayStart = "";
+            hoursFridayStart ? foundHost.hoursFridayStart = hoursFridayStart : foundHost.hoursFridayStart = "";
+            hoursSaturdayStart ? foundHost.hoursSaturdayStart = hoursSaturdayStart : foundHost.hoursSaturdayStart = "";
+            hoursSundayStart ? foundHost.hoursSundayStart = hoursSundayStart : foundHost.hoursSundayStart = "";
+            holidayHoursStart ? foundHost.holidayHoursStart = holidayHoursStart : foundHost.holidayHoursStart = "";
+
+            hoursMondayFinish ? foundHost.hoursMondayFinish = hoursMondayFinish : foundHost.hoursMondayFinish = "";
+            hoursTuesdayFinish ? foundHost.hoursTuesdayFinish = hoursTuesdayFinish : foundHost.hoursTuesdayFinish = "";
+            hoursWednesdayFinish ? foundHost.hoursWednesdayFinish = hoursWednesdayFinish : foundHost.hoursWednesdayFinish = "";
+            hoursThursdayFinish ? foundHost.hoursThursdayFinish = hoursThursdayFinish : foundHost.hoursThursdayFinish = "";
+            hoursFridayFinish ? foundHost.hoursFridayFinish = hoursFridayFinish : foundHost.hoursFridayFinish = "";
+            hoursSaturdayFinish ? foundHost.hoursSaturdayFinish = hoursSaturdayFinish : foundHost.hoursSaturdayFinish = "";
+            hoursSundayFinish ? foundHost.hoursSundayFinish = hoursSundayFinish : foundHost.hoursSundayFinish = "";
+            holidayHoursFinish ? foundHost.holidayHoursFinish = holidayHoursFinish : foundHost.holidayHoursFinish = "";
+
+            hoursMondayStart ? foundHost.hoursMondayStartDate = new Date(hoursMondayStart) : foundHost.hoursMondayStart = "";
+            hoursTuesdayStart ? foundHost.hoursTuesdayStart = new Date(hoursTuesdayStart) : foundHost.hoursTuesdayStart = "";
+            hoursWednesdayStart ? foundHost.hoursWednesdayStart = new Date(hoursWednesdayStart) : foundHost.hoursWednesdayStart = "";
+            hoursThursdayStart ? foundHost.hoursThursdayStart = new Date(hoursThursdayStart) : foundHost.hoursThursdayStart = "";
+            hoursFridayStart ? foundHost.hoursFridayStart = new Date(hoursFridayStart) : foundHost.hoursFridayStart = "";
+            hoursSaturdayStart ? foundHost.hoursSaturdayStart = new Date(hoursSaturdayStart) : foundHost.hoursSaturdayStart = "";
+            hoursSundayStart ? foundHost.hoursSundayStart = new Date(hoursSundayStart) : foundHost.hoursSundayStart = "";
+            holidayHoursStart ? foundHost.holidayHoursStart = new Date(holidayHoursStart) : foundHost.holidayHoursStart = "";
+
+            const savedHost = await foundHost.save()
+
+            if(savedHost){
+                return res.status(200).json({"message": "Operation success"})
+            }
+        
+        } else {
+            return res.status(400).json({ message: 'Operation failed' })
         }
     
     } else {
-
-        doneHost = true
-    }
-
-    if(doneHost){
-
-        return res.status(200).json({"message": "Operation success"})
-    
-    } else {
-
+        
         return res.status(400).json({ message: 'Operation failed' })
-    }
+    }   
 }
 
 const checkStage = async (req, res) => {
@@ -1589,4 +1608,5 @@ const checkStage = async (req, res) => {
 module.exports = { getDriverProfile, editSettingsUserProfile, editSettingsUserPass, editSettingsUserGeneral, 
     editProfilePic, getUserIdByUsername, getProfilePicByUserId, checkUser, getProfileData, 
     deleteOldProfilePic, addUserBan, removeUserBan, makePrivate, makePublic, checkStage, getUserData,
-    editUserReceivePayments, uploadUserPhotos, updateDriverProfile, updateHostProfile }
+    editUserReceivePayments, uploadUserPhotos, updateDriverProfile, 
+    addHostProfile }

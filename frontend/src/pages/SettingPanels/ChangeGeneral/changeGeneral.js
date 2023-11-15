@@ -52,109 +52,14 @@ export default function ChangeGeneral({loggedUserId }) {
     
     const [isLoading, setIsLoading] = useState(false);
     const [success, setSuccess] = useState(false);
-    const [privacySetting, setPrivacySetting] = useState(false)
-    const [privacyChecked, setPrivacyChecked] = useState(false)
-    const [genderSetting, setGenderSetting] = useState(false)
-    const [genderChecked, setGenderChecked] = useState(false)
+    
     const [currency, setCurrency] = useState("CAD")
     const [language, setLanguage] = useState("English");
-    const [showFXPriceSetting, setShowFXPriceSetting] = useState(null)
-    const [showFXPriceSettingChecked, setShowFXPriceSettingChecked] = useState(null)
-    const [lessMotion, setLessMotion] = useState(null)
+
     const [pushNotifications, setPushNotifications] = useState(null)
-    const [userTheme, setUserTheme] = useState(null)
-    const [validTheme, setValidTheme] = useState(false);
-    const [userOrStore, setUserOrStore] = useState(null)
+    const [emailNotifications, setEmailNotifications] = useState(null)
+    const [smsNotifications, setSmsNotifications] = useState(null)
 
-    const THEME_REGEX = /^[a-zA-Z ]{2,12}$/;
-
-    useEffect( () => {
-
-        if(auth?.roles?.includes(3780)){
-    
-            setUserOrStore(2)
-    
-        } else {
-            setUserOrStore(1)
-        }
-    
-      }, [auth.roles])
-
-
-    useEffect(() => {
-        setValidTheme(THEME_REGEX.test(userTheme));
-    }, [userTheme])
-
-
-    useEffect( ()=> {
-
-        if(auth.privacySetting === 1){
-
-            setPrivacySetting(1);
-            setPrivacyChecked(false);
-        
-        } else {
-            setPrivacySetting(2);
-            setPrivacyChecked(true);
-        }
-
-        if(auth.genderSet){
-
-          if(auth.gender === 'Male' || auth.gender === 'male'){
-            
-            setGenderSetting("male")
-            setGenderChecked(true);
-
-          } else {
-
-            setGenderSetting("female")
-            setGenderChecked(false);
-          }
-        } 
-
-    }, [auth])
-
-    
-    // useEffect( ()=> {
-
-    //     if(auth.currency){
-
-    //         setCurrency(auth.currency);
-    //     } 
-
-    // }, [auth.currency])
-
-    useEffect( () => {
-
-        setCurrency("CAD")
-
-    }, [])
-
-
-    useEffect( ()=> {
-
-        if(auth.showFXPriceSetting === 1){
-
-            setShowFXPriceSetting(1);
-            setShowFXPriceSettingChecked(false);
-        
-        } else {
-            
-            setShowFXPriceSetting(2);
-            setShowFXPriceSettingChecked(true);
-        }
-
-    }, [auth.showFXPriceSetting])
-
-    useEffect( ()=> {
-
-        if(auth.lessMotion){
-            setLessMotion(true);
-        } else {
-            setLessMotion(false);
-        }
-
-    }, [auth.lessMotion])
 
     useEffect( ()=> {
 
@@ -166,69 +71,47 @@ export default function ChangeGeneral({loggedUserId }) {
 
     }, [auth.pushNotifications])
 
+
     useEffect( ()=> {
 
-        if(auth.userTheme){
-
-            setUserTheme(auth.userTheme)
-        
+        if(auth.emailNotifications){
+            setEmailNotifications(true);
         } else {
-            setUserTheme("light")
+            setEmailNotifications(false);
         }
 
-    }, [auth.userTheme])
+    }, [auth.emailNotifications])
 
-    const handleLessMotion = (e) => {
-        setLessMotion(e.target.checked)
-    }
 
-    const handleGender = (e) => {
-        setGenderChecked(e.target.checked)
-        if(e.target.checked){
-            setGenderSetting('male')
+    useEffect( ()=> {
+
+        if(auth.smsNotifications){
+            setSmsNotifications(true);
         } else {
-            setGenderSetting("female")
+            setSmsNotifications(false);
         }
-    }
+
+    }, [auth.smsNotifications])
+
 
     const handleLanguage = (e) => {
         setLanguage(e.target.value)
-    }
-
-    const handlePrivacySetting = (e) => {
-
-        if(userOrStore === 2){
-            return
-        }
-
-        if(e.target.checked === true){
-            setPrivacySetting(2)
-        } else {
-            setPrivacySetting(1)
-        }
-        setPrivacyChecked(e.target.checked);
-    }
-
-    const handleShowFXSetting = (e) => {
-
-        if(e.target.checked === true){
-            setShowFXPriceSetting(2)
-        } else {
-            setShowFXPriceSetting(1)
-        }
-        setShowFXPriceSettingChecked(e.target.checked);
     }
 
     const handlePushNotifications = (e) => {
         setPushNotifications(e.target.checked)
     }
 
-    const handleCurrency = (e) => {
-        setCurrency(e.target.value)
+    const handleEmailNotifications = (e) => {
+        setEmailNotifications(e.target.checked)
     }
 
-    const handleUserTheme = (e) => {
-        setUserTheme(e.target.value)
+    const handleSmsNotifications = (e) => {
+        setSmsNotifications(e.target.checked)
+    }
+
+    const handleCurrency = (e) => {
+        setCurrency(e.target.value)
     }
 
     async function handleSubmit(e) {
@@ -241,25 +124,18 @@ export default function ChangeGeneral({loggedUserId }) {
 
         try {
             
-            const editedSettings = await editSettingsGeneral(loggedUserId, lessMotion, 
-                privacySetting, currency, language, showFXPriceSetting, pushNotifications, userTheme, 
-                userOrStore, genderSetting, auth.accessToken)
+            const editedSettings = await editSettingsGeneral( privacySetting, currency, language, 
+                pushNotifications, emailNotifications, smsNotifications, auth.accessToken)
 
             if(editedSettings){
 
                 setAuth(prev => {
                     return {
                         ...prev,
-                        privacySetting: privacySetting,
-                        currency: currency,
-                        showFXPriceSetting: showFXPriceSetting,
-                        lessMotion: lessMotion,
                         pushNotifications: pushNotifications,
-                        userTheme: userTheme,
-                        gender: genderSetting,
-                        genderSet: true
+                        emailNotifications: emailNotifications,
+                        smsNotifications: smsNotifications,
                     }
-
                 });
 
                 setIsLoading(false);
@@ -273,7 +149,7 @@ export default function ChangeGeneral({loggedUserId }) {
                     draggable: true,
                     progress: undefined,
                     theme: "colored",
-                    });
+                });
             }
 
         } catch (err) {
@@ -294,33 +170,43 @@ export default function ChangeGeneral({loggedUserId }) {
 
                 <div className='flex flex-col md:justify-center px-6'>
 
-                    {userOrStore !== 2 && <div className="pt-2 flex flex-col w-[300px]">
+                    <div className="w-[300px] flex flex-col pt-4">
                         <div className='flex justify-start'>
-                            <label className='text-lg font-medium'>Current Profile Privacy</label>
+                            <label className='text-lg font-medium'>Toggle Email Notifications</label>
                         </div>
                         <div className='flex justify-start pl-2'>
                             <FormControlLabel control={
-                                <CustomSwitch checked={privacyChecked} onChange={handlePrivacySetting} 
-                                />
-                            } label={`${privacyChecked ? 'Private (Approve Follows)' : 'Public (Open To All)'}`} />        
-                        </div>
-                    </div>}
-
-                    <div className="pt-2 flex flex-col w-[300px]">
-                        <div className='flex justify-start'>
-                            <label className='text-lg font-medium'>Gender</label>
-                        </div>
-                        <div className='flex justify-start pl-2'>
-                            <FormControlLabel control={
-                                <CustomSwitch checked={genderChecked} onChange={handleGender} 
-                                />
-                            } label={`${genderChecked ? 'Male' : 'Female'}`} />        
+                                <Switch checked={emailNotifications} onChange={handleEmailNotifications} />
+                            } label="Push Notifications" />
                         </div>
                     </div>
 
+                    <div className="w-[300px] flex flex-col pt-4">
+                        <div className='flex justify-start'>
+                            <label className='text-lg font-medium'>Toggle Push Notifications</label>
+                        </div>
+                        <div className='flex justify-start pl-2'>
+                            <FormControlLabel control={
+                                <Switch checked={pushNotifications} onChange={handlePushNotifications} />
+                            } label="Push Notifications" />
+                        </div>
+                    </div>
+
+                    <div className="w-[300px] flex flex-col pt-4">
+                        <div className='flex justify-start'>
+                            <label className='text-lg font-medium'>SMS(Text Message) Notifications</label>
+                        </div>
+                        <div className='flex justify-start pl-2'>
+                            <FormControlLabel control={
+                                <Switch checked={smsNotifications} onChange={handleSmsNotifications} />
+                            } label="Push Notifications" />
+                        </div>
+                    </div>
+
+
                     <div className='w-[300px] flex flex-col pt-4'>
                         <div className='flex justify-start'>
-                            <label className='text-lg font-medium'>Home Currency</label>
+                            <label className='text-lg font-medium'>Currency</label>
                         </div>
                         <div className='flex justify-start pl-2'>
                             <select 
@@ -348,7 +234,7 @@ export default function ChangeGeneral({loggedUserId }) {
                         </div>
                     </div>
 
-                    <div className='w-[300px] flex flex-col pt-4'>
+                    {/* <div className='w-[300px] flex flex-col pt-4'>
                         <div className='flex justify-start'>
                             <label className='text-lg font-medium'>Language</label>
                         </div>
@@ -367,62 +253,9 @@ export default function ChangeGeneral({loggedUserId }) {
 
                             </select> 
                         </div>
-                    </div>
+                    </div> */}
 
-                    <div className="pt-2 flex flex-col w-[300px]">
-                        <div className='flex justify-start'>
-                            <label className='text-lg font-medium'>Show Foreign Prices</label>
-                        </div>
-                        <div className='flex justify-start pl-2'>
-                            <FormControlLabel control={
-                                <CustomSwitch checked={showFXPriceSettingChecked} onChange={handleShowFXSetting} disabled={true}/>
-                            } label={`${showFXPriceSettingChecked ? 'Show Foreign Prices' : 'Show Home Currency Prices'}`} 
-                               />        
-                        </div>
-                    </div>
                 
-                    <div className="w-full flex flex-col pt-4">
-                        <div className='flex justify-start'>
-                            <label className='text-lg font-medium'>Toggle Animations</label>
-                        </div>
-                        <div className='flex justify-start pl-2'>
-                            <FormControlLabel control={
-                                <Switch checked={lessMotion} onChange={handleLessMotion} disabled={true}/>
-                            } label="Less Motion" />
-                        </div>
-                    </div>
-
-                    <div className="w-[300px] flex flex-col pt-4">
-                        <div className='flex justify-start'>
-                            <label className='text-lg font-medium'>Toggle Push Notifications</label>
-                        </div>
-                        <div className='flex justify-start pl-2'>
-                            <FormControlLabel control={
-                                <Switch checked={pushNotifications} onChange={handlePushNotifications} disabled={true} />
-                            } label="Push Notifications" />
-                        </div>
-                    </div>
-
-                    <div className="w-[300px] flex flex-col pt-4">
-                        <div className='flex justify-start'>
-                            <label className='text-lg font-medium'>Select Background Style</label>
-                        </div>
-                        <div className='flex justify-start pl-4 gap-x-2'>
-                            <RadioGroup
-                                aria-labelledby="demo-radio-buttons-group-label"
-                                name="radio-buttons-group"
-                                defaultValue={userTheme}
-                                value={userTheme}
-                                onChange={handleUserTheme}
-                                disabled={true}
-                            >
-                                <FormControlLabel value="light" control={<Radio />} label="&nbsp; Light Theme" disabled={true} />
-                                <FormControlLabel value="dark" control={<Radio />} label="&nbsp; Dark Theme" disabled={true}/>
-                                <FormControlLabel value="coffee" control={<Radio />} label="&nbsp; Coffee Theme" disabled={true}/>
-                            </RadioGroup>
-                        </div>
-                    </div>
-
                     <div className='pt-6 flex justify-center'>
                         <button onClick={(e)=>handleSubmit(e)}
                             className={`align-center mb-4 px-3 py-4 text-[#8BEDF3] 
