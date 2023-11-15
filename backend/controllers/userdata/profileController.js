@@ -1091,7 +1091,8 @@ const editUserReceivePayments = async (req, res) => {
 
 const uploadUserPhotos = async (req, res) => {
 
-    var { userId, frontObjectId, backObjectId} = req.body
+    var { userId, frontObjectId, backObjectId, smsNotifications, 
+        emailNotifications, pushNotifications } = req.body
 
     if (!userId || !frontObjectId || !backObjectId ) {
 
@@ -1110,6 +1111,25 @@ const uploadUserPhotos = async (req, res) => {
 
             foundUser.frontObjectId = frontObjectId
             foundUser.backObjectId = backObjectId
+            
+            if(smsNotifications || smsNotifications === 'true'){
+                foundUser.smsNotifications = true
+            } else {
+                foundUser.smsNotifications = false
+            }
+
+            if(pushNotifications || pushNotifications === 'true'){
+                foundUser.pushNotifications = true
+            } else {
+                foundUser.pushNotifications = false
+            }
+
+            if(emailNotifications || emailNotifications === 'true'){
+                foundUser.emailNotifications = true
+            } else {
+                foundUser.emailNotifications = false
+            }
+
 
             try{
 

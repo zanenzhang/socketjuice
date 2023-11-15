@@ -632,7 +632,8 @@ const VerifyPage = () => {
                 try {
 
                     const uploadedUserPhotos = await axios.post('/profile/userphotos', 
-                        JSON.stringify({userId, frontObjectId, backObjectId}),
+                        JSON.stringify({userId, frontObjectId, backObjectId, smsNotifications, 
+                            emailNotifications, pushNotifications}),
                         {
                             headers: { "Authorization": `Hash ${hash} ${userId}`, 
                                 'Content-Type': 'application/json'},
