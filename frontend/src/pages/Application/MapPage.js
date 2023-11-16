@@ -12,6 +12,8 @@ import {
 } from '@react-google-maps/api';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
 
 import MainHeader from '../../components/mainHeader/mainHeader';
 import debounce from 'lodash.debounce';
@@ -46,6 +48,14 @@ const MapPage = () => {
   const [directionsResponse, setDirectionsResponse] = useState(null)
   const [distance, setDistance] = useState('')
   const [duration, setDuration] = useState('')
+
+  const [j1772ACChecked, setj1772ACChecked] = useState(false);
+  const [ccs1DCChecked, setccs1DCChecked] = useState(false);
+  const [mennekesACChecked, setmennekesACChecked] = useState(false);
+  const [ccs2DCChecked, setccs2DCChecked] = useState(false);
+  const [gbtACChecked, setgbtACChecked] = useState(false);
+  const [gbtDChecked, setgbtDCChecked] = useState(false);
+  const [teslaChecked, setTeslaChecked] = useState(false);
   
   const [waitingCurrent, setWaitingCurrent] = useState(false);
   const [currentMarker, setCurrentMarker] = useState("")
@@ -956,6 +966,130 @@ const {scrollToTime} = useMemo(
             
             <div className='ml-4 py-2 flex flex-col w-[350px] h-[500px] rounded-xl overflow-y-scroll
               bg-gray-50 border-2 border-[#00D3E0] z-10 items-center px-2'>
+
+                <div className='flex flex-row overflow-x-scroll w-full'>
+
+                    <div className='flex flex-col'>
+                    <label className='pb-4 font-bold'>J1772 AC Plug</label>
+                    <FormControlLabel
+                        value="J1772 AC Plug"
+                        control={
+                        <Checkbox checked={j1772ACChecked}
+                                onChange={()=>setj1772ACChecked(!j1772ACChecked)}
+                                style ={{
+                                color: "#995372",
+                                transform: "scale(1.5)",
+                                paddingBottom: '12pt'
+                            }}
+                            />
+                        }
+                    />
+                    </div>
+
+                    <div className='flex flex-col'>
+                    <label className='pb-4 font-bold'>CCS1 DC Plug</label>
+                    <FormControlLabel
+                        value="CCS1 DC Plug"
+                        control={
+                        <Checkbox checked={ccs1DCChecked}
+                                onChange={()=>setccs1DCChecked(!ccs1DCChecked)}
+                                style ={{
+                                color: "#995372",
+                                transform: "scale(1.5)",
+                                paddingBottom: '12pt'
+                            }}
+                            />
+                        }
+                    />
+                    </div>
+
+                    <div className='flex flex-col'>
+                    <label className='pb-4 font-bold'>Mennekes AC Plug</label>
+                    <FormControlLabel
+                        value="Mennekes AC Plug"
+                        control={
+                        <Checkbox checked={mennekesACChecked}
+                                onChange={()=>setmennekesACChecked(!mennekesACChecked)}
+                                style ={{
+                                color: "#995372",
+                                transform: "scale(1.5)",
+                                paddingBottom: '12pt'
+                            }}
+                            />
+                        }
+                    />
+                    </div>
+
+                    <div className='flex flex-col'>
+                    <label className='pb-4 font-bold'>CCS2 DC Plug</label>
+                    <FormControlLabel
+                        value="CCS2 DC Plug"
+                        control={
+                        <Checkbox checked={ccs2DCChecked}
+                                onChange={()=>setccs2DCChecked(!ccs2DCChecked)}
+                                style ={{
+                                color: "#995372",
+                                transform: "scale(1.5)",
+                                paddingBottom: '12pt'
+                            }}
+                            />
+                        }
+                    />
+                    </div>
+
+                    <div className='flex flex-col'>
+                    <label className='pb-4 font-bold'>GB/T AC Plug</label>    
+                    <FormControlLabel
+                        value="GB/T AC Plug"
+                        control={
+                        <Checkbox checked={gbtACChecked}
+                                onChange={()=>setgbtACChecked(!gbtACChecked)}
+                                style ={{
+                                color: "#995372",
+                                transform: "scale(1.5)",
+                                paddingBottom: '12pt'
+                            }}
+                            />
+                        }
+                    />
+                    </div>
+
+                    <div className='flex flex-col'>
+                    <label className='pb-4 font-bold'>GB/T DC Plug</label>
+                    <FormControlLabel
+                        value="GB/T DC Plug"
+                        control={
+                        <Checkbox checked={gbtDChecked}
+                                onChange={()=>setgbtDCChecked(!gbtDChecked)}
+                                style ={{
+                                color: "#995372",
+                                transform: "scale(1.5)",
+                                paddingBottom: '12pt'
+                            }}
+                            />
+                        }
+                    />
+                    </div>
+
+                    <div className='flex flex-col'>
+                    <label className='pb-4 font-bold'>Tesla</label>
+                    <FormControlLabel
+                        value="Tesla"
+                        control={
+                        <Checkbox checked={teslaChecked}
+                                onChange={()=>setTeslaChecked(!teslaChecked)}
+                                style ={{
+                                color: "#995372",
+                                transform: "scale(1.5)",
+                                paddingBottom: '12pt'
+                            }}
+                            />
+                        }
+                    />
+                    </div>
+
+                </div>
+
                 
                 {hostLocations.map((host, index) => (
                   
@@ -1013,13 +1147,13 @@ const {scrollToTime} = useMemo(
       </div>
 
       <Modal
-            open={openReserveModal}
-            disableAutoFocus={true}
-            onClose={handleCloseReserveModal}
-            onClick={(event)=>{event.stopPropagation()}}
-            aria-labelledby="child-modal-title"
-            aria-describedby="child-modal-description"
-        >
+        open={openReserveModal}
+        disableAutoFocus={true}
+        onClose={handleCloseReserveModal}
+        onClick={(event)=>{event.stopPropagation()}}
+        aria-labelledby="child-modal-title"
+        aria-describedby="child-modal-description">
+            
             <Box sx={{ ...profileStyle }}>
 
               <div className='flex flex-col w-full overflow-y-scroll'>

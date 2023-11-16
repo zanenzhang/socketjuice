@@ -34,6 +34,42 @@ var driverProfileSchema = new Schema({
         maxLength: 50
         // match: /^(\()?\d{3}(\))?(-|\s)?\d{3}(-|\s)\d{4}$/
     },
+    j1772ACChecked: {
+        type: Boolean,
+        default: false
+    },
+    ccs1DCChecked: {
+        type: Boolean,
+        default: false
+    },
+    mennekesACChecked: {
+        type: Boolean,
+        default: false
+    },
+    gbtACChecked: {
+        type: Boolean,
+        default: false
+    },
+    ccs1DCChecked: {
+        type: Boolean,
+        default: false
+    },
+    ccs2DCChecked: {
+        type: Boolean,
+        default: false
+    },
+    chademoDChecked: {
+        type: Boolean,
+        default: false
+    },
+    gbtDCChecked: {
+        type: Boolean,
+        default: false
+    },
+    teslaChecked: {
+        type: Boolean,
+        default: false
+    },
     birthDate: { 
         type: Date,
         default: "01/01/1980"

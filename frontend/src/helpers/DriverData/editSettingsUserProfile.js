@@ -1,13 +1,13 @@
 import axios from "../../api/axios";
 const USER_SETTINGS_PROFILE_URL = '/profile/usersettings'
 
-async function editSettingsUserProfile (loggedUserId, fullname, phonePrimary, 
-    profilePicKey, profilePicURL, birthDate, region, regionCode, country, accessToken) {
+async function editSettingsUserProfile (loggedUserId, firstname, lastname, profilePicKey, profilePicURL, pushNotifications, 
+    emailNotifications, smsNotifications, accessToken) {
 
     try {
         const response = await axios.patch(USER_SETTINGS_PROFILE_URL, 
-            JSON.stringify({loggedUserId, fullname, phonePrimary, relationshipStatus,
-                 profilePicKey, profilePicURL, birthDate, region, regionCode, country}),
+            JSON.stringify({loggedUserId, firstname, lastname, profilePicKey, profilePicURL, pushNotifications, 
+                emailNotifications, smsNotifications}),
             {
                 headers: { "Authorization": `Bearer ${accessToken} ${loggedUserId}`, 
                     'Content-Type': 'application/json'},

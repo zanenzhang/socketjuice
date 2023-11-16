@@ -1,12 +1,12 @@
 import axios from "../../api/axios";
 
-async function getDriverProfile(profileUserId, loggedUserId, userOrStore, ipAddress, accessToken)  {
+async function getDriverProfile(profileUserId, loggedUserId, accessToken)  {
 
     try {
         const response = await axios.get('/profile/driver/',
         {
             headers: { "Authorization": `Bearer ${accessToken} ${loggedUserId}`},
-            params: {profileUserId, loggedUserId, ipAddress, userOrStore}});
+            params: {profileUserId, loggedUserId}});
 
         if(response){
             return response

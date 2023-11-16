@@ -38,7 +38,7 @@ const s3 = new S3({
 
 const getDriverProfile = async (req, res) => {
     
-    const { profileUserId, loggedUserId, ipAddress, language, currency } = req.query
+    const { profileUserId, loggedUserId } = req.query
 
     if (!profileUserId || !loggedUserId ) {
         return res.status(400).json({ message: 'Missing required info' })
@@ -47,14 +47,13 @@ const getDriverProfile = async (req, res) => {
     try {
 
         const userProfile = await DriverProfile.findOne({_userId: profileUserId})
-        const userFound = await User.findOne({_id: profileUserId})
+        const userFound = await User.findOne({_id: profileUserId}).select("_id profilePicURL pushNotifications emailNotifications smsNotifications")
         const flaggedList = await Flags.findOne({_userId: loggedUserId}).select("userFlags")
         const bookmarksFound = await Bookmark.findOne({_userId: loggedUserId})
 
         let donePostsData = false;
         let doneFlags = false;
-
-        let profilePicURL = null;
+        let doneUser = false;
         let flaggedProfile = null;
 
         if(flaggedList){
@@ -74,7 +73,7 @@ const getDriverProfile = async (req, res) => {
                 return res.status(403).json({"message":"Operation failed"})
             }
 
-            profilePicURL = userFound.profilePicURL;
+            doneUser = true;
         } 
 
         if(userProfile?.length > 0){
@@ -247,9 +246,9 @@ const getDriverProfile = async (req, res) => {
             donePostsData = true;
         }
 
-        if(donePostsData && userProfile && profilePicURL && bookmarksFound && doneFlags ){
+        if(donePostsData && userProfile && doneUser && bookmarksFound && doneFlags ){
 
-            return res.status(200).json({userProfile, profilePicURL, bookmarksFound, flaggedProfile })
+            return res.status(200).json({userProfile, userFound, bookmarksFound, flaggedProfile })
         
         } else {
 
@@ -306,18 +305,21 @@ const editSettingsUserProfile = async (req, res) => {
             }
         )    
         
-        const {loggedUserId, fullname, phonePrimary, profilePicKey, profilePicURL, birthDate, region, regionCode, country} = req.body
+        const {loggedUserId, firstname, lastname, profilePicKey, profilePicURL, pushNotifications, emailNotifications, smsNotifications,
+            j1772ACChecked, ccs1DCChecked, mennekesACChecked, ccs2DCChecked, chademoDChecked, gbtACChecked, gbtDCChecked, teslaChecked } = req.body
+
+        console.log(j1772ACChecked, ccs1DCChecked, mennekesACChecked, ccs2DCChecked, chademoDChecked, gbtACChecked, gbtDCChecked, teslaChecked)
+        console.log(typeof(j1772ACChecked))
     
-        if (!loggedUserId || !birthDate || !foundUser._id.toString() === ((loggedUserId)) ) {
+        if(!loggedUserId || !firstname || !foundUser._id.toString() === ((loggedUserId)) ) {
             return res.status(400).json({ 'message': 'Missing required fields!' });
         }
 
-        if(fullname?.length > 48 || phonePrimary?.length > 48 || birthDate?.length > 48 || region?.length > 48 || regionCode?.length > 48 || country?.length > 48){
-            
+        if(firstname?.length > 48 || lastname?.length > 48 ){
             return res.status(400).json({ 'message': 'Content does not meet requirements' });
         }
 
-        var textToCheck = fullname.concat(" ", relationshipStatus, " ", region, " ", regionCode, " ", country).toLowerCase();
+        var textToCheck = firstname.concat(" ", lastname).toLowerCase();
 
         for(let i=0; i < languageList.length; i++){
             if(textToCheck.indexOf(languageList[i]) !== -1){
@@ -325,32 +327,40 @@ const editSettingsUserProfile = async (req, res) => {
             }
         }
     
-        if ( !loggedUserId ) {    
+        if (!loggedUserId) {
             return res.status(400).json({ message: 'Missing required fields!' })
         }
 
-        const foundUserProfile = await DriverProfile.findOne({_userId: loggedUserId })
+        const foundUser = await User.findOne({_id: loggedUserId })
+        const foundDriver = await DriverProfile.findOne({_userId: loggedUserId})
         
-        if(foundUserProfile){
+        if(foundUser && foundDriver){
 
             if(!foundUser.profilePicKey && profilePicKey !== '' && profilePicURL !== ''){
 
                 profilePicKey ? foundUser.profilePicKey = profilePicKey : null;
                 profilePicURL ? foundUser.profilePicURL = profilePicURL : null;
 
-                fullname ? foundUserProfile.fullname = fullname : foundUserProfile.fullname = "";
-                phonePrimary ? foundUserProfile.phonePrimary = phonePrimary : foundUserProfile.phonePrimary = "";
-                birthDate ? foundUserProfile.birthDate = birthDate : foundUserProfile.birthDate = "";
-                region ? foundUserProfile.region = region : foundUserProfile.region = "";
-                regionCode ? foundUserProfile.regionCode = regionCode : foundUserProfile.regionCode = "";
-                country ? foundUserProfile.country = country : foundUserProfile.country = "";
-
-                const savedFoundProfile = await foundUserProfile.save()
+                firstname ? foundUser.firstname = firstname : foundUser.firstname = "";
+                lastname ? foundUser.lastname = lastname : foundUser.lastname = "";
+                smsNotifications ? foundUser.smsNotifications = smsNotifications : foundUser.smsNotifications = "";
+                pushNotifications ? foundUser.pushNotifications = pushNotifications : foundUser.pushNotifications = "";
+                emailNotifications ? foundUser.emailNotifications = emailNotifications : foundUser.emailNotifications = "";
+                
+                j1772ACChecked ? foundDriver.j1772ACChecked = j1772ACChecked : foundDriver.j1772ACChecked = false;
+                ccs1DCChecked ? foundDriver.ccs1DCChecked = ccs1DCChecked : foundDriver.ccs1DCChecked = false;
+                mennekesACChecked ? foundDriver.mennekesACChecked = mennekesACChecked : foundDriver.mennekesACChecked = "";
+                ccs2DCChecked ? foundDriver.ccs2DCChecked = ccs2DCChecked : foundDriver.ccs2DCChecked = "";
+                chademoDChecked ? foundDriver.chademoDChecked = chademoDChecked : foundDriver.chademoDChecked = "";
+                gbtACChecked ? foundDriver.gbtACChecked = gbtACChecked : foundDriver.gbtACChecked = "";
+                gbtDCChecked ? foundDriver.gbtDCChecked = gbtDCChecked : foundDriver.gbtDCChecked = "";
+                teslaChecked ? foundDriver.teslaChecked = teslaChecked : foundDriver.teslaChecked = "";
             
                 const savedFoundUser = await foundUser.save()
+                const savedFoundDriver = await foundDriver.save()
 
-                if (savedFoundProfile && savedFoundUser) {
-                    res.json({ message: "Success!" })
+                if(savedFoundUser && savedFoundDriver) {
+                    res.status(201).json({ message: "Success!" })
                 }
 
             } else if(profilePicKey !== '' && (foundUser.profilePicKey !== profilePicKey)){
@@ -362,42 +372,60 @@ const editSettingsUserProfile = async (req, res) => {
                     profilePicKey ? foundUser.profilePicKey = profilePicKey : null;
                     profilePicURL ? foundUser.profilePicURL = profilePicURL : null;
 
-                    fullname ? foundUserProfile.fullname = fullname : foundUserProfile.fullname = "";
-                    phonePrimary ? foundUserProfile.phonePrimary = phonePrimary : foundUserProfile.phonePrimary = "";
-                    birthDate ? foundUserProfile.birthDate = birthDate : foundUserProfile.birthDate = "";
-                    region ? foundUserProfile.region = region : foundUserProfile.region = "";
-                    regionCode ? foundUserProfile.regionCode = regionCode : foundUserProfile.regionCode = "";
-                    country ? foundUserProfile.country = country : foundUserProfile.country = "";
+                    firstname ? foundUser.firstname = firstname : foundUser.firstname = "";
+                    lastname ? foundUser.lastname = lastname : foundUser.lastname = "";
+                    smsNotifications ? foundUser.smsNotifications = smsNotifications : foundUser.smsNotifications = "";
+                    pushNotifications ? foundUser.pushNotifications = pushNotifications : foundUser.pushNotifications = "";
+                    emailNotifications ? foundUser.emailNotifications = emailNotifications : foundUser.emailNotifications = "";
 
-                    const savedFoundProfile = await foundUserProfile.save()
+                    j1772ACChecked ? foundDriver.j1772ACChecked = j1772ACChecked : foundDriver.j1772ACChecked = false;
+                    ccs1DCChecked ? foundDriver.ccs1DCChecked = ccs1DCChecked : foundDriver.ccs1DCChecked = false;
+                    mennekesACChecked ? foundDriver.mennekesACChecked = mennekesACChecked : foundDriver.mennekesACChecked = "";
+                    ccs2DCChecked ? foundDriver.ccs2DCChecked = ccs2DCChecked : foundDriver.ccs2DCChecked = "";
+                    chademoDChecked ? foundDriver.chademoDChecked = chademoDChecked : foundDriver.chademoDChecked = "";
+                    gbtACChecked ? foundDriver.gbtACChecked = gbtACChecked : foundDriver.gbtACChecked = "";
+                    gbtDCChecked ? foundDriver.gbtDChecked = gbtDChecked : foundDriver.gbtDCChecked = "";
+                    teslaChecked ? foundDriver.teslaChecked = teslaChecked : foundDriver.teslaChecked = "";
                 
                     const savedFoundUser = await foundUser.save()
+                    const savedFoundDriver = await foundDriver.save()
 
-                    if (savedFoundProfile && savedFoundUser) {
-                        res.json({ message: "Success!" })
+                    if(savedFoundUser && savedFoundDriver) {
+                        res.status(201).json({ message: "Success!" })
                     }
                 }
             
             } else {
 
-                fullname ? foundUserProfile.fullname = fullname : foundUserProfile.fullname = "";
-                phonePrimary ? foundUserProfile.phonePrimary = phonePrimary : foundUserProfile.phonePrimary = "";
-                birthDate ? foundUserProfile.birthDate = birthDate : foundUserProfile.birthDate = "";
-                region ? foundUserProfile.region = region : foundUserProfile.region = "";
-                regionCode ? foundUserProfile.regionCode = regionCode : foundUserProfile.regionCode = "";
-                country ? foundUserProfile.country = country : foundUserProfile.country = "";
+                firstname ? foundUser.firstname = firstname : foundUser.firstname = "";
+                lastname ? foundUser.lastname = lastname : foundUser.lastname = "";
+                smsNotifications ? foundUser.smsNotifications = smsNotifications : foundUser.smsNotifications = "";
+                pushNotifications ? foundUser.pushNotifications = pushNotifications : foundUser.pushNotifications = "";
+                emailNotifications ? foundUser.emailNotifications = emailNotifications : foundUser.emailNotifications = "";
 
-                const savedFoundProfile = await foundUserProfile.save()
+                j1772ACChecked ? foundDriver.j1772ACChecked = j1772ACChecked : foundDriver.j1772ACChecked = false;
+                ccs1DCChecked ? foundDriver.ccs1DCChecked = ccs1DCChecked : foundDriver.ccs1DCChecked = false;
+                mennekesACChecked ? foundDriver.mennekesACChecked = mennekesACChecked : foundDriver.mennekesACChecked = "";
+                ccs2DCChecked ? foundDriver.ccs2DCChecked = ccs2DCChecked : foundDriver.ccs2DCChecked = "";
+                chademoDChecked ? foundDriver.chademoDChecked = chademoDChecked : foundDriver.chademoDChecked = "";
+                gbtACChecked ? foundDriver.gbtACChecked = gbtACChecked : foundDriver.gbtACChecked = "";
+                gbtDCChecked ? foundDriver.gbtDCChecked = gbtDCChecked : foundDriver.gbtDCChecked = "";
+                teslaChecked ? foundDriver.teslaChecked = teslaChecked : foundDriver.teslaChecked = "";
             
                 const savedFoundUser = await foundUser.save()
+                const savedFoundDriver = await foundDriver.save()
 
-                if (savedFoundProfile && savedFoundUser) {
-                    res.json({ message: "Success!" })
+                if(savedFoundUser && savedFoundDriver) {
+                    res.status(201).json({ message: "Success!" })
                 }
             }
+
+        } else {
+            res.status(401).json({ message: "Operation failed!" })
         }
     })
 }
+
 
 const editProfilePic = async (req, res) => {
     
@@ -424,7 +452,7 @@ const editProfilePic = async (req, res) => {
                 const savedFoundUser = await foundUser.save()
 
                 if (savedFoundUser) {
-                    res.json({ message: "Success!" })
+                    res.status(200).json({ message: "Success!" })
                 }
             }
 
@@ -436,7 +464,7 @@ const editProfilePic = async (req, res) => {
             const savedFoundUser = await foundUser.save()
 
             if (savedFoundUser) {
-                res.json({ message: "Success!" })
+                res.status(200).json({ message: "Success!" })
             }
         }
 
@@ -477,12 +505,11 @@ const editSettingsUserPass = async (req, res) => {
             return res.status(400).json({ message: 'Content does not meet requirements!' })
         }
 
-
         const foundLimits = await UsageLimit.findOne({_userId: foundUser._id})
 
         if(foundLimits){
 
-            if(foundLimits.passwordResetRequests >= 3){
+            if(foundLimits.passwordResetRequests >= 5){
 
                 foundUser.lockedOut = true;
 
@@ -495,42 +522,46 @@ const editSettingsUserPass = async (req, res) => {
 
             } else {
 
-                foundLimits.passwordResetRequests = foundLimits.passwordResetRequests + 1
-                const savedLimits = await foundLimits.save();
+                const match = await bcrypt.compare(oldPwd, foundUser.password);
 
-                if(savedLimits){
+                if(match){
 
                     const saltRounds = 10;
 
-                    const match = await bcrypt.compare(oldPwd, foundUser.password);
+                    bcrypt.genSalt(saltRounds, function(err, salt) {
 
-                    if (match) {
+                        bcrypt.hash(newPwd, salt, function(err, hashedPwd) {
 
-                        bcrypt.genSalt(saltRounds, function(err, salt) {
+                            foundUser.password = hashedPwd
 
-                            bcrypt.hash(newPwd, salt, function(err, hashedPwd) {
+                            foundUser.save( function(error) {
+                                if (error){
+                                    return res.status(500).send({msg:err.message});
+                                } 
 
-                                foundUser.password = hashedPwd
+                                sendPassResetConfirmation({toUser: foundUser.email})
 
-                                foundUser.save( function(error) {
-                                    if (error){
-                                        return res.status(500).send({msg:err.message});
-                                    } 
-
-                                    sendPassResetConfirmation({toUser: foundUser.email})
-
-                                    return res.status(200).send({msg:'Your password has been reset!'});
-                                })
-                                
+                                return res.status(200).send({msg:'Your password has been reset!'});
                             })
+                            
                         })
+                    })
 
-                    } else {
+                } else {
+
+                    foundLimits.passwordResetRequests = foundLimits.passwordResetRequests + 1
+                    const savedLimits = await foundLimits.save();
+
+                    if(savedLimits){
 
                         return res.status(400).json({ 'message': 'Unsuccessful! Please try again!' });
                     }
                 }
             }
+        
+        } else {
+
+            return res.status(400).json({ 'message': 'Operation failed!' });
         }
     })
 }
@@ -1364,7 +1395,8 @@ const uploadUserPhotos = async (req, res) => {
 
 const updateDriverProfile = async (req, res) => {
 
-    const { userId, driverPreviewMediaObjectId, driverMediaObjectIds, driverVideoObjectIds, driverObjectTypes, driverPreviewObjectType, driverCoverIndex } = req.body
+    const { userId, driverPreviewMediaObjectId, driverMediaObjectIds, driverVideoObjectIds, driverObjectTypes, 
+        driverPreviewObjectType, driverCoverIndex } = req.body
 
     if (!userId || !driverMediaObjectIds ) {
         return res.status(400).json({ message: 'User ID Required' })
@@ -1447,7 +1479,7 @@ const updateDriverProfile = async (req, res) => {
 const addHostProfile = async (req, res) => {
 
     const { userId, hostPreviewMediaObjectId, hostMediaObjectIds, hostVideoObjectIds, hostObjectTypes, 
-        hostPreviewObjectType, hostCoverIndex, chargeRate, currency, connectorType, chargingLevel,
+        hostPreviewObjectType, hostCoverIndex, chargeRate, currency, connectorType, secondaryConnectorType, chargingLevel,
         hoursMondayStart, hoursMondayFinish, hoursTuesdayStart, hoursTuesdayFinish, hoursWednesdayStart, hoursWednesdayFinish, hoursThursdayStart, hoursThursdayFinish,
         hoursFridayStart, hoursFridayFinish, hoursSaturdayStart, hoursSaturdayFinish, hoursSundayStart, hoursSundayFinish,
         holidayHoursStart, holidayHoursFinish, 
@@ -1459,8 +1491,10 @@ const addHostProfile = async (req, res) => {
     }
 
     const foundUser = await User.findOne({_id: userId})
+    const foundDriver = await DriverProfile.findOne({_userId: userId})
+    const foundHost = await HostProfile.findOne({_userId: userId})
 
-    if(foundUser){
+    if(foundUser && foundDriver && foundHost){
 
         currency = currency.toLowerCase()
 
@@ -1488,111 +1522,122 @@ const addHostProfile = async (req, res) => {
             currencySymbol =  '$'
         }
 
-        const foundHost = await HostProfile.findOne({_id: userId})
+        foundHost.connectionType = connectorType
+        foundHost.secondaryConnectionType = secondaryConnectorType
+        foundHost.chargingLevel = chargingLevel
+        
 
-        if(foundHost){
+        if(connectorType === 'AC-J1772-Type1' || secondaryConnectorType === 'AC-J1772-Type1'){
+            foundDriver.j1772ACChecked = true
+        
+        } else if(connectorType === 'AC-Mennekes-Type2' || secondaryConnectorType === 'AC-Mennekes-Type2'){
+            foundDriver.mennekesACChecked = true
 
-            foundHost.connectorType = connectorType
-            foundHost.chargingLevel = chargingLevel
+        } else if(connectorType === 'AC-GB/T' || secondaryConnectorType === 'AC-GB/T'){
+            foundDriver.gbtACChecked = true
+        
+        } else if(connectorType === 'DC-CCS1' || secondaryConnectorType === 'DC-CCS1'){
+            foundDriver.ccs1DCChecked = true
+        
+        } else if(connectorType === 'DC-CCS2' || secondaryConnectorType === 'DC-CCS2'){
+            foundDriver.ccs2DCChecked = true
+        
+        } else if(connectorType === 'DC-CHAdeMO' || secondaryConnectorType === 'DC-CHAdeMO'){
+            foundDriver.chademoDChecked = true
+        
+        } else if(connectorType === 'DC-GB/T' || secondaryConnectorType === 'DC-GB/T'){
+            foundDriver.gbtDCChecked = true
+        
+        } else if(connectorType === 'Tesla' || secondaryConnectorType === 'Tesla'){
+            foundDriver.teslaChecked = true
+        }    
 
-            foundHost.chargeRatePerHalfHour = chargeRate
-            foundHost.currency = currency
-            foundHost.currencySymbol = currencySymbol
 
-            foundHost.submittedChargingForReview = true;
+        foundHost.chargeRatePerHalfHour = chargeRate
+        foundHost.currency = currency
+        foundHost.currencySymbol = currencySymbol
 
-            var signedMediaURLs = []
+        foundHost.submittedChargingForReview = true;
 
-            for(let i=0; i<hostMediaObjectIds?.length; i++){
+        var signedMediaURLs = []
 
+        for(let i=0; i<hostMediaObjectIds?.length; i++){
+
+            var signParams = {
+                Bucket: wasabiPrivateBucketUSA, 
+                Key: hostMediaObjectIds[i], 
+                Expires: 7200
+            };
+
+            var signedURL = s3.getSignedUrl('getObject', signParams);
+            signedMediaURLs.push(signedURL)
+        }
+
+        var signedVideoURLs = []
+
+        for(let i=0; i< hostVideoObjectIds?.length; i++){
+
+            if(hostVideoObjectIds[i] && hostVideoObjectIds[i] !== 'image'){
+                
                 var signParams = {
                     Bucket: wasabiPrivateBucketUSA, 
-                    Key: hostMediaObjectIds[i], 
+                    Key: hostVideoObjectIds[i], 
                     Expires: 7200
                 };
 
                 var signedURL = s3.getSignedUrl('getObject', signParams);
-                signedMediaURLs.push(signedURL)
+                signedVideoURLs.push(signedURL)
+
+            } else {
+
+                signedVideoURLs.push("image")
             }
+        }
 
-            var signedVideoURLs = []
+        var signedPreviewURL = signedMediaURLs[coverIndex]
 
-            for(let i=0; i< hostVideoObjectIds?.length; i++){
+        hostPreviewMediaObjectId ? foundHost.previewMediaObjectId = hostPreviewMediaObjectId : null;
+        hostMediaObjectIds ? foundHost.mediaCarouselObjectIds = hostMediaObjectIds : null;
+        hostVideoObjectIds ? foundHost.videoCarouselObjectIds = hostVideoObjectIds : null;
+        hostCoverIndex !== null ? foundHost.coverIndex = hostCoverIndex : null;
+        hostObjectTypes ? foundHost.mediaCarouselObjectTypes = hostObjectTypes : null;
+        hostPreviewObjectType ? foundHost.previewMediaType = hostPreviewObjectType : null;
 
-                if(hostVideoObjectIds[i] && hostVideoObjectIds[i] !== 'image'){
-                    
-                    var signParams = {
-                        Bucket: wasabiPrivateBucketUSA, 
-                        Key: hostVideoObjectIds[i], 
-                        Expires: 7200
-                    };
-
-                    var signedURL = s3.getSignedUrl('getObject', signParams);
-                    signedVideoURLs.push(signedURL)
-
-                } else {
-
-                    signedVideoURLs.push("image")
-                }
-            }
-
-            var signedPreviewURL = signedMediaURLs[coverIndex]
-
-            hostPreviewMediaObjectId ? foundHost.previewMediaObjectId = hostPreviewMediaObjectId : null;
-            hostMediaObjectIds ? foundHost.mediaCarouselObjectIds = hostMediaObjectIds : null;
-            hostVideoObjectIds ? foundHost.videoCarouselObjectIds = hostVideoObjectIds : null;
-            hostCoverIndex !== null ? foundHost.coverIndex = hostCoverIndex : null;
-            hostObjectTypes ? foundHost.mediaCarouselObjectTypes = hostObjectTypes : null;
-            hostPreviewObjectType ? foundHost.previewMediaType = hostPreviewObjectType : null;
-
-            signedPreviewURL ? foundHost.previewMediaURL = signedPreviewURL : null;
-            signedMediaURLs ? foundHost.mediaCarouselURLs = signedMediaURLs : null;
-            signedVideoURLs ? foundHost.videoCarouselURLs = signedVideoURLs : null;
-            
-            closedOnMonday ?  foundHost.closedOnMonday = closedOnMonday : foundHost.closedOnMonday = false;
-            closedOnTuesday ?  foundHost.closedOnTuesday = closedOnTuesday : foundHost.closedOnTuesday = false;
-            closedOnWednesday ?  foundHost.closedOnWednesday = closedOnWednesday : foundHost.closedOnWednesday = false;
-            closedOnThursday ?  foundHost.closedOnThursday = closedOnThursday : foundHost.closedOnThursday = false;
-            closedOnFriday ?  foundHost.closedOnFriday = closedOnFriday : foundHost.closedOnFriday = false;
-            closedOnSaturday ?  foundHost.closedOnSaturday = closedOnSaturday : foundHost.closedOnSaturday = false;
-            closedOnSunday ?  foundHost.closedOnSunday = closedOnSunday : foundHost.closedOnSunday = false;
-            closedOnHolidays ?  foundHost.closedOnHolidays = closedOnHolidays : foundHost.closedOnHolidays = false;
-
-            hoursMondayStart ? foundHost.hoursMondayStart = hoursMondayStart : foundHost.hoursMondayStart = "";
-            hoursTuesdayStart ? foundHost.hoursTuesdayStart = hoursTuesdayStart : foundHost.hoursTuesdayStart = "";
-            hoursWednesdayStart ? foundHost.hoursWednesdayStart = hoursWednesdayStart : foundHost.hoursWednesdayStart = "";
-            hoursThursdayStart ? foundHost.hoursThursdayStart = hoursThursdayStart : foundHost.hoursThursdayStart = "";
-            hoursFridayStart ? foundHost.hoursFridayStart = hoursFridayStart : foundHost.hoursFridayStart = "";
-            hoursSaturdayStart ? foundHost.hoursSaturdayStart = hoursSaturdayStart : foundHost.hoursSaturdayStart = "";
-            hoursSundayStart ? foundHost.hoursSundayStart = hoursSundayStart : foundHost.hoursSundayStart = "";
-            holidayHoursStart ? foundHost.holidayHoursStart = holidayHoursStart : foundHost.holidayHoursStart = "";
-
-            hoursMondayFinish ? foundHost.hoursMondayFinish = hoursMondayFinish : foundHost.hoursMondayFinish = "";
-            hoursTuesdayFinish ? foundHost.hoursTuesdayFinish = hoursTuesdayFinish : foundHost.hoursTuesdayFinish = "";
-            hoursWednesdayFinish ? foundHost.hoursWednesdayFinish = hoursWednesdayFinish : foundHost.hoursWednesdayFinish = "";
-            hoursThursdayFinish ? foundHost.hoursThursdayFinish = hoursThursdayFinish : foundHost.hoursThursdayFinish = "";
-            hoursFridayFinish ? foundHost.hoursFridayFinish = hoursFridayFinish : foundHost.hoursFridayFinish = "";
-            hoursSaturdayFinish ? foundHost.hoursSaturdayFinish = hoursSaturdayFinish : foundHost.hoursSaturdayFinish = "";
-            hoursSundayFinish ? foundHost.hoursSundayFinish = hoursSundayFinish : foundHost.hoursSundayFinish = "";
-            holidayHoursFinish ? foundHost.holidayHoursFinish = holidayHoursFinish : foundHost.holidayHoursFinish = "";
-
-            hoursMondayStart ? foundHost.hoursMondayStartDate = new Date(hoursMondayStart) : foundHost.hoursMondayStart = "";
-            hoursTuesdayStart ? foundHost.hoursTuesdayStart = new Date(hoursTuesdayStart) : foundHost.hoursTuesdayStart = "";
-            hoursWednesdayStart ? foundHost.hoursWednesdayStart = new Date(hoursWednesdayStart) : foundHost.hoursWednesdayStart = "";
-            hoursThursdayStart ? foundHost.hoursThursdayStart = new Date(hoursThursdayStart) : foundHost.hoursThursdayStart = "";
-            hoursFridayStart ? foundHost.hoursFridayStart = new Date(hoursFridayStart) : foundHost.hoursFridayStart = "";
-            hoursSaturdayStart ? foundHost.hoursSaturdayStart = new Date(hoursSaturdayStart) : foundHost.hoursSaturdayStart = "";
-            hoursSundayStart ? foundHost.hoursSundayStart = new Date(hoursSundayStart) : foundHost.hoursSundayStart = "";
-            holidayHoursStart ? foundHost.holidayHoursStart = new Date(holidayHoursStart) : foundHost.holidayHoursStart = "";
-
-            const savedHost = await foundHost.save()
-
-            if(savedHost){
-                return res.status(200).json({"message": "Operation success"})
-            }
+        signedPreviewURL ? foundHost.previewMediaURL = signedPreviewURL : null;
+        signedMediaURLs ? foundHost.mediaCarouselURLs = signedMediaURLs : null;
+        signedVideoURLs ? foundHost.videoCarouselURLs = signedVideoURLs : null;
         
-        } else {
-            return res.status(400).json({ message: 'Operation failed' })
+        closedOnMonday ?  foundHost.closedOnMonday = closedOnMonday : foundHost.closedOnMonday = false;
+        closedOnTuesday ?  foundHost.closedOnTuesday = closedOnTuesday : foundHost.closedOnTuesday = false;
+        closedOnWednesday ?  foundHost.closedOnWednesday = closedOnWednesday : foundHost.closedOnWednesday = false;
+        closedOnThursday ?  foundHost.closedOnThursday = closedOnThursday : foundHost.closedOnThursday = false;
+        closedOnFriday ?  foundHost.closedOnFriday = closedOnFriday : foundHost.closedOnFriday = false;
+        closedOnSaturday ?  foundHost.closedOnSaturday = closedOnSaturday : foundHost.closedOnSaturday = false;
+        closedOnSunday ?  foundHost.closedOnSunday = closedOnSunday : foundHost.closedOnSunday = false;
+        closedOnHolidays ?  foundHost.closedOnHolidays = closedOnHolidays : foundHost.closedOnHolidays = false;
+
+        hoursMondayStart ? foundHost.hoursMondayStart = hoursMondayStart : foundHost.hoursMondayStart = "";
+        hoursTuesdayStart ? foundHost.hoursTuesdayStart = hoursTuesdayStart : foundHost.hoursTuesdayStart = "";
+        hoursWednesdayStart ? foundHost.hoursWednesdayStart = hoursWednesdayStart : foundHost.hoursWednesdayStart = "";
+        hoursThursdayStart ? foundHost.hoursThursdayStart = hoursThursdayStart : foundHost.hoursThursdayStart = "";
+        hoursFridayStart ? foundHost.hoursFridayStart = hoursFridayStart : foundHost.hoursFridayStart = "";
+        hoursSaturdayStart ? foundHost.hoursSaturdayStart = hoursSaturdayStart : foundHost.hoursSaturdayStart = "";
+        hoursSundayStart ? foundHost.hoursSundayStart = hoursSundayStart : foundHost.hoursSundayStart = "";
+        holidayHoursStart ? foundHost.holidayHoursStart = holidayHoursStart : foundHost.holidayHoursStart = "";
+
+        hoursMondayFinish ? foundHost.hoursMondayFinish = hoursMondayFinish : foundHost.hoursMondayFinish = "";
+        hoursTuesdayFinish ? foundHost.hoursTuesdayFinish = hoursTuesdayFinish : foundHost.hoursTuesdayFinish = "";
+        hoursWednesdayFinish ? foundHost.hoursWednesdayFinish = hoursWednesdayFinish : foundHost.hoursWednesdayFinish = "";
+        hoursThursdayFinish ? foundHost.hoursThursdayFinish = hoursThursdayFinish : foundHost.hoursThursdayFinish = "";
+        hoursFridayFinish ? foundHost.hoursFridayFinish = hoursFridayFinish : foundHost.hoursFridayFinish = "";
+        hoursSaturdayFinish ? foundHost.hoursSaturdayFinish = hoursSaturdayFinish : foundHost.hoursSaturdayFinish = "";
+        hoursSundayFinish ? foundHost.hoursSundayFinish = hoursSundayFinish : foundHost.hoursSundayFinish = "";
+        holidayHoursFinish ? foundHost.holidayHoursFinish = holidayHoursFinish : foundHost.holidayHoursFinish = "";
+
+        const savedHost = await foundHost.save()
+
+        if(savedHost){
+            return res.status(200).json({"message": "Operation success"})
         }
     
     } else {

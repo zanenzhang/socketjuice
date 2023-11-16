@@ -39,7 +39,7 @@ const colorScheme = [
 
 export default function CameraId({croppedImage, setCroppedImage, croppedImageURL, setCroppedImageURL, 
   coverIndex, setCoverIndex, mediaTypes, setMediaTypes, videoArray, setVideoArray, videoURLArray, 
-  setVideoURLArray, videoThumbnails, setVideoThumbnails, oldMediaTrack, setOldMediaTrack, camera_id}) {
+  setVideoURLArray, videoThumbnails, setVideoThumbnails, oldMediaTrack, setOldMediaTrack, limit}) {
 
   const [isUseCamera, setUseCamera] = useState(false);
   const [photo, setPhoto] = useState(null);
@@ -864,7 +864,7 @@ const handleSelfieCamera = () => {
 
                     }
 
-                {(croppedImage?.length > 0 && croppedImage?.length < 2 ) && 
+                {(croppedImage?.length > 0 && croppedImage?.length < limit ) && 
 
                 <div className="py-2">
 

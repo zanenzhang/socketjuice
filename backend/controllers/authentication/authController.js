@@ -91,9 +91,9 @@ const handleLogin = async (req, res) => {
                         const credits = foundUser.credits;
                         const phoneNumber = foundUser.phonePrimary
 
-                        const lessMotion = foundUser.lessMotion;
                         const pushNotifications = foundUser.pushNotifications;
-                        const userTheme = foundUser.userTheme;
+                        const smsNotifications = foundUser.smsNotifications;
+                        const emailNotifications = foundUser.emailNotifications;
 
                         foundUser.loginAttempts = 0;
 
@@ -170,7 +170,7 @@ const handleLogin = async (req, res) => {
                 
                                     // Send authorization role and access token to user
                                     res.status(200).json({ firstName, lastName, userId, roles, accessToken, profilePicURL, phoneNumber,
-                                        currency, currencySymbol, lessMotion, pushNotifications, userTheme, FXRates, credits });
+                                        currency, currencySymbol, pushNotifications, smsNotifications, emailNotifications, credits });
                                 }
                             }
                         }

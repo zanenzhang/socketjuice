@@ -52,6 +52,9 @@ var hostProfileSchema = new Schema({
     connectionType: {
         type: String,
     },
+    secondaryConnectionType: {
+        type: String,
+    },
     hoursMondayStart: {
         type: String,
         maxLength: 100,

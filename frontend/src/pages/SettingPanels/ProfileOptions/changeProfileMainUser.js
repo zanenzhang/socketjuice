@@ -10,8 +10,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import editSettingsUserProfile from "../../../helpers/UserData/editSettingsUserProfile";
-import getProfileData from '../../../helpers/UserData/getProfileData';
-import addWarnings from '../../../helpers/UserData/addWarnings';
+import getDriverProfile from '../../../helpers/DriverData/getDriverProfile';
 
 const PUBLIC_MEDIA_URL = '/s3/single-profilepic';
 
@@ -47,90 +46,76 @@ export default function ChangeProfileMainUser({loggedUserId }) {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const [fullname, setFullname] = useState("");
-  const [validFullname, setValidFullname] = useState(false);
-  const [fullnameFocus, setFullnameFocus] = useState(false);
+  const [firstName, setFirstName] = useState("");
+  const [validFirstName, setValidFirstName] = useState(false);
+  const [firstNameFocus, setFirstNameFocus] = useState(false);
 
-  const [phonePrimary, setPhonePrimary] = useState("");
-  const [validPhonePrimary, setValidPhonePrimary] = useState(false);
-  const [phonePrimaryFocus, setPhonePrimaryFocus] = useState(false);
+  const [lastName, setLastName] = useState("");
+  const [validLastName, setValidLastName] = useState(false);
+  const [lastNameFocus, setLastNameFocus] = useState(false);
 
-  const [relationshipStatus, setRelationshipStatus] = useState("");
-  const [validRelationshipStatus, setValidRelationshipStatus] = useState(false);
-  const [relationshipStatusFocus, setRelationshipStatusFocus] = useState(false);
+  const [language, setLanguage] = useState("English");
+  const [pushNotifications, setPushNotifications] = useState(true)
+  const [emailNotifications, setEmailNotifications] = useState(true)
+  const [smsNotifications, setSmsNotifications] = useState(true)
 
-  const [countrySet, setCountrySet] = useState(false);
+  const [j1772ACChecked, setj1772ACChecked] = useState(false);
+  const [ccs1DCChecked, setccs1DCChecked] = useState(false);
+  const [mennekesACChecked, setmennekesACChecked] = useState(false);
+  const [ccs2DCChecked, setccs2DCChecked] = useState(false);
+  const [chademoDCChecked, setChademoDCChecked] = useState(false);
+  const [gbtACChecked, setgbtACChecked] = useState(false);
+  const [gbtDChecked, setgbtDCChecked] = useState(false);
+  const [teslaChecked, setTeslaChecked] = useState(false);
 
-  const [region, setRegion] = useState("Select Region");
-  const [regionCode, setRegionCode] = useState("");
-  const [validRegion, setValidRegion] = useState(false);
-  const [regionFocus, setRegionFocus] = useState(false);
-
-  const [country, setCountry] = useState('Select Country');
-  const [validCountry, setValidCountry] = useState(false);
-  const [countryFocus, setCountryFocus] = useState(false);
-
-  var todaysDate = new Date().toISOString().slice(0, 10)
-  var pastDate = new Date()
-  pastDate.setFullYear(pastDate.getFullYear() - 13)
-  var cutoffDate = pastDate.toISOString().slice(0,10)
-
-  const [birthdate, setBirthdate] = useState("");
-  const [validBirthdate, setValidBirthdate] = useState(false);
-  const [birthdateFocus, setBirthdateFocus] = useState(false);
-
-  const FULL_NAME_REGEX = /^[a-zA-Z_ ]{0,48}$/;
-  const PHONE_PRIMARY_REGEX = /^[+]?(1\-|1\s|1|\d{3}\-|\d{3}\s|)?((\(\d{3}\))|\d{3})(\-|\s)?(\d{3})(\-|\s)?(\d{4})$/;
-  const RELATIONSHIP_STATUS_REGEX = /^[a-zA-Z ]{0,48}$/;
-  const BIRTHDATE_REGEX = /^[0-9]{4}[-]{1}[0-9]{2}[-]{1}[0-9]{2}$/;
-  const REGION_REGEX = /^[a-zA-Z ]{2,48}$/;
-  const COUNTRY_REGEX = /^[a-zA-Z ]{2,48}$/;
+  const FIRST_NAME_REGEX = /^[a-zA-Z_ ]{0,48}$/;
+  const LAST_NAME_REGEX = /^[a-zA-Z_ ]{0,48}$/;
 
 
   useEffect(() => {
     const ele = startRef.current
     ele.focus();
-    }, [])
-
-    useEffect(() => {
-        setValidFullname(FULL_NAME_REGEX.test(fullname));
-    }, [fullname])
-
-    useEffect(() => {
-        setValidPhonePrimary(PHONE_PRIMARY_REGEX.test(phonePrimary));
-    }, [phonePrimary])
-
-    useEffect(() => {
-      setValidRegion((REGION_REGEX.test(region) && region !== 'Select Region'));
-  }, [region])
+  }, [])
 
   useEffect(() => {
-      setValidCountry((COUNTRY_REGEX.test(country) && country !== 'Select Country'));
-  }, [country])
+      setValidFirstName(FIRST_NAME_REGEX.test(firstName));
+  }, [firstName])
 
-    useEffect(() => {
-        setValidRelationshipStatus(RELATIONSHIP_STATUS_REGEX.test(relationshipStatus));
-    }, [relationshipStatus])
+  useEffect(() => {
+    setValidLastName(LAST_NAME_REGEX.test(lastName));
+  }, [lastName])
+    
+  const handleLanguage = (e) => {
+    setLanguage(e.target.value)
+  }
 
-    useEffect(() => {
-      setValidBirthdate(BIRTHDATE_REGEX.test(birthdate) && birthdate > '1920-01-01' && birthdate < cutoffDate);
-    }, [birthdate])
+  const handlePushNotifications = (e) => {
+      setPushNotifications(e.target.checked)
+  }
+
+  const handleEmailNotifications = (e) => {
+      setEmailNotifications(e.target.checked)
+  }
+
+  const handleSmsNotifications = (e) => {
+      setSmsNotifications(e.target.checked)
+  }
 
 
     useEffect( () => {
 
       async function getData(){
 
-        const response = await getProfileData(loggedUserId, auth.accessToken)
+        const response = await getDriverProfile(auth.userId, auth.userId, auth.accessToken)
 
         if(response){
 
-          if(response.userProfile.firstname){
-            setFirstname(response.userProfile.firstname)
-          }
-
-          if(response.userProfile.lastname){
-            setLastname(response.userProfile.lastname)
+          if(response.userFound){
+            setFirstName(response.userFound.firstName)
+            setLastName(response.userFound.lastName)
+            setSmsNotifications(response.userFound.smsNotifications)
+            setEmailNotifications(response.userFound.emailNotifications)
+            setPushNotifications(response.userFound.pushNotifications)
           }
         }
       }
@@ -183,7 +168,7 @@ export default function ChangeProfileMainUser({loggedUserId }) {
         const nsfwResults = await axios.post("/nsfw/check", 
         formData,
           {
-            headers: { "Authorization": `Bearer ${auth.accessToken} ${loggedUserId}`, 
+            headers: { "Authorization": `Bearer ${auth.accessToken} ${auth.userId}`, 
             'Content-Type': 'multipart/form-data'},
               withCredentials: true
           }
@@ -221,9 +206,9 @@ export default function ChangeProfileMainUser({loggedUserId }) {
                     const profilePicURL = response.data.Location;
                     const profilePicKey = response.data.key;
 
-                    const editedSettings = await editSettingsUserProfile(auth.userId, fullname, phonePrimary, 
-                        relationshipStatus, profilePicKey, profilePicURL, birthdate, region, regionCode, 
-                        country, auth.accessToken)
+                    const editedSettings = await editSettingsUserProfile(auth.userId, firstName, lastName, profilePicKey, profilePicURL, 
+                        pushNotifications, emailNotifications, smsNotifications, j1772ACChecked, ccs1DCChecked, mennekesACChecked, ccs2DCChecked, 
+                        chademoDChecked, gbtACChecked, gbtDChecked, teslaChecked, auth.accessToken)
 
                     if(editedSettings){
 
@@ -232,8 +217,10 @@ export default function ChangeProfileMainUser({loggedUserId }) {
                                 ...prev,
                                 firstName: firstName,
                                 lastName: lastName,
-                                currency: currency,
-                                profilePicURL: profilePicURL
+                                profilePicURL: profilePicURL,
+                                pushNotifications: pushNotifications,
+                                emailNotifications: emailNotifications,
+                                smsNotifications: smsNotifications,
                             }
                         });
 
@@ -293,8 +280,8 @@ export default function ChangeProfileMainUser({loggedUserId }) {
 
       } else {
 
-        const editedSettings = await editSettingsUserProfile(auth.userId, firstName, lastName, 
-          currency, auth.accessToken)
+        const editedSettings = await editSettingsUserProfile(auth.userId, firstName, lastName, "", "",
+          pushNotifications, emailNotifications, smsNotifications, auth.accessToken)
 
         if(editedSettings){
 
@@ -303,8 +290,6 @@ export default function ChangeProfileMainUser({loggedUserId }) {
                   ...prev,
                   firstName: firstName,
                   lastName: lastName,
-                  currency: currency,
-                  profilePicURL: profilePicURL
               }
           });
 
@@ -360,6 +345,8 @@ export default function ChangeProfileMainUser({loggedUserId }) {
                   // required
               />
 
+            </div>
+
           <div className='flex flex-col w-full px-4 md:px-0 md:w-[45vh] pt-2'>
             
             <label className='text-base font-semibold pl-2'>Last Name:</label>
@@ -372,21 +359,212 @@ export default function ChangeProfileMainUser({loggedUserId }) {
                 placeholder="First name:"
                 className='text-sm text-gray-700 w-full py-4 px-4 bg-white
                   border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#8BEDF3]' 
-                onChange={ ( e ) => setLastname(e.target.value)}
+                onChange={ ( e ) => setLastName(e.target.value)}
                 onKeyDown={(e) => 
                   e.stopPropagation()
                 }
                 value={firstName}
                 aria-invalid={validFirstname ? "false" : "true"}
-                onFocus={() => setLastnameFocus(true)}
-                onBlur={() => setLastnameFocus(false)}
+                onFocus={() => setLastNameFocus(true)}
+                onBlur={() => setLastNameFocus(false)}
                 // required
             />
           
           </div>
-            
-        </div>
 
+          {/* <div className='w-[300px] flex flex-col pt-4'>
+            <div className='flex justify-start'>
+                <label className='text-lg font-medium'>Language</label>
+            </div>
+            <div className='flex justify-start pl-2'>
+                <select 
+                    onChange={handleLanguage}
+                    value={language}
+                    className={`text-sm w-full mr-4 h-10 ${language === "English" ? "text-gray-400" : "text-black" }
+                    border border-gray-primary mb-2 rounded focus:outline-[#995372] pl-3
+                    `}
+                    >
+                    <option key={"English"} value={"English"}>{"English"}</option>
+                    <option key={`French`} value={'French'}>{"Français"}</option>
+                    <option disabled={true} key={`Chinese`} value={'Chinese'}>{"中文"}</option>
+                    <option disabled={true} key={`Spanish`} value={'Spanish'}>{"Español"}</option>
+
+                </select> 
+            </div>
+        </div> */}
+
+          <div className="w-[300px] flex flex-col pt-4">
+              <div className='flex justify-start'>
+                  <label className='text-lg font-medium'>Toggle Email Notifications</label>
+              </div>
+              <div className='flex justify-start pl-2'>
+                  <FormControlLabel control={
+                      <Switch checked={emailNotifications} onChange={handleEmailNotifications} />
+                  } label="Push Notifications" />
+              </div>
+          </div>
+
+          <div className="w-[300px] flex flex-col pt-4">
+              <div className='flex justify-start'>
+                  <label className='text-lg font-medium'>Toggle Push Notifications</label>
+              </div>
+              <div className='flex justify-start pl-2'>
+                  <FormControlLabel control={
+                      <Switch checked={pushNotifications} onChange={handlePushNotifications} />
+                  } label="Push Notifications" />
+              </div>
+          </div>
+
+          <div className="w-[300px] flex flex-col pt-4">
+              <div className='flex justify-start'>
+                  <label className='text-lg font-medium'>SMS(Text Message) Notifications</label>
+              </div>
+              <div className='flex justify-start pl-2'>
+                  <FormControlLabel control={
+                      <Switch checked={smsNotifications} onChange={handleSmsNotifications} />
+                  } label="Push Notifications" />
+              </div>
+          </div>
+
+          <div className='flex flex-col h-[500px] overflow-y-scroll'>
+
+              <div className='flex flex-col'>
+              <label className='pb-4 font-bold'>J1772 AC Plug</label>
+              <FormControlLabel
+                  value="J1772 AC Plug"
+                  control={
+                  <Checkbox checked={j1772ACChecked}
+                          onChange={()=>setj1772ACChecked(!j1772ACChecked)}
+                          style ={{
+                          color: "#995372",
+                          transform: "scale(1.5)",
+                          paddingBottom: '12pt'
+                      }}
+                      />
+                  }
+              />
+              </div>
+
+              <div className='flex flex-col'>
+              <label className='pb-4 font-bold'>CCS1 DC Plug</label>
+              <FormControlLabel
+                  value="CCS1 DC Plug"
+                  control={
+                  <Checkbox checked={ccs1DCChecked}
+                          onChange={()=>setccs1DCChecked(!ccs1DCChecked)}
+                          style ={{
+                          color: "#995372",
+                          transform: "scale(1.5)",
+                          paddingBottom: '12pt'
+                      }}
+                      />
+                  }
+              />
+              </div>
+
+              <div className='flex flex-col'>
+              <label className='pb-4 font-bold'>Mennekes AC Plug</label>
+              <FormControlLabel
+                  value="Mennekes AC Plug"
+                  control={
+                  <Checkbox checked={mennekesACChecked}
+                        onChange={()=>setmennekesACChecked(!mennekesACChecked)}
+                        style ={{
+                        color: "#995372",
+                        transform: "scale(1.5)",
+                        paddingBottom: '12pt'
+                    }}
+                    />
+                  }
+              />
+              </div>
+
+              <div className='flex flex-col'>
+              <label className='pb-4 font-bold'>CCS2 DC Plug</label>
+              <FormControlLabel
+                  value="CCS2 DC Plug"
+                  control={
+                  <Checkbox checked={ccs2DCChecked}
+                          onChange={()=>setccs2DCChecked(!ccs2DCChecked)}
+                          style ={{
+                          color: "#995372",
+                          transform: "scale(1.5)",
+                          paddingBottom: '12pt'
+                      }}
+                      />
+                  }
+              />
+              </div>
+
+              <div className='flex flex-col'>
+              <label className='pb-4 font-bold'>CHAdeMO DC Plug</label>
+              <FormControlLabel
+                  value="CHAdeMO DC Plug"
+                  control={
+                  <Checkbox checked={chademoDCChecked}
+                        onChange={()=>setChademoDCChecked(!chademoDCChecked)}
+                        style ={{
+                        color: "#995372",
+                        transform: "scale(1.5)",
+                        paddingBottom: '12pt'
+                    }}
+                    />
+                  }
+              />
+              </div>
+
+              <div className='flex flex-col'>
+              <label className='pb-4 font-bold'>GB/T AC Plug</label>    
+              <FormControlLabel
+                  value="GB/T AC Plug"
+                  control={
+                  <Checkbox checked={gbtACChecked}
+                          onChange={()=>setgbtACChecked(!gbtACChecked)}
+                          style ={{
+                          color: "#995372",
+                          transform: "scale(1.5)",
+                          paddingBottom: '12pt'
+                      }}
+                      />
+                  }
+              />
+              </div>
+
+              <div className='flex flex-col'>
+              <label className='pb-4 font-bold'>GB/T DC Plug</label>
+              <FormControlLabel
+                  value="GB/T DC Plug"
+                  control={
+                  <Checkbox checked={gbtDChecked}
+                          onChange={()=>setgbtDCChecked(!gbtDChecked)}
+                          style ={{
+                          color: "#995372",
+                          transform: "scale(1.5)",
+                          paddingBottom: '12pt'
+                      }}
+                      />
+                  }
+              />
+              </div>
+
+              <div className='flex flex-col'>
+              <label className='pb-4 font-bold'>Tesla</label>
+              <FormControlLabel
+                  value="Tesla"
+                  control={
+                  <Checkbox checked={teslaChecked}
+                          onChange={()=>setTeslaChecked(!teslaChecked)}
+                          style ={{
+                          color: "#995372",
+                          transform: "scale(1.5)",
+                          paddingBottom: '12pt'
+                      }}
+                      />
+                  }
+              />
+              </div>
+
+          </div>
       </div>
 
       <div className='py-6'>

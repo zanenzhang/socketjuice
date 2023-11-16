@@ -1,12 +1,12 @@
 import axios from "../../api/axios";
 
-async function getHostProfile(profileUserId, loggedUserId, userOrStore, ipAddress, accessToken)  {
+async function getHostProfile(loggedUserId, accessToken)  {
 
     try {
         const response = await axios.get('/profile/host/',
         {
             headers: { "Authorization": `Bearer ${accessToken} ${loggedUserId}`},
-            params: {profileUserId, loggedUserId, userOrStore, ipAddress }});
+            params: {loggedUserId }});
 
         if(response){
             return response

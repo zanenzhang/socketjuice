@@ -507,16 +507,14 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
                 const currencySymbol = response?.data?.currencySymbol
                 const phoneNumber = response?.data?.phoneNumber
                 
-                const FXRates = response?.data?.FXRates
-
-                const lessMotion = response?.data?.lessMotion
                 const pushNotifications = response?.data?.pushNotifications
-                const userTheme = response?.data?.userTheme
+                const emailNotifications = response?.data?.emailNotifications
+                const smsNotifications = response?.data?.smsNotifications
 
                 const credits = response?.data?.credits
 
                 setAuth({ firstName, lastName, userId, roles, accessToken, profilePicURL, phoneNumber,
-                    currency, currencySymbol, lessMotion, pushNotifications, userTheme, FXRates, credits });
+                    currency, currencySymbol, credits, smsNotifications, pushNotifications, emailNotifications });
 
                 localStorage.setItem("socketjuice-persist", persist)
 

@@ -9,6 +9,7 @@ import TabContext from "@material-ui/lab/TabContext";
 import TabList from "@material-ui/lab/TabList";
 import TabPanel from "@material-ui/lab/TabPanel";  
 import { Calendar, dayjsLocalizer } from "react-big-calendar";
+import CameraId from '../CameraId';
 
 import evconnectors from "../../images/evconnectors.jpeg";
 import evcharger from "../../images/ev_charger.jpeg";
@@ -67,6 +68,7 @@ const BookingsPage = () => {
   const [currency, setCurrency] = useState("cad");
   const [currencySymbol, setCurrencySymbol] = useState("$");
   const [connectorType, setConnectorType] = useState("AC-J1772-Type1");
+  const [secondaryConnectorType, setSecondaryConnectorType] = useState("AC-J1772-Type1");
   const [chargingLevel, setChargingLevel] = useState("Level 1")
 
   const [closedOnMonday, setClosedOnMonday] = useState(false);
@@ -235,6 +237,7 @@ const BookingsPage = () => {
   const [selectedLat, setSelectedLat] = useState("")
   const [selectedLng, setSelectedLng] = useState("")
   const [selectProfilePic, setSelectProfilePic] = useState("")
+
 
   const handleMessage = async () => {
 
@@ -743,11 +746,12 @@ const handleRegularHourChangeEnd = (event, day) => {
                 const uploadedHostPhotos = await addHostProfile(
                   auth.userId, previewMediaObjectId, finalImageObjArray, finalVideoObjArray,
                   mediaTypes, previewMediaType, coverIndex, 
-                  chargeRate, currency, connectorType, chargingLevel,
+                  chargeRate, currency, connectorType, secondaryConnectorType, chargingLevel,
                   hoursMondayStart, hoursMondayFinish, hoursTuesdayStart, hoursTuesdayFinish, hoursWednesdayStart, hoursWednesdayFinish, hoursThursdayStart, hoursThursdayFinish,
                   hoursFridayStart, hoursFridayFinish, hoursSaturdayStart, hoursSaturdayFinish, hoursSundayStart, hoursSundayFinish,
                   holidayHoursStart, holidayHoursFinish, 
                   closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays,
+
                   auth.accessToken)
 
                 if(uploadedHostPhotos && uploadedHostPhotos.status === 200){
@@ -1190,10 +1194,10 @@ const handleRegularHourChangeEnd = (event, day) => {
 
           <div className="w-full flex justify-center">
             
-            <Camera croppedImage={croppedImage} setCroppedImage={setCroppedImage} croppedImageURL={croppedImageURL} setCroppedImageURL={setCroppedImageURL} 
+            <CameraId croppedImage={croppedImage} setCroppedImage={setCroppedImage} croppedImageURL={croppedImageURL} setCroppedImageURL={setCroppedImageURL} 
               coverIndex={coverIndex} setCoverIndex={setCoverIndex} mediaTypes={mediaTypes} setMediaTypes={setMediaTypes} videoArray={videoArray} setVideoArray={setVideoArray} 
               videoURLArray={videoURLArray} setVideoURLArray={setVideoURLArray}  videoThumbnails={videoThumbnails} setVideoThumbnails={setVideoThumbnails} 
-              oldMediaTrack={oldMediaTrack} setOldMediaTrack={setOldMediaTrack} />
+              oldMediaTrack={oldMediaTrack} setOldMediaTrack={setOldMediaTrack} limit={5} />
             
           </div>
 
@@ -1246,8 +1250,9 @@ const handleRegularHourChangeEnd = (event, day) => {
                       </select>
                   </div>  
 
-                  <div className="flex flex-row justify-center items-center gap-x-2">
+                  <div className="flex flex-col justify-center items-center gap-y-2">
 
+                      <div className='flex flex-col'>
                       <label className="flex justify-center items-center pr-2 font-semibold">Connector Type:</label>
 
                       <img className='w-[375px] py-2' src={evconnectors} />
@@ -1264,8 +1269,29 @@ const handleRegularHourChangeEnd = (event, day) => {
                           <option value="DC-CCS2">DC-CCS2</option>
                           <option value="DC-CHAdeMO">DC-CHAdeMO</option>
                           <option value="DC-GB/T">DC-GB/T</option>
+                          <option value="Tesla">Tesla</option>
 
                       </select> 
+                      </div>
+
+                      <div className='flex flex-col'>
+                      <label className="flex justify-center items-center pr-2 font-semibold">If you have any connector adaptors:</label>
+                      <select onChange={(event)=>setSecondaryConnectorType(event.target.value)}
+                      value={secondaryConnectorType}
+                      className={`text-sm w-30 md:w-40 h-10 text-black justify-center
+                      border border-gray-primary rounded focus:outline-[#00D3E0] pl-6`}>
+
+                          <option value="AC-J1772-Type1">AC-J1772-Type1</option>
+                          <option value="AC-Mennekes-Type2">AC-Mennekes-Type2</option>
+                          <option value="AC-GB/T">AC-GB/T</option>
+                          <option value="DC-CCS1">DC-CCS1</option>
+                          <option value="DC-CCS2">DC-CCS2</option>
+                          <option value="DC-CHAdeMO">DC-CHAdeMO</option>
+                          <option value="DC-GB/T">DC-GB/T</option>
+                          <option value="Tesla">Tesla</option>
+
+                      </select> 
+                      </div>
 
                   </div>
 
@@ -1407,20 +1433,19 @@ const handleRegularHourChangeEnd = (event, day) => {
                     md:w-[27vh] mt-4'>
 
                     <label className='pb-4 font-bold'>Closed on Tuesday?</label>
-                        <FormControlLabel
-                            value="Closed on Tuesday?"
-                            control={
-                            <Checkbox checked={closedOnTuesday}
-                                    onChange={()=>setClosedOnTuesday(!closedOnTuesday)}
-                                    style ={{
-                                    color: "#995372",
-                                    transform: "scale(1.5)",
-                                    paddingBottom: '12pt'
-                                }}
-                                />
-                            }
-                        />
-
+                    <FormControlLabel
+                        value="Closed on Tuesday?"
+                        control={
+                        <Checkbox checked={closedOnTuesday}
+                                onChange={()=>setClosedOnTuesday(!closedOnTuesday)}
+                                style ={{
+                                color: "#995372",
+                                transform: "scale(1.5)",
+                                paddingBottom: '12pt'
+                            }}
+                            />
+                        }
+                    />
                 </div>
             </div>
 
@@ -1446,7 +1471,6 @@ const handleRegularHourChangeEnd = (event, day) => {
                         onFocus={() => setHoursWednesdayStartFocus(true)}
                         onBlur={() => setHoursWednesdayStartFocus(false)}
                     />
-
                 </div>
 
                 <div className='flex flex-col px-4 md:px-0 w-full md:w-[35vh] mt-4'>
@@ -1545,20 +1569,19 @@ const handleRegularHourChangeEnd = (event, day) => {
                     md:w-[27vh] mt-4'>
 
                     <label className='pb-4 font-bold'>Closed on Thursday?</label>
-                        <FormControlLabel
-                            value="Closed on Thursday?"
-                            control={
-                            <Checkbox checked={closedOnThursday}
-                                    onChange={()=>setClosedOnThursday(!closedOnThursday)}
-                                    style ={{
-                                    color: "#995372",
-                                    transform: "scale(1.5)",
-                                    paddingBottom: '12pt'
-                                }}
-                                />
-                            }
-                        />
-
+                  <FormControlLabel
+                      value="Closed on Thursday?"
+                      control={
+                      <Checkbox checked={closedOnThursday}
+                              onChange={()=>setClosedOnThursday(!closedOnThursday)}
+                              style ={{
+                              color: "#995372",
+                              transform: "scale(1.5)",
+                              paddingBottom: '12pt'
+                          }}
+                          />
+                      }
+                  />
                 </div>
             </div>
 
@@ -1626,7 +1649,6 @@ const handleRegularHourChangeEnd = (event, day) => {
                                 />
                             }
                         />
-
                 </div>
             </div>
 

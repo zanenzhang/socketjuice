@@ -27,7 +27,8 @@ const useStyles = makeStyles({
 });
 
 export default function ChangePass({loggedUserId}) {
-  const classes = useStyles();
+  
+    const classes = useStyles();
   const passRef = useRef();
   const CHANGE_PASS = '/profile/userpass';
 
@@ -91,9 +92,9 @@ export default function ChangePass({loggedUserId}) {
 
         try {
             const response = await axios.patch(CHANGE_PASS,
-                JSON.stringify({ loggedUserId, oldPwd, newPwd }),
+                JSON.stringify({ loggedUserId: auth.userId, oldPwd, newPwd }),
                 {
-                    headers: { "Authorization": `Bearer ${auth.accessToken} ${loggedUserId}`, 
+                    headers: { "Authorization": `Bearer ${auth.accessToken} ${auth.userId}`, 
                     'Content-Type': 'application/json'},
                     withCredentials: true
                 }

@@ -1,17 +1,19 @@
 import axios from "../../api/axios";
 const HOST_SETTINGS_PROFILE_URL = '/profile/hostsettings'
 
-async function editSettingsHostProfile (loggedUserId, phonePrimary, profilePicKey, profilePicURL, 
-    regularHoursMondayStart, regularHoursMondayFinish, regularHoursTuesdayStart, regularHoursTuesdayFinish, regularHoursWednesdayStart, regularHoursWednesdayFinish, regularHoursThursdayStart, 
-    regularHoursThursdayFinish, regularHoursFridayStart, regularHoursFridayFinish, regularHoursSaturdayStart, regularHoursSaturdayFinish, regularHoursSundayStart, regularHoursSundayFinish,
-    closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, address, city, region, regionCode, country, accessToken) {
+async function editSettingsHostProfile (loggedUserId, hoursMondayStart, hoursMondayFinish, hoursTuesdayStart, hoursTuesdayFinish, hoursWednesdayStart, hoursWednesdayFinish, hoursThursdayStart, hoursThursdayFinish,
+    hoursFridayStart, hoursFridayFinish, hoursSaturdayStart, hoursSaturdayFinish, hoursSundayStart, hoursSundayFinish,
+    holidayHoursStart, holidayHoursFinish, 
+    closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays,
+    currency, chargeRate, hostComments, accessToken) {
 
     try {
         const response = await axios.patch(HOST_SETTINGS_PROFILE_URL, 
-            JSON.stringify({loggedUserId, phonePrimary, profilePicKey, profilePicURL,  
-                regularHoursMondayStart, regularHoursMondayFinish, regularHoursTuesdayStart, regularHoursTuesdayFinish, regularHoursWednesdayStart, regularHoursWednesdayFinish, regularHoursThursdayStart, 
-                regularHoursThursdayFinish, regularHoursFridayStart, regularHoursFridayFinish, regularHoursSaturdayStart, regularHoursSaturdayFinish, regularHoursSundayStart, regularHoursSundayFinish,
-                closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, address, city, region, regionCode, country }),
+            JSON.stringify({loggedUserId, hoursMondayStart, hoursMondayFinish, hoursTuesdayStart, hoursTuesdayFinish, hoursWednesdayStart, hoursWednesdayFinish, hoursThursdayStart, hoursThursdayFinish,
+                hoursFridayStart, hoursFridayFinish, hoursSaturdayStart, hoursSaturdayFinish, hoursSundayStart, hoursSundayFinish,
+                holidayHoursStart, holidayHoursFinish, 
+                closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays,
+                currency, chargeRate, hostComments, }),
             {
                 headers: { "Authorization": `Bearer ${accessToken} ${loggedUserId}`, 
                     'Content-Type': 'application/json'},

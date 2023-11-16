@@ -49,10 +49,6 @@ const VerifyPage = () => {
     const [userId, setUserId] = useState(new URLSearchParams(search).get("id"))
     const [hash, setHash] = useState(new URLSearchParams(search).get("hash"))
 
-    const [pushNotifications, setPushNotifications] = useState(true)
-    const [emailNotifications, setEmailNotifications] = useState(true)
-    const [smsNotifications, setSmsNotifications] = useState(true)
-
     const IMAGE_UPLOAD_URL = '/s3/singleimage';
     const PUBLIC_MEDIA_URL = '/s3/single-profilepic';
 
@@ -632,8 +628,7 @@ const VerifyPage = () => {
                 try {
 
                     const uploadedUserPhotos = await axios.post('/profile/userphotos', 
-                        JSON.stringify({userId, frontObjectId, backObjectId, smsNotifications, 
-                            emailNotifications, pushNotifications}),
+                        JSON.stringify({userId, frontObjectId, backObjectId}),
                         {
                             headers: { "Authorization": `Hash ${hash} ${userId}`, 
                                 'Content-Type': 'application/json'},
@@ -655,17 +650,11 @@ const VerifyPage = () => {
                         const currency = uploadedUserPhotos?.data?.currency
                         const currencySymbol = uploadedUserPhotos?.data?.currencySymbol
                         const phoneNumber = uploadedUserPhotos?.data?.currency
-                        
-                        const FXRates = uploadedUserPhotos?.data?.FXRates
-
-                        const lessMotion = uploadedUserPhotos?.data?.lessMotion
-                        const pushNotifications = uploadedUserPhotos?.data?.pushNotifications
-                        const userTheme = uploadedUserPhotos?.data?.userTheme
 
                         const credits = uploadedUserPhotos?.data?.credits
 
                         setAuth({ firstName, lastName, userId, roles, accessToken, profilePicURL, phoneNumber,
-                            currency, currencySymbol, lessMotion, pushNotifications, userTheme, FXRates, credits });
+                            currency, currencySymbol, credits });
 
                         localStorage.setItem("socketjuice-persist", true)
 
@@ -891,42 +880,6 @@ const VerifyPage = () => {
                             videoURLArray={videoURLArrayId} setVideoURLArray={setVideoURLArrayId}  videoThumbnails={videoThumbnailsId} setVideoThumbnails={setVideoThumbnailsId} camera_id={"id"}
                             oldMediaTrack={oldMediaTrackId} setOldMediaTrack={setOldMediaTrackId} limit={1} />  
                         
-                        </div>
-                    </div>
-
-                    <div className='flex flex-col md:justify-center px-6'>
-
-                        <div className="w-[300px] flex flex-col pt-4">
-                            <div className='flex justify-start'>
-                                <label className='text-lg font-medium'>Toggle Email Notifications</label>
-                            </div>
-                            <div className='flex justify-start pl-2'>
-                                <FormControlLabel control={
-                                    <Switch checked={emailNotifications} onChange={(e)=>setEmailNotifications(e.target.checked)} />
-                                } label="Push Notifications" />
-                            </div>
-                        </div>
-
-                        <div className="w-[300px] flex flex-col pt-4">
-                            <div className='flex justify-start'>
-                                <label className='text-lg font-medium'>Toggle Push Notifications</label>
-                            </div>
-                            <div className='flex justify-start pl-2'>
-                                <FormControlLabel control={
-                                    <Switch checked={pushNotifications} onChange={(e)=>setPushNotifications(e.target.checked)} />
-                                } label="Push Notifications" />
-                            </div>
-                        </div>
-
-                        <div className="w-[300px] flex flex-col pt-4">
-                            <div className='flex justify-start'>
-                                <label className='text-lg font-medium'>SMS(Text Message) Notifications</label>
-                            </div>
-                            <div className='flex justify-start pl-2'>
-                                <FormControlLabel control={
-                                    <Switch checked={smsNotifications} onChange={(e)=>setSmsNotifications(e.target.checked)} />
-                                } label="Push Notifications" />
-                            </div>
                         </div>
                     </div>
 
