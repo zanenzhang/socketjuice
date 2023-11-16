@@ -513,8 +513,19 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
 
                 const credits = response?.data?.credits
 
+                const j1772ACChecked = response?.data?.j1772ACChecked
+                const ccs1DCChecked = response?.data?.ccs1DCChecked
+                const mennekesACChecked = response?.data?.mennekesACChecked
+                const ccs2DCChecked = response?.data?.ccs2DCChecked
+                const chademoDChecked = response?.data?.chademoDChecked
+                const gbtACChecked = response?.data?.gbtACChecked
+                const gbtDCChecked = response?.data?.gbtDCChecked
+                const teslaChecked = response?.data?.teslaChecked
+
                 setAuth({ firstName, lastName, userId, roles, accessToken, profilePicURL, phoneNumber,
-                    currency, currencySymbol, credits, smsNotifications, pushNotifications, emailNotifications });
+                    currency, currencySymbol, credits, smsNotifications, pushNotifications, emailNotifications,
+                    j1772ACChecked, ccs1DCChecked, mennekesACChecked, ccs2DCChecked, chademoDChecked, gbtACChecked, 
+                    gbtDCChecked, teslaChecked });
 
                 localStorage.setItem("socketjuice-persist", persist)
 
@@ -657,10 +668,9 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
                     <img className='h-[5vh] sm:h-[6vh]' src={socketjuice_full_logo} />
                 </Link>
 
-
                 <Link reloadDocument to={ROUTES.MAP} aria-label="StoreDashboard"
-                        className={`flex flex-row justify-center items-center bg-[#FFE142] hover:bg-[#8BEDF3]
-                        ${activeTab === 'map' ? 'border-2 border-black ' : ' '} rounded-lg p-1 sm:px-2`}>
+                    className={`flex flex-row justify-center items-center bg-[#FFE142] hover:bg-[#8BEDF3]
+                    ${activeTab === 'map' ? 'border-2 border-black ' : ' '} rounded-lg p-1 sm:px-2`}>
 
                     <svg xmlns="http://www.w3.org/2000/svg" 
                         width="32" height="32" id="gps">

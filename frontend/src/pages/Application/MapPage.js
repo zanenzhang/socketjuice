@@ -18,7 +18,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import MainHeader from '../../components/mainHeader/mainHeader';
 import debounce from 'lodash.debounce';
 import useAuth from '../../hooks/useAuth';
-import getHostProfilesCoord from '../../helpers/HostData/getProfilesCoord';
+import getHostProfilesCoord from '../../helpers/HostData/getHostProfilesCoord';
 import getGoogleCoordinates from '../../helpers/Google/getGoogleCoordinates';  
 import getGoogleMatrix from '../../helpers/Google/getGoogleMatrix';
 
@@ -53,6 +53,7 @@ const MapPage = () => {
   const [ccs1DCChecked, setccs1DCChecked] = useState(false);
   const [mennekesACChecked, setmennekesACChecked] = useState(false);
   const [ccs2DCChecked, setccs2DCChecked] = useState(false);
+  const [chademoDCChecked, setchademoDCChecked] = useState(false);
   const [gbtACChecked, setgbtACChecked] = useState(false);
   const [gbtDChecked, setgbtDCChecked] = useState(false);
   const [teslaChecked, setTeslaChecked] = useState(false);
@@ -194,6 +195,7 @@ useEffect( () => {
 }, [bookingStart, bookingEnd, auth.userId])
 
 
+
 const handleSelectSlot = (e) => {
 
   console.log(e)
@@ -333,7 +335,32 @@ const {scrollToTime} = useMemo(
 
       setActiveTab("map")
 
-  }, [])
+      if(auth.j1772ACChecked){
+        setj1772ACChecked(true)
+      }
+      if(auth.ccs1DCChecked){
+        setccs1DCChecked(true)
+      }
+      if(auth.mennekesACChecked){
+        setmennekesACChecked(true)
+      }
+      if(auth.ccs2DCChecked){
+        setccs2DCChecked(true)
+      }
+      if(auth.chademoDCChecked){
+        setchademoDCChecked(true)
+      }
+      if(auth.gbtACChecked){
+        setgbtACChecked(true)
+      }
+      if(auth.gbtDCChecked){
+        setgbtDCChecked(true)
+      }
+      if(auth.teslaChecked){
+        setTeslaChecked(true)
+      } 
+
+  }, [auth])
 
   useEffect( () => {
 
@@ -633,10 +660,11 @@ const {scrollToTime} = useMemo(
 
         const today = new Date()
         const dayofweek = days[today.getDay()]
-        const time = today.toTimeString().slice(0,5)
+        const localtime = today.toTimeString().slice(0,5)
       
         var coordinatesInput = [newPos.lng, newPos.lat]
-        const locations = await getHostProfilesCoord(coordinatesInput, auth.userId, auth.accessToken)
+        const locations = await getHostProfilesCoord(coordinatesInput, dayofweek, localtime, 
+          auth.userId, auth.accessToken)
 
         if(locations){
 
@@ -1033,6 +1061,23 @@ const {scrollToTime} = useMemo(
                                 paddingBottom: '12pt'
                             }}
                             />
+                        }
+                    />
+                    </div>
+
+                    <div className='flex flex-col'>
+                    <label className='pb-4 font-bold'>CHAdeMO DC Plug</label>
+                    <FormControlLabel
+                        value="CHAdeMO DC Plug"
+                        control={
+                        <Checkbox checked={chademoDCChecked}
+                              onChange={()=>setchademoDCChecked(!chademoDCChecked)}
+                              style ={{
+                              color: "#995372",
+                              transform: "scale(1.5)",
+                              paddingBottom: '12pt'
+                          }}
+                          />
                         }
                     />
                     </div>

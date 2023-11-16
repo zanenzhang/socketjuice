@@ -77,8 +77,9 @@ const handleLogin = async (req, res) => {
                     if (!foundUser.active) return res.status(400).json({ 'message': 'Please activate your account! The activation email has been sent, please visit your inbox.' });
         
                     const match = await bcrypt.compare(pwd, foundUser.password);
+                    const foundDriver = await DriverProfile.findOne({_userId: foundUser._id})
             
-                    if(match){
+                    if(match && foundDriver){
 
                         const roles = Object.values(foundUser.roles).filter(Boolean);
                         
@@ -95,6 +96,15 @@ const handleLogin = async (req, res) => {
                         const smsNotifications = foundUser.smsNotifications;
                         const emailNotifications = foundUser.emailNotifications;
 
+                        const j1772ACChecked = foundDriver.j1772ACChecked
+                        const ccs1DCChecked = foundDriver.ccs1DCChecked
+                        const mennekesACChecked = foundDriver.mennekesACChecked
+                        const gbtACChecked = foundDriver.gbtACChecked
+                        const ccs2DCChecked = foundDriver.ccs2DCChecked
+                        const chademoDCChecked = foundDriver.chademoDCChecked
+                        const gbtDCChecked = foundDriver.gbtDCChecked
+                        const teslaChecked = foundDriver.teslaChecked
+
                         foundUser.loginAttempts = 0;
 
                         var doneProfile = true;
@@ -108,6 +118,8 @@ const handleLogin = async (req, res) => {
                                 FXRates = rates;
                                 doneRates = true;
                             }
+                        } else {
+                            doneRates = true;
                         }
             
                         if(doneProfile && doneRates){
@@ -170,7 +182,9 @@ const handleLogin = async (req, res) => {
                 
                                     // Send authorization role and access token to user
                                     res.status(200).json({ firstName, lastName, userId, roles, accessToken, profilePicURL, phoneNumber,
-                                        currency, currencySymbol, pushNotifications, smsNotifications, emailNotifications, credits });
+                                        currency, currencySymbol, pushNotifications, smsNotifications, emailNotifications, credits,
+                                        j1772ACChecked, ccs1DCChecked, mennekesACChecked, ccs2DCChecked, chademoDCChecked, gbtACChecked, 
+                                        gbtDCChecked, teslaChecked });
                                 }
                             }
                         }

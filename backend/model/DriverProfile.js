@@ -50,10 +50,6 @@ var driverProfileSchema = new Schema({
         type: Boolean,
         default: false
     },
-    ccs1DCChecked: {
-        type: Boolean,
-        default: false
-    },
     ccs2DCChecked: {
         type: Boolean,
         default: false

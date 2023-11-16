@@ -23,125 +23,77 @@ const handleRefreshToken = async (req, res) => {
             async (err, decoded) => {
                 if (err || foundUser.username !== decoded.username) return res.sendStatus(403);
                 
-                const roles = Object.values(foundUser.roles);
-                const username = foundUser.username
-                const userId = foundUser._id;
-                const profilePicURL = foundUser.profilePicURL
-                const privacySetting = foundUser.privacySetting
-                const currency = foundUser.currency
-                const currencySymbol = foundUser.currencySymbol
+                const foundDriver = await DriverProfile.findOne({_userId: foundUser._id})
 
-                const blockedUsers = foundUser.blockedUsers
-                const credits = foundUser.credits
+                if(foundDriver){
 
-                var lessMotion = null;
-                var pushNotifications = null;
-                var userTheme = null;
-                var FXRates = null;
+                    const roles = Object.values(foundUser.roles).filter(Boolean);
+                    
+                    const userId = foundUser._id;
+                    const firstName = foundUser.firstName;
+                    const lastName = foundUser.lastName;
+                    const profilePicURL = foundUser.profilePicURL;
+                    const currency = foundUser.currency;
+                    const currencySymbol = foundUser.currencySymbol;
+                    const credits = foundUser.credits;
+                    const phoneNumber = foundUser.phonePrimary
 
-                var birthDate = null;
-                var city = null;
-                var region = null;
-                var country = null;
+                    const pushNotifications = foundUser.pushNotifications;
+                    const smsNotifications = foundUser.smsNotifications;
+                    const emailNotifications = foundUser.emailNotifications;
 
-                var doneProfile = false;
-                var doneRates = false;
+                    const j1772ACChecked = foundDriver.j1772ACChecked
+                    const ccs1DCChecked = foundDriver.ccs1DCChecked
+                    const mennekesACChecked = foundDriver.mennekesACChecked
+                    const gbtACChecked = foundDriver.gbtACChecked
+                    const ccs2DCChecked = foundDriver.ccs2DCChecked
+                    const chademoDCChecked = foundDriver.chademoDCChecked
+                    const gbtDCChecked = foundDriver.gbtDCChecked
+                    const teslaChecked = foundDriver.teslaChecked
 
-                if(currency){
+                    var FXRates = null;
+                    var doneProfile = true;
+                    var doneRates = false;
 
-                    const rates = await ForexRate.findOne({admin: "admin"}).select(`${currency}`)
-                    if(rates){
-                        FXRates = rates;
+                    if(currency){
+
+                        const rates = await ForexRate.findOne({admin: "admin"}).select(`${currency}`)
+                        if(rates){
+                            FXRates = rates;
+                            doneRates = true;
+                        }
+
+                    } else {
                         doneRates = true;
                     }
-                }
 
-                if(Object.values(foundUser?.roles).includes(3780)){
+                    if(doneProfile && doneRates){
+                    
+                        const accessToken = jwt.sign(
+                            {
+                                "UserInfo": {
+                                    "username": username,
+                                    "roles": roles
+                                }
+                            },
+                            process.env.ACCESS_TOKEN_SECRET,
+                            { expiresIn: '7d' }
+                        );
+        
+                        if(accessToken){
+                            
+                            res.status(200).json({ firstName, lastName, userId, roles, accessToken, profilePicURL, phoneNumber,
+                                currency, currencySymbol, pushNotifications, smsNotifications, emailNotifications, credits,
+                                j1772ACChecked, ccs1DCChecked, mennekesACChecked, ccs2DCChecked, chademoDCChecked, gbtACChecked, 
+                                gbtDCChecked, teslaChecked })
 
-                    const foundHostProfile = await HostProfile.findOne({_userId: foundUser._id})
-
-                    if(foundHostProfile){
-                        lessMotion = foundHostProfile.lessMotion;
-                        pushNotifications = foundHostProfile.pushNotifications;
-                        userTheme = foundHostProfile.userTheme;
-
-                        if (foundUser.preferredCity !== 'Select All') {
-                            city = foundUser.preferredCity
-                        } else if(foundHostProfile.city){
-                            city = foundHostProfile.city
                         } else {
-                            city = ''
+                            res.status(401)
                         }
-
-                        if(foundUser.preferredRegion !== 'Select All'){
-                            region = foundUser.preferredRegion;
-                        } else {
-                            region = foundHostProfile.region;
-                        }
-                        
-                        if(foundUser.preferredCountry !== 'Select All'){
-                            country = foundUser.preferredCountry;
-                        } else {
-                            country = foundHostProfile.country;
-                        }
-
-                        doneProfile = true;
                     }
                 
                 } else {
-
-                    const foundUserProfile = await DriverProfile.findOne({_userId: foundUser._id})
-
-                    if(foundUserProfile){
-                        lessMotion = foundUserProfile.lessMotion;
-                        pushNotifications = foundUserProfile.pushNotifications;
-                        userTheme = foundUserProfile.userTheme;
-                        birthDate = foundUserProfile.birthDate;
-
-                        if (foundUser.preferredCity !== 'Select All') {
-                            city = foundUser.preferredCity
-                        } else if(foundUserProfile.city){
-                            city = foundUserProfile.city
-                        } else {
-                            city = ''
-                        }
-
-                        if(foundUser.preferredRegion !== 'Select All'){
-                            region = foundUser.preferredRegion;
-                        } else {
-                            region = foundUserProfile.region;
-                        }
-                        
-                        if(foundUser.preferredCountry !== 'Select All'){
-                            country = foundUser.preferredCountry;
-                        } else {
-                            country = foundUserProfile.country;
-                        }
-
-                        doneProfile = true;
-                    }
-                }
-    
-                if(doneProfile && doneRates){
-                 
-                    const accessToken = jwt.sign(
-                        {
-                            "UserInfo": {
-                                "username": username,
-                                "roles": roles
-                            }
-                        },
-                        process.env.ACCESS_TOKEN_SECRET,
-                        { expiresIn: '7d' }
-                    );
-    
-                    if(accessToken){
-                        res.status(200).json({ username, roles, userId, accessToken, profilePicURL, privacySetting, 
-                            currency, currencySymbol, lessMotion, pushNotifications, birthDate, userTheme, 
-                            blockedUsers, FXRates, city, region, country, credits,  })
-                    } else {
-                        res.status(401)
-                    }
+                    res.status(402).json({"message": "Operation failed"})
                 }
             }
         );

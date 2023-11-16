@@ -208,7 +208,7 @@ export default function ChangeProfileMainUser({loggedUserId }) {
 
                     const editedSettings = await editSettingsUserProfile(auth.userId, firstName, lastName, profilePicKey, profilePicURL, 
                         pushNotifications, emailNotifications, smsNotifications, j1772ACChecked, ccs1DCChecked, mennekesACChecked, ccs2DCChecked, 
-                        chademoDChecked, gbtACChecked, gbtDChecked, teslaChecked, auth.accessToken)
+                        chademoDCChecked, gbtACChecked, gbtDChecked, teslaChecked, auth.accessToken)
 
                     if(editedSettings){
 

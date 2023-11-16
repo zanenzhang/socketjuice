@@ -891,6 +891,9 @@ const handleRegularHourChangeEnd = (event, day) => {
             newevents.push(instance)
           }
   
+          newevents.sort(function(a,b){
+            return new Date(b.date) - new Date(a.date);
+          })
           setHostAppointments([...hostresults.hostAppointments])
           setHostEvents(newevents)
         }
@@ -1036,6 +1039,29 @@ const handleRegularHourChangeEnd = (event, day) => {
           <div className='pt-1 pb-4 flex flex-col gap-y-3 w-full justify-center items-center'>
 
           <p>Received Bookings From Other EV Drivers</p>
+
+            <div className='flex flex-col w-[250px] h-[400px]'>
+
+              {hostEvents.map((event) => (
+                
+                <div key={event.id} className='flex flex-row w-full border border-[#00D3E0]'>
+
+                  <div className='flex flex-col'>
+                    <img className='w-[50px] rounded-full' src={event.profilePicURL} />
+                  </div>
+
+                  <div className='flex flex-col'>
+                    <p>Address: {event.address}</p>
+                    <p>Start: {event.start.toLocaleTimeString()}</p>
+                    <p>End: {event.end.toLocaleTimeString()}</p>
+                    <p>Status: {event.status}</p>
+                  </div>
+
+                </div>
+
+              ))}
+
+            </div>
 
               <div className='flex flex-col w-[250px]'>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>

@@ -55,11 +55,13 @@ const getHostProfile = async (req, res) => {
 
 const getHostProfilesCoord = async (req, res) => {
     
-    var { coordinatesInput, loggedUserId } = req.query
+    var { coordinatesInput, loggedUserId, dayofweek, localtime } = req.query
 
     if (!coordinatesInput || !loggedUserId ) {
         return res.status(400).json({ message: 'Missing required info' })
     }
+
+    console.log(dayofweek, localtime)
 
     coordinatesInput = JSON.parse(coordinatesInput)
 

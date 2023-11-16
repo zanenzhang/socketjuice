@@ -30,6 +30,15 @@ const useRefreshToken = () => {
                     
                     userTheme: response.data.userTheme,
                     credits: response.data.credits,
+
+                    j1772ACChecked: response.data.j1772ACChecked,
+                    ccs1DCChecked: response.data.ccs1DCChecked,
+                    mennekesACChecked: response.data.mennekesACChecked,
+                    ccs2DCChecked: response.data.ccs2DCChecked,
+                    chademoDChecked: response.data.chademoDChecked,
+                    gbtACChecked: response.data.gbtACChecked,
+                    gbtDCChecked: response.data.gbtDCChecked,
+                    teslaChecked: response.data.teslaChecked
                 }
             });
 
