@@ -1,0 +1,16 @@
+.slick-dots {
+  position: absolute;
+  display: block;
+  padding-bottom: 0;
+  margin: 0;
+  list-style: none;
+  text-align: center;
+  align-items: end;
+  bottom: 6px;
+}
+  
+.slick-dots li {
+  width: 14px;
+  margin: 0;
+  padding: 0
+}

@@ -14,6 +14,10 @@ import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import "./slider.css";
 
 import MainHeader from '../../components/mainHeader/mainHeader';
 import debounce from 'lodash.debounce';
@@ -48,6 +52,11 @@ const MapPage = () => {
   const [directionsResponse, setDirectionsResponse] = useState(null)
   const [distance, setDistance] = useState('')
   const [duration, setDuration] = useState('')
+  const [mediaURLs, setMediaURLs] = useState([])
+
+  const sliderRefPre = useRef(null);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [nextSlide, setNextSlide] = useState(1);
 
   const [j1772ACChecked, setj1772ACChecked] = useState(false);
   const [ccs1DCChecked, setccs1DCChecked] = useState(false);
@@ -72,6 +81,9 @@ const MapPage = () => {
   const [selectedEventEnd, setSelectedEventEnd] = useState("")
   const [selectedLat, setSelectedLat] = useState("")
   const [selectedLng, setSelectedLng] = useState("")
+  const [selectedConnection, setSelectedConnection] = useState("")
+  const [secondaryConnection, setSecondaryConnection] = useState("")
+
   const [driverRequestedCancel, setDriverRequestedCancel] = useState(false)
   const [hostRequestedCancel, setHostRequestedCancel] = useState(false)
 
@@ -93,6 +105,22 @@ const MapPage = () => {
       x: window.innerWidth,
       y: window.innerHeight
   });
+
+  const settings = {
+    dots: true,
+    infinite: true,
+    speed: 450,
+    initialSlide: 0,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    swipeToSlide: true,
+    lazyLoad: true,
+    slide: true,
+    arrows: false,
+    afterChange: (index) => {
+        setCurrentSlide(index)
+    }
+};
 
   const profileStyle = {
     position: 'absolute',
@@ -559,7 +587,11 @@ const {scrollToTime} = useMemo(
               && hostresults?.hostAppointments[i].status !== 'Cancelled'){
 
               if(hostprofiledata[hostresults?.hostAppointments[i]._hostUserId]){
+                
                 hostresults.hostAppointments[i].address = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.address
+                hostresults.hostAppointments[i].connectionType = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.connectionType
+                hostresults.hostAppointments[i].secondaryConnectionType = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.secondaryConnectionType
+
                 hostresults.hostAppointments[i].locationlat = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.location?.coordinates[1]
                 hostresults.hostAppointments[i].locationlng = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.location?.coordinates[0]
               }
@@ -577,6 +609,8 @@ const {scrollToTime} = useMemo(
                 requesterId: hostresults.hostAppointments[i]._requestUserId,
                 driverRequestedCancel: hostresults.hostAppointments[i].cancelRequestDriverSubmit,
                 hostRequestedCancel: hostresults.hostAppointments[i].cancelRequestHostSubmit,
+                connectionType: hostresults.hostAppointments[i].connectionType,
+                secondaryConnectionType: hostresults.hostAppointments[i].secondaryConnectionType,
                 isDraggable: true
               }
     
@@ -599,14 +633,18 @@ const {scrollToTime} = useMemo(
   }, [hostUserId, newrequest, currentDate, auth])
 
 
-  const handleOpenReserveModal = (e, host, address, duration) => {
+  const handleOpenReserveModal = (e, host, address, duration, mediaurls) => {
 
     e.preventDefault()
 
     setDestinationAddress(address)
     setCurrentDuration(duration)
-    setOpenReserveModal(true)
+    setMediaURLs(mediaurls)
     setHostUserId(host._userId)
+    setSelectedConnection(host.connectionType)
+    setSecondaryConnection(host.secondaryConnectionType)
+
+    setOpenReserveModal(true)
   }
 
   const handleCloseReserveModal = (e) => {
@@ -1203,6 +1241,53 @@ const {scrollToTime} = useMemo(
             <Box sx={{ ...profileStyle }}>
 
               <div className='flex flex-col w-full overflow-y-scroll'>
+
+              <Slider {...settings} ref={sliderRefPre}>
+            
+            {mediaURLs?.length > 0 && 
+            
+            mediaURLs.map((image, index) => (
+
+                <div key={`postmediapre_${index}`}> 
+                    
+                    <div>
+                        
+                        <div className='flex justify-center'>
+                        <Box
+                        style={{
+                            display:'flex',
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexDirection: "column",
+                            height: 'auto',
+                            width: 360,
+                            maxHeight: { xs: 360, sm:400, md: 450 },
+                            maxWidth: { xs: 360, sm:400, md: 450 }
+                            }}
+                        >
+                        
+                        <div className='flex flex-col justify-center items-center'>
+
+                            <img 
+                                className={`w-[175px] sm:w-[192px] md:w-[225px] lg:w-[242px] rounded-t-lg 
+                                border border-gray-200 z-0`}
+                                src={mediaURLs[index]} 
+                            />
+                        
+                        </div>
+
+                        </Box>
+                        </div>
+                        
+                    </div> 
+                    
+                </div>
+            ))}
+
+            </Slider>
+
+                <p>Connector Type: {selectedConnection}</p>
+                <p>Adapter Connector: {secondaryConnection}</p>
 
                 <p className='text-lg text-center font-semibold'> Enter Requested Time Below: </p>
 
