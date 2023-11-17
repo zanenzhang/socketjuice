@@ -462,6 +462,16 @@ const addAppointmentApproval = async (req, res) => {
 
                 const updatedAppointment = await Appointment.updateOne({_id: appointmentId},{$set:{status: "Approved"}})
 
+                const conflictingAppointments = await Appointment.find(
+                    {$and:[
+                        {$or: [{_requestUserId: userId}, {_hostUserId: hostUserId}]}, 
+                        {$or: [ 
+                            { start : { $lt: requestStart }, end : { $gt: requestStart } },
+                            { start : { $lt: requestEnd }, end : { $gt: requestEnd } },
+                            { start : { $gt: requestStart }, end : { $lt: requestEnd } }]}, 
+                        {$or: [{status: {$ne: "Approved" }}]}
+                    ]})
+
                 const newNoti = await Notification.create({_receivingUserId: userId, _sendingUserId: hostUserId, notificationType: "Approved", 
                         _relatedAppointment: foundAppointment._id})
 
@@ -484,8 +494,43 @@ const addAppointmentApproval = async (req, res) => {
                 }
 
                 if(updatedAppointment && newNoti && doneNoti && doneEmail && doneSms){
-                    
-                    return res.status(201).json({ message: 'Success' })
+
+                    if(conflictingAppointments && conflictingAppointments?.length > 0){
+                        
+                        var count = 0;
+                        for(let i=0; i<conflictingAppointments?.length; i++){
+                            
+                            const newNoti = await Notification.create(
+                                {_receivingUserId: conflictingAppointments[i]._requestUserId, 
+                                _sendingUserId: conflictingAppointments[i]._hostUserId, 
+                                notificationType: "Rejected", 
+                                _relatedAppointment: conflictingAppointments[i]._id})
+
+                            if(newNoti){
+                                count += 1
+                            }
+                        }
+
+                        if(count === conflictingAppointments?.length){
+
+                            const pullappointments = await Appointment.updateMany(
+                                {$and:[
+                                    {$or: [{_requestUserId: userId}, {_hostUserId: hostUserId}]}, 
+                                    {$or: [ 
+                                        { start : { $lt: requestStart }, end : { $gt: requestStart } },
+                                        { start : { $lt: requestEnd }, end : { $gt: requestEnd } },
+                                        { start : { $gt: requestStart }, end : { $lt: requestEnd } }]}, 
+                                    {status: {$ne: "Approved"}}
+                                ]}, {$set: {status: "Rejected"}})
+        
+                            if(pullappointments){
+                                return res.status(201).json({ message: 'Success' })
+                            }
+                        }
+
+                    } else {
+                        return res.status(201).json({ message: 'Success' })
+                    }
 
                 } else {
 

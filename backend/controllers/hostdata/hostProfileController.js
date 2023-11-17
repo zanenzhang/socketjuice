@@ -102,17 +102,16 @@ const getHostProfilesCoord = async (req, res) => {
             connectorarray.push("Tesla")
         }
         
-
         var searchobj = {
             "$or": [],
             deactivated: false,
             verifiedHostCharging: true,
             connectorType: {"$in": connectorarray},
             location:
-            { $near:
+            { "$near":
                 {
-                    $geometry: { type: "Point",  coordinates: coordinatesInput },
-                    $maxDistance: 10000
+                    "$geometry": { type: "Point",  coordinates: coordinatesInput },
+                    "$maxDistance": 10000
                 }
             }
         }
