@@ -306,9 +306,9 @@ const editSettingsUserProfile = async (req, res) => {
         )    
         
         const {loggedUserId, firstname, lastname, profilePicKey, profilePicURL, pushNotifications, emailNotifications, smsNotifications,
-            j1772ACChecked, ccs1DCChecked, mennekesACChecked, ccs2DCChecked, chademoDChecked, gbtACChecked, gbtDCChecked, teslaChecked } = req.body
+            j1772ACChecked, ccs1DCChecked, mennekesACChecked, ccs2DCChecked, chademoDCChecked, gbtACChecked, gbtDCChecked, teslaChecked } = req.body
 
-        console.log(j1772ACChecked, ccs1DCChecked, mennekesACChecked, ccs2DCChecked, chademoDChecked, gbtACChecked, gbtDCChecked, teslaChecked)
+        console.log(j1772ACChecked, ccs1DCChecked, mennekesACChecked, ccs2DCChecked, chademoDCChecked, gbtACChecked, gbtDCChecked, teslaChecked)
         console.log(typeof(j1772ACChecked))
     
         if(!loggedUserId || !firstname || !foundUser._id.toString() === ((loggedUserId)) ) {
@@ -351,7 +351,7 @@ const editSettingsUserProfile = async (req, res) => {
                 ccs1DCChecked ? foundDriver.ccs1DCChecked = ccs1DCChecked : foundDriver.ccs1DCChecked = false;
                 mennekesACChecked ? foundDriver.mennekesACChecked = mennekesACChecked : foundDriver.mennekesACChecked = "";
                 ccs2DCChecked ? foundDriver.ccs2DCChecked = ccs2DCChecked : foundDriver.ccs2DCChecked = "";
-                chademoDChecked ? foundDriver.chademoDChecked = chademoDChecked : foundDriver.chademoDChecked = "";
+                chademoDCChecked ? foundDriver.chademoDCChecked = chademoDCChecked : foundDriver.chademoDCChecked = "";
                 gbtACChecked ? foundDriver.gbtACChecked = gbtACChecked : foundDriver.gbtACChecked = "";
                 gbtDCChecked ? foundDriver.gbtDCChecked = gbtDCChecked : foundDriver.gbtDCChecked = "";
                 teslaChecked ? foundDriver.teslaChecked = teslaChecked : foundDriver.teslaChecked = "";
@@ -382,7 +382,7 @@ const editSettingsUserProfile = async (req, res) => {
                     ccs1DCChecked ? foundDriver.ccs1DCChecked = ccs1DCChecked : foundDriver.ccs1DCChecked = false;
                     mennekesACChecked ? foundDriver.mennekesACChecked = mennekesACChecked : foundDriver.mennekesACChecked = "";
                     ccs2DCChecked ? foundDriver.ccs2DCChecked = ccs2DCChecked : foundDriver.ccs2DCChecked = "";
-                    chademoDChecked ? foundDriver.chademoDChecked = chademoDChecked : foundDriver.chademoDChecked = "";
+                    chademoDCChecked ? foundDriver.chademoDCChecked = chademoDCChecked : foundDriver.chademoDCChecked = "";
                     gbtACChecked ? foundDriver.gbtACChecked = gbtACChecked : foundDriver.gbtACChecked = "";
                     gbtDCChecked ? foundDriver.gbtDChecked = gbtDChecked : foundDriver.gbtDCChecked = "";
                     teslaChecked ? foundDriver.teslaChecked = teslaChecked : foundDriver.teslaChecked = "";
@@ -407,7 +407,7 @@ const editSettingsUserProfile = async (req, res) => {
                 ccs1DCChecked ? foundDriver.ccs1DCChecked = ccs1DCChecked : foundDriver.ccs1DCChecked = false;
                 mennekesACChecked ? foundDriver.mennekesACChecked = mennekesACChecked : foundDriver.mennekesACChecked = "";
                 ccs2DCChecked ? foundDriver.ccs2DCChecked = ccs2DCChecked : foundDriver.ccs2DCChecked = "";
-                chademoDChecked ? foundDriver.chademoDChecked = chademoDChecked : foundDriver.chademoDChecked = "";
+                chademoDCChecked ? foundDriver.chademoDCChecked = chademoDCChecked : foundDriver.chademoDCChecked = "";
                 gbtACChecked ? foundDriver.gbtACChecked = gbtACChecked : foundDriver.gbtACChecked = "";
                 gbtDCChecked ? foundDriver.gbtDCChecked = gbtDCChecked : foundDriver.gbtDCChecked = "";
                 teslaChecked ? foundDriver.teslaChecked = teslaChecked : foundDriver.teslaChecked = "";
@@ -1525,7 +1525,6 @@ const addHostProfile = async (req, res) => {
         foundHost.connectionType = connectorType
         foundHost.secondaryConnectionType = secondaryConnectorType
         foundHost.chargingLevel = chargingLevel
-        
 
         if(connectorType === 'AC-J1772-Type1' || secondaryConnectorType === 'AC-J1772-Type1'){
             foundDriver.j1772ACChecked = true
@@ -1543,7 +1542,7 @@ const addHostProfile = async (req, res) => {
             foundDriver.ccs2DCChecked = true
         
         } else if(connectorType === 'DC-CHAdeMO' || secondaryConnectorType === 'DC-CHAdeMO'){
-            foundDriver.chademoDChecked = true
+            foundDriver.chademoDCChecked = true
         
         } else if(connectorType === 'DC-GB/T' || secondaryConnectorType === 'DC-GB/T'){
             foundDriver.gbtDCChecked = true

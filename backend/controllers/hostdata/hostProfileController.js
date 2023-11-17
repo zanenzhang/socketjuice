@@ -55,7 +55,8 @@ const getHostProfile = async (req, res) => {
 
 const getHostProfilesCoord = async (req, res) => {
     
-    var { coordinatesInput, loggedUserId, dayofweek, localtime } = req.query
+    var { coordinatesInput, loggedUserId, dayofweek, localtime, j1772ACChecked, ccs1DCChecked, mennekesACChecked, ccs2DCChecked, chademoDCChecked, 
+        gbtACChecked, gbtDCChecked, teslaChecked } = req.query
 
     if (!coordinatesInput || !loggedUserId ) {
         return res.status(400).json({ message: 'Missing required info' })
@@ -67,10 +68,46 @@ const getHostProfilesCoord = async (req, res) => {
 
     try {
 
+        var connectorarray = []
+
+        if(j1772ACChecked){
+            connectorarray.push("AC-J1772-Type1")
+        }
+         
+        if(ccs1DCChecked){
+            connectorarray.push("DC-CCS1")
+        }
+        
+        if(mennekesACChecked){
+            connectorarray.push("AC-Mennekes-Type2")
+        }
+        
+        if(gbtACChecked){
+            connectorarray.push("AC-GB/T")
+        }
+        
+        if(chademoDCChecked){
+            connectorarray.push("DC-CHAdeMO")
+        }
+        
+        if(gbtDCChecked){
+            connectorarray.push("DC-GB/T")
+        }
+
+        if(ccs2DCChecked){
+            connectorarray.push("DC-CCS2")
+        }
+
+        if(teslaChecked){
+            connectorarray.push("Tesla")
+        }
+        
+
         var searchobj = {
             "$or": [],
             deactivated: false,
             verifiedHostCharging: true,
+            connectorType: {"$in": connectorarray},
             location:
             { $near:
                 {

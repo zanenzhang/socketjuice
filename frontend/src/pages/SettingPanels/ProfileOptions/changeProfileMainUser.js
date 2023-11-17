@@ -65,7 +65,7 @@ export default function ChangeProfileMainUser({loggedUserId }) {
   const [ccs2DCChecked, setccs2DCChecked] = useState(false);
   const [chademoDCChecked, setChademoDCChecked] = useState(false);
   const [gbtACChecked, setgbtACChecked] = useState(false);
-  const [gbtDChecked, setgbtDCChecked] = useState(false);
+  const [gbtDCChecked, setgbtDCChecked] = useState(false);
   const [teslaChecked, setTeslaChecked] = useState(false);
 
   const FIRST_NAME_REGEX = /^[a-zA-Z_ ]{0,48}$/;
@@ -208,7 +208,7 @@ export default function ChangeProfileMainUser({loggedUserId }) {
 
                     const editedSettings = await editSettingsUserProfile(auth.userId, firstName, lastName, profilePicKey, profilePicURL, 
                         pushNotifications, emailNotifications, smsNotifications, j1772ACChecked, ccs1DCChecked, mennekesACChecked, ccs2DCChecked, 
-                        chademoDCChecked, gbtACChecked, gbtDChecked, teslaChecked, auth.accessToken)
+                        chademoDCChecked, gbtACChecked, gbtDCChecked, teslaChecked, auth.accessToken)
 
                     if(editedSettings){
 
@@ -281,7 +281,8 @@ export default function ChangeProfileMainUser({loggedUserId }) {
       } else {
 
         const editedSettings = await editSettingsUserProfile(auth.userId, firstName, lastName, "", "",
-          pushNotifications, emailNotifications, smsNotifications, auth.accessToken)
+          pushNotifications, emailNotifications, smsNotifications, j1772ACChecked, ccs1DCChecked, mennekesACChecked, ccs2DCChecked, 
+          chademoDCChecked, gbtACChecked, gbtDCChecked, teslaChecked, auth.accessToken)
 
         if(editedSettings){
 

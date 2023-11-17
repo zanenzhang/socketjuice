@@ -55,7 +55,7 @@ const MapPage = () => {
   const [ccs2DCChecked, setccs2DCChecked] = useState(false);
   const [chademoDCChecked, setchademoDCChecked] = useState(false);
   const [gbtACChecked, setgbtACChecked] = useState(false);
-  const [gbtDChecked, setgbtDCChecked] = useState(false);
+  const [gbtDCChecked, setgbtDCChecked] = useState(false);
   const [teslaChecked, setTeslaChecked] = useState(false);
   
   const [waitingCurrent, setWaitingCurrent] = useState(false);
@@ -663,8 +663,9 @@ const {scrollToTime} = useMemo(
         const localtime = today.toTimeString().slice(0,5)
       
         var coordinatesInput = [newPos.lng, newPos.lat]
-        const locations = await getHostProfilesCoord(coordinatesInput, dayofweek, localtime, 
-          auth.userId, auth.accessToken)
+        const locations = await getHostProfilesCoord(coordinatesInput, dayofweek, localtime,
+          j1772ACChecked, ccs1DCChecked, mennekesACChecked, ccs2DCChecked, chademoDCChecked, gbtACChecked, 
+          gbtDCChecked, teslaChecked, auth.userId, auth.accessToken)
 
         if(locations){
 
@@ -1104,8 +1105,8 @@ const {scrollToTime} = useMemo(
                     <FormControlLabel
                         value="GB/T DC Plug"
                         control={
-                        <Checkbox checked={gbtDChecked}
-                                onChange={()=>setgbtDCChecked(!gbtDChecked)}
+                        <Checkbox checked={gbtDCChecked}
+                                onChange={()=>setgbtDCChecked(!gbtDCChecked)}
                                 style ={{
                                 color: "#995372",
                                 transform: "scale(1.5)",

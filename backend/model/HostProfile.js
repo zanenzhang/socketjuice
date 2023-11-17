@@ -50,7 +50,7 @@ var hostProfileSchema = new Schema({
         type: String,
     },
     connectionType: {
-        type: String,
+        type: String, //AC-J1772-Type1, AC-Mennekes-Type2, AC-GB/T, DC-CCS1, DC-CCS2, DC-CHAdeMO, DC-GB/T, Tesla
     },
     secondaryConnectionType: {
         type: String,
