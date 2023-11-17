@@ -54,6 +54,15 @@ export default function ChangeProfileMainStore({loggedUserId}) {
   const [closedOnSunday, setClosedOnSunday] = useState(false);
   const [closedOnHolidays, setClosedOnHolidays] = useState(false);
 
+  const [allDayMonday, setAllDayMonday] = useState(false);
+  const [allDayTuesday, setAllDayTuesday] = useState(false);
+  const [allDayWednesday, setAllDayWednesday] = useState(false);
+  const [allDayThursday, setAllDayThursday] = useState(false);
+  const [allDayFriday, setAllDayFriday] = useState(false);
+  const [allDaySaturday, setAllDaySaturday] = useState(false);
+  const [allDaySunday, setAllDaySunday] = useState(false);
+  const [allDayHolidays, setAllDayHolidays] = useState(false);
+
   const [hostComments, setHostComments] = useState("");
   const [validHostComments, setValidHostComments] = useState(false);
   const [hostCommentsFocus, setHostCommentsFocus] = useState(false);
@@ -242,6 +251,15 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
             setClosedOnSunday(response.hostProfile.closedOnSunday)
             setClosedOnHolidays(response.hostProfile.closedOnHolidays)
 
+            setAllDayMonday(response.hostProfile.allDayMonday)
+            setAllDayTuesday(response.hostProfile.allDayTuesday)
+            setAllDayWednesday(response.hostProfile.allDayWednesday)
+            setAllDayThursday(response.hostProfile.allDayThursday)
+            setAllDayFriday(response.hostProfile.allDayFriday)
+            setAllDaySaturday(response.hostProfile.allDaySaturday)
+            setAllDaySunday(response.hostProfile.allDaySunday)
+            setAllDayHolidays(response.hostProfile.allDayHolidays)
+
             setHostComments(response.hostProfile.hostComments)
             setCurrency(response.hostProfile.currency)
             setChargeRate(response.hostProfile.chargeRatePerHalfHour)
@@ -260,76 +278,35 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
 
         if (day === 'Monday'){
 
-            if(event.target.value < hoursMondayFinish){
-                setHoursMondayStart(event.target.value)
-            } else {
-                setHoursMondayStart(hoursMondayFinish)
-                setClosedOnMonday(true);
-            }
+            setHoursMondayStart(event.target.value)
 
         } else if( day === 'Tuesday'){
 
-            if(event.target.value < hoursMondayFinish){
-                setHoursTuesdayStart(event.target.value)
-            } else {
-                setHoursTuesdayStart(hoursTuesdayFinish)
-                setClosedOnTuesday(true);
-            }
+            setHoursTuesdayStart(event.target.value)
 
         } else if (day === 'Wednesday'){
 
-            if(event.target.value < hoursWednesdayFinish){
-                setHoursWednesdayStart(event.target.value)
-            } else {
-                setHoursWednesdayStart(hoursWednesdayFinish)
-                setClosedOnWednesday(true);
-            }
+            setHoursWednesdayStart(event.target.value)
 
         } else if (day === 'Thursday'){
 
-            if(event.target.value < hoursThursdayFinish){
-                setHoursThursdayStart(event.target.value)
-            } else {
-                setHoursThursdayStart(hoursThursdayFinish)
-                setClosedOnThursday(true);
-            }
+            setHoursThursdayStart(event.target.value)
 
         } else if (day === 'Friday'){
 
-            if(event.target.value < hoursFridayFinish){
-                setHoursFridayStart(event.target.value)
-            } else {
-                setHoursFridayStart(hoursFridayFinish)
-                setClosedOnFriday(true);
-            }
+            setHoursFridayStart(event.target.value)
 
         } else if (day === 'Saturday'){
 
-            if(event.target.value < hoursSaturdayFinish){
-                setHoursSaturdayStart(event.target.value)
-            } else {
-                setHoursSaturdayStart(hoursSaturdayFinish)
-                setClosedOnSaturday(true);
-            }
+            setHoursSaturdayStart(event.target.value)
 
         } else if (day === 'Sunday'){
 
-            if(event.target.value < hoursSundayFinish){
-                setHoursSundayStart(event.target.value)
-            } else {
-                setHoursSundayStart(hoursSundayFinish)
-                setClosedOnSunday(true);
-            }
+            setHoursSundayStart(event.target.value)
 
         } else if (day === ' Holiday'){
 
-            if(event.target.value < holidayHoursFinish){
-                setHolidayHoursStart(event.target.value)
-            } else {
-                setHolidayHoursStart(holidayHoursFinish)
-                setClosedOnHolidays(true);
-            }
-            
+            setHolidayHoursStart(event.target.value)
         }
     }
 
@@ -337,73 +314,35 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
 
         if (day === 'Monday'){
 
-            if(event.target.value > hoursMondayStart){
-                setHoursMondayFinish(event.target.value)
-            } else {
-                setHoursMondayFinish(hoursMondayStart)
-                setClosedOnMonday(true);
-            }
+            setHoursMondayFinish(event.target.value)
 
         } else if( day === 'Tuesday'){
 
-            if(event.target.value > hoursMondayStart){
-                setHoursTuesdayFinish(event.target.value)
-            } else {
-                setHoursTuesdayFinish(hoursMondayStart)
-                setClosedOnTuesday(true);
-            }
+            setHoursTuesdayFinish(event.target.value)
 
         } else if (day === 'Wednesday'){
 
-            if(event.target.value > hoursWednesdayStart){
-                setHoursWednesdayFinish(event.target.value)
-            } else {
-                setHoursWednesdayFinish(hoursWednesdayStart)
-                setClosedOnWednesday(true);
-            }
+            setHoursWednesdayFinish(event.target.value)
 
         } else if (day === 'Thursday'){
 
-            if(event.target.value > hoursThursdayStart){
-                setHoursThursdayFinish(event.target.value)
-            } else {
-                setHoursThursdayFinish(hoursThursdayStart)
-                setClosedOnThursday(true);
-            }
+            setHoursThursdayFinish(event.target.value)
 
         } else if (day === 'Friday'){
 
-            if(event.target.value > hoursFridayStart){
-                setHoursFridayFinish(event.target.value)
-            } else {
-                setHoursFridayFinish(hoursFridayStart)
-                setClosedOnFriday(true);
-            }
+            setHoursFridayFinish(event.target.value)
 
         } else if (day === 'Saturday'){
 
-            if(event.target.value > hoursSaturdayStart){
-                setHoursSaturdayFinish(event.target.value)
-            } else {
-                setHoursSaturdayFinish(hoursSaturdayStart)
-                setClosedOnSaturday(true);
-            }
+            setHoursSaturdayFinish(event.target.value)
 
         } else if (day === 'Sunday'){
 
-            if(event.target.value > hoursSundayStart){
-                setHoursSundayFinish(event.target.value)
-            } else {
-                setHoursSundayFinish(hoursSundayStart)
-            }
+            setHoursSundayFinish(event.target.value)
 
         } else if (day === ' Holiday'){
 
-            if(event.target.value > holidayHoursStart){
-                setHolidayHoursFinish(event.target.value)
-            } else {
-                setHolidayHoursFinish(holidayHoursStart)
-            }  
+            setHolidayHoursFinish(event.target.value)
         }
     }
 
@@ -429,6 +368,7 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
             hoursFridayStart, hoursFridayFinish, hoursSaturdayStart, hoursSaturdayFinish, hoursSundayStart, hoursSundayFinish,
             holidayHoursStart, holidayHoursFinish, 
             closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays,
+            allDayMonday, allDayTuesday, allDayWednesday, allDayThursday, allDayFriday, allDaySaturday, allDaySunday, allDayHolidays,
             currency, chargeRate, hostComments,
             auth.accessToken)
 

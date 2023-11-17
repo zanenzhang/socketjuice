@@ -5,6 +5,7 @@ async function editSettingsHostProfile (loggedUserId, hoursMondayStart, hoursMon
     hoursFridayStart, hoursFridayFinish, hoursSaturdayStart, hoursSaturdayFinish, hoursSundayStart, hoursSundayFinish,
     holidayHoursStart, holidayHoursFinish, 
     closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays,
+    allDayMonday, allDayTuesday, allDayWednesday, allDayThursday, allDayFriday, allDaySaturday, allDaySunday, allDayHolidays,
     currency, chargeRate, hostComments, accessToken) {
 
     try {
@@ -13,6 +14,7 @@ async function editSettingsHostProfile (loggedUserId, hoursMondayStart, hoursMon
                 hoursFridayStart, hoursFridayFinish, hoursSaturdayStart, hoursSaturdayFinish, hoursSundayStart, hoursSundayFinish,
                 holidayHoursStart, holidayHoursFinish, 
                 closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays,
+                allDayMonday, allDayTuesday, allDayWednesday, allDayThursday, allDayFriday, allDaySaturday, allDaySunday, allDayHolidays,
                 currency, chargeRate, hostComments, }),
             {
                 headers: { "Authorization": `Bearer ${accessToken} ${loggedUserId}`, 

@@ -67,26 +67,137 @@ const getHostProfilesCoord = async (req, res) => {
 
     try {
 
-        const foundHostProfiles = await HostProfile.find({
+        var searchobj = {
+            "$or": [],
             deactivated: false,
             verifiedHostCharging: true,
             location:
-              { $near:
-                 {
-                   $geometry: { type: "Point",  coordinates: coordinatesInput },
-                   $maxDistance: 10000
-                 }
-              }
-          }).limit(10)
+            { $near:
+                {
+                    $geometry: { type: "Point",  coordinates: coordinatesInput },
+                    $maxDistance: 10000
+                }
+            }
+        }
+
+        if(dayofweek === "Monday"){
+
+            searchobj["closedOnMonday"] = false
+            
+            var array = [{"allDayMonday": true},{"hoursMondayStart": {"$lte": localtime}}];
+            searchobj["$or"] = array
+
+        } else if (dayofweek === "Tuesday"){
+
+            searchobj["closedOnTuesday"] = false
+            
+            var array = [{"allDayTuesday": true},{"hoursTuesdayStart": {"$lte": localtime}}];
+            searchobj["$or"] = array
+
+        } else if (dayofweek === "Wednesday"){
+
+            searchobj["closedOnWednesday"] = false
+            
+            var array = [{"allDayWednesday": true},{"hoursWednesdayStart": {"$lte": localtime}}];
+            searchobj["$or"] = array
+
+        } else if (dayofweek === "Thursday"){
+
+            searchobj["closedOnThursday"] = false
+            
+            var array = [{"allDayThursday": true},{"hoursThursdayStart": {"$lte": localtime}}];
+            searchobj["$or"] = array
+
+        } else if (dayofweek === "Friday"){
+
+            searchobj["closedOnFriday"] = false
+            
+            var array = [{"allDayFriday": true},{"hoursFridayStart": {"$lte": localtime}}];
+            searchobj["$or"] = array
+
+        } else if (dayofweek === "Saturday"){
+
+            searchobj["closedOnSaturday"] = false
+            
+            var array = [{"allDaySaturday": true},{"hoursSaturdayStart": {"$lte": localtime}}];
+            searchobj["$or"] = array
+            
+        } else if (dayofweek === "Sunday"){
+
+            searchobj["closedOnSunday"] = false
+            
+            var array = [{"allDaySunday": true},{"hoursSundayStart": {"$lte": localtime}}];
+            searchobj["$or"] = array
+        }
+
+        const preFoundHostProfiles = await HostProfile.find(searchobj).limit(10)
 
         const bookmarksFound = await Bookmark.findOne({_userId: loggedUserId})
         const flaggedList = await Flags.findOne({_userId: loggedUserId})
 
         let doneProfileData = false;
 
-        if(foundHostProfiles?.length > 0){
+        if(preFoundHostProfiles?.length > 0){
 
-            console.log(foundHostProfiles)
+            console.log(preFoundHostProfiles)
+
+            var foundHostProfiles = []
+            var startstr = ""
+            var endstr = ""
+
+            if(dayofweek === "Monday"){
+
+                startstr = hoursMondayStart
+                endstr = hoursMondayFinish
+    
+            } else if (dayofweek === "Tuesday"){
+    
+                startstr = hoursTuesdayStart
+                endstr = hoursTuesdayFinish
+    
+            } else if (dayofweek === "Wednesday"){
+    
+                startstr = hoursWednesdayStart
+                endstr = hoursWednesdayFinish
+    
+            } else if (dayofweek === "Thursday"){
+    
+                startstr = hoursThursdayStart
+                endstr = hoursThursdayFinish
+    
+            } else if (dayofweek === "Friday"){
+    
+                startstr = hoursFridayStart
+                endstr = hoursFridayFinish
+    
+            } else if (dayofweek === "Saturday"){
+    
+                startstr = hoursSaturdayStart
+                endstr = hoursSaturdayFinish
+                
+            } else if (dayofweek === "Sunday"){
+    
+                startstr = hoursSundayStart
+                endstr = hoursSundayFinish
+            }
+
+            for(let i=0; i<preFoundHostProfiles?.length; i++){
+
+                if(preFoundHostProfiles[i][endstr] < preFoundHostProfiles[i][startstr]){
+                    if(localtime > preFoundHostProfiles[i][endstr] && localtime < preFoundHostProfiles[i][startstr]){
+                        continue
+                    } else {
+                        foundHostProfiles.push(preFoundHostProfiles[i])
+                    }
+                
+                } else if (preFoundHostProfiles[i][endstr] > preFoundHostProfiles[i][startstr]){
+                    if(localtime > preFoundHostProfiles[i][endstr]){
+                        continue
+                    } else {
+                        foundHostProfiles.push(preFoundHostProfiles[i])
+                    }
+                }
+            }
 
             foundHostProfiles?.forEach(function(item, index){
 
@@ -258,6 +369,7 @@ const editSettingsHostProfile = async (req, res) => {
             hoursFridayStart, hoursFridayFinish, hoursSaturdayStart, hoursSaturdayFinish, hoursSundayStart, hoursSundayFinish,
             holidayHoursStart, holidayHoursFinish, 
             closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays,
+            allDayMonday, allDayTuesday, allDayWednesday, allDayThursday, allDayFriday, allDaySaturday, allDaySunday, allDayHolidays,
             currency, chargeRate, hostComments } = req.body
         
         if ( !loggedUserId ) {    
@@ -303,6 +415,15 @@ const editSettingsHostProfile = async (req, res) => {
             closedOnSaturday ?  foundHostProfile.closedOnSaturday = closedOnSaturday : foundHostProfile.closedOnSaturday = false;
             closedOnSunday ?  foundHostProfile.closedOnSunday = closedOnSunday : foundHostProfile.closedOnSunday = false;
             closedOnHolidays ?  foundHostProfile.closedOnHolidays = closedOnHolidays : foundHostProfile.closedOnHolidays = false;
+
+            allDayMonday ?  foundHostProfile.allDayMonday = allDayMonday : foundHostProfile.allDayMonday = false;
+            allDayTuesday ?  foundHostProfile.allDayTuesday = allDayTuesday : foundHostProfile.allDayTuesday = false;
+            allDayWednesday ?  foundHostProfile.allDayWednesday = allDayWednesday : foundHostProfile.allDayWednesday = false;
+            allDayThursday ?  foundHostProfile.allDayThursday = allDayThursday : foundHostProfile.allDayThursday = false;
+            allDayFriday ?  foundHostProfile.allDayFriday = allDayFriday : foundHostProfile.allDayFriday = false;
+            allDaySaturday ?  foundHostProfile.allDaySaturday = allDaySaturday : foundHostProfile.allDaySaturday = false;
+            allDaySunday ?  foundHostProfile.allDaySunday = allDaySunday : foundHostProfile.allDaySunday = false;
+            allDayHolidays ?  foundHostProfile.allDayHolidays = allDayHolidays : foundHostProfile.allDayHolidays = false;
 
             hoursMondayFinish ? foundHostProfile.hoursMondayFinish = hoursMondayFinish : foundHostProfile.hoursMondayFinish = "";
             hoursTuesdayFinish ? foundHostProfile.hoursTuesdayFinish = hoursTuesdayFinish : foundHostProfile.hoursTuesdayFinish = "";

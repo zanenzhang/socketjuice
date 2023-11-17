@@ -167,6 +167,38 @@ var hostProfileSchema = new Schema({
         type: Boolean,
         default: false
     },
+    allDayMonday: {
+        type: Boolean,
+        default: false
+    }, 
+    allDayTuesday: {
+        type: Boolean,
+        default: false
+    },
+    allDayWednesday: {
+        type: Boolean,
+        default: false
+    },
+    allDayThursday: {
+        type: Boolean,
+        default: false
+    },
+    allDayFriday: {
+        type: Boolean,
+        default: false
+    },
+    allDaySaturday: {
+        type: Boolean,
+        default: false
+    },
+    allDaySunday: {
+        type: Boolean,
+        default: false
+    },
+    allDayHolidays: {
+        type: Boolean,
+        default: false
+    },
     hostComments: {
         type: String,
         maxLength: 2000,
