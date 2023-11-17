@@ -171,6 +171,33 @@ export default function NotificationsDropdown() {
                 }
               }
             }
+
+            var appointmentData = {}
+            var messageData = {}
+
+            for (let i=0; i<prevNotis.relatedAppointments?.length; i++){
+
+              if(appointmentData[prevNotis.relatedAppointments[i]._id] === undefined){
+                appointmentData[prevNotis.relatedAppointments[i]._id] = prevNotis.relatedAppointments[i]
+              }
+            }
+
+            for (let i=0; i<prevNotis.relatedMessages?.length; i++){
+              if(messageData[prevNotis.relatedMessages[i]._id] === undefined){
+                messageData[prevNotis.relatedMessages[i]._id] = prevNotis.relatedMessages[i]
+              }
+            }
+
+            for (let i=0; i<prevNotis.notiData?.length; i++){
+
+              if(prevNotis.notiData[i]._relatedMessage){
+                prevNotis.notiData[i].message = messageData[prevNotis.notiData[i]._relatedMessage]
+              }
+
+              if(prevNotis.notiData[i]._relatedAppointment){
+                prevNotis.notiData[i].appointment = messageData[prevNotis.notiData[i]._relatedAppointment]
+              }
+            }
             
             setNotiItems([...prevNotis.notiData, ...notiItems]);
 
@@ -311,13 +338,13 @@ export default function NotificationsDropdown() {
 
       <div key={"notiContainer"} className='flex flex-col h-30 overflow-y-auto' onScroll={ handleScroll}>
 
-      {notiItems ? notiItems.map((noti) => (
+        {notiItems ? notiItems.map((noti) => (
 
-        <div key={noti._id} className='w-full'>
-            <NotificationItem notiLine={noti} loggedUserId={auth.userId} />
-        </div>
+          <div key={noti._id} className='w-full'>
+              <NotificationItem notiLine={noti} loggedUserId={auth.userId} />
+          </div>
 
-      )) : null}
+        )) : null}
 
       </div> 
 

@@ -329,7 +329,7 @@ const addAppointmentRequest = async (req, res) => {
                 if(newAppointment){
 
                     const newNoti = await Notification.create({_receivingUserId: hostUserId, _sendingUserId: userId, notificationType: "Requested", 
-                        _relatedAppointment: newAppointment._id})
+                        _relatedAppointment: newAppointment._id })
 
                     if(foundUser.emailNotifications){
                         const success = await sendNotiEmail({firstName: foundUser.firstName, toUser:foundUser.email, notificationType: "Requested"})
@@ -503,8 +503,7 @@ const addAppointmentApproval = async (req, res) => {
                             const newNoti = await Notification.create(
                                 {_receivingUserId: conflictingAppointments[i]._requestUserId, 
                                 _sendingUserId: conflictingAppointments[i]._hostUserId, 
-                                notificationType: "Rejected", 
-                                _relatedAppointment: conflictingAppointments[i]._id})
+                                notificationType: "Cancelled", _relatedAppointment: conflictingAppointments[i]._id})
 
                             if(newNoti){
                                 count += 1
@@ -521,7 +520,7 @@ const addAppointmentApproval = async (req, res) => {
                                         { start : { $lt: requestEnd }, end : { $gt: requestEnd } },
                                         { start : { $gt: requestStart }, end : { $lt: requestEnd } }]}, 
                                     {status: {$ne: "Approved"}}
-                                ]}, {$set: {status: "Rejected"}})
+                                ]}, {$set: {status: "Cancelled"}})
         
                             if(pullappointments){
                                 return res.status(201).json({ message: 'Success' })
@@ -664,6 +663,62 @@ const driverRequestCancelSubmit = async (req, res) =>{
     }
 }
 
+const addDriverReject = async (req, res) =>{
+
+    const { userId, hostUserId, appointmentId } = req.body    
+
+    if (!userId || !appointmentId || !hostUserId ) return res.status(400).json({ 'message': 'Missing required fields!' });
+
+    try {
+
+        const foundUser = await User.findOne({_id: userId})
+
+        var doneNoti = false;
+        var doneEmail = false;
+        var doneSms = false;
+
+        if(foundUser){
+
+            const foundAppointment = await Appointment.updateOne({_id: appointmentId, _requestUserId: userId, _hostUserId: hostUserId}, {$set: {status: "Cancelled"}})
+            const updateDriverProfile = await DriverProfile.updateOne({_id: userId},{$inc: {numberOfAppointmentCancellations: 1}})
+
+            const newNoti = await Notification.create({_receivingUserId: hostUserId, _sendingUserId: userId, notificationType: "Cancelled", 
+                            _relatedAppointment: foundAppointment._id})
+
+            if(foundUser.emailNotifications){
+                const success = await sendNotiEmail({firstName: foundUser.firstName, toUser:foundUser.email, notificationType: "CancelSubmitted"})
+                if(success){
+                    doneEmail = true
+                }
+            } else {
+                doneEmail = true
+            }
+
+            if(foundUser.smsNotifications){
+                const success = await sendSmsNotification({receivingUserId: hostUserId, notificationType: "CancelSubmitted"})
+                if(success){
+                    doneSms = true
+                }
+            } else {
+                doneSms = true
+            }
+
+            if(foundAppointment && updateDriverProfile && newNoti && doneNoti && doneEmail && doneSms){
+
+                return res.status(201).json({ message: 'Success' })
+            }
+        
+        } else {
+            return res.status(401).json({ message: 'Failed' })
+        }
+
+    } catch(err){
+
+        console.log(err)
+        return res.status(401).json({ message: 'Failed' })
+    }
+}
+
 const driverRequestCancelApprove = async (req, res) =>{
 
     const { userId, hostUserId, appointmentId } = req.body    
@@ -755,6 +810,63 @@ const hostRequestCancelSubmit = async (req, res) =>{
             const updateHostProfile = await HostProfile.updateOne({_id: hostUserId},{$inc: {numberOfAppointmentCancellations: 1}})
 
             const newNoti = await Notification.create({_receivingUserId: userId, _sendingUserId: hostUserId, notificationType: "CancelSubmitted", 
+                            _relatedAppointment: foundAppointment._id})    
+
+            if(foundUser.emailNotifications){
+                const success = await sendNotiEmail({firstName: foundUser.firstName, toUser:foundUser.email, notificationType: "CancelSubmitted"})
+                if(success){
+                    doneEmail = true
+                }
+            } else {
+                doneEmail = true
+            }
+
+            if(foundUser.smsNotifications){
+                const success = await sendSmsNotification({receivingUserId: hostUserId, notificationType: "CancelSubmitted"})
+                if(success){
+                    doneSms = true
+                }
+            } else {
+                doneSms = true
+            }
+
+            if(foundAppointment && updateHostProfile && newNoti && doneNoti && doneEmail && doneSms){
+
+                return res.status(201).json({ message: 'Success' })
+            }
+
+        } else {
+
+            return res.status(401).json({ message: 'Failed' })
+        }
+
+    } catch(err){
+
+        console.log(err)
+        return res.status(401).json({ message: 'Failed' })
+    }
+}
+
+const addHostReject = async (req, res) =>{
+
+    const { userId, hostUserId, appointmentId } = req.body 
+
+    if (!userId || !appointmentId || !hostUserId ) return res.status(400).json({ 'message': 'Missing required fields!' });
+
+    var doneNoti = false;
+    var doneEmail = false;
+    var doneSms = false;
+
+    try {
+
+        const foundUser = await User.findOne({_id: userId})
+
+        if(foundUser){
+
+            const foundAppointment = await Appointment.updateOne({_id: appointmentId, _requestUserId: userId, _hostUserId: hostUserId}, {$set: {status: "Cancelled"}})
+            const updateHostProfile = await HostProfile.updateOne({_id: hostUserId},{$inc: {numberOfAppointmentCancellations: 1}})
+
+            const newNoti = await Notification.create({_receivingUserId: userId, _sendingUserId: hostUserId, notificationType: "Cancelled", 
                             _relatedAppointment: foundAppointment._id})    
 
             if(foundUser.emailNotifications){
@@ -924,4 +1036,5 @@ const removeAppointment = async (req, res) => {
 
 
 module.exports = { getHostAppointments, getDriverAppointments, addAppointmentRequest, addAppointmentApproval, addAppointmentCompletion, 
-    driverRequestCancelSubmit, driverRequestCancelApprove, hostRequestCancelSubmit, hostRequestCancelApprove, removeAppointment }
+    driverRequestCancelSubmit, driverRequestCancelApprove, hostRequestCancelSubmit, hostRequestCancelApprove, removeAppointment,
+    addDriverReject, addHostReject }

@@ -55,10 +55,10 @@ const getHostProfile = async (req, res) => {
 
 const getHostProfilesCoord = async (req, res) => {
     
-    var { coordinatesInput, loggedUserId, dayofweek, localtime, j1772ACChecked, ccs1DCChecked, mennekesACChecked, ccs2DCChecked, chademoDCChecked, 
-        gbtACChecked, gbtDCChecked, teslaChecked } = req.query
+    var { coordinatesInput, loggedUserId, dayofweek, localtime, j1772ACChecked, ccs1DCChecked, mennekesACChecked, 
+        ccs2DCChecked, chademoDCChecked, gbtACChecked, gbtDCChecked, teslaChecked } = req.query
 
-    if (!coordinatesInput || !loggedUserId ) {
+    if (!coordinatesInput || !loggedUserId || !dayofweek ) {
         return res.status(400).json({ message: 'Missing required info' })
     }
 
@@ -111,7 +111,7 @@ const getHostProfilesCoord = async (req, res) => {
             { "$near":
                 {
                     "$geometry": { type: "Point",  coordinates: coordinatesInput },
-                    "$maxDistance": 10000
+                    "$maxDistance": 20000
                 }
             }
         }

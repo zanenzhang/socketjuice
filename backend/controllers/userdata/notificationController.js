@@ -28,32 +28,38 @@ const getNotifications = async (req, res) => {
                 const settings = await NotificationSettings.findOne({_userId: userId })
                 const notiData = await Notification.find({_userId: userId }).sort({createdAt: -1}).skip(skipValue).limit(10)
     
-                if(notiData){
+                if(notiData && notiData?.length > 0){
     
                     let arr1 = [];
                     notiData.forEach(function(item){arr1.push(item._otherUserId)})
     
-                    const userData = await User.find({_id: {$in: arr1}
-                        }).select("_id username roles profilePicURL")
+                    const userData = await User.find({_id: {$in: arr1}}).select("_id username roles profilePicURL")
+
+                    const relatedAppointments = await Appointment.find({_id: {$in: notiData?.map((item)=>item._relatedAppointment)}})
+                    const relatedMessages = await Message.find({_id: {$in: notiData?.map((item)=>item._relatedMessage)}})
     
-                    if(userData && settings){
+                    if(userData && settings && relatedAppointments && relatedMessages){
     
-                        return res.status(200).json({notiData, userData, settings})
+                        var stop = 0
+                        return res.status(200).json({notiData, userData, settings, relatedAppointments, relatedMessages, stop})
                     
                     } else {
     
-                        return res.status(400).json({message: "failed operation"})    
+                        var stop = 1
+                        return res.status(400).json({message: "failed operation", stop})    
                     }
     
                 } else {
     
-                    return res.status(400).json({message: "failed operation"})
+                    var stop = 1
+                    return res.status(400).json({message: "failed operation", stop})
                 }
             }
         
         } else {
 
-            res.status(400).json({"message": err.message})
+            var stop = 1
+            res.status(400).json({"message": err.message, stop})
         } 
  
     } catch(err){
@@ -489,9 +495,7 @@ const editNewRequestsFill = async (req, res) => {
 }
 
 
-module.exports = { getNotifications, addMessageNoti, 
-
-    editReadRecent, editOpenedAlert, editNewMessagesFill }
+module.exports = { getNotifications, addMessageNoti, editReadRecent, editOpenedAlert, editNewMessagesFill }
 
 
 //Need deletecomment, deletereply, and deletemessage routes and process

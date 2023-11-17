@@ -17,6 +17,9 @@ router.post('/drivercancelapprove', appointmentController.driverRequestCancelApp
 router.post('/hostcancelsubmit', appointmentController.hostRequestCancelSubmit);
 router.post('/hostcancelapprove', appointmentController.hostRequestCancelApprove);
 
+router.post('/driverreject', appointmentController.addDriverReject);
+router.post('/hostreject', appointmentController.addHostReject);
+
 router.delete('/', appointmentController.removeAppointment);
 
 
