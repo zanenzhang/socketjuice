@@ -1,4 +1,5 @@
 const User = require('../../model/User');
+const DriverProfile = require("../../model/DriverProfile");
 const { sendVerifiedAccount, sendVerifiedToAdmin } = require("../../middleware/mailer");
 
 const client = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
@@ -66,25 +67,68 @@ async function checkVerification (req, res) {
                 
                 console.log(verification.status)
 
+                var searchObj = {}
                 var currency = "cad"
                 if(phoneCountryCode == "ca"){
+                    
                     currency = "cad"
+                    searchObj["j1772ACChecked"] = true
+                    searchObj["ccs1DCChecked"] = true
+                    searchObj["teslaChecked"] = true
+
                 } else if(phoneCountryCode == "us"){
+                    
                     currency = "usd"
+                    searchObj["j1772ACChecked"] = true
+                    searchObj["ccs1DCChecked"] = true
+                    searchObj["teslaChecked"] = true
+
                 } else if(phoneCountryCode == "au"){
+                    
                     currency = "aud"
+                    searchObj["mennekesACChecked"] = true
+                    searchObj["ccs2DCChecked"] = true
+                    searchObj["teslaChecked"] = true
+
                 } else if(phoneCountryCode == "nz"){
+                    
                     currency = "nzd"
+                    searchObj["mennekesACChecked"] = true
+                    searchObj["ccs2DCChecked"] = true
+                    searchObj["teslaChecked"] = true
+
                 } else if(phoneCountryCode == "gb"){
+                    
                     currency = "gbp"
+                    searchObj["mennekesACChecked"] = true
+                    searchObj["ccs2DCChecked"] = true
+
                 } else if(phoneCountryCode == "in"){
+                    
                     currency = "inr"
+                    searchObj["gbtACChecked"] = true
+                    searchObj["gbtDCChecked"] = true
+                    searchObj["teslaChecked"] = true
+
                 } else if(phoneCountryCode == "jp"){
+                    
                     currency = "jpy"
+                    searchObj["j1772ACChecked"] = true
+                    searchObj["chademoDChecked"] = true
+                    searchObj["teslaChecked"] = true
+
                 } else if(phoneCountryCode == "cn"){
+                    
                     currency = "cny"
+                    searchObj["gbtACChecked"] = true
+                    searchObj["gbtDCChecked"] = true
+                    searchObj["teslaChecked"] = true
+
                 } else {
+                    
                     currency = "eur"
+                    searchObj["mennekesACChecked"] = true
+                    searchObj["ccs2DCChecked"] = true
                 }
 
                 const updatedUser = await User.updateOne({_id: userId},
@@ -92,12 +136,15 @@ async function checkVerification (req, res) {
                     currency: currency, phoneCountry: phoneCountry, phoneCountryCode: phoneCountryCode,
                     active: true}})
 
+                const updatedDriver = await DriverProfile.updateOne({_userId: userId},
+                    {$set: searchObj})
+
                 sendVerifiedAccount({ toUser: foundUser.email, firstName: foundUser.firstName })
                 
                 sendVerifiedToAdmin({verifiedUserId: foundUser._id, verifiedPhone: foundUser.primaryPhone,
                     verifiedFirstName: foundUser.firstName, verifiedLastame: foundUser.lastName})
 
-                if(updatedUser){
+                if(updatedUser && updatedDriver){
                     console.log("Success")
                     res.status(200).send({result: verification.status})
                 }

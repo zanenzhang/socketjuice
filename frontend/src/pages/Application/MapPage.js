@@ -1166,10 +1166,10 @@ const {scrollToTime} = useMemo(
                     />
                     </div>
 
-                    <div className='flex flex-col'>
-                    <label className='pb-4 font-bold'>GB/T DC Plug</label>
+                    <div className='flex flex-row items-start justify-start gap-x-3'>
+                    <label className='pb-4 font-bold'>GB/T DC</label>
                     <FormControlLabel
-                        value="GB/T DC Plug"
+                        value="GB/T DC"
                         control={
                         <Checkbox checked={gbtDCChecked}
                                 onChange={()=>setgbtDCChecked(!gbtDCChecked)}
@@ -1183,7 +1183,7 @@ const {scrollToTime} = useMemo(
                     />
                     </div>
 
-                    <div className='flex flex-col'>
+                    <div className='flex flex-row items-start justify-start gap-x-3'>
                     <label className='pb-4 font-bold'>Tesla</label>
                     <FormControlLabel
                         value="Tesla"
@@ -1199,9 +1199,7 @@ const {scrollToTime} = useMemo(
                         }
                     />
                     </div>
-
                 </div>
-
                 
                 {hostLocations.map((host, index) => (
                   
