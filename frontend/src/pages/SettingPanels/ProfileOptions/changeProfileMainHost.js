@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Box from "@material-ui/core/Box";
 import { makeStyles } from "@material-ui/core";
-import axios from '../../../api/axios'
 import useAuth from '../../../hooks/useAuth'
 import useLogout from '../../../hooks/useLogout';
 
@@ -10,7 +9,6 @@ import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { profanity } from '@2toad/profanity';
 
 import editSettingsHostProfile from '../../../helpers/HostData/editSettingsHostProfile';
 import getHostProfile from '../../../helpers/HostData/getHostProfile';
@@ -35,7 +33,7 @@ const useStyles = makeStyles({
 });
 
 
-export default function ChangeProfileMainStore({loggedUserId}) {
+export default function ChangeProfileMainHost({loggedUserId}) {
 
   const classes = useStyles();
   const { setAuth, auth } = useAuth();
@@ -357,56 +355,29 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
 
     setIsLoading(true);
 
-    profanity.removeWords(['arse', "ass", 'asses', 'cok',"balls",  "boob", "boobs", "bum", "bugger", 'butt',]);
+    const editedSettings = await editSettingsHostProfile(auth.userId, 
+        hoursMondayStart, hoursMondayFinish, hoursTuesdayStart, hoursTuesdayFinish, hoursWednesdayStart, hoursWednesdayFinish, hoursThursdayStart, hoursThursdayFinish,
+        hoursFridayStart, hoursFridayFinish, hoursSaturdayStart, hoursSaturdayFinish, hoursSundayStart, hoursSundayFinish,
+        holidayHoursStart, holidayHoursFinish, 
+        closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays,
+        allDayMonday, allDayTuesday, allDayWednesday, allDayThursday, allDayFriday, allDaySaturday, allDaySunday, allDayHolidays,
+        currency, chargeRate, hostComments,
+        auth.accessToken)
 
-    const profanityCheck = profanity.exists(hostComments)
-        
-    if(!profanityCheck){
+    if(editedSettings){
 
-        const editedSettings = await editSettingsHostProfile(auth.userId, 
-            hoursMondayStart, hoursMondayFinish, hoursTuesdayStart, hoursTuesdayFinish, hoursWednesdayStart, hoursWednesdayFinish, hoursThursdayStart, hoursThursdayFinish,
-            hoursFridayStart, hoursFridayFinish, hoursSaturdayStart, hoursSaturdayFinish, hoursSundayStart, hoursSundayFinish,
-            holidayHoursStart, holidayHoursFinish, 
-            closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays,
-            allDayMonday, allDayTuesday, allDayWednesday, allDayThursday, allDayFriday, allDaySaturday, allDaySunday, allDayHolidays,
-            currency, chargeRate, hostComments,
-            auth.accessToken)
+        toast.success("Success! Changed host profile and settings!", {
+            position: "bottom-center",
+            autoClose: 1500,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+        });
 
-        if(editedSettings){
-
-            setAuth(prev => {
-                return {
-                    ...prev,
-                    firstName: firstName,
-                    lastName: lastName,
-                    profilePicURL: profilePicURL,
-                    pushNotifications: pushNotifications,
-                    emailNotifications: emailNotifications,
-                    smsNotifications: smsNotifications,
-                }
-            });
-
-            toast.success("Success! Changed user profile and settings!", {
-              position: "bottom-center",
-              autoClose: 1500,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-              theme: "colored",
-              });
-
-            setIsLoading(false);
-        }
-    
-    } else {
-
-        setErrorMessage("Failed to save user profile settings. Please check for inappropriate content!");
-        const warnUser = await addWarnings(auth.userId, auth.accessToken)
-        if(warnUser?.status == 202){
-            logout();
-        }
+        setIsLoading(false);
     }     
   };
 
@@ -464,23 +435,6 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
                     
                     </select>
                 </div>  
-
-                <div className="flex flex-row justify-center items-center gap-x-2">
-
-                    <label className="flex justify-center items-center pr-2 font-semibold">Charging Level:</label>
-
-                    <select onChange={(event)=>setChargingLevel(event.target.value)}
-                    value={chargingLevel}
-                    className={`text-sm w-30 md:w-40 h-10 text-black justify-center
-                    border border-gray-primary rounded focus:outline-[#00D3E0] pl-6`}>
-
-                        <option value="Level 1">Level 1</option>
-                        <option value="Level 2">Level 2</option>
-                        <option value="Level 3">Level 3</option>
-
-                    </select> 
-
-                </div>
 
             </div>
 
@@ -1102,7 +1056,4 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
     </>
   );
 }
-
-
-
 

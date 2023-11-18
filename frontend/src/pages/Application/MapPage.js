@@ -1062,138 +1062,131 @@ const {scrollToTime} = useMemo(
             <div className='ml-4 py-2 flex flex-col w-[350px] h-[500px] rounded-xl overflow-y-scroll
               bg-gray-50 border-2 border-[#00D3E0] z-10 items-center px-2'>
 
-                <div className='flex flex-row overflow-x-scroll w-full gap-x-4 pl-4'>
+                <div className='flex flex-row overflow-x-scroll w-full
+                pl-4 border-b border-gray-500'>
 
-                    <div className='flex flex-row items-start justify-start gap-x-3'>
-                    <label className='pb-4'>J1772 AC</label>
+                    <div className='flex flex-row items-center justify-start gap-x-3'>
+                    <label className='text-right pr-2 text-xs sm:text-sm'>J1772 AC</label>
                     <FormControlLabel
                         value="J1772 AC"
                         control={
                         <Checkbox checked={j1772ACChecked}
                                 onChange={()=>setj1772ACChecked(!j1772ACChecked)}
                                 style ={{
-                                color: "#995372",
-                                transform: "scale(1.2)",
-                                paddingBottom: '12pt'
+                                color: "#00D3E0",
+                                transform: "scale(1.4)",
                             }}
                             />
                         }
                     />
                     </div>
 
-                    <div className='flex flex-row items-start justify-start gap-x-3'>
-                    <label className='pb-4'>CCS1 DC</label>
+                    <div className='flex flex-row items-center justify-start gap-x-3'>
+                    <label className='text-right pr-2 text-xs sm:text-sm'>CCS1 DC</label>
                     <FormControlLabel
                         value="CCS1 DC"
                         control={
                         <Checkbox checked={ccs1DCChecked}
                               onChange={()=>setccs1DCChecked(!ccs1DCChecked)}
                               style ={{
-                              color: "#995372",
-                              transform: "scale(1.5)",
-                              paddingBottom: '12pt'
+                              color: "#00D3E0",
+                              transform: "scale(1.4)",
                           }}
                           />
                         }
                     />
                     </div>
 
-                    <div className='flex flex-row items-start justify-start gap-x-3'>
-                    <label className='pb-4'>Mennekes AC</label>
+                    <div className='flex flex-row items-center justify-start gap-x-3'>
+                    <label className='text-right pr-2 text-xs sm:text-sm'>Mennekes AC</label>
                     <FormControlLabel
                         value="Mennekes AC"
                         control={
                         <Checkbox checked={mennekesACChecked}
                               onChange={()=>setmennekesACChecked(!mennekesACChecked)}
                               style ={{
-                              color: "#995372",
-                              transform: "scale(1.5)",
-                              paddingBottom: '12pt'
+                              color: "#00D3E0",
+                              transform: "scale(1.4)",
                           }}
                         />
                         }
                     />
                     </div>
 
-                    <div className='flex flex-row items-start justify-start gap-x-3'>
-                    <label className='pb-4 font-bold'>CCS2 DC</label>
+                    <div className='flex flex-row items-center justify-start gap-x-3'>
+                    <label className='text-right pr-2 text-xs sm:text-sm'>CCS2 DC</label>
                     <FormControlLabel
                         value="CCS2 DC"
                         control={
                         <Checkbox checked={ccs2DCChecked}
                               onChange={()=>setccs2DCChecked(!ccs2DCChecked)}
                               style ={{
-                              color: "#995372",
-                              transform: "scale(1.5)",
-                              paddingBottom: '12pt'
+                              color: "#00D3E0",
+                              transform: "scale(1.4)",
                           }}
                           />
                         }
                     />
                     </div>
 
-                    <div className='flex flex-row items-start justify-start gap-x-3'>
-                    <label className='pb-4 font-bold'>CHAdeMO DC</label>
+                    <div className='flex flex-row items-center justify-start gap-x-3'>
+                    <label className='text-right pr-2 text-xs sm:text-sm'>CHAdeMO DC</label>
                     <FormControlLabel
                         value="CHAdeMO DC"
                         control={
                         <Checkbox checked={chademoDCChecked}
                             onChange={()=>setchademoDCChecked(!chademoDCChecked)}
                             style ={{
-                            color: "#995372",
-                            transform: "scale(1.5)",
-                            paddingBottom: '12pt'
+                            color: "#00D3E0",
+                            transform: "scale(1.4)",
                         }}
                         />
                       }
                     />
                     </div>
 
-                    <div className='flex flex-row items-start justify-start gap-x-3'>
-                    <label className='pb-4 font-bold'>GB/T AC</label>    
+                    <div className='flex flex-row items-center justify-start gap-x-3'>
+                    <label className='text-right pr-2 text-xs sm:text-sm'>GB/T AC</label>    
                     <FormControlLabel
                         value="GB/T AC"
                         control={
                         <Checkbox checked={gbtACChecked}
                               onChange={()=>setgbtACChecked(!gbtACChecked)}
                               style ={{
-                              color: "#995372",
-                              transform: "scale(1.5)",
-                              paddingBottom: '12pt'
+                              color: "#00D3E0",
+                              transform: "scale(1.4)",
                           }}
                           />
                         }
                     />
                     </div>
 
-                    <div className='flex flex-row items-start justify-start gap-x-3'>
-                    <label className='pb-4 font-bold'>GB/T DC</label>
+                    <div className='flex flex-row items-center justify-start gap-x-3'>
+                    <label className='text-right pr-2 text-xs sm:text-sm'>GB/T DC</label>
                     <FormControlLabel
                         value="GB/T DC"
                         control={
                         <Checkbox checked={gbtDCChecked}
                                 onChange={()=>setgbtDCChecked(!gbtDCChecked)}
                                 style ={{
-                                color: "#995372",
-                                transform: "scale(1.5)",
-                                paddingBottom: '12pt'
+                                color: "#00D3E0",
+                                transform: "scale(1.4)",
                             }}
                             />
                         }
                     />
                     </div>
 
-                    <div className='flex flex-row items-start justify-start gap-x-3'>
-                    <label className='pb-4 font-bold'>Tesla</label>
+                    <div className='flex flex-row items-center justify-start gap-x-3'>
+                    <label className='text-right pr-2 text-xs sm:text-sm'>Tesla</label>
                     <FormControlLabel
                         value="Tesla"
                         control={
                         <Checkbox checked={teslaChecked}
                                 onChange={()=>setTeslaChecked(!teslaChecked)}
                                 style ={{
-                                color: "#995372",
-                                transform: "scale(1.5)",
-                                paddingBottom: '12pt'
+                                color: "#00D3E0",
+                                transform: "scale(1.4)",
                             }}
                             />
                         }
@@ -1244,11 +1237,190 @@ const {scrollToTime} = useMemo(
             </div>
         </div>}
        
-       {windowSize.x <= 600 && <div className='flex flex-grow justify-end items-end'>
-            <div className='flex w-[350px] h-[200px] rounded-lg bg-white z-10'>
+       {windowSize.x <= 600 && 
+       
+       <div className='flex flex-grow justify-end items-end'>
+            
+            <div className='flex flex-col w-[350px] h-[200px] rounded-xl bg-gray-50 
+              border-2 border-[#00D3E0] z-10 items-center'>
+
+              <div className='flex flex-row overflow-x-scroll w-full
+                pl-4 border-b border-gray-500'>
+
+                    <div className='flex flex-row items-center justify-start gap-x-3'>
+                    <label className='text-right pr-2 text-xs sm:text-sm'>J1772 AC</label>
+                    <FormControlLabel
+                        value="J1772 AC"
+                        control={
+                        <Checkbox checked={j1772ACChecked}
+                                onChange={()=>setj1772ACChecked(!j1772ACChecked)}
+                                style ={{
+                                color: "#00D3E0",
+                                transform: "scale(1.4)",
+                            }}
+                            />
+                        }
+                    />
+                    </div>
+
+                    <div className='flex flex-row items-center justify-start gap-x-3'>
+                    <label className='text-right pr-2 text-xs sm:text-sm'>CCS1 DC</label>
+                    <FormControlLabel
+                        value="CCS1 DC"
+                        control={
+                        <Checkbox checked={ccs1DCChecked}
+                              onChange={()=>setccs1DCChecked(!ccs1DCChecked)}
+                              style ={{
+                              color: "#00D3E0",
+                              transform: "scale(1.4)",
+                          }}
+                          />
+                        }
+                    />
+                    </div>
+
+                    <div className='flex flex-row items-center justify-start gap-x-3'>
+                    <label className='text-right pr-2 text-xs sm:text-sm'>Mennekes AC</label>
+                    <FormControlLabel
+                        value="Mennekes AC"
+                        control={
+                        <Checkbox checked={mennekesACChecked}
+                              onChange={()=>setmennekesACChecked(!mennekesACChecked)}
+                              style ={{
+                              color: "#00D3E0",
+                              transform: "scale(1.4)",
+                          }}
+                        />
+                        }
+                    />
+                    </div>
+
+                    <div className='flex flex-row items-center justify-start gap-x-3'>
+                    <label className='text-right pr-2 text-xs sm:text-sm'>CCS2 DC</label>
+                    <FormControlLabel
+                        value="CCS2 DC"
+                        control={
+                        <Checkbox checked={ccs2DCChecked}
+                              onChange={()=>setccs2DCChecked(!ccs2DCChecked)}
+                              style ={{
+                              color: "#00D3E0",
+                              transform: "scale(1.4)",
+                          }}
+                          />
+                        }
+                    />
+                    </div>
+
+                    <div className='flex flex-row items-center justify-start gap-x-3'>
+                    <label className='text-right pr-2 text-xs sm:text-sm'>CHAdeMO DC</label>
+                    <FormControlLabel
+                        value="CHAdeMO DC"
+                        control={
+                        <Checkbox checked={chademoDCChecked}
+                            onChange={()=>setchademoDCChecked(!chademoDCChecked)}
+                            style ={{
+                            color: "#00D3E0",
+                            transform: "scale(1.4)",
+                        }}
+                        />
+                      }
+                    />
+                    </div>
+
+                    <div className='flex flex-row items-center justify-start gap-x-3'>
+                    <label className='text-right pr-2 text-xs sm:text-sm'>GB/T AC</label>    
+                    <FormControlLabel
+                        value="GB/T AC"
+                        control={
+                        <Checkbox checked={gbtACChecked}
+                              onChange={()=>setgbtACChecked(!gbtACChecked)}
+                              style ={{
+                              color: "#00D3E0",
+                              transform: "scale(1.4)",
+                          }}
+                          />
+                        }
+                    />
+                    </div>
+
+                    <div className='flex flex-row items-center justify-start gap-x-3'>
+                    <label className='text-right pr-2 text-xs sm:text-sm'>GB/T DC</label>
+                    <FormControlLabel
+                        value="GB/T DC"
+                        control={
+                        <Checkbox checked={gbtDCChecked}
+                                onChange={()=>setgbtDCChecked(!gbtDCChecked)}
+                                style ={{
+                                color: "#00D3E0",
+                                transform: "scale(1.4)",
+                            }}
+                            />
+                        }
+                    />
+                    </div>
+
+                    <div className='flex flex-row items-center justify-start gap-x-3'>
+                    <label className='text-right pr-2 text-xs sm:text-sm'>Tesla</label>
+                    <FormControlLabel
+                        value="Tesla"
+                        control={
+                        <Checkbox checked={teslaChecked}
+                                onChange={()=>setTeslaChecked(!teslaChecked)}
+                                style ={{
+                                color: "#00D3E0",
+                                transform: "scale(1.4)",
+                            }}
+                            />
+                        }
+                    />
+                    </div>
+                </div>
+                
+                {hostLocations.map((host, index) => (
+                  
+                  <div key={`${host._id}_leftsquare`} 
+                    className={`w-full flex flex-col px-2 bg-[#c1f2f5]
+                    py-2 ${currentMarker === host._id ? 'border-2 border-['.concat(colorsList[index],']')   
+                    : 'border border-gray-300  '} rounded-lg`}>
+                    
+                    <div className='flex flex-row'>
+                      
+                      <svg version="1.2" baseProfile="tiny" 
+                      xmlns="http://www.w3.org/2000/svg" 
+                      width="25" height="25" viewBox="0 0 50 50" 
+                      fill={colorsList[index]}
+                      overflow="inherit">
+                        <path d="M25 0c-8.284 0-15 6.656-15 14.866 0 8.211 15 35.135 15 35.135s15-26.924 15-35.135c0-8.21-6.716-14.866-15-14.866zm-.049 19.312c-2.557 0-4.629-2.055-4.629-4.588 0-2.535 2.072-4.589 4.629-4.589 2.559 0 4.631 2.054 4.631 4.589 0 2.533-2.072 4.588-4.631 4.588z"/>
+                      </svg>
+
+                      <p className='text-base pl-1'>{host?.addressArray.slice(0, -2).join(", ")}</p>
+                    
+                    </div>
+                    
+                    <div className='flex flex-row w-full gap-x-4 justify-around pt-2'>
+                      <p>Distance: {host.distanceText} / {host.durationText}</p>
+                      <p>Available: Now</p>
+                    </div>
+
+                    <div className='flex flex-row w-full gap-x-4 justify-around'>
+                    <p>30 Min Rate: {host.currencySymbol}{host.chargeRatePerHalfHour.toFixed(2)}</p>
+                      
+                      <button 
+                        className='px-3 py-1 bg-[#FFE142] hover:bg-[orange] rounded-lg'
+                        onClick={(e)=>handleOpenReserveModal(e, host, host.address, host.durationValue)}
+                        >
+                          Reserve
+                      </button>
+
+                    </div>
+
+                </div>
+                ))}
 
             </div>
-        </div>}
+
+        </div>
+        }
 
     </div>
 

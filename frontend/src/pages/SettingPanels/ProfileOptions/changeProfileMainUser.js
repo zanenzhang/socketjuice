@@ -1,15 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Box from "@material-ui/core/Box";
-import { makeStyles } from "@material-ui/core";
+import { makeStyles, withStyles, Switch } from "@material-ui/core";
 import ProfileCropper from './profileCropper'
 import axios from '../../../api/axios'
 import useAuth from '../../../hooks/useAuth'
 import useLogout from '../../../hooks/useLogout';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
 
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import editSettingsUserProfile from "../../../helpers/UserData/editSettingsUserProfile";
+import editSettingsUserProfile from '../../../helpers/DriverData/editSettingsUserProfile';
 import getDriverProfile from '../../../helpers/DriverData/getDriverProfile';
 
 const PUBLIC_MEDIA_URL = '/s3/single-profilepic';
@@ -32,6 +34,20 @@ const useStyles = makeStyles({
     width: "100%"
   }
 });
+
+const CustomSwitch = withStyles({
+    switchBase: {
+      color: 'black',
+      '&$checked': {
+        color: '#00D3E0',
+      },
+      '&$checked + $track': {
+        backgroundColor: '#00D3E0',
+      },
+    },
+    checked: {},
+    track: {},
+  })(Switch);
 
 
 export default function ChangeProfileMainUser({loggedUserId }) {
@@ -267,13 +283,9 @@ export default function ChangeProfileMainUser({loggedUserId }) {
                 draggable: true,
                 progress: undefined,
                 theme: "colored",
-            });
+              });
 
               setErrorMessage("Your post content did not meet our terms of service. Please check for inappropriate content.");    
-              const warnUser = await addWarnings(loggedUserId, auth.accessToken)
-              if(warnUser?.status === 202){
-                logout();
-              }
 
             }
           }
@@ -327,22 +339,22 @@ export default function ChangeProfileMainUser({loggedUserId }) {
             
               <label className='text-base font-semibold pl-2'>First Name:</label>
               <input 
-                  aria-label="Fullname: " 
+                  aria-label="First name: " 
                   type="text" 
-                  id="Firstname"
+                  id="FirstName"
                   ref={startRef}
                   autoComplete="new-password"
                   placeholder="First name:"
                   className='text-sm text-gray-700 w-full py-4 px-4 bg-white
                     border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#8BEDF3]' 
-                  onChange={ ( e ) => setFirstname(e.target.value)}
+                  onChange={ ( e ) => setFirstName(e.target.value)}
                   onKeyDown={(e) => 
                     e.stopPropagation()
                   }
                   value={firstName}
-                  aria-invalid={validFirstname ? "false" : "true"}
-                  onFocus={() => setFirstnameFocus(true)}
-                  onBlur={() => setFirstnameFocus(false)}
+                  aria-invalid={validFirstName ? "false" : "true"}
+                  onFocus={() => setFirstNameFocus(true)}
+                  onBlur={() => setFirstNameFocus(false)}
                   // required
               />
 
@@ -355,7 +367,6 @@ export default function ChangeProfileMainUser({loggedUserId }) {
                 aria-label="Lastname: " 
                 type="text" 
                 id="Lastname"
-                ref={startRef}
                 autoComplete="new-password"
                 placeholder="First name:"
                 className='text-sm text-gray-700 w-full py-4 px-4 bg-white
@@ -364,8 +375,8 @@ export default function ChangeProfileMainUser({loggedUserId }) {
                 onKeyDown={(e) => 
                   e.stopPropagation()
                 }
-                value={firstName}
-                aria-invalid={validFirstname ? "false" : "true"}
+                value={lastName}
+                aria-invalid={validLastName ? "false" : "true"}
                 onFocus={() => setLastNameFocus(true)}
                 onBlur={() => setLastNameFocus(false)}
                 // required
@@ -536,8 +547,8 @@ export default function ChangeProfileMainUser({loggedUserId }) {
               <FormControlLabel
                   value="GB/T DC Plug"
                   control={
-                  <Checkbox checked={gbtDChecked}
-                          onChange={()=>setgbtDCChecked(!gbtDChecked)}
+                  <Checkbox checked={gbtDCChecked}
+                          onChange={()=>setgbtDCChecked(!gbtDCChecked)}
                           style ={{
                           color: "#995372",
                           transform: "scale(1.5)",

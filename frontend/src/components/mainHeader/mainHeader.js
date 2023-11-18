@@ -4,7 +4,7 @@ import * as ROUTES from '../../constants/routes';
 import axios from '../../api/axios';
 import useAuth from '../../hooks/useAuth';
 import NotificationsDropdown from '../notifications/notificationsDropdown';
-// import SettingsDropdown from '../settings/settingsDropdown';
+import SettingsDropdown from '../settings/settingsDropdown';
 
 import GooglePlacesAutocomplete from "react-google-places-autocomplete";
 
@@ -23,11 +23,9 @@ import TabPanel from "@material-ui/lab/TabPanel";
 import socketjuice_full_logo from "../../images/SocketJuice.png";
 import editNewMessagesFill from '../../helpers/Notifications/editNewMessagesFill';
 import checkUser from '../../helpers/DriverData/checkUser';
-import { set } from 'date-fns';
 
 
-const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket, setSocket,
-        socketConnected, setSocketConnected} ) => {
+const MainHeader = ({loggedUserId} ) => {
     
     const navigate = useNavigate();
 
@@ -658,41 +656,42 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
 
     return (
         <>
-        <div className="h-[6vh] sm:h-[7vh] md:h-[8vh] max-w-full overflow-x-hidden flex flex-row justify-center items-center
+        <div className="h-[7vh] sm:h-[8vh] md:h-[9vh] max-w-full overflow-x-hidden flex flex-row justify-center items-center
             opacity-100 border-b w-full z-[1500] bg-[#00D3E0] shadow-sm shadow-[#FFE142] fixed">
 
             <div className="flex flex-row justify-evenly items-center max-w-full w-full h-full 
                 gap-y-1 gap-x-4 sm:gap-x-6 pt-1 overflow-x-hidden" >
 
                 <Link reloadDocument to={ROUTES.MAP} >
-                    <img className='h-[5vh] sm:h-[6vh]' src={socketjuice_full_logo} />
+                    <img className='h-[7vh] flex-shrink-0' src={socketjuice_full_logo} />
                 </Link>
 
                 <Link reloadDocument to={ROUTES.MAP} aria-label="StoreDashboard"
                     className={`flex flex-row justify-center items-center bg-[#FFE142] hover:bg-[#8BEDF3]
-                    ${activeTab === 'map' ? 'border-2 border-black ' : ' '} rounded-lg p-1 sm:px-2`}>
+                    ${activeTab === 'map' ? 'border-2 border-black ' : ' '} rounded-lg p-1 px-2`}>
 
-                    <svg xmlns="http://www.w3.org/2000/svg" 
-                        width="32" height="32" id="gps">
-                        <path d="M16 4.219c-4.547 0-8.25 3.702-8.25 8.25 0 2.265.93 4.316 2.408 5.804.02.035.03.065.09.122l2.82 3.167c-1.266.19-2.365.492-3.213.893-.528.25-.963.534-1.289.877-.325.343-.544.767-.545 1.229 0 .561.316 1.053.764 1.437.448.384 1.045.695 1.762.955 1.433.52 3.353.826 5.473.826 2.12 0 4.039-.306 5.472-.826.717-.26 1.314-.571 1.762-.955.448-.384.764-.876.764-1.437-.002-.46-.22-.883-.545-1.225-.325-.342-.76-.626-1.286-.875-.845-.4-1.941-.702-3.205-.893l3.268-3.705a.5.5 0 0 0 .117-.244c1.142-1.412 1.883-3.187 1.883-5.148 0-4.478-3.601-8.1-8.053-8.211A.5.5 0 0 0 16 4.219Zm-.008 1.002H16a7.248 7.248 0 0 1 7.25 7.25c0 1.809-.685 3.461-1.785 4.734a.5.5 0 0 0-.076.121l-3.76 4.264a.512.512 0 0 0-.022.023l-.078.09a.499.499 0 0 0-.078.123l-.002.004-.004.008a.48.48 0 0 0-.013.039.487.487 0 0 0-.014.043v.004a.495.495 0 0 0-.008.047v.002c-.002.015.169-.34.168-.325l-.172.225-1.386 1.547-1.364-1.545-.082-.012c0-.016.082.136.08.12a.484.484 0 0 0-.02-.098v-.002a.49.49 0 0 0-.017-.045v-.002a.508.508 0 0 0-.021-.043v-.002a.501.501 0 0 0-.026-.041v-.002a.51.51 0 0 0-.031-.04l-.006-.007-.082-.094a.5.5 0 0 0-.033-.033l-.002-.002-3.45-3.873h-.003c-.018-.032-.025-.058-.078-.111a7.21 7.21 0 0 1-2.135-5.115 7.246 7.246 0 0 1 7.242-7.248ZM16 8.937a3.541 3.541 0 0 0-3.531 3.532A3.541 3.541 0 0 0 16 16a3.541 3.541 0 0 0 3.531-3.531A3.541 3.541 0 0 0 16 8.938zm0 1c1.4 0 2.531 1.132 2.531 2.532 0 1.4-1.13 2.531-2.531 2.531a2.529 2.529 0 0 1-2.531-2.531c0-1.4 1.13-2.531 2.531-2.531Zm-2.129 12.56 1.754 1.99v.001a.5.5 0 0 0 .072.067h.002a.493.493 0 0 0 .178.086.506.506 0 0 0 .049.01h.002a.5.5 0 0 0 .072.005h.031a.498.498 0 0 0 .36-.152l.013-.014 1.782-1.99c1.453.169 2.735.468 3.574.865.449.213.785.446.988.66.203.215.27.387.27.54 0 .188-.104.41-.414.675-.312.267-.813.544-1.454.776-1.28.464-3.109.765-5.13.765-2.022 0-3.851-.301-5.131-.765-.64-.232-1.142-.51-1.453-.776-.312-.266-.415-.488-.415-.677 0-.154.066-.325.27-.54.204-.214.542-.449.992-.662.842-.398 2.13-.697 3.588-.865z" color="#000" 
-                        fontFamily="sans-serif" fontWeight="400" overflow="visible"></path>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
+                        strokeWidth="1" stroke="currentColor" className="w-6 h-6 md:w-7 md:h-7">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
                     </svg>
 
-                    <p className='text-[12px] mx-1 sm:text-sm md:text-base '>Map</p>
+                    <p className='hidden sm:flex mx-1 sm:text-sm md:text-base '>Mapping</p>
+
                 </Link>
 
                 <Link reloadDocument to={ROUTES.BOOKINGS} aria-label="ActiveTab" 
                 className={`flex flex-row justify-center items-center bg-[#FFE142] hover:bg-[#8BEDF3]
-                    ${activeTab === 'bookings' ? 'border-2 border-black' : ' '} rounded-lg p-1 px-1 sm:px-2`}>
+                    ${activeTab === 'bookings' ? 'border-2 border-black' : ' '} rounded-lg p-1 px-2`}>
 
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
-                        strokeWidth="1" stroke="currentColor" className="w-7 h-8">
+                        strokeWidth="1" stroke="currentColor" className="w-6 h-6 md:w-7 md:h-7">
                         <path strokeLinecap="round" strokeLinejoin="round" 
                         d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z" />
                     </svg>
 
+                    <p className='hidden sm:flex mx-1 sm:text-sm md:text-base text-black'>Bookings</p>
 
-                    <p className='text-[12px] mx-1 sm:text-sm md:text-base text-black'>Bookings</p>
                 </Link>
 
                 <div className='flex flex-row'>
@@ -701,17 +700,17 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
                     
                     <button onClick={(event)=>handleMessagesClick(event)} 
                     className={`flex justify-center flex-row items-center bg-[#FFE142] hover:bg-[#8BEDF3]
-                            ${activeTab === 'chat' ? 'border-2 border-black ' : ''} rounded-lg p-1 sm:px-2`}>
+                            ${activeTab === 'chat' ? 'border-2 border-black ' : ''} rounded-lg p-1 px-2`}>
                         
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
-                            strokeWidth="1" stroke="currentColor" className="w-7 h-8">
+                            strokeWidth="1" stroke="currentColor" className="w-6 h-6 md:w-7 md:h-7">
                             <path strokeLinecap="round" strokeLinejoin="round" 
                             d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
                         </svg>
 
                         <svg width="18" height="18" viewBox="0 0 18 18" fill="white" 
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 md:h-5 text-black-light cursor-pointer animate-pulse
+                            xmlns="http://www.w3.org/2000/svg" 
+                            className="w-6 h-6 md:w-7 md:h-7 text-black-light cursor-pointer animate-pulse
                             transform transition duration-300 hover:scale-125"
                             >
                             <path d="M7.49249 17.085C7.04249 17.085 6.61499 16.86 6.32249 16.4625L5.42251 15.2625C5.42251 15.27 5.385 15.2475 5.37 15.2475H5.09251C2.52751 15.2475 0.9375 14.55 0.9375 11.0925V8.09251C0.9375 4.93501 2.86501 4.11001 4.48501 3.96751C4.66501 3.94501 4.87501 3.9375 5.09251 3.9375H9.8925C12.6075 3.9375 14.0475 5.37751 14.0475 8.09251V11.0925C14.0475 11.31 14.04 11.52 14.01 11.7225C13.875 13.32 13.05 15.2475 9.8925 15.2475H9.59251L8.66249 16.4625C8.36999 16.86 7.94249 17.085 7.49249 17.085ZM5.09251 5.0625C4.92001 5.0625 4.755 5.07 4.5975 5.085C2.8575 5.235 2.0625 6.18751 2.0625 8.09251V11.0925C2.0625 13.665 2.85751 14.1225 5.09251 14.1225H5.3925C5.73 14.1225 6.11249 14.31 6.32249 14.58L7.2225 15.7875C7.3875 16.0125 7.5975 16.0125 7.7625 15.7875L8.66249 14.5875C8.87999 14.295 9.22501 14.1225 9.59251 14.1225H9.8925C11.7975 14.1225 12.75 13.32 12.8925 11.61C12.915 11.43 12.9225 11.265 12.9225 11.0925V8.09251C12.9225 6.00001 11.985 5.0625 9.8925 5.0625H5.09251Z" fill="white"/>
@@ -728,15 +727,15 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
                     
                     <button onClick={(event)=>handleMessagesClick(event)}
                     className={`flex justify-center flex-row items-center bg-[#FFE142] hover:bg-[#8BEDF3]
-                            ${activeTab === 'chat' ? 'border-2 border-black' : ''} rounded-lg p-1 sm:px-2`}>
+                            ${activeTab === 'chat' ? 'border-2 border-black' : ''} rounded-lg p-1 px-2`}>
 
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
-                            strokeWidth="1" stroke="currentColor" className="w-7 h-8">
+                            strokeWidth="1" stroke="currentColor" className="w-6 h-6 md:w-7 md:h-7">
                             <path strokeLinecap="round" strokeLinejoin="round" 
                             d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
                         </svg>
 
-                        <p className='text-[12px] mx-1 sm:text-sm md:text-base text-black'>Messages</p>
+                        <p className='hidden sm:flex mx-1 sm:text-sm md:text-base text-black'>Messages</p>
 
                     </button>
                     )}
@@ -745,11 +744,9 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
                 
                 {auth?.userId ? 
                 
-                    <div className='flex flex-row'>
-                        
+                    <div className='flex flex-row gap-x-3'>
                         <NotificationsDropdown />
-
-                        <p>Profile</p>
+                        <SettingsDropdown />
                     </div>
 
                 :
@@ -758,15 +755,15 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
 
                     <button onClick={(e)=>handleLoginClick(e)} 
                     className={`flex justify-center flex-row items-center bg-[#FFE142] hover:bg-[#8BEDF3]
-                    ${activeTab === 'profile' ? 'border-2 border-black' : ''} rounded-lg p-2 gap-x-1`}>
+                    ${activeTab === 'profile' ? 'border-2 border-black' : ''} rounded-lg p-1 px-2`}>
 
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M6.18001 22.7499C6.08001 22.7499 5.97002 22.7399 5.88001 22.7299L3.71001 22.4299C2.67001 22.2899 1.73001 21.3599 1.57001 20.2999L1.27001 18.1099C1.17001 17.4099 1.47001 16.4999 1.97001 15.9899L6.36001 11.5999C5.65001 8.75992 6.47002 5.75992 8.56002 3.68992C11.8 0.459923 17.07 0.449923 20.32 3.68992C21.89 5.25992 22.75 7.34992 22.75 9.56992C22.75 11.7899 21.89 13.8799 20.32 15.4499C18.22 17.5299 15.23 18.3499 12.41 17.6299L8.01002 22.0199C7.59001 22.4599 6.84001 22.7499 6.18001 22.7499ZM14.43 2.75992C12.68 2.75992 10.94 3.41992 9.61001 4.74992C7.81001 6.53992 7.16001 9.15992 7.91001 11.5999C7.99001 11.8699 7.92001 12.1499 7.72001 12.3499L3.02001 17.0499C2.85001 17.2199 2.71001 17.6599 2.74001 17.8899L3.04001 20.0799C3.10001 20.4599 3.51002 20.8899 3.89001 20.9399L6.07001 21.2399C6.31001 21.2799 6.75001 21.1399 6.92001 20.9699L11.64 16.2599C11.84 16.0599 12.13 15.9999 12.39 16.0799C14.8 16.8399 17.43 16.1899 19.23 14.3899C20.51 13.1099 21.22 11.3899 21.22 9.56992C21.22 7.73992 20.51 6.02992 19.23 4.74992C17.93 3.42992 16.18 2.75992 14.43 2.75992Z" fill="black"/>
-                        <path d="M9.19002 20.5402C9.00002 20.5402 8.81002 20.4702 8.66002 20.3202L6.36002 18.0202C6.07002 17.7302 6.07002 17.2502 6.36002 16.9602C6.65002 16.6702 7.13002 16.6702 7.42002 16.9602L9.72002 19.2602C10.01 19.5502 10.01 20.0302 9.72002 20.3202C9.57002 20.4702 9.38002 20.5402 9.19002 20.5402Z" fill="black"/>
-                        <path d="M14.5 11.75C13.26 11.75 12.25 10.74 12.25 9.5C12.25 8.26 13.26 7.25 14.5 7.25C15.74 7.25 16.75 8.26 16.75 9.5C16.75 10.74 15.74 11.75 14.5 11.75ZM14.5 8.75C14.09 8.75 13.75 9.09 13.75 9.5C13.75 9.91 14.09 10.25 14.5 10.25C14.91 10.25 15.25 9.91 15.25 9.5C15.25 9.09 14.91 8.75 14.5 8.75Z" fill="black"/>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
+                            strokeWidth="1" stroke="currentColor" className="w-6 h-6 md:w-7 md:h-7">
+                        <path strokeLinecap="round" strokeLinejoin="round" 
+                            d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
                         </svg>
 
-                        Account
+                        <p className='hidden sm:flex mx-1 sm:text-sm md:text-base text-black'>Account</p>
                     </button>
                 </div>}
             </div>
@@ -818,8 +815,8 @@ const MainHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket,
                 <div className='w-full max-w-[350px] py-10
                     rounded-xl md:rounded-none shadow-inner md:shadow-none'>
 
-                    <div className='flex items-center justify-center px-10 pb-6'>
-                        <img className='w-100' src={socketjuice_full_logo} />
+                    <div className='flex items-center justify-center px-2 sm:px-4 md:px-6 lg:px-10 pb-6 flex-shrink-0'>
+                        <img className='w-[250px]' src={socketjuice_full_logo} />
                     </div>
 
                     <div className='py-4 flex flex-col justify-center items-center'>

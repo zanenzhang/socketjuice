@@ -5,12 +5,12 @@ import TabContext from "@material-ui/lab/TabContext";
 import TabPanel from "@material-ui/lab/TabPanel";
 import Box from "@material-ui/core/Box";
 import { makeStyles } from "@material-ui/core";
-import MainHeader from '../components/mainHeader/mainHeader'
-import useAuth from "../hooks/useAuth";
+import MainHeader from "../mainHeader/mainHeader";
+import useAuth from "../../hooks/useAuth";
 
-import ChangeProfileMainUser from "./SettingPanels/ProfileOptions/changeProfileMainUser";
-import ChangeProfileMainHost from "./SettingPanels/ProfileOptions/changeProfileMainHost";
-import ChangePass from "./SettingPanels/ChangePass/changePass";
+import ChangeProfileMainUser from "../../pages/SettingPanels/ProfileOptions/changeProfileMainUser";
+import ChangeProfileMainHost from "../../pages/SettingPanels/ProfileOptions/changeProfileMainHost";
+import ChangePass from "../../pages/SettingPanels/ChangePass/changePass";
 
 const useStyles = makeStyles({
   appContainer: {
@@ -256,8 +256,7 @@ export default function SettingsDropdown({loggedUserId, loggedUsername, profileP
         className="flex flex-col bg-gray-background">
 
         <MainHeader 
-            loggedUserId={loggedUserId} loggedUsername={loggedUsername} 
-            profilePicURL={profilePicURL} roles={roles}
+            loggedUserId={auth.userId} 
             />
         
         <div className='flex flex-col h-[88%] sm:h-full pt-[12vh] sm:pt-[13vh] md:pt-[15vh]'>
