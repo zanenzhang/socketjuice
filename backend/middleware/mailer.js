@@ -65,7 +65,7 @@ exports.sendNotiEmail = function({firstName, toUser, notificationType}) {
       message = `Hi ${firstName}, a booking cancellation request was made. Please open the app to review the request, and approve or reject at www.socketjuice.com/bookings`
   }
 
-  const message = {
+  const messageObj = {
     from: process.env.NOTI_SUPPORT,
     // to: toUser.email // in production uncomment this
     to: toUser,
@@ -86,7 +86,7 @@ exports.sendNotiEmail = function({firstName, toUser, notificationType}) {
     }]
   }
 
-  return sendEmail(message);
+  return sendEmail(messageObj);
 }
 
 exports.sendConfirmationEmail = function({toUser, userId, hash, firstName}) {

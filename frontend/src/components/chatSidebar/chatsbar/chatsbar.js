@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ChatSlot from "../chatContact/chatSlot";
 import useAuth from "../../../hooks/useAuth";
+import addChat from "../../../helpers/Chats/addChat";
 
 const Chatsbar = ({chatsList, changedData, setChangedData, loggedUserId, 
     loggedUsername, selectedChat, setSelectedChat, setPageNumber,

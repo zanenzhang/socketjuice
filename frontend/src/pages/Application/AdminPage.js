@@ -266,11 +266,11 @@ const AdminPage = () => {
 
                             <div className='flex flex-row w-full justify-between'>
 
-                                <button onClick={(e)=>handleRejectHost(e, user._id)}>
+                                <button onClick={(e)=>handleRejectHost(e, host._id)}>
                                     Reject
                                     </button>
 
-                                <button onClick={(e)=>handleApproveHost(e, user._id)}>
+                                <button onClick={(e)=>handleApproveHost(e, host._id)}>
                                     Approve
                                     </button>
 

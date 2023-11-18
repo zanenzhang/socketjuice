@@ -1,13 +1,13 @@
 import axios from "../../api/axios";
 const NOTI_URL = '/notification/addmessage';
 
-async function addMessageNoti (sendingUserId, receivingUserId, chatId, accessToken) {
+async function addMessageNoti (sendingUserId, receivingUserId, chatId, authUserId, accessToken) {
 
     try {
         const response = await axios.post(NOTI_URL, 
             JSON.stringify({sendingUserId, receivingUserId, chatId }),
             {
-                headers: { "Authorization": `Bearer ${accessToken} ${loggedUserId}`, 
+                headers: { "Authorization": `Bearer ${accessToken} ${authUserId}`, 
                     'Content-Type': 'application/json'},
                 withCredentials: true
             }

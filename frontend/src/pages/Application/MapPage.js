@@ -1,4 +1,5 @@
 import { React, useRef, useState, useEffect, useMemo, createRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import GooglePlacesAutocomplete from "react-google-places-autocomplete";
 import { Calendar, dayjsLocalizer } from "react-big-calendar";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
@@ -45,7 +46,11 @@ const MapPage = () => {
   const localizer = dayjsLocalizer(dayjs);
   const DnDCalendar = withDragAndDrop(Calendar);
 
-  const { auth, setActiveTab, socket, setSocket, setNewMessages, setNewRequests } = useAuth();
+  const { auth, setActiveTab, socket, setSocket, setNewMessages, 
+    setNewRequests, setNewIndividualChat } = useAuth();
+  
+  const navigate = useNavigate();
+
   const [center, setCenter] = useState({ lat: 48.8584, lng: 2.2945 })
 
   const [map, setMap] = useState(null)
@@ -816,7 +821,7 @@ const {scrollToTime} = useMemo(
         return
     }
 
-    setNewIndividualChat({userId: profileUserId});
+    setNewIndividualChat({userId: selectedHostUserId});
     navigate(`/messages`);
   }
 
@@ -1057,18 +1062,18 @@ const {scrollToTime} = useMemo(
             <div className='ml-4 py-2 flex flex-col w-[350px] h-[500px] rounded-xl overflow-y-scroll
               bg-gray-50 border-2 border-[#00D3E0] z-10 items-center px-2'>
 
-                <div className='flex flex-row overflow-x-scroll w-full'>
+                <div className='flex flex-row overflow-x-scroll w-full gap-x-4 pl-4'>
 
-                    <div className='flex flex-col'>
-                    <label className='pb-4 font-bold'>J1772 AC Plug</label>
+                    <div className='flex flex-row items-start justify-start gap-x-3'>
+                    <label className='pb-4'>J1772 AC</label>
                     <FormControlLabel
-                        value="J1772 AC Plug"
+                        value="J1772 AC"
                         control={
                         <Checkbox checked={j1772ACChecked}
                                 onChange={()=>setj1772ACChecked(!j1772ACChecked)}
                                 style ={{
                                 color: "#995372",
-                                transform: "scale(1.5)",
+                                transform: "scale(1.2)",
                                 paddingBottom: '12pt'
                             }}
                             />
@@ -1076,64 +1081,13 @@ const {scrollToTime} = useMemo(
                     />
                     </div>
 
-                    <div className='flex flex-col'>
-                    <label className='pb-4 font-bold'>CCS1 DC Plug</label>
+                    <div className='flex flex-row items-start justify-start gap-x-3'>
+                    <label className='pb-4'>CCS1 DC</label>
                     <FormControlLabel
-                        value="CCS1 DC Plug"
+                        value="CCS1 DC"
                         control={
                         <Checkbox checked={ccs1DCChecked}
-                                onChange={()=>setccs1DCChecked(!ccs1DCChecked)}
-                                style ={{
-                                color: "#995372",
-                                transform: "scale(1.5)",
-                                paddingBottom: '12pt'
-                            }}
-                            />
-                        }
-                    />
-                    </div>
-
-                    <div className='flex flex-col'>
-                    <label className='pb-4 font-bold'>Mennekes AC Plug</label>
-                    <FormControlLabel
-                        value="Mennekes AC Plug"
-                        control={
-                        <Checkbox checked={mennekesACChecked}
-                                onChange={()=>setmennekesACChecked(!mennekesACChecked)}
-                                style ={{
-                                color: "#995372",
-                                transform: "scale(1.5)",
-                                paddingBottom: '12pt'
-                            }}
-                            />
-                        }
-                    />
-                    </div>
-
-                    <div className='flex flex-col'>
-                    <label className='pb-4 font-bold'>CCS2 DC Plug</label>
-                    <FormControlLabel
-                        value="CCS2 DC Plug"
-                        control={
-                        <Checkbox checked={ccs2DCChecked}
-                                onChange={()=>setccs2DCChecked(!ccs2DCChecked)}
-                                style ={{
-                                color: "#995372",
-                                transform: "scale(1.5)",
-                                paddingBottom: '12pt'
-                            }}
-                            />
-                        }
-                    />
-                    </div>
-
-                    <div className='flex flex-col'>
-                    <label className='pb-4 font-bold'>CHAdeMO DC Plug</label>
-                    <FormControlLabel
-                        value="CHAdeMO DC Plug"
-                        control={
-                        <Checkbox checked={chademoDCChecked}
-                              onChange={()=>setchademoDCChecked(!chademoDCChecked)}
+                              onChange={()=>setccs1DCChecked(!ccs1DCChecked)}
                               style ={{
                               color: "#995372",
                               transform: "scale(1.5)",
@@ -1144,19 +1098,70 @@ const {scrollToTime} = useMemo(
                     />
                     </div>
 
-                    <div className='flex flex-col'>
-                    <label className='pb-4 font-bold'>GB/T AC Plug</label>    
+                    <div className='flex flex-row items-start justify-start gap-x-3'>
+                    <label className='pb-4'>Mennekes AC</label>
                     <FormControlLabel
-                        value="GB/T AC Plug"
+                        value="Mennekes AC"
+                        control={
+                        <Checkbox checked={mennekesACChecked}
+                              onChange={()=>setmennekesACChecked(!mennekesACChecked)}
+                              style ={{
+                              color: "#995372",
+                              transform: "scale(1.5)",
+                              paddingBottom: '12pt'
+                          }}
+                        />
+                        }
+                    />
+                    </div>
+
+                    <div className='flex flex-row items-start justify-start gap-x-3'>
+                    <label className='pb-4 font-bold'>CCS2 DC</label>
+                    <FormControlLabel
+                        value="CCS2 DC"
+                        control={
+                        <Checkbox checked={ccs2DCChecked}
+                              onChange={()=>setccs2DCChecked(!ccs2DCChecked)}
+                              style ={{
+                              color: "#995372",
+                              transform: "scale(1.5)",
+                              paddingBottom: '12pt'
+                          }}
+                          />
+                        }
+                    />
+                    </div>
+
+                    <div className='flex flex-row items-start justify-start gap-x-3'>
+                    <label className='pb-4 font-bold'>CHAdeMO DC</label>
+                    <FormControlLabel
+                        value="CHAdeMO DC"
+                        control={
+                        <Checkbox checked={chademoDCChecked}
+                            onChange={()=>setchademoDCChecked(!chademoDCChecked)}
+                            style ={{
+                            color: "#995372",
+                            transform: "scale(1.5)",
+                            paddingBottom: '12pt'
+                        }}
+                        />
+                      }
+                    />
+                    </div>
+
+                    <div className='flex flex-row items-start justify-start gap-x-3'>
+                    <label className='pb-4 font-bold'>GB/T AC</label>    
+                    <FormControlLabel
+                        value="GB/T AC"
                         control={
                         <Checkbox checked={gbtACChecked}
-                                onChange={()=>setgbtACChecked(!gbtACChecked)}
-                                style ={{
-                                color: "#995372",
-                                transform: "scale(1.5)",
-                                paddingBottom: '12pt'
-                            }}
-                            />
+                              onChange={()=>setgbtACChecked(!gbtACChecked)}
+                              style ={{
+                              color: "#995372",
+                              transform: "scale(1.5)",
+                              paddingBottom: '12pt'
+                          }}
+                          />
                         }
                     />
                     </div>

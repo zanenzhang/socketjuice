@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import MainHeader from '../../components/mainHeader/mainHeader';
 import useAuth from '../../hooks/useAuth';
@@ -10,6 +11,9 @@ import TabList from "@material-ui/lab/TabList";
 import TabPanel from "@material-ui/lab/TabPanel";  
 import { Calendar, dayjsLocalizer } from "react-big-calendar";
 import CameraId from '../CameraId';
+import axios from "../../api/axios";
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
 
 import evconnectors from "../../images/evconnectors.jpeg";
 import evcharger from "../../images/ev_charger.jpeg";
@@ -34,10 +38,12 @@ import addAppointmentCompletion from '../../helpers/Appointments/addAppointmentC
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { ToastContainer, toast } from 'react-toastify';
 import dayjs from 'dayjs';
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import "react-big-calendar/lib/css/react-big-calendar.css";
+import 'react-toastify/dist/ReactToastify.css';
 
 
 const BookingsPage = () => {
@@ -48,8 +54,11 @@ const BookingsPage = () => {
   const { auth, setActiveTab, socket, setSocket, setNewMessages, 
     setNewRequests, setNewIndividualChat } = useAuth();
 
+  const navigate = useNavigate();
+
   const [value, setValue] = useState("0");
   const [waiting, setWaiting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const IMAGE_UPLOAD_URL = '/s3/singleimage';
 
   const [pickerDateDriver, setPickerDateDriver] = useState(new Date())
@@ -151,6 +160,11 @@ const BookingsPage = () => {
   const [validHolidayHoursFinish, setValidHolidayHoursFinish] = useState(false);
   const [holidayHoursFinishFocus, setHolidayHoursFinishFocus] = useState(false);
 
+  const ANNOUNCEMENTS_REGEX = /^.{2,450}$/;
+  const REGULAR_HOURS_REGEX = /^.{2,450}$/;
+  const REGULAR_HOURS_REGEX_DAILY = /^.{2,100}$/;
+  const HOLIDAY_HOURS_REGEX = /^.{2,100}$/;
+
   useEffect(() => {
     setValidhoursMondayStart(REGULAR_HOURS_REGEX_DAILY.test(hoursMondayStart));
   }, [hoursMondayStart])
@@ -249,7 +263,7 @@ const BookingsPage = () => {
         return
     }
 
-    setNewIndividualChat({userId: profileUserId});
+    setNewIndividualChat({userId: selectedHostUserId});
     navigate(`/messages`);
   }
 
@@ -695,7 +709,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                             const deleted = await axios.delete("/s3/deletemany", 
                                 {
                                     data: {
-                                        userId,
+                                        userId: auth.userId,
                                         finalImageObjArray
                                     },
                                     headers: { "Authorization": `Bearer ${auth.accessToken} ${auth.userId}`, 
@@ -718,7 +732,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                         const deleted = await axios.delete("/s3/deletemany", 
                             {
                                 data: {
-                                    userId,
+                                    userId: auth.userId,
                                     finalImageObjArray
                                 },
                                 headers: { "Authorization": `Bearer ${auth.accessToken} ${auth.userId}`, 
@@ -2027,6 +2041,20 @@ const handleRegularHourChangeEnd = (event, day) => {
               </div>
             </Box>
         </Modal>
+
+        <ToastContainer
+            toastStyle={{ backgroundColor: "#995372" }}
+                position="bottom-center"
+                autoClose={1500}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="colored"
+            />
         </>
     )
   }

@@ -331,10 +331,9 @@ const editSettingsUserProfile = async (req, res) => {
             return res.status(400).json({ message: 'Missing required fields!' })
         }
 
-        const foundUser = await User.findOne({_id: loggedUserId })
         const foundDriver = await DriverProfile.findOne({_userId: loggedUserId})
         
-        if(foundUser && foundDriver){
+        if(foundDriver){
 
             if(!foundUser.profilePicKey && profilePicKey !== '' && profilePicURL !== ''){
 
