@@ -17,8 +17,11 @@ import evplug from "../../images/ev_connector_plug.jpg"
 
 import addDriverCancelApprove from '../../helpers/Appointments/addDriverCancelApprove';
 import addDriverCancelSubmit from '../../helpers/Appointments/addDriverCancelSubmit';
+import addDriverReject from '../../helpers/Appointments/addDriverReject';
+
 import addHostCancelApprove from '../../helpers/Appointments/addHostCancelApprove';
 import addHostCancelSubmit from '../../helpers/Appointments/addHostCancelSubmit';
+import addHostReject from '../../helpers/Appointments/addHostReject';
 
 import getUserData from '../../helpers/Userdata/getUserData';
 import addHostProfile from '../../helpers/Media/addHostProfile';
@@ -448,11 +451,36 @@ const handleRegularHourChangeEnd = (event, day) => {
     }, [auth])
 
 
+    const handleEventRejectHost = async (e) => {
+
+      console.log(e)
+
+      const submitted = await addHostReject(e.userId, auth.userId, e.appointmentId, auth.userId, auth.accessToken)
+
+      if(submitted){
+        console.log("Cancel submitted")
+        setNewrequest(!newrequest)
+      }
+    }
+
     const handleEventCancelHost = async (e) => {
 
       console.log(e)
 
       const submitted = await addHostCancelSubmit(e.userId, auth.userId, e.appointmentId, auth.userId, auth.accessToken)
+
+      if(submitted){
+        console.log("Cancel submitted")
+        setNewrequest(!newrequest)
+      }
+    }
+
+
+    const handleEventRejectDriver = async (e) => {
+
+      console.log(e)
+
+      const submitted = await addDriverReject(e.userId, auth.userId, e.appointmentId, auth.userId, auth.accessToken)
 
       if(submitted){
         console.log("Cancel submitted")
@@ -472,7 +500,7 @@ const handleRegularHourChangeEnd = (event, day) => {
       }
     }
     
-    const handleEventActionHost =  async (e) => {
+    const handleEventActionHost = async (e) => {
 
       console.log(e)
 
@@ -485,20 +513,20 @@ const handleRegularHourChangeEnd = (event, day) => {
         const approvedCancel = await addHostCancelApprove(selectedDriverUserId, auth.userId, selectedEventId, auth.userId, auth.accessToken)
 
         if(approvedCancel){
-          console.log("Booking completed")
+          console.log("Cancelled booking")
           setNewrequest(!newrequest)
         }
 
-      } else if (selectedEventStatus === "requested"){
+      } else if (selectedEventStatus === "Requested"){
 
         const bookingApproved = await addAppointmentApproval(e._userId, auth.userId, e.start, e.end, auth.accessToken)
 
         if(bookingApproved){
-          console.log("Booking completed")
+          console.log("Booking approved")
           setNewrequest(!newrequest)
         }
 
-      } else if (selectedEventStatus === "approved"){
+      } else if (selectedEventStatus === "Approved"){
 
         const bookingCompleted = await addAppointmentCompletion(e._userId, auth.userId, e.start, e.end, auth.accessToken)
 
@@ -528,6 +556,7 @@ const handleRegularHourChangeEnd = (event, day) => {
 
       } 
     }
+
 
     const handleTabSwitch = (event, newValue) => {
 
@@ -1913,18 +1942,23 @@ const handleRegularHourChangeEnd = (event, day) => {
                     <p>End Time: {selectedEventEnd}</p>
                     <p>Status: {(driverRequestedCancel && selectedEventStatus !== "Cancelled") ? "You Requested To Cancel" : ( (hostRequestedCancel && selectedEventStatus !== "Cancelled" ) ? "You Asked to Cancel" : (selectedEventStatus === "Requested" ? "Booking Requested" : (selectedEventStatus === "Approved" ? "Approved" : (selectedEventStatus === "Cancelled" ? "Cancelled" : "Completed")))) }</p>
 
-                    <button disabled={selectedEventStatus === "Approved" || driverRequestedCancel} 
+                    <button disabled={selectedEventStatus === "Approved" || selectedEventStatus === "Cancelled" || driverRequestedCancel} 
                       className={`border border-gray-300 px-3 py-2 rounded-xl 
                       ${ (selectedEventStatus === "Completed" || selectedEventStatus === "Cancelled" || driverRequestedCancel) ? "bg-[#c1f2f5] cursor-not-allowed" : "bg-[#c1f2f5] hover:bg-[#00D3E0] " } `}
                       onClick={(e)=>handleEventActionDriver(e)}>
-                        { (driverRequestedCancel && selectedEventStatus !== "Cancelled") ? "You Requested To Cancel" : ( (hostRequestedCancel && selectedEventStatus !== "Cancelled") ? "Approve Host Cancellation" : (selectedEventStatus === "Requested" ? "Approve Booking" : (selectedEventStatus === "Approved" ? "Mark Completed" : (selectedEventStatus === "Cancelled" ? "Cancelled" : "Completed")))) }
+                        {(selectedEventStatus === "Requested" && !driverRequestedCancel && !hostRequestedCancel) && <p>Approve Booking Request</p> }
+                        {(selectedEventStatus === "Approved" && !driverRequestedCancel) && <p>Approved - Ask To Cancel</p> }
+                        {(selectedEventStatus === "CancelSubmitted" && driverRequestedCancel) && <p>You Asked To Cancel</p> }
+                        {(selectedEventStatus === "CancelSubmitted" && hostRequestedCancel) && <p>Host Asked To Cancel</p> }
+                        {(selectedEventStatus === "Cancelled") && <p>Cancelled</p> }
                     </button>
 
                     {selectedEventStatus === "Requested" && 
                       <button 
                       className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]`}
-                      onClick={(e)=>handleEventCancelDriver(e)}>
-                        Ask To Cancel</button>}
+                      onClick={(e)=>handleEventRejectDriver(e)}>
+                        Cancel Booking Request
+                      </button>}
 
                     {(selectedAddress && selectedHostUserId !== auth.userId) && <button className='border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]'
                       onClick={(e)=>handleLinkURLDirections(e, selectedAddress)}>
@@ -1964,19 +1998,25 @@ const handleRegularHourChangeEnd = (event, day) => {
                     <p>End Time: {selectedEventEnd}</p>
                     <p>Status: {(driverRequestedCancel && selectedEventStatus !== "Cancelled") ? "Driver Requested To Cancel" : (( hostRequestedCancel && selectedEventStatus !== "Cancelled" ) ? "You Asked to Cancel" : (selectedEventStatus === "Requested" ? "Booking Requested" : (selectedEventStatus === "Approved" ? "Approved" : (selectedEventStatus === "Cancelled" ? "Cancelled" : "Completed")))) }</p>
 
-                    <button disabled={(selectedEventStatus === "Approved" || selectedEventStatus === "Cancelled" || hostRequestedCancel )} 
+                    <button   
+                      disabled={(selectedEventStatus === "Approved" || selectedEventStatus === "Cancelled" || hostRequestedCancel )} 
                       className={`border border-gray-300 px-3 py-2 rounded-xl 
-                      ${(selectedEventStatus === "Completed" || selectedEventStatus === "Cancelled" || hostRequestedCancel) ? "bg-[#c1f2f5] cursor-not-allowed" : "bg-[#c1f2f5] hover:bg-[#00D3E0] " } `}
+                      ${(selectedEventStatus === "Completed" || selectedEventStatus === "Cancelled" 
+                      || hostRequestedCancel) ? "bg-[#c1f2f5] cursor-not-allowed" : "bg-[#c1f2f5] hover:bg-[#00D3E0] " } `}
                       onClick={(e)=>handleEventActionHost(e)}>
-                        {(driverRequestedCancel && selectedEventStatus !== "Cancelled") ? "Approve Driver Cancellation" : ( (hostRequestedCancel && selectedEventStatus !== "Cancelled" ) ? "You Asked to Cancel" : (selectedEventStatus === "Requested" ? "Approve Booking" : (selectedEventStatus === "Approved" ? "Mark Completed" : (selectedEventStatus === "Cancelled" ? "Cancelled" : "Completed")))) }
+                        {(selectedEventStatus === "Requested" && !driverRequestedCancel && !hostRequestedCancel) && <p>Booking Requested - Approve</p> }
+                        {(selectedEventStatus === "Approved" && !driverRequestedCancel && !hostRequestedCancel) && <p>Approved - Ask To Cancel</p> }
+                        {(selectedEventStatus === "CancelSubmitted" && driverRequestedCancel) && <p>You Asked To Cancel</p> }
+                        {(selectedEventStatus === "CancelSubmitted" && hostRequestedCancel) && <p>Host Asked To Cancel</p> }
+                        {(selectedEventStatus === "Cancelled") && <p>Cancelled</p> }
                     </button>
 
                     {selectedEventStatus === "Requested" && 
-                      <button 
-                        className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]`}
-                        onClick={(e)=>handleEventCancelHost(e)}>
-                          Ask To Cancel
-                        </button>}
+                    <button 
+                      className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]`}
+                      onClick={(e)=>handleEventRejectHost(e)}>
+                        Cancel Booking Request
+                    </button>}
 
                     {(selectedAddress && selectedHostUserId !== auth.userId) && <button className='border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]'
                       onClick={(e)=>handleLinkURLDirections(e, selectedAddress)}>

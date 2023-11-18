@@ -35,6 +35,7 @@ import addAppointmentRequest from '../../helpers/Appointments/addAppointmentRequ
 import addDriverCancelSubmit from '../../helpers/Appointments/addDriverCancelSubmit';
 import addDriverCancelApprove from '../../helpers/Appointments/addDriverCancelApprove';
 import getHostAppointments from '../../helpers/Appointments/getHostAppointments';
+import addDriverReject from '../../helpers/Appointments/addDriverReject';
 
 
 const MapPage = () => {
@@ -466,7 +467,7 @@ const {scrollToTime} = useMemo(
   }
 
 
-  const handleEventCancelDriver = async (e) => {
+  const handleEventActionDriver = async (e) => {
 
     console.log(e)
 
@@ -474,7 +475,16 @@ const {scrollToTime} = useMemo(
       return
     }
 
-    if(!hostRequestedCancel){
+    if(hostRequestedCancel){
+
+      const approved = await addDriverCancelApprove(auth.userId, selectedHostUserId, selectedEventId, auth.userId, auth.accessToken)
+
+      if(approved){
+        console.log("Cancellation approved")
+        setNewrequest(!newrequest)
+      }
+    
+    } else {
 
       const submitted = await addDriverCancelSubmit(auth.userId, selectedHostUserId, selectedEventId, auth.userId, auth.accessToken)
 
@@ -482,19 +492,32 @@ const {scrollToTime} = useMemo(
         console.log("Cancel submitted")
         setNewrequest(!newrequest)
       }
-    
-    } else {
-
-      const approved = await addDriverCancelApprove(auth.userId, selectedHostUserId, selectedEventId, auth.userId, auth.accessToken)
-
-      if(approved){
-        console.log("Cancel submitted")
-        setNewrequest(!newrequest)
-      }
     }
+  }
 
-    
 
+  const handleEventRejectDriver = async (e) => {
+
+    console.log(e)
+
+    const submitted = await addDriverReject(auth.userId, selectedHostUserId, selectedEventId, auth.userId, auth.accessToken)
+
+    if(submitted){
+      console.log("Cancel submitted")
+      setNewrequest(!newrequest)
+    }
+  }
+
+  const handleEventCancelDriver = async (e) => {
+
+    console.log(e)
+
+    const submitted = await addDriverCancelSubmit(auth.userId, selectedHostUserId, selectedEventId, auth.userId, auth.accessToken)
+
+    if(submitted){
+      console.log("Cancel submitted")
+      setNewrequest(!newrequest)
+    }
   }
 
 
@@ -1238,11 +1261,11 @@ const {scrollToTime} = useMemo(
         aria-labelledby="child-modal-title"
         aria-describedby="child-modal-description">
             
-            <Box sx={{ ...profileStyle }}>
+        <Box sx={{ ...profileStyle }}>
 
-              <div className='flex flex-col w-full overflow-y-scroll'>
+          <div className='flex flex-col w-full overflow-y-scroll'>
 
-              <Slider {...settings} ref={sliderRefPre}>
+          <Slider {...settings} ref={sliderRefPre}>
             
             {mediaURLs?.length > 0 && 
             
@@ -1278,10 +1301,8 @@ const {scrollToTime} = useMemo(
 
                         </Box>
                         </div>
-                        
-                    </div> 
-                    
-                </div>
+                  </div>         
+              </div>
             ))}
 
             </Slider>
@@ -1397,16 +1418,28 @@ const {scrollToTime} = useMemo(
                     <p>End Time: {selectedEventEnd}</p>
                     <p>Status: {driverRequestedCancel ? "Driver Requested To Cancel" : (hostRequestedCancel ? "You Asked to Cancel" : (selectedEventStatus === "Requested" ? "Booking Requested" : (selectedEventStatus === "Approved" ? "Approved" : "Completed"))) }</p>
 
+                    {selectedEventStatus !== "Requested" && 
                     <button 
+                      disabled={(selectedEventStatus === "Cancelled" || selectedEventStatus === "Approved")}
                       className={`border border-gray-300 px-3 py-2 rounded-xl 
                         ${( (selectedEventStatus === "CancelSubmitted" && driverRequestedCancel) || selectedEventStatus === "Cancelled" ) 
                         ? "cursor-not-allowed bg-gray-300" : "bg-[rgb(193,242,245)] hover:bg-[#00D3E0]" }`}
-                      onClick={(e)=>handleEventCancelDriver(e)}>
-                        {(selectedEventStatus === "Requested" && !driverRequestedCancel) && <p>Requested - Ask To Cancel</p> }
+                      onClick={(e)=>handleEventActionDriver(e)}>
+                        {(selectedEventStatus === "Approved" && !driverRequestedCancel && !hostRequestedCancel) && <p>Approved - Ask To Cancel</p> }
                         {(selectedEventStatus === "CancelSubmitted" && driverRequestedCancel) && <p>You Asked To Cancel</p> }
-                        {(selectedEventStatus === "CancelSubmitted" && hostRequestedCancel) && <p>Host Asked To Cancel</p> }
+                        {(selectedEventStatus === "CancelSubmitted" && hostRequestedCancel) && <p>Host Asked To Cancel - Approve</p> }
                         {(selectedEventStatus === "Cancelled") && <p>Cancelled</p> }
-                    </button> 
+                    </button> }
+
+                    {selectedEventStatus === "Requested" && 
+                    <button 
+                      disabled={(selectedEventStatus === "Cancelled")}
+                      className={`border border-gray-300 px-3 py-2 rounded-xl 
+                        ${( (selectedEventStatus === "CancelSubmitted" && driverRequestedCancel) || selectedEventStatus === "Cancelled" ) 
+                        ? "cursor-not-allowed bg-gray-300" : "bg-[rgb(193,242,245)] hover:bg-[#00D3E0]" }`}
+                      onClick={(e)=>handleEventRejectDriver(e)}>
+                        {(selectedEventStatus === "Requested" && !driverRequestedCancel) && <p>Cancel Booking Request</p> }
+                    </button>}
 
                     <button className='border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]'
                       onClick={(e)=>handleLinkURLDirections(e, destinationAddress)}>
