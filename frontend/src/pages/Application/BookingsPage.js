@@ -281,22 +281,31 @@ const BookingsPage = () => {
 
     if(currency === "cad"){
       setCurrencySymbol("$")
+      setChargeRate(3)
     } else if(currency === "usd"){
       setCurrencySymbol("$")
+      setChargeRate(3)
     } else if(currency === "eur"){
       setCurrencySymbol("€")
+      setChargeRate(3)
     } else if(currency === "gbp"){
       setCurrencySymbol("£")
+      setChargeRate(3)
     } else if(currency === "inr"){
       setCurrencySymbol("₹")
+      setChargeRate(300)
     } else if(currency === "jpy"){
       setCurrencySymbol("¥")
+      setChargeRate(300)
     } else if(currency === "cny"){
       setCurrencySymbol("¥")
+      setChargeRate(9)
     } else if(currency === "aud"){
       setCurrencySymbol("$")
+      setChargeRate(3)
     } else if(currency === "nzd"){
       setCurrencySymbol("$")
+      setChargeRate(3)
     }
 
   }, [currency])
@@ -1565,9 +1574,9 @@ const handleRegularHourChangeEnd = (event, day) => {
 
               <div className='flex flex-row w-full md:w-[45vw] px-4 md:px-0 pt-4'>
 
-                <label className='text-base font-semibold pl-2'>Any Special Directions / Comments:</label>
+                <label className='text-base font-semibold pl-2'>Any Special Directions or Comments:</label>
                 <input 
-                    aria-label="Host Comments: " 
+                    aria-label="Directions or Comments: " 
                     type="text" 
                     id="Hostcomments"
                     autoComplete="hostcomments"
@@ -1642,13 +1651,13 @@ const handleRegularHourChangeEnd = (event, day) => {
                             value="Closed on Monday?"
                             control={
                             <Checkbox checked={closedOnMonday}
-                                    onChange={()=>setClosedOnMonday(!closedOnMonday)}
-                                    style ={{
-                                    color: "#00D3E0",
-                                    transform: "scale(1.5)",
-                                    paddingBottom: '12pt'
-                                }}
-                                />
+                                  onChange={()=>setClosedOnMonday(!closedOnMonday)}
+                                  style ={{
+                                  color: "#00D3E0",
+                                  transform: "scale(1.5)",
+                                  paddingBottom: '12pt'
+                              }}
+                              />
                             }
                         />
                 </div>

@@ -65,8 +65,9 @@ export default function ChangeProfileMainHost({loggedUserId}) {
   const [validHostComments, setValidHostComments] = useState(false);
   const [hostCommentsFocus, setHostCommentsFocus] = useState(false);
 
-  const [currency, setCurrency] = useState("");
-  const [chargeRate, setChargeRate] = useState("");
+  const [currency, setCurrency] = useState("cad");
+  const [currencySymbol, setCurrencySymbol] = useState("$");
+  const [chargeRate, setChargeRate] = useState(3);
 
   const [hoursMondayStart, setHoursMondayStart] = useState('');
   const [validHoursMondayStart, setValidHoursMondayStart] = useState(false);
@@ -140,6 +141,103 @@ const COMMENTS_REGEX = /^.{2,250}$/;
 const REGULAR_HOURS_REGEX = /^.{2,250}$/;
 const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
 
+const jpyvalues = [
+    {value: 0, text: "Free (¥0)"},{value: 75, text: "¥75"},
+    {value: 150, text: "¥150"},{value: 225, text: "¥225"},
+    {value: 300, text: "¥300"},{value: 400, text: "¥400"},
+    {value: 500, text: "¥500"},{value: 600, text: "¥600"},
+    {value: 700, text: "¥700"},{value: 800, text: "¥800"},
+    {value: 900, text: "¥900"},{value: 1000, text: "¥1000"},
+    {value: 1100, text: "¥1100"},{value: 1200, text: "¥1200"},
+    {value: 1300, text: "¥1300"},{value: 1400, text: "¥1400"},
+  ]
+
+  const eurvalues = [
+    {value: 0.0, text: "Free (€0.00)"},{value: 0.5, text: "€0.50"},
+    {value: 1.0, text: "€1.00"},{value: 1.5, text: "€1.50"},
+    {value: 2.0, text: "€2.00"},{value: 2.5, text: "€2.50"},
+    {value: 3.0, text: "€3.00"},{value: 3.5, text: "€3.50"},
+    {value: 4.0, text: "€4.00"},{value: 4.5, text: "€4.50"},
+    {value: 5.0, text: "€5.00"},{value: 6.0, text: "€6.00"},
+    {value: 7.0, text: "€7.00"},{value: 8.0, text: "€8.00"},
+    {value: 9.0, text: "€9.00"},{value: 10.0, text: "€10.00"},
+  ]
+
+  const gbpvalues = [
+    {value: 0.0, text: "Free (£0.00)"},{value: 0.5, text: "£0.50"},
+    {value: 1.0, text: "£1.00"},{value: 1.5, text: "£1.50"},
+    {value: 2.0, text: "£2.00"},{value: 2.5, text: "£2.50"},
+    {value: 3.0, text: "£3.00"},{value: 3.5, text: "£3.50"},
+    {value: 4.0, text: "£4.00"},{value: 4.5, text: "£4.50"},
+    {value: 5.0, text: "£5.00"},{value: 6.0, text: "£6.00"},
+    {value: 7.0, text: "£7.00"},{value: 8.0, text: "£8.00"},
+    {value: 9.0, text: "£9.00"},{value: 10.0, text: "£10.00"},
+  ]
+
+  const cnyvalues = [
+    {value: 0.0, text: "Free (¥0.0)"},{value: 3.0, text: "¥3.0"},
+    {value: 6.0, text: "¥6.0"},{value: 9.0, text: "¥9.0"},
+    {value: 12.0, text: "¥12.0"},{value: 15.0, text: "¥15.0"},
+    {value: 20.0, text: "¥20.0"},{value: 25.0, text: "¥25.0"},
+    {value: 30.0, text: "¥30.0"},{value: 35.0, text: "¥35.0"},
+    {value: 40.0, text: "¥40.0"},{value: 45.0, text: "¥45.0"},
+    {value: 50.0, text: "¥50.0"},
+  ]
+
+  const inrvalues = [
+    {value: 0, text: "Free (₹0)"},{value: 50, text: "₹50"},
+    {value: 100, text: "₹100"},{value: 150, text: "₹150"},
+    {value: 200, text: "₹200"},{value: 250, text: "₹250"},
+    {value: 300, text: "₹300"},{value: 350, text: "₹350"},
+    {value: 400, text: "₹400"},{value: 450, text: "₹450"},
+    {value: 500, text: "₹500"},{value: 550, text: "₹550"},
+    {value: 600, text: "₹600"},{value: 650, text: "₹650"},
+    {value: 700, text: "₹700"},{value: 750, text: "₹750"},
+  ]
+
+  const cadvalues = [
+    {value: 0.0, text: "Free ($0.00)"},{value: 0.5, text: "$0.50"},
+    {value: 1.0, text: "$1.00"},{value: 1.5, text: "$1.50"},
+    {value: 2.0, text: "$2.00"},{value: 2.5, text: "$2.50"},
+    {value: 3.0, text: "$3.00"},{value: 3.5, text: "$3.50"},
+    {value: 4.0, text: "$4.00"},{value: 4.5, text: "$4.50"},
+    {value: 5.0, text: "$5.00"},{value: 6.0, text: "$6.00"},
+    {value: 7.0, text: "$7.00"},{value: 8.0, text: "$8.00"},
+    {value: 9.0, text: "$9.00"},{value: 10.0, text: "$10.00"},
+  ]
+  
+  const usdvalues = [
+    {value: 0.0, text: "Free ($0.00)"},{value: 0.5, text: "$0.50"},
+    {value: 1.0, text: "$1.00"},{value: 1.5, text: "$1.50"},
+    {value: 2.0, text: "$2.00"},{value: 2.5, text: "$2.50"},
+    {value: 3.0, text: "$3.00"},{value: 3.5, text: "$3.50"},
+    {value: 4.0, text: "$4.00"},{value: 4.5, text: "$4.50"},
+    {value: 5.0, text: "$5.00"},{value: 6.0, text: "$6.00"},
+    {value: 7.0, text: "$7.00"},{value: 8.0, text: "$8.00"},
+    {value: 9.0, text: "$9.00"},{value: 10.0, text: "$10.00"},
+  ]
+
+  const audvalues = [
+    {value: 0.0, text: "Free ($0.00)"},{value: 0.5, text: "$0.50"},
+    {value: 1.0, text: "$1.00"},{value: 1.5, text: "$1.50"},
+    {value: 2.0, text: "$2.00"},{value: 2.5, text: "$2.50"},
+    {value: 3.0, text: "$3.00"},{value: 3.5, text: "$3.50"},
+    {value: 4.0, text: "$4.00"},{value: 4.5, text: "$4.50"},
+    {value: 5.0, text: "$5.00"},{value: 6.0, text: "$6.00"},
+    {value: 7.0, text: "$7.00"},{value: 8.0, text: "$8.00"},
+    {value: 9.0, text: "$9.00"},{value: 10.0, text: "$10.00"},
+  ]
+
+  const nzdvalues = [
+    {value: 0.0, text: "Free ($0.00)"},{value: 0.5, text: "$0.50"},
+    {value: 1.0, text: "$1.00"},{value: 1.5, text: "$1.50"},
+    {value: 2.0, text: "$2.00"},{value: 2.5, text: "$2.50"},
+    {value: 3.0, text: "$3.00"},{value: 3.5, text: "$3.50"},
+    {value: 4.0, text: "$4.00"},{value: 4.5, text: "$4.50"},
+    {value: 5.0, text: "$5.00"},{value: 6.0, text: "$6.00"},
+    {value: 7.0, text: "$7.00"},{value: 8.0, text: "$8.00"},
+    {value: 9.0, text: "$9.00"},{value: 10.0, text: "$10.00"},
+  ]
 
   useEffect(() => {
         const ele = startRef.current
@@ -260,6 +358,7 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
 
             setHostComments(response.hostProfile.hostComments)
             setCurrency(response.hostProfile.currency)
+            setCurrencySymbol(response.hostProfile.currencySymbol)
             setChargeRate(response.hostProfile.chargeRatePerHalfHour)
             
           }
@@ -270,6 +369,42 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
         }
   
       }, [auth.userId])
+
+
+    const handleCurrencyChange = (e) => {
+
+        e.preventDefault()
+        setCurrency(e.target.value)
+
+        if(e.target.value === "cad"){
+            setCurrencySymbol("$")
+            setChargeRate(3)
+        } else if(e.target.value === "usd"){
+            setCurrencySymbol("$")
+            setChargeRate(3)
+        } else if(e.target.value === "eur"){
+            setCurrencySymbol("€")
+            setChargeRate(3)
+        } else if(e.target.value === "gbp"){
+            setCurrencySymbol("£")
+            setChargeRate(3)
+        } else if(e.target.value === "inr"){
+            setCurrencySymbol("₹")
+            setChargeRate(300)
+        } else if(e.target.value === "jpy"){
+            setCurrencySymbol("¥")
+            setChargeRate(300)
+        } else if(e.target.value === "cny"){
+            setCurrencySymbol("¥")
+            setChargeRate(9)
+        } else if(e.target.value === "aud"){
+            setCurrencySymbol("$")
+            setChargeRate(3)
+        } else if(e.target.value === "nzd"){
+            setCurrencySymbol("$")
+            setChargeRate(3)
+        }
+    }
 
 
     const handleRegularHourChangeBegin = (event, day) => {
@@ -395,7 +530,7 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
 
                     <label className="flex justify-center items-center pr-2 font-semibold">Currency:</label>
 
-                    <select onChange={(event)=>setCurrency(event.target.value)}
+                    <select onChange={(event)=>handleCurrencyChange(event)}
                     value={currency}
                     className={`pl-6 w-30 md:w-40 h-9 border border-gray-primary justify-center items-center`}>
 
@@ -425,13 +560,33 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
                         setChargeRate(event.target.value);
                     }}>
                     
-                    <option value={1.0}>$1.00</option>
-                    <option value={2.0}>$2.00</option>
-                    <option value={3.0}>$3.00</option>
-                    <option value={4.0}>$4.00</option>
-                    <option value={5.0}>$5.00</option>
-                    <option value={6.0}>$6.00</option>
-                    <option value={7.0}>$7.00</option>
+                    {currency === "usd" && usdvalues.map((rate) => (
+                        <option key={rate.value} value={rate.value}>{rate.text}</option>
+                      ))}
+                      {currency === "cad" && cadvalues.map((rate) => (
+                        <option key={rate.value} value={rate.value}>{rate.text}</option>
+                      ))}
+                      {currency === "eur" && eurvalues.map((rate) => (
+                        <option key={rate.value} value={rate.value}>{rate.text}</option>
+                      ))}
+                      {currency === "gbp" && gbpvalues.map((rate) => (
+                        <option key={rate.value} value={rate.value}>{rate.text}</option>
+                      ))}
+                      {currency === "inr" && inrvalues.map((rate) => (
+                        <option key={rate.value} value={rate.value}>{rate.text}</option>
+                      ))}
+                      {currency === "jpy" && jpyvalues.map((rate) => (
+                        <option key={rate.value} value={rate.value}>{rate.text}</option>
+                      ))}
+                      {currency === "cny" && cnyvalues.map((rate) => (
+                        <option key={rate.value} value={rate.value}>{rate.text}</option>
+                      ))}
+                      {currency === "aud" && audvalues.map((rate) => (
+                        <option key={rate.value} value={rate.value}>{rate.text}</option>
+                      ))}
+                      {currency === "nzd" && nzdvalues.map((rate) => (
+                        <option key={rate.value} value={rate.value}>{rate.text}</option>
+                      ))}
                     
                     </select>
                 </div>  
@@ -440,9 +595,9 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
 
             <div className='flex w-full px-4 md:px-0 pt-2 md:pt-0 pb-4'>
 
-                <label className='text-base font-semibold pl-2'>Special Directions / Comments:</label>
+                <label className='text-base font-semibold pl-2'>Any Special Directions or Comments:</label>
                 <input 
-                    aria-label="Host Comments: " 
+                    aria-label="Directions or Comments: " 
                     type="text" 
                     id="Hostcomments"
                     autoComplete="hostcomments"
@@ -517,14 +672,14 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
                         value="Closed on Monday?"
                         control={
                         <Checkbox checked={closedOnMonday}
-                                onChange={()=>setClosedOnMonday(!closedOnMonday)}
-                                style ={{
-                                color: "#995372",
-                                transform: "scale(1.5)",
-                                paddingBottom: '12pt'
-                            }}
-                            />
-                        }
+                            onChange={()=>setClosedOnMonday(!closedOnMonday)}
+                            style ={{
+                            color: "#00D3E0",
+                            transform: "scale(1.5)",
+                            paddingBottom: '12pt'
+                        }}
+                        />
+                    }
                     />
             </div>
 
@@ -538,7 +693,7 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
                         <Checkbox checked={allDayMonday}
                                 onChange={()=>setAllDayMonday(!allDayMonday)}
                                 style ={{
-                                color: "#995372",
+                                color: "#00D3E0",
                                 transform: "scale(1.5)",
                                 paddingBottom: '12pt'
                             }}
@@ -605,7 +760,7 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
                         <Checkbox checked={closedOnTuesday}
                                 onChange={()=>setClosedOnTuesday(!closedOnTuesday)}
                                 style ={{
-                                color: "#995372",
+                                color: "#00D3E0",
                                 transform: "scale(1.5)",
                                 paddingBottom: '12pt'
                             }}
@@ -625,7 +780,7 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
                         <Checkbox checked={allDayTuesday}
                                 onChange={()=>setAllDayTuesday(!allDayTuesday)}
                                 style ={{
-                                color: "#995372",
+                                color: "#00D3E0",
                                 transform: "scale(1.5)",
                                 paddingBottom: '12pt'
                             }}
@@ -694,7 +849,7 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
                         <Checkbox checked={closedOnWednesday}
                                 onChange={()=>setClosedOnWednesday(!closedOnWednesday)}
                                 style ={{
-                                color: "#995372",
+                                color: "#00D3E0",
                                 transform: "scale(1.5)",
                                 paddingBottom: '12pt'
                             }}
@@ -713,7 +868,7 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
                         <Checkbox checked={allDayWednesday}
                                 onChange={()=>setAllDayWednesday(!allDayWednesday)}
                                 style ={{
-                                color: "#995372",
+                                color: "#00D3E0",
                                 transform: "scale(1.5)",
                                 paddingBottom: '12pt'
                             }}
@@ -781,7 +936,7 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
                         <Checkbox checked={closedOnThursday}
                                 onChange={()=>setClosedOnThursday(!closedOnThursday)}
                                 style ={{
-                                color: "#995372",
+                                color: "#00D3E0",
                                 transform: "scale(1.5)",
                                 paddingBottom: '12pt'
                             }}
@@ -800,7 +955,7 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
                         <Checkbox checked={allDayThursday}
                                 onChange={()=>setAllDayThursday(!allDayThursday)}
                                 style ={{
-                                color: "#995372",
+                                color: "#00D3E0",
                                 transform: "scale(1.5)",
                                 paddingBottom: '12pt'
                             }}
@@ -868,7 +1023,7 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
                         <Checkbox checked={closedOnFriday}
                                 onChange={()=>setClosedOnFriday(!closedOnFriday)}
                                 style ={{
-                                color: "#995372",
+                                color: "#00D3E0",
                                 transform: "scale(1.5)",
                                 paddingBottom: '12pt'
                             }}
@@ -887,7 +1042,7 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
                         <Checkbox checked={allDayFriday}
                                 onChange={()=>setAllDayFriday(!allDayFriday)}
                                 style ={{
-                                color: "#995372",
+                                color: "#00D3E0",
                                 transform: "scale(1.5)",
                                 paddingBottom: '12pt'
                             }}
@@ -956,7 +1111,7 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
                         <Checkbox checked={closedOnSaturday}
                                 onChange={()=>setClosedOnSaturday(!closedOnSaturday)}
                                 style ={{
-                                color: "#995372",
+                                color: "#00D3E0",
                                 transform: "scale(1.5)",
                                 paddingBottom: '12pt'
                             }}
@@ -975,7 +1130,7 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
                         <Checkbox checked={allDaySaturday}
                                 onChange={()=>setAllDaySaturday(!allDaySaturday)}
                                 style ={{
-                                color: "#995372",
+                                color: "#00D3E0",
                                 transform: "scale(1.5)",
                                 paddingBottom: '12pt'
                             }}
@@ -1044,7 +1199,7 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
                         <Checkbox checked={closedOnSunday}
                                 onChange={()=>setClosedOnSunday(!closedOnSunday)}
                                 style ={{
-                                color: "#995372",
+                                color: "#00D3E0",
                                 transform: "scale(1.5)",
                                 paddingBottom: '12pt'
                             }}
@@ -1063,7 +1218,7 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
                         <Checkbox checked={allDaySunday}
                                 onChange={()=>setAllDaySunday(!allDaySunday)}
                                 style ={{
-                                color: "#995372",
+                                color: "#00D3E0",
                                 transform: "scale(1.5)",
                                 paddingBottom: '12pt'
                             }}
@@ -1133,7 +1288,7 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
                         <Checkbox checked={closedOnHolidays}
                                 onChange={()=>setClosedOnHolidays(!closedOnHolidays)}
                                 style ={{
-                                color: "#995372",
+                                color: "#00D3E0",
                                 transform: "scale(1.5)",
                                 paddingBottom: '12pt'
                             }}
@@ -1153,7 +1308,7 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
                         <Checkbox checked={allDayHolidays}
                                 onChange={()=>setAllDayHolidays(!allDayHolidays)}
                                 style ={{
-                                color: "#995372",
+                                color: "#00D3E0",
                                 transform: "scale(1.5)",
                                 paddingBottom: '12pt'
                             }}
