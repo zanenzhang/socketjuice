@@ -904,8 +904,8 @@ const {scrollToTime} = useMemo(
 
       {isLoaded ? 
 
-      <div className='flex relative flex-col items-center pt-[6vh] sm:pt-[7vh] 
-              md:pt-[8vh] h-[100svh] w-[100svw]'>
+      <div className='flex relative flex-col items-center pt-[7vh] sm:pt-[8vh] 
+              md:pt-[9vh] h-[100svh] w-[100svw]'>
 
           <div className='absolute h-full w-full'>
           {/* Google Map Box */}
@@ -1491,10 +1491,10 @@ const {scrollToTime} = useMemo(
 
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
             
-                        <DateTimePicker
-                          value={dayjs(bookingStart)}
-                          onChange={(newValue) => setBookingStart(dayjs(new Date(newValue)))}
-                          />
+                      <DateTimePicker
+                        value={dayjs(bookingStart)}
+                        onChange={(newValue) => setBookingStart(dayjs(new Date(newValue)))}
+                      />
 
                     </LocalizationProvider>
 
@@ -1577,8 +1577,8 @@ const {scrollToTime} = useMemo(
             onClose={handleCloseDetailsModal}
             onClick={(event)=>{event.stopPropagation()}}
             aria-labelledby="child-modal-title"
-            aria-describedby="child-modal-description"
-        >
+            aria-describedby="child-modal-description">
+
             <Box sx={{ ...profileStyle, height: "450px" }}>
 
               <div className='flex flex-col w-full overflow-y-scroll'>
@@ -1621,8 +1621,8 @@ const {scrollToTime} = useMemo(
                         Get Directions (Opens Map)
                     </button>
 
-                    {(selectedEventStatus === "Requested" || selectedEventStatus === "Completed") 
-                    && <button onClick={(e)=>handleMessage(e)}>
+                    {(selectedEventStatus !== "Requested") 
+                      && <button onClick={(e)=>handleMessage(e)}>
                       Send Message
                     </button>}
 

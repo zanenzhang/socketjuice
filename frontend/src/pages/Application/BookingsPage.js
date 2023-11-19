@@ -10,7 +10,7 @@ import TabContext from "@material-ui/lab/TabContext";
 import TabList from "@material-ui/lab/TabList";
 import TabPanel from "@material-ui/lab/TabPanel";  
 import { Calendar, dayjsLocalizer } from "react-big-calendar";
-import CameraId from '../CameraId';
+import CameraPlug from '../CameraPlug';
 import axios from "../../api/axios";
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -256,7 +256,7 @@ const BookingsPage = () => {
   const [selectProfilePic, setSelectProfilePic] = useState("")
 
 
-  const handleMessage = async () => {
+  const handleMessageDriver = async () => {
 
     if(!auth.userId){
         navigate('/map');
@@ -264,6 +264,17 @@ const BookingsPage = () => {
     }
 
     setNewIndividualChat({userId: selectedHostUserId});
+    navigate(`/messages`);
+  }
+
+  const handleMessageHost = async () => {
+
+    if(!auth.userId){
+        navigate('/map');
+        return
+    }
+
+    setNewIndividualChat({userId: selectedDriverUserId});
     navigate(`/messages`);
   }
 
@@ -1054,13 +1065,12 @@ const handleRegularHourChangeEnd = (event, day) => {
 
     <MainHeader 
         loggedUserId={auth.userId} loggedUsername={auth.username} 
-        profilePicURL={auth.profilePicURL} roles={auth.roles}
-    />
+        profilePicURL={auth.profilePicURL} roles={auth.roles} />
 
       {(verifiedHost && submitted ) && 
       
-      <div className='flex relative flex-col items-center pt-[6vh] sm:pt-[7vh] 
-              md:pt-[8vh] h-[100svh] w-[100svw] overflow-y-scroll'>
+      <div className='flex relative flex-col items-center pt-[7vh] sm:pt-[8vh] 
+              md:pt-[9vh] h-[100svh] w-[100svw] overflow-y-scroll'>
 
           <TabContext value={value}>
 
@@ -1237,7 +1247,8 @@ const handleRegularHourChangeEnd = (event, day) => {
 
         {(!verifiedHost && submitted) && 
         
-        <div>
+        <div className='flex relative flex-col items-center pt-[7vh] sm:pt-[8vh] 
+              md:pt-[9vh] h-[100svh] w-[100svw] overflow-y-scroll'>
         
           <p>We are currently reviewing your charging location, please hold</p>
         
@@ -1246,13 +1257,16 @@ const handleRegularHourChangeEnd = (event, day) => {
 
         {(!verifiedHost && !submitted) && 
         
-        <div className="flex w-full flex-col px-4">
-        
-          <p>Please submit the information below for your charging equipment</p>
-          <p>After approval, drivers will be able to request bookings and you will be able to earn income</p>
+        <div className='flex relative flex-col items-center pt-[7vh] sm:pt-[8vh] 
+              md:pt-[9vh] h-[100svh] w-[100svw] overflow-y-scroll px-4 gap-y-2'>
+            
+          <div className='bg-[#FFE142] rounded-xl p-3 mt-3'>
+            <p className=''>Please submit the information below for review. This is so drivers book and pay for the correct equipment.</p>
+            <p >After we approve your information, drivers will be able to request bookings and you will be able to earn income.</p>
+          </div>
 
-          <p>Upload a photo of your charging equipment and a photo of the plug connection. </p>
-          <p>An example is the following: </p>
+          <p className='text-base md:text-lg font-bold pt-4'>Step 1) Upload at least 1 photo of your charging equipment and 1 photo of the plug connection. </p>
+          <p className='text-base md:text-lg font-bold pb-2'>Here is an example: </p>
 
           <div className='flex flex-row'>
 
@@ -1261,18 +1275,20 @@ const handleRegularHourChangeEnd = (event, day) => {
 
           </div>
 
-          <div className="w-full flex justify-center">
+          <div className="w-full flex flex-col items-center justify-center">
+
+          <p className='text-base md:text-lg font-bold pb-2'>Your charging equipment photos: </p>
             
-            <CameraId croppedImage={croppedImage} setCroppedImage={setCroppedImage} croppedImageURL={croppedImageURL} setCroppedImageURL={setCroppedImageURL} 
+            <CameraPlug croppedImage={croppedImage} setCroppedImage={setCroppedImage} croppedImageURL={croppedImageURL} setCroppedImageURL={setCroppedImageURL} 
               coverIndex={coverIndex} setCoverIndex={setCoverIndex} mediaTypes={mediaTypes} setMediaTypes={setMediaTypes} videoArray={videoArray} setVideoArray={setVideoArray} 
               videoURLArray={videoURLArray} setVideoURLArray={setVideoURLArray}  videoThumbnails={videoThumbnails} setVideoThumbnails={setVideoThumbnails} 
               oldMediaTrack={oldMediaTrack} setOldMediaTrack={setOldMediaTrack} limit={5} />
             
           </div>
 
-            <div className='w-full flex flex-col items-end pt-4 pr-12'>
+              <div className='w-full flex flex-col justify-center items-center gap-y-4 pt-4 '>
 
-              <div className='w-full flex flex-col items-end gap-y-4'>
+                <p className='text-base md:text-lg font-bold pt-4'>Step 2) Select how much for drivers to pay you per 30 min charge (you can change this later too) </p>
 
                   <div className="flex flex-row justify-center items-center gap-x-2">
 
@@ -1319,12 +1335,14 @@ const handleRegularHourChangeEnd = (event, day) => {
                       </select>
                   </div>  
 
-                  <div className="flex flex-col justify-center items-center gap-y-2">
+                  <div className='flex flex-col justify-center items-center gap-y-3'>
 
-                      <div className='flex flex-col'>
-                      <label className="flex justify-center items-center pr-2 font-semibold">Connector Type:</label>
+                  <p className='text-base md:text-lg font-bold pt-4'>Step 3) Select the connector type for your main plug and if you have an adapter. (We will check against your photos but please match carefully!) </p>
 
-                      <img className='w-[375px] py-2' src={evconnectors} />
+                      <img className='min-w-[375px] w-[600px] py-4' src={evconnectors} />
+
+                      <div className='flex flex-row justify-center items-center'>
+                      <label className="font-semibold pr-2">Connector Type:</label>
 
                       <select onChange={(event)=>setConnectorType(event.target.value)}
                       value={connectorType}
@@ -1342,9 +1360,10 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                       </select> 
                       </div>
+                      
 
-                      <div className='flex flex-col'>
-                      <label className="flex justify-center items-center pr-2 font-semibold">If you have any connector adaptors:</label>
+                      <div className='flex flex-row justify-center items-center'>
+                      <label className="pr-2 font-semibold">If you have any connector adaptors:</label>
                       <select onChange={(event)=>setSecondaryConnectorType(event.target.value)}
                       value={secondaryConnectorType}
                       className={`text-sm w-30 md:w-40 h-10 text-black justify-center
@@ -1380,8 +1399,9 @@ const handleRegularHourChangeEnd = (event, day) => {
                       </select> 
 
                   </div>
-              
               </div>
+
+              <p className='text-base md:text-lg font-bold pt-4'>Final Step) Select your time availabilities during the week for charging (you can change this later) </p>
 
               <div className='flex flex-col items-center md:flex-row md:justify-center w-full gap-x-6'>
 
@@ -1910,22 +1930,20 @@ const handleRegularHourChangeEnd = (event, day) => {
                 <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
                     md:w-[27vh] mt-4'>
 
-                    <label className='pb-4 font-bold'>Closed on Holidays?</label>
-                        <FormControlLabel
-                            value="Closed on Holidays?"
-                            control={
-                            <Checkbox checked={closedOnHolidays}
-                                    onChange={()=>setClosedOnHolidays(!closedOnHolidays)}
-                                    style ={{
-                                    color: "#995372",
-                                    transform: "scale(1.5)",
-                                    paddingBottom: '12pt'
-                                }}
-                                />
-                            }
-                        />
-
-                  </div>
+                  <label className='pb-4 font-bold'>Closed on Holidays?</label>
+                    <FormControlLabel
+                      value="Closed on Holidays?"
+                      control={
+                      <Checkbox checked={closedOnHolidays}
+                              onChange={()=>setClosedOnHolidays(!closedOnHolidays)}
+                              style ={{
+                              color: "#995372",
+                              transform: "scale(1.5)",
+                              paddingBottom: '12pt'
+                          }}
+                          />
+                      }
+                  />
               </div>
 
           </div>           
@@ -1979,8 +1997,8 @@ const handleRegularHourChangeEnd = (event, day) => {
                         Get Directions (Opens Map)
                     </button>}
 
-                    {(selectedEventStatus === "Requested" || selectedEventStatus === "Completed") 
-                    && <button onClick={(e)=>handleMessage(e)}>
+                    {(selectedEventStatus !== "Requested") 
+                    && <button onClick={(e)=>handleMessageDriver(e)}>
                       Send Message
                     </button>}
 
@@ -2035,6 +2053,11 @@ const handleRegularHourChangeEnd = (event, day) => {
                     {(selectedAddress && selectedHostUserId !== auth.userId) && <button className='border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]'
                       onClick={(e)=>handleLinkURLDirections(e, selectedAddress)}>
                         Get Directions (Opens Map)
+                    </button>}
+
+                    {(selectedEventStatus !== "Requested") 
+                      && <button onClick={(e)=>handleMessageHost(e)}>
+                      Send Message
                     </button>}
 
                 </div>

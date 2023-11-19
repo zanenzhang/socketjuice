@@ -653,6 +653,7 @@ const MainHeader = ({loggedUserId} ) => {
         }
 
     }, [newMessages])
+    
 
     return (
         <>
