@@ -7,6 +7,7 @@ async function addHostProfile(userId, hostPreviewMediaObjectId, hostMediaObjectI
     hoursFridayStart, hoursFridayFinish, hoursSaturdayStart, hoursSaturdayFinish, hoursSundayStart, hoursSundayFinish,
     holidayHoursStart, holidayHoursFinish, 
     closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays, 
+    hostComments,
     accessToken) {
 
     try {
@@ -17,7 +18,9 @@ async function addHostProfile(userId, hostPreviewMediaObjectId, hostMediaObjectI
                 hoursMondayStart, hoursMondayFinish, hoursTuesdayStart, hoursTuesdayFinish, hoursWednesdayStart, hoursWednesdayFinish, hoursThursdayStart, hoursThursdayFinish,
                 hoursFridayStart, hoursFridayFinish, hoursSaturdayStart, hoursSaturdayFinish, hoursSundayStart, hoursSundayFinish,
                 holidayHoursStart, holidayHoursFinish, 
-                closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays}),
+                closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays,
+                hostComments
+            }),
             {
                 headers: { "Authorization": `Bearer ${accessToken} ${userId}`, 
                     'Content-Type': 'application/json'},

@@ -136,7 +136,7 @@ export default function ChangeProfileMainHost({loggedUserId}) {
   const [validHolidayHoursFinish, setValidHolidayHoursFinish] = useState(false);
   const [holidayHoursFinishFocus, setHolidayHoursFinishFocus] = useState(false);
 
-const COMMENTS_REGEX = /^.{2,450}$/;
+const COMMENTS_REGEX = /^.{2,250}$/;
 const REGULAR_HOURS_REGEX = /^.{2,250}$/;
 const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
 
@@ -438,9 +438,9 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
 
             </div>
 
-            <div className='flex flex-col w-full px-4 md:px-0 md:w-[45vh] pt-2 md:pt-0'>
+            <div className='flex w-full px-4 md:px-0 pt-2 md:pt-0 pb-4'>
 
-                <label className='text-base font-semibold pl-2'>Host Comments:</label>
+                <label className='text-base font-semibold pl-2'>Special Directions / Comments:</label>
                 <input 
                     aria-label="Host Comments: " 
                     type="text" 
@@ -527,11 +527,30 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
                         }
                     />
             </div>
+
+                <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
+                    md:w-[27vh] mt-4'>
+
+                    <label className='pb-4 font-bold'>Open 24/7 on Monday?</label>
+                    <FormControlLabel
+                        value="Open 24/7 on Monday?"
+                        control={
+                        <Checkbox checked={allDayMonday}
+                                onChange={()=>setAllDayMonday(!allDayMonday)}
+                                style ={{
+                                color: "#995372",
+                                transform: "scale(1.5)",
+                                paddingBottom: '12pt'
+                            }}
+                            />
+                        }
+                    />
+                </div>
             </div>
 
             <div className='flex flex-col items-center md:flex-row md:justify-center w-full gap-x-6'>
 
-            <div className='flex flex-col px-4 md:px-0 w-full md:w-[35vh] mt-4'>
+                <div className='flex flex-col px-4 md:px-0 w-full md:w-[35vh] mt-4'>
 
                 <label className='text-base font-semibold pl-2'>Tuesday Hours - Start:</label>
 
@@ -576,10 +595,10 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
                 />
             </div>
 
-            <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
-                md:w-[27vh] mt-4'>
+                <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
+                    md:w-[27vh] mt-4'>
 
-                <label className='pb-4 font-bold'>Closed on Tuesday?</label>
+                    <label className='pb-4 font-bold'>Closed on Tuesday?</label>
                     <FormControlLabel
                         value="Closed on Tuesday?"
                         control={
@@ -594,12 +613,32 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
                         }
                     />
 
-            </div>
+                </div>
+
+                <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
+                    md:w-[27vh] mt-4'>
+
+                    <label className='pb-4 font-bold'>Open 24/7 on Tuesday?</label>
+                    <FormControlLabel
+                        value="Open 24/7 on Tuesday?"
+                        control={
+                        <Checkbox checked={allDayTuesday}
+                                onChange={()=>setAllDayTuesday(!allDayTuesday)}
+                                style ={{
+                                color: "#995372",
+                                transform: "scale(1.5)",
+                                paddingBottom: '12pt'
+                            }}
+                        />
+                        }
+                    />
+
+                </div>
             </div>
 
             <div className='flex flex-col items-center md:flex-row md:justify-center w-full gap-x-6'>
 
-            <div className='flex flex-col px-4 md:px-0 w-full md:w-[35vh] mt-4'>
+                <div className='flex flex-col px-4 md:px-0 w-full md:w-[35vh] mt-4'>
 
                 <label className='text-base font-semibold pl-2'>Wednesday Hours - Start:</label>
 
@@ -645,10 +684,10 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
 
             </div>
 
-            <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
-                md:w-[27vh] mt-4'>
+                <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
+                    md:w-[27vh] mt-4'>
 
-                <label className='pb-4 font-bold'>Closed on Wednesday?</label>
+                    <label className='pb-4 font-bold'>Closed on Wednesday?</label>
                     <FormControlLabel
                         value="Closed on Wednesday?"
                         control={
@@ -659,11 +698,29 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
                                 transform: "scale(1.5)",
                                 paddingBottom: '12pt'
                             }}
-                            />
+                        />
                         }
                     />
+                </div>
 
-            </div>
+                <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
+                    md:w-[27vh] mt-4'>
+
+                    <label className='pb-4 font-bold'>Open 24/7 on Wednesday?</label>
+                    <FormControlLabel
+                        value="Open 24/7 on Wednesday?"
+                        control={
+                        <Checkbox checked={allDayWednesday}
+                                onChange={()=>setAllDayWednesday(!allDayWednesday)}
+                                style ={{
+                                color: "#995372",
+                                transform: "scale(1.5)",
+                                paddingBottom: '12pt'
+                            }}
+                        />
+                        }
+                    />
+                </div>
             </div>
 
             <div className='flex flex-col items-center md:flex-row md:justify-center w-full gap-x-6'>
@@ -714,10 +771,10 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
 
             </div>
 
-            <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
-                md:w-[27vh] mt-4'>
+                <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
+                    md:w-[27vh] mt-4'>
 
-                <label className='pb-4 font-bold'>Closed on Thursday?</label>
+                    <label className='pb-4 font-bold'>Closed on Thursday?</label>
                     <FormControlLabel
                         value="Closed on Thursday?"
                         control={
@@ -731,8 +788,27 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
                             />
                         }
                     />
+                </div>
 
-            </div>
+                <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
+                    md:w-[27vh] mt-4'>
+
+                    <label className='pb-4 font-bold'>Open 24/7 on Thursday?</label>
+                    <FormControlLabel
+                        value="Open 24/7 on Thursday?"
+                        control={
+                        <Checkbox checked={allDayThursday}
+                                onChange={()=>setAllDayThursday(!allDayThursday)}
+                                style ={{
+                                color: "#995372",
+                                transform: "scale(1.5)",
+                                paddingBottom: '12pt'
+                            }}
+                            />
+                        }
+                    />
+                </div>
+
             </div>
 
             <div className='flex flex-col items-center md:flex-row md:justify-center w-full gap-x-6'>
@@ -782,10 +858,10 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
                 />
             </div>
 
-            <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
-                md:w-[27vh] mt-4'>
+                <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
+                    md:w-[27vh] mt-4'>
 
-                <label className='pb-4 font-bold'>Closed on Friday?</label>
+                    <label className='pb-4 font-bold'>Closed on Friday?</label>
                     <FormControlLabel
                         value="Closed on Friday?"
                         control={
@@ -799,8 +875,27 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
                             />
                         }
                     />
+                </div>
 
-            </div>
+                <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
+                    md:w-[27vh] mt-4'>
+
+                    <label className='pb-4 font-bold'>Open 24/7 on Friday?</label>
+                    <FormControlLabel
+                        value="Open 24/7 on Friday?"
+                        control={
+                        <Checkbox checked={allDayFriday}
+                                onChange={()=>setAllDayFriday(!allDayFriday)}
+                                style ={{
+                                color: "#995372",
+                                transform: "scale(1.5)",
+                                paddingBottom: '12pt'
+                            }}
+                            />
+                        }
+                    />
+                </div>
+
             </div>
 
             <div className='flex flex-col items-center md:flex-row md:justify-center w-full gap-x-6'>
@@ -851,10 +946,10 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
 
             </div>
 
-            <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
-                md:w-[27vh] mt-4'>
+                <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
+                    md:w-[27vh] mt-4'>
 
-                <label className='pb-4 font-bold'>Closed on Saturday?</label>
+                    <label className='pb-4 font-bold'>Closed on Saturday?</label>
                     <FormControlLabel
                         value="Closed on Saturday?"
                         control={
@@ -868,7 +963,27 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
                             />
                         }
                     />
-            </div>
+                </div>
+
+                <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
+                    md:w-[27vh] mt-4'>
+
+                    <label className='pb-4 font-bold'>Open 24/7 on Saturday?</label>
+                    <FormControlLabel
+                        value="Open 24/7 on Saturday?"
+                        control={
+                        <Checkbox checked={allDaySaturday}
+                                onChange={()=>setAllDaySaturday(!allDaySaturday)}
+                                style ={{
+                                color: "#995372",
+                                transform: "scale(1.5)",
+                                paddingBottom: '12pt'
+                            }}
+                            />
+                        }
+                    />
+                </div>
+
             </div>
 
             <div className='flex flex-col items-center md:flex-row md:justify-center w-full gap-x-6'>
@@ -919,10 +1034,10 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
 
             </div>
 
-            <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
-                md:w-[27vh] mt-4'>
+                <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
+                    md:w-[27vh] mt-4'>
 
-                <label className='pb-4 font-bold'>Closed on Sunday?</label>
+                    <label className='pb-4 font-bold'>Closed on Sunday?</label>
                     <FormControlLabel
                         value="Closed on Sunday?"
                         control={
@@ -936,8 +1051,27 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
                             />
                         }
                     />
+                </div>
 
-            </div>
+                <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
+                    md:w-[27vh] mt-4'>
+
+                    <label className='pb-4 font-bold'>Open 24/7 on Sunday?</label>
+                    <FormControlLabel
+                        value="Open 24/7 on Sunday?"
+                        control={
+                        <Checkbox checked={allDaySunday}
+                                onChange={()=>setAllDaySunday(!allDaySunday)}
+                                style ={{
+                                color: "#995372",
+                                transform: "scale(1.5)",
+                                paddingBottom: '12pt'
+                            }}
+                            />
+                        }
+                    />
+                </div>
+
             </div>
 
 
@@ -989,10 +1123,10 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
 
             </div>
 
-            <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
-                md:w-[27vh] mt-4'>
+                <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
+                    md:w-[27vh] mt-4'>
 
-                <label className='pb-4 font-bold'>Closed on Holidays?</label>
+                    <label className='pb-4 font-bold'>Closed on Holidays?</label>
                     <FormControlLabel
                         value="Closed on Holidays?"
                         control={
@@ -1008,6 +1142,27 @@ const HOLIDAY_HOURS_REGEX = /^.{2,250}$/;
                     />
 
                 </div>
+
+                <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
+                    md:w-[27vh] mt-4'>
+
+                    <label className='pb-4 font-bold'>Open 24/7 on Holidays?</label>
+                    <FormControlLabel
+                        value="Closed on Holidays?"
+                        control={
+                        <Checkbox checked={allDayHolidays}
+                                onChange={()=>setAllDayHolidays(!allDayHolidays)}
+                                style ={{
+                                color: "#995372",
+                                transform: "scale(1.5)",
+                                paddingBottom: '12pt'
+                            }}
+                            />
+                        }
+                    />
+
+                </div>
+
         </div>           
 
         <div className='py-6'>

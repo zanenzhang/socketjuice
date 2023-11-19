@@ -1483,6 +1483,7 @@ const addHostProfile = async (req, res) => {
         hoursFridayStart, hoursFridayFinish, hoursSaturdayStart, hoursSaturdayFinish, hoursSundayStart, hoursSundayFinish,
         holidayHoursStart, holidayHoursFinish, 
         closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays,
+        hostComments,
          } = req.body
 
     if (!userId || !hostMediaObjectIds || hostMediaObjectIds?.length < 2 ) {
@@ -1524,6 +1525,7 @@ const addHostProfile = async (req, res) => {
         foundHost.connectionType = connectorType
         foundHost.secondaryConnectionType = secondaryConnectorType
         foundHost.chargingLevel = chargingLevel
+        hostComments ? foundHost.hostComments = hostComments : ""
 
         if(connectorType === 'AC-J1772-Type1' || secondaryConnectorType === 'AC-J1772-Type1'){
             foundDriver.j1772ACChecked = true

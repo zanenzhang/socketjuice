@@ -201,8 +201,8 @@ var hostProfileSchema = new Schema({
     },
     hostComments: {
         type: String,
-        maxLength: 2000,
-        default: "Welcome! No additional comments!"
+        maxLength: 1000,
+        default: ""
     },
     address: {
         type: String,

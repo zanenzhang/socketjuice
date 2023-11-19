@@ -69,9 +69,13 @@ async function checkVerification (req, res) {
 
                 var searchObj = {}
                 var currency = "cad"
+                var currencySymbol = "$"
+
+
                 if(phoneCountryCode == "ca"){
                     
                     currency = "cad"
+                    currencySymbol = "$"
                     searchObj["j1772ACChecked"] = true
                     searchObj["ccs1DCChecked"] = true
                     searchObj["teslaChecked"] = true
@@ -79,6 +83,7 @@ async function checkVerification (req, res) {
                 } else if(phoneCountryCode == "us"){
                     
                     currency = "usd"
+                    currencySymbol = "$"
                     searchObj["j1772ACChecked"] = true
                     searchObj["ccs1DCChecked"] = true
                     searchObj["teslaChecked"] = true
@@ -86,6 +91,7 @@ async function checkVerification (req, res) {
                 } else if(phoneCountryCode == "au"){
                     
                     currency = "aud"
+                    currencySymbol = "$"
                     searchObj["mennekesACChecked"] = true
                     searchObj["ccs2DCChecked"] = true
                     searchObj["teslaChecked"] = true
@@ -93,6 +99,7 @@ async function checkVerification (req, res) {
                 } else if(phoneCountryCode == "nz"){
                     
                     currency = "nzd"
+                    currencySymbol = "$"
                     searchObj["mennekesACChecked"] = true
                     searchObj["ccs2DCChecked"] = true
                     searchObj["teslaChecked"] = true
@@ -100,12 +107,14 @@ async function checkVerification (req, res) {
                 } else if(phoneCountryCode == "gb"){
                     
                     currency = "gbp"
+                    currencySymbol = "£"
                     searchObj["mennekesACChecked"] = true
                     searchObj["ccs2DCChecked"] = true
 
                 } else if(phoneCountryCode == "in"){
                     
                     currency = "inr"
+                    currencySymbol = "₹"
                     searchObj["gbtACChecked"] = true
                     searchObj["gbtDCChecked"] = true
                     searchObj["teslaChecked"] = true
@@ -113,6 +122,7 @@ async function checkVerification (req, res) {
                 } else if(phoneCountryCode == "jp"){
                     
                     currency = "jpy"
+                    currencySymbol = "¥"
                     searchObj["j1772ACChecked"] = true
                     searchObj["chademoDChecked"] = true
                     searchObj["teslaChecked"] = true
@@ -120,6 +130,7 @@ async function checkVerification (req, res) {
                 } else if(phoneCountryCode == "cn"){
                     
                     currency = "cny"
+                    currencySymbol = "¥"
                     searchObj["gbtACChecked"] = true
                     searchObj["gbtDCChecked"] = true
                     searchObj["teslaChecked"] = true
@@ -127,14 +138,15 @@ async function checkVerification (req, res) {
                 } else {
                     
                     currency = "eur"
+                    currencySymbol = "€"
                     searchObj["mennekesACChecked"] = true
                     searchObj["ccs2DCChecked"] = true
                 }
 
                 const updatedUser = await User.updateOne({_id: userId},
                     {$set:{checkedMobile: true, phonePrimary: number, phonePrefix: phonePrefix, currentStage: 2,
-                    currency: currency, phoneCountry: phoneCountry, phoneCountryCode: phoneCountryCode,
-                    active: true}})
+                    currency: currency, currencySymbol: currencySymbol, phoneCountry: phoneCountry, 
+                    phoneCountryCode: phoneCountryCode, active: true}})
 
                 const updatedDriver = await DriverProfile.updateOne({_userId: userId},
                     {$set: searchObj})

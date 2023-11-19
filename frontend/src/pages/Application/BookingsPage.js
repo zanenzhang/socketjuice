@@ -160,10 +160,146 @@ const BookingsPage = () => {
   const [validHolidayHoursFinish, setValidHolidayHoursFinish] = useState(false);
   const [holidayHoursFinishFocus, setHolidayHoursFinishFocus] = useState(false);
 
-  const ANNOUNCEMENTS_REGEX = /^.{2,450}$/;
-  const REGULAR_HOURS_REGEX = /^.{2,450}$/;
+  const [allDayMonday, setAllDayMonday] = useState(false);
+  const [allDayTuesday, setAllDayTuesday] = useState(false);
+  const [allDayWednesday, setAllDayWednesday] = useState(false);
+  const [allDayThursday, setAllDayThursday] = useState(false);
+  const [allDayFriday, setAllDayFriday] = useState(false);
+  const [allDaySaturday, setAllDaySaturday] = useState(false);
+  const [allDaySunday, setAllDaySunday] = useState(false);
+  const [allDayHolidays, setAllDayHolidays] = useState(false);
+
+  const [hostComments, setHostComments] = useState("");
+  const [validHostComments, setValidHostComments] = useState(false);
+  const [hostCommentsFocus, setHostCommentsFocus] = useState(false);
+
   const REGULAR_HOURS_REGEX_DAILY = /^.{2,100}$/;
   const HOLIDAY_HOURS_REGEX = /^.{2,100}$/;
+  const COMMENTS_REGEX = /^.{2,250}$/;
+
+  
+  const jpyvalues = [
+    {value: 0, text: "Free (¥0)"},{value: 75, text: "¥75"},
+    {value: 150, text: "¥150"},{value: 225, text: "¥225"},
+    {value: 300, text: "¥300"},{value: 400, text: "¥400"},
+    {value: 500, text: "¥500"},{value: 600, text: "¥600"},
+    {value: 700, text: "¥700"},{value: 800, text: "¥800"},
+    {value: 900, text: "¥900"},{value: 1000, text: "¥1000"},
+    {value: 1100, text: "¥1100"},{value: 1200, text: "¥1200"},
+    {value: 1300, text: "¥1300"},{value: 1400, text: "¥1400"},
+  ]
+
+  const eurvalues = [
+    {value: 0.0, text: "Free (€0.00)"},{value: 0.5, text: "€0.50"},
+    {value: 1.0, text: "€1.00"},{value: 1.5, text: "€1.50"},
+    {value: 2.0, text: "€2.00"},{value: 2.5, text: "€2.50"},
+    {value: 3.0, text: "€3.00"},{value: 3.5, text: "€3.50"},
+    {value: 4.0, text: "€4.00"},{value: 4.5, text: "€4.50"},
+    {value: 5.0, text: "€5.00"},{value: 6.0, text: "€6.00"},
+    {value: 7.0, text: "€7.00"},{value: 8.0, text: "€8.00"},
+    {value: 9.0, text: "€9.00"},{value: 10.0, text: "€10.00"},
+  ]
+
+  const gbpvalues = [
+    {value: 0.0, text: "Free (£0.00)"},{value: 0.5, text: "£0.50"},
+    {value: 1.0, text: "£1.00"},{value: 1.5, text: "£1.50"},
+    {value: 2.0, text: "£2.00"},{value: 2.5, text: "£2.50"},
+    {value: 3.0, text: "£3.00"},{value: 3.5, text: "£3.50"},
+    {value: 4.0, text: "£4.00"},{value: 4.5, text: "£4.50"},
+    {value: 5.0, text: "£5.00"},{value: 6.0, text: "£6.00"},
+    {value: 7.0, text: "£7.00"},{value: 8.0, text: "£8.00"},
+    {value: 9.0, text: "£9.00"},{value: 10.0, text: "£10.00"},
+  ]
+
+  const cnyvalues = [
+    {value: 0.0, text: "Free (¥0.0)"},{value: 3.0, text: "¥3.0"},
+    {value: 6.0, text: "¥6.0"},{value: 9.0, text: "¥9.0"},
+    {value: 12.0, text: "¥12.0"},{value: 15.0, text: "¥15.0"},
+    {value: 20.0, text: "¥20.0"},{value: 25.0, text: "¥25.0"},
+    {value: 30.0, text: "¥30.0"},{value: 35.0, text: "¥35.0"},
+    {value: 40.0, text: "¥40.0"},{value: 45.0, text: "¥45.0"},
+    {value: 50.0, text: "¥50.0"},
+  ]
+
+  const inrvalues = [
+    {value: 0, text: "Free (₹0)"},{value: 50, text: "₹50"},
+    {value: 100, text: "₹100"},{value: 150, text: "₹150"},
+    {value: 200, text: "₹200"},{value: 250, text: "₹250"},
+    {value: 300, text: "₹300"},{value: 350, text: "₹350"},
+    {value: 400, text: "₹400"},{value: 450, text: "₹450"},
+    {value: 500, text: "₹500"},{value: 550, text: "₹550"},
+    {value: 600, text: "₹600"},{value: 650, text: "₹650"},
+    {value: 700, text: "₹700"},{value: 750, text: "₹750"},
+  ]
+
+  const cadvalues = [
+    {value: 0.0, text: "Free ($0.00)"},{value: 0.5, text: "$0.50"},
+    {value: 1.0, text: "$1.00"},{value: 1.5, text: "$1.50"},
+    {value: 2.0, text: "$2.00"},{value: 2.5, text: "$2.50"},
+    {value: 3.0, text: "$3.00"},{value: 3.5, text: "$3.50"},
+    {value: 4.0, text: "$4.00"},{value: 4.5, text: "$4.50"},
+    {value: 5.0, text: "$5.00"},{value: 6.0, text: "$6.00"},
+    {value: 7.0, text: "$7.00"},{value: 8.0, text: "$8.00"},
+    {value: 9.0, text: "$9.00"},{value: 10.0, text: "$10.00"},
+  ]
+  
+  const usdvalues = [
+    {value: 0.0, text: "Free ($0.00)"},{value: 0.5, text: "$0.50"},
+    {value: 1.0, text: "$1.00"},{value: 1.5, text: "$1.50"},
+    {value: 2.0, text: "$2.00"},{value: 2.5, text: "$2.50"},
+    {value: 3.0, text: "$3.00"},{value: 3.5, text: "$3.50"},
+    {value: 4.0, text: "$4.00"},{value: 4.5, text: "$4.50"},
+    {value: 5.0, text: "$5.00"},{value: 6.0, text: "$6.00"},
+    {value: 7.0, text: "$7.00"},{value: 8.0, text: "$8.00"},
+    {value: 9.0, text: "$9.00"},{value: 10.0, text: "$10.00"},
+  ]
+
+  const audvalues = [
+    {value: 0.0, text: "Free ($0.00)"},{value: 0.5, text: "$0.50"},
+    {value: 1.0, text: "$1.00"},{value: 1.5, text: "$1.50"},
+    {value: 2.0, text: "$2.00"},{value: 2.5, text: "$2.50"},
+    {value: 3.0, text: "$3.00"},{value: 3.5, text: "$3.50"},
+    {value: 4.0, text: "$4.00"},{value: 4.5, text: "$4.50"},
+    {value: 5.0, text: "$5.00"},{value: 6.0, text: "$6.00"},
+    {value: 7.0, text: "$7.00"},{value: 8.0, text: "$8.00"},
+    {value: 9.0, text: "$9.00"},{value: 10.0, text: "$10.00"},
+  ]
+
+  const nzdvalues = [
+    {value: 0.0, text: "Free ($0.00)"},{value: 0.5, text: "$0.50"},
+    {value: 1.0, text: "$1.00"},{value: 1.5, text: "$1.50"},
+    {value: 2.0, text: "$2.00"},{value: 2.5, text: "$2.50"},
+    {value: 3.0, text: "$3.00"},{value: 3.5, text: "$3.50"},
+    {value: 4.0, text: "$4.00"},{value: 4.5, text: "$4.50"},
+    {value: 5.0, text: "$5.00"},{value: 6.0, text: "$6.00"},
+    {value: 7.0, text: "$7.00"},{value: 8.0, text: "$8.00"},
+    {value: 9.0, text: "$9.00"},{value: 10.0, text: "$10.00"},
+  ]
+
+
+  useEffect( ()=> {
+
+    if(currency === "cad"){
+      setCurrencySymbol("$")
+    } else if(currency === "usd"){
+      setCurrencySymbol("$")
+    } else if(currency === "eur"){
+      setCurrencySymbol("€")
+    } else if(currency === "gbp"){
+      setCurrencySymbol("£")
+    } else if(currency === "inr"){
+      setCurrencySymbol("₹")
+    } else if(currency === "jpy"){
+      setCurrencySymbol("¥")
+    } else if(currency === "cny"){
+      setCurrencySymbol("¥")
+    } else if(currency === "aud"){
+      setCurrencySymbol("$")
+    } else if(currency === "nzd"){
+      setCurrencySymbol("$")
+    }
+
+  }, [currency])
 
   useEffect(() => {
     setValidhoursMondayStart(REGULAR_HOURS_REGEX_DAILY.test(hoursMondayStart));
@@ -228,6 +364,10 @@ const BookingsPage = () => {
   useEffect(() => {
       setValidHolidayHoursFinish(HOLIDAY_HOURS_REGEX.test(holidayHoursFinish));
   }, [holidayHoursFinish])
+
+  useEffect(() => {
+    setValidHostComments(COMMENTS_REGEX.test(hostComments));
+}, [hostComments])
 
   const [croppedImageURL, setCroppedImageURL] = useState([]);
   const [croppedImage, setCroppedImage] = useState([]);
@@ -798,14 +938,14 @@ const handleRegularHourChangeEnd = (event, day) => {
             try {
 
                 const uploadedHostPhotos = await addHostProfile(
-                  auth.userId, previewMediaObjectId, finalImageObjArray, finalVideoObjArray,
+                  auth?.userId, previewMediaObjectId, finalImageObjArray, finalVideoObjArray,
                   mediaTypes, previewMediaType, coverIndex, 
                   chargeRate, currency, connectorType, secondaryConnectorType, chargingLevel,
                   hoursMondayStart, hoursMondayFinish, hoursTuesdayStart, hoursTuesdayFinish, hoursWednesdayStart, hoursWednesdayFinish, hoursThursdayStart, hoursThursdayFinish,
                   hoursFridayStart, hoursFridayFinish, hoursSaturdayStart, hoursSaturdayFinish, hoursSundayStart, hoursSundayFinish,
                   holidayHoursStart, holidayHoursFinish, 
                   closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays,
-
+                  hostComments,
                   auth.accessToken)
 
                 if(uploadedHostPhotos && uploadedHostPhotos.status === 200){
@@ -1323,15 +1463,35 @@ const handleRegularHourChangeEnd = (event, day) => {
                       onChange={(event) => {
                           setChargeRate(event.target.value);
                       }}>
-                      
-                      <option value={1.0}>$1.00</option>
-                      <option value={2.0}>$2.00</option>
-                      <option value={3.0}>$3.00</option>
-                      <option value={4.0}>$4.00</option>
-                      <option value={5.0}>$5.00</option>
-                      <option value={6.0}>$6.00</option>
-                      <option value={7.0}>$7.00</option>
-                      
+
+                      {currency === "usd" && usdvalues.map((rate) => (
+                        <option key={rate.value} value={rate.value}>{rate.text}</option>
+                      ))}
+                      {currency === "cad" && cadvalues.map((rate) => (
+                        <option key={rate.value} value={rate.value}>{rate.text}</option>
+                      ))}
+                      {currency === "eur" && eurvalues.map((rate) => (
+                        <option key={rate.value} value={rate.value}>{rate.text}</option>
+                      ))}
+                      {currency === "gbp" && gbpvalues.map((rate) => (
+                        <option key={rate.value} value={rate.value}>{rate.text}</option>
+                      ))}
+                      {currency === "inr" && inrvalues.map((rate) => (
+                        <option key={rate.value} value={rate.value}>{rate.text}</option>
+                      ))}
+                      {currency === "jpy" && jpyvalues.map((rate) => (
+                        <option key={rate.value} value={rate.value}>{rate.text}</option>
+                      ))}
+                      {currency === "cny" && cnyvalues.map((rate) => (
+                        <option key={rate.value} value={rate.value}>{rate.text}</option>
+                      ))}
+                      {currency === "aud" && audvalues.map((rate) => (
+                        <option key={rate.value} value={rate.value}>{rate.text}</option>
+                      ))}
+                      {currency === "nzd" && nzdvalues.map((rate) => (
+                        <option key={rate.value} value={rate.value}>{rate.text}</option>
+                      ))}
+
                       </select>
                   </div>  
 
@@ -1401,7 +1561,30 @@ const handleRegularHourChangeEnd = (event, day) => {
                   </div>
               </div>
 
-              <p className='text-base md:text-lg font-bold pt-4'>Final Step) Select your time availabilities during the week for charging (you can change this later) </p>
+              <p className='text-base md:text-lg font-bold pt-6'>Final Step) Select your time availabilities during the week for charging (you can change this later) </p>
+
+              <div className='flex flex-row w-full md:w-[45vw] px-4 md:px-0 pt-4'>
+
+                <label className='text-base font-semibold pl-2'>Any Special Directions / Comments:</label>
+                <input 
+                    aria-label="Host Comments: " 
+                    type="text" 
+                    id="Hostcomments"
+                    autoComplete="hostcomments"
+                    placeholder="Host Comments:"
+                    className='text-sm text-gray-700 w-full py-4 px-4 bg-white
+                        border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                    onChange={ ( e ) => setHostComments(e.target.value)}
+                    onKeyDown={(e) => 
+                        e.stopPropagation()
+                    }
+                    value={hostComments}
+                    aria-invalid={validHostComments ? "false" : "true"}
+                    onFocus={() => setHostCommentsFocus(true)}
+                    onBlur={() => setHostCommentsFocus(false)}
+                />
+
+              </div>
 
               <div className='flex flex-col items-center md:flex-row md:justify-center w-full gap-x-6'>
 
@@ -1461,7 +1644,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                             <Checkbox checked={closedOnMonday}
                                     onChange={()=>setClosedOnMonday(!closedOnMonday)}
                                     style ={{
-                                    color: "#995372",
+                                    color: "#00D3E0",
                                     transform: "scale(1.5)",
                                     paddingBottom: '12pt'
                                 }}
@@ -1469,6 +1652,26 @@ const handleRegularHourChangeEnd = (event, day) => {
                             }
                         />
                 </div>
+
+                <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
+                    md:w-[27vh] mt-4'>
+
+                    <label className='pb-4 font-bold'>Open 24/7 Monday?</label>
+                      <FormControlLabel
+                          value="Open 24/7 on Monday"
+                          control={
+                          <Checkbox checked={allDayMonday}
+                                onChange={()=>setAllDayMonday(!allDayMonday)}
+                                style ={{
+                                color: "#00D3E0",
+                                transform: "scale(1.5)",
+                                paddingBottom: '12pt'
+                            }}
+                            />
+                          }
+                      />
+                </div>
+
             </div>
 
             <div className='flex flex-col items-center md:flex-row md:justify-center w-full gap-x-6'>
@@ -1528,7 +1731,26 @@ const handleRegularHourChangeEnd = (event, day) => {
                         <Checkbox checked={closedOnTuesday}
                                 onChange={()=>setClosedOnTuesday(!closedOnTuesday)}
                                 style ={{
-                                color: "#995372",
+                                color: "#00D3E0",
+                                transform: "scale(1.5)",
+                                paddingBottom: '12pt'
+                            }}
+                            />
+                        }
+                    />
+                </div>
+
+                <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
+                    md:w-[27vh] mt-4'>
+
+                    <label className='pb-4 font-bold'>Open 24/7 Tuesday?</label>
+                    <FormControlLabel
+                        value="Open 24/7 on Tuesday"
+                        control={
+                        <Checkbox checked={allDayTuesday}
+                                onChange={()=>setAllDayTuesday(!allDayTuesday)}
+                                style ={{
+                                color: "#00D3E0",
                                 transform: "scale(1.5)",
                                 paddingBottom: '12pt'
                             }}
@@ -1595,14 +1817,31 @@ const handleRegularHourChangeEnd = (event, day) => {
                             <Checkbox checked={closedOnWednesday}
                                     onChange={()=>setClosedOnWednesday(!closedOnWednesday)}
                                     style ={{
-                                    color: "#995372",
+                                    color: "#00D3E0",
                                     transform: "scale(1.5)",
                                     paddingBottom: '12pt'
                                 }}
                                 />
                             }
                         />
+                </div>
 
+                <div className='flex flex-col justify-center items-center px-4 md:px-0 md:w-[27vh] mt-4'>
+
+                    <label className='pb-4 font-bold'>Open 24/7 Wednesday?</label>
+                        <FormControlLabel
+                            value="Open 24/7 on Wednesday"
+                            control={
+                            <Checkbox checked={allDayWednesday}
+                                    onChange={()=>setAllDayWednesday(!allDayWednesday)}
+                                    style ={{
+                                    color: "#00D3E0",
+                                    transform: "scale(1.5)",
+                                    paddingBottom: '12pt'
+                                }}
+                                />
+                            }
+                        />
                 </div>
             </div>
 
@@ -1658,13 +1897,13 @@ const handleRegularHourChangeEnd = (event, day) => {
                     md:w-[27vh] mt-4'>
 
                     <label className='pb-4 font-bold'>Closed on Thursday?</label>
-                  <FormControlLabel
+                    <FormControlLabel
                       value="Closed on Thursday?"
                       control={
                       <Checkbox checked={closedOnThursday}
                               onChange={()=>setClosedOnThursday(!closedOnThursday)}
                               style ={{
-                              color: "#995372",
+                              color: "#00D3E0",
                               transform: "scale(1.5)",
                               paddingBottom: '12pt'
                           }}
@@ -1672,6 +1911,26 @@ const handleRegularHourChangeEnd = (event, day) => {
                       }
                   />
                 </div>
+
+                <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
+                    md:w-[27vh] mt-4'>
+
+                    <label className='pb-4 font-bold'>Open 24/7 Thursday?</label>
+                    <FormControlLabel
+                      value="Open 24/7 on Thursday"
+                      control={
+                      <Checkbox checked={allDayThursday}
+                              onChange={()=>setAllDayThursday(!allDayThursday)}
+                              style ={{
+                              color: "#00D3E0",
+                              transform: "scale(1.5)",
+                              paddingBottom: '12pt'
+                          }}
+                          />
+                      }
+                  />
+                </div>
+
             </div>
 
             <div className='flex flex-col items-center md:flex-row md:justify-center w-full gap-x-6'>
@@ -1721,7 +1980,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                     />
                 </div>
 
-            <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
+                <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
                     md:w-[27vh] mt-4'>
 
                     <label className='pb-4 font-bold'>Closed on Friday?</label>
@@ -1731,7 +1990,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                             <Checkbox checked={closedOnFriday}
                                     onChange={()=>setClosedOnFriday(!closedOnFriday)}
                                     style ={{
-                                    color: "#995372",
+                                    color: "#00D3E0",
                                     transform: "scale(1.5)",
                                     paddingBottom: '12pt'
                                 }}
@@ -1739,6 +1998,26 @@ const handleRegularHourChangeEnd = (event, day) => {
                             }
                         />
                 </div>
+
+                <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
+                    md:w-[27vh] mt-4'>
+
+                    <label className='pb-4 font-bold'>Open 24/7 Friday</label>
+                        <FormControlLabel
+                            value="Open 24/7 on Friday"
+                            control={
+                            <Checkbox checked={allDayFriday}
+                                onChange={()=>setAllDayFriday(!allDayFriday)}
+                                style ={{
+                                color: "#00D3E0",
+                                transform: "scale(1.5)",
+                                paddingBottom: '12pt'
+                            }}
+                            />
+                            }
+                        />
+                </div>
+
             </div>
 
             <div className='flex flex-col items-center md:flex-row md:justify-center w-full gap-x-6'>
@@ -1799,7 +2078,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                             <Checkbox checked={closedOnSaturday}
                                     onChange={()=>setClosedOnSaturday(!closedOnSaturday)}
                                     style ={{
-                                    color: "#995372",
+                                    color: "#00D3E0",
                                     transform: "scale(1.5)",
                                     paddingBottom: '12pt'
                                 }}
@@ -1807,6 +2086,26 @@ const handleRegularHourChangeEnd = (event, day) => {
                             }
                         />
                 </div>
+
+                <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
+                    md:w-[27vh] mt-4'>
+
+                    <label className='pb-4 font-bold'>Open 24/7 Saturday?</label>
+                        <FormControlLabel
+                            value="Open 24/7 on Saturday"
+                            control={
+                            <Checkbox checked={allDaySaturday}
+                                  onChange={()=>setAllDaySaturday(!allDaySaturday)}
+                                  style ={{
+                                  color: "#00D3E0",
+                                  transform: "scale(1.5)",
+                                  paddingBottom: '12pt'
+                              }}
+                            />
+                            }
+                        />
+                </div>
+
             </div>
 
             <div className='flex flex-col items-center md:flex-row md:justify-center w-full gap-x-6'>
@@ -1862,20 +2161,39 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                     <label className='pb-4 font-bold'>Closed on Sunday?</label>
                         <FormControlLabel
-                            value="Closed on Sunday?"
-                            control={
-                            <Checkbox checked={closedOnSunday}
-                                    onChange={()=>setClosedOnSunday(!closedOnSunday)}
-                                    style ={{
-                                    color: "#995372",
-                                    transform: "scale(1.5)",
-                                    paddingBottom: '12pt'
-                                }}
-                                />
-                            }
-                        />
-
+                          value="Closed on Sunday?"
+                          control={
+                          <Checkbox checked={closedOnSunday}
+                                  onChange={()=>setClosedOnSunday(!closedOnSunday)}
+                                  style ={{
+                                  color: "#00D3E0",
+                                  transform: "scale(1.5)",
+                                  paddingBottom: '12pt'
+                              }}
+                              />
+                          }
+                      />
                 </div>
+
+                <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
+                    md:w-[27vh] mt-4'>
+
+                    <label className='pb-4 font-bold'>Open 24/7 Sunday</label>
+                        <FormControlLabel
+                          value="Open 24/7 on Sunday"
+                          control={
+                          <Checkbox checked={allDaySunday}
+                              onChange={()=>setAllDaySunday(!allDaySunday)}
+                              style ={{
+                              color: "#00D3E0",
+                              transform: "scale(1.5)",
+                              paddingBottom: '12pt'
+                          }}
+                          />
+                          }
+                      />
+                </div>
+
             </div>
 
 
@@ -1937,11 +2255,30 @@ const handleRegularHourChangeEnd = (event, day) => {
                       <Checkbox checked={closedOnHolidays}
                               onChange={()=>setClosedOnHolidays(!closedOnHolidays)}
                               style ={{
-                              color: "#995372",
+                              color: "#00D3E0",
                               transform: "scale(1.5)",
                               paddingBottom: '12pt'
                           }}
                           />
+                      }
+                  />
+              </div>
+
+              <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
+                    md:w-[27vh] mt-4'>
+
+                  <label className='pb-4 font-bold'>Open 24/7 Holidays</label>
+                    <FormControlLabel
+                      value="Open 24/7 on Holidays"
+                      control={
+                      <Checkbox checked={allDayHolidays}
+                          onChange={()=>setAllDayHolidays(!allDayHolidays)}
+                          style ={{
+                          color: "#00D3E0",
+                          transform: "scale(1.5)",
+                          paddingBottom: '12pt'
+                      }}
+                      />
                       }
                   />
               </div>
