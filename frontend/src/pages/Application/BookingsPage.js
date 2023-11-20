@@ -1529,7 +1529,6 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                       </select> 
                       </div>
-                      
 
                       <div className='flex flex-row justify-center items-center'>
                       <label className="pr-2 font-semibold">If you have any connector adaptors:</label>

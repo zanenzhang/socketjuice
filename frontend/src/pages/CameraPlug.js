@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React from "react";
 import {FACING_MODES} from "react-html5-camera-photo"
 import Cropper from "react-easy-crop";
 import { useState, useRef } from "react";
@@ -21,7 +21,6 @@ import {
     DialogContent,
     DialogActions,
     Slider,
-    makeStyles, 
     withStyles
   } from "@material-ui/core";
 
@@ -44,32 +43,9 @@ export default function CameraPlug({croppedImage, setCroppedImage, croppedImageU
   const [isUseCamera, setUseCamera] = useState(false);
   const [photo, setPhoto] = useState(null);
   const [quality, setQuality] = useState(0.5);
-  
-  const refs = useRef({
-    video: null,
-    loader: null,
-    numberInput: null,
-    thumbButton: null
-  });
 
 //   const [result, setResult] = useState(null);
   var camSwitch = FACING_MODES.ENVIRONMENT;
-
-  const useStyles = makeStyles(() => ({
-    paper: {
-      top: '4%',
-      height: '520px',
-      width: '375px',
-      display: 'flex',
-      flexDirection: 'column'
-    },
-    root: {
-      position: 'fixed',
-      zIndex: '10010 !important',
-    }
-  }));
-
-  const classes = useStyles();
 
   const refPhoto = useRef(null);
   const refVideo = useRef(null);
@@ -164,7 +140,19 @@ const loadVideo = file => new Promise((resolve, reject) => {
   
     return (
       <Dialog open={open}
-        classes={classes}
+      PaperProps={{
+        style: {
+          top: '4%',
+          height: '520px',
+          width: '375px',
+          display: 'flex',
+          flexDirection: 'column'
+        },
+        root: {
+          position: 'fixed',
+          zIndex: '10010 !important',
+        }
+      }}
          >
 
         <p className="text-2xl text-[#8BEDF3] font-bold text-center pt-1">Crop Image</p>

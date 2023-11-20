@@ -1486,6 +1486,16 @@ const addHostProfile = async (req, res) => {
         hostComments,
          } = req.body
 
+    console.log("Adding new host profile")
+
+    console.log(userId, hostPreviewMediaObjectId, hostMediaObjectIds, hostVideoObjectIds, hostObjectTypes, 
+        hostPreviewObjectType, hostCoverIndex, chargeRate, currency, connectorType, secondaryConnectorType, chargingLevel,
+        hoursMondayStart, hoursMondayFinish, hoursTuesdayStart, hoursTuesdayFinish, hoursWednesdayStart, hoursWednesdayFinish, hoursThursdayStart, hoursThursdayFinish,
+        hoursFridayStart, hoursFridayFinish, hoursSaturdayStart, hoursSaturdayFinish, hoursSundayStart, hoursSundayFinish,
+        holidayHoursStart, holidayHoursFinish, 
+        closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays,
+        hostComments)
+
     if (!userId || !hostMediaObjectIds || hostMediaObjectIds?.length < 2 ) {
         return res.status(400).json({ message: 'User ID Required' })
     }

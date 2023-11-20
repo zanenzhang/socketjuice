@@ -649,12 +649,25 @@ const VerifyPage = () => {
                         const profilePicURL = uploadedUserPhotos?.data?.profilePicURL
                         const currency = uploadedUserPhotos?.data?.currency
                         const currencySymbol = uploadedUserPhotos?.data?.currencySymbol
-                        const phoneNumber = uploadedUserPhotos?.data?.currency
+                        const phoneNumber = uploadedUserPhotos?.data?.phoneNumber
 
                         const credits = uploadedUserPhotos?.data?.credits
 
-                        setAuth({ firstName, lastName, userId, roles, accessToken, profilePicURL, phoneNumber,
-                            currency, currencySymbol, credits });
+                        setAuth(prev => {
+                            return {
+                                ...prev,
+                                firstName: firstName, 
+                                lastName: lastName, 
+                                userId: userId, 
+                                roles: roles, 
+                                accessToken: accessToken, 
+                                profilePicURL: profilePicURL, 
+                                phoneNumber: phoneNumber,
+                                currency: currency, 
+                                currencySymbol: currencySymbol, 
+                                credits: credits
+                            }
+                        });      
 
                         localStorage.setItem("socketjuice-persist", true)
 
@@ -878,11 +891,10 @@ const VerifyPage = () => {
                         <CameraId croppedImage={croppedImageId} setCroppedImage={setCroppedImageId} croppedImageURL={croppedImageURLId} setCroppedImageURL={setCroppedImageURLId} 
                             coverIndex={coverIndexId} setCoverIndex={setCoverIndexId} mediaTypes={mediaTypesId} setMediaTypes={setMediaTypesId} videoArray={videoArrayId} setVideoArray={setVideoArrayId} 
                             videoURLArray={videoURLArrayId} setVideoURLArray={setVideoURLArrayId}  videoThumbnails={videoThumbnailsId} setVideoThumbnails={setVideoThumbnailsId} camera_id={"id"}
-                            oldMediaTrack={oldMediaTrackId} setOldMediaTrack={setOldMediaTrackId} limit={1} />  
+                            oldMediaTrack={oldMediaTrackId} setOldMediaTrack={setOldMediaTrackId} />  
                         
                         </div>
                     </div>
-
 
                     <button disabled={submittedPhotos} onClick={(e)=>handlePhotosUpload(e)} 
                         className={`my-2 mb-8 py-4 px-3 rounded-2xl border-2 

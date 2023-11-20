@@ -54,7 +54,7 @@ var driverProfileSchema = new Schema({
         type: Boolean,
         default: false
     },
-    chademoDChecked: {
+    chademoDCChecked: {
         type: Boolean,
         default: false
     },

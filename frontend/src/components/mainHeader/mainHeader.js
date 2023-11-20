@@ -653,7 +653,7 @@ const MainHeader = ({loggedUserId} ) => {
         }
 
     }, [newMessages])
-    
+
 
     return (
         <>
@@ -746,8 +746,8 @@ const MainHeader = ({loggedUserId} ) => {
                 {auth?.userId ? 
                 
                     <div className='flex flex-row gap-x-3'>
-                        <NotificationsDropdown />
-                        <SettingsDropdown />
+                        {/* <NotificationsDropdown /> */}
+                        {/* <SettingsDropdown /> */}
                     </div>
 
                 :

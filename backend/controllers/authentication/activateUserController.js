@@ -82,57 +82,53 @@ const handleUserActivation = async (req, res) => {
 
         if(checkedAdminUser && checkedAdminForex){
 
-          if(Object.values(foundUser.roles).includes(3780)){
+          if(foundUser.currentStage < 2){
 
-            if(foundUser.currentStage < 2){
+            const savedUser = await foundUser.save()
 
-              const savedUser = await foundUser.save()
+            if(savedUser){
 
-              if(savedUser){
+              alert("Thank you! Your email has been verified. Please verify your phone number and create a profile."); 
 
-                alert("Thank you! Your email has been verified. Please verify your phone number and create a profile."); 
+              let bookmarks = new Bookmarks({
+                "_userId": foundUser._id,
+              });
 
-                let bookmarks = new Bookmarks({
-                  "_userId": foundUser._id,
-                });
+              const savedBookmarks = await bookmarks.save()
 
-                const savedBookmarks = await bookmarks.save()
+              let activities = new ActivityLog({
+                "_userId": foundUser._id,
+              });
 
-                let activities = new ActivityLog({
-                  "_userId": foundUser._id,
-                });
+              const savedActivities = await activities.save()
 
-                const savedActivities = await activities.save()
+              let notifications = new NotificationSettings({
+                "_userId": foundUser._id,
+              });
 
-                let notifications = new NotificationSettings({
-                  "_userId": foundUser._id,
-                });
+              const savedNotifications = await notifications.save()
 
-                const savedNotifications = await notifications.save()
+              let userCommunications = new Communications({
+                "_userId": foundUser._id,
+              });
 
-                let userCommunications = new Communications({
-                  "_userId": foundUser._id,
-                });
+              const savedCommunications = await userCommunications.save()
 
-                const savedCommunications = await userCommunications.save()
+              let userFlags = new Flags({
+                "_userId": foundUser._id,
+              });
 
-                let userFlags = new Flags({
-                  "_userId": foundUser._id,
-                });
+              const savedUserFlags = await userFlags.save()
 
-                const savedUserFlags = await userFlags.save()
+                if(savedBookmarks && savedActivities && savedNotifications && savedCommunications && savedUserFlags ){
 
-                  if(savedBookmarks && savedActivities && savedNotifications && savedCommunications && savedUserFlags ){
-
-                    return res.redirect(`${process.env.MOBILE_VERIFY_PAGE}?id=${foundUser._id}&hash=${hash}`);        
-                }
+                  return res.redirect(`${process.env.MOBILE_VERIFY_PAGE}?id=${foundUser._id}&hash=${hash}`);        
               }
-            
-            } else {
-
-              return res.redirect(`${process.env.MOBILE_VERIFY_PAGE}?id=${foundUser._id}&hash=${hash}`);        
             }
-            
+          
+          } else {
+
+            return res.redirect(`${process.env.MOBILE_VERIFY_PAGE}?id=${foundUser._id}&hash=${hash}`);        
           } 
         }
       }   

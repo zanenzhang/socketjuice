@@ -27,29 +27,29 @@ const handleRefreshToken = async (req, res) => {
 
                 if(foundDriver){
 
-                    const roles = Object.values(foundUser.roles).filter(Boolean);
+                    const roles = Object.values(foundUser?.roles).filter(Boolean);
                     
                     const userId = foundUser._id;
-                    const firstName = foundUser.firstName;
-                    const lastName = foundUser.lastName;
-                    const profilePicURL = foundUser.profilePicURL;
-                    const currency = foundUser.currency;
-                    const currencySymbol = foundUser.currencySymbol;
-                    const credits = foundUser.credits;
-                    const phoneNumber = foundUser.phonePrimary
+                    const firstName = foundUser?.firstName;
+                    const lastName = foundUser?.lastName;
+                    const profilePicURL = foundUser?.profilePicURL;
+                    const currency = foundUser?.currency;
+                    const currencySymbol = foundUser?.currencySymbol;
+                    const credits = foundUser?.credits;
+                    const phoneNumber = foundUser?.phonePrimary
 
-                    const pushNotifications = foundUser.pushNotifications;
-                    const smsNotifications = foundUser.smsNotifications;
-                    const emailNotifications = foundUser.emailNotifications;
+                    const pushNotifications = foundUser?.pushNotifications;
+                    const smsNotifications = foundUser?.smsNotifications;
+                    const emailNotifications = foundUser?.emailNotifications;
 
-                    const j1772ACChecked = foundDriver.j1772ACChecked
-                    const ccs1DCChecked = foundDriver.ccs1DCChecked
-                    const mennekesACChecked = foundDriver.mennekesACChecked
-                    const gbtACChecked = foundDriver.gbtACChecked
-                    const ccs2DCChecked = foundDriver.ccs2DCChecked
-                    const chademoDCChecked = foundDriver.chademoDCChecked
-                    const gbtDCChecked = foundDriver.gbtDCChecked
-                    const teslaChecked = foundDriver.teslaChecked
+                    const j1772ACChecked = foundDriver?.j1772ACChecked
+                    const ccs1DCChecked = foundDriver?.ccs1DCChecked
+                    const mennekesACChecked = foundDriver?.mennekesACChecked
+                    const gbtACChecked = foundDriver?.gbtACChecked
+                    const ccs2DCChecked = foundDriver?.ccs2DCChecked
+                    const chademoDCChecked = foundDriver?.chademoDCChecked
+                    const gbtDCChecked = foundDriver?.gbtDCChecked
+                    const teslaChecked = foundDriver?.teslaChecked
 
                     var FXRates = null;
                     var doneProfile = true;
@@ -72,7 +72,7 @@ const handleRefreshToken = async (req, res) => {
                         const accessToken = jwt.sign(
                             {
                                 "UserInfo": {
-                                    "username": username,
+                                    "userId": userId,
                                     "roles": roles
                                 }
                             },

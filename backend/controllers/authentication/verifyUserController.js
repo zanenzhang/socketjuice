@@ -759,3 +759,4 @@ const rejectHostProfile = async (req, res) => {
 
 module.exports = { approveUserProfilePhone, approveUserIdPhotos, rejectUserUploads, 
     getUserStatusPhotos, getHostsToCheck, approveHostProfile, rejectHostProfile }
+    

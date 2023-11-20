@@ -21,8 +21,6 @@ import {
     DialogContent,
     DialogActions,
     Slider,
-    makeStyles, 
-    withStyles
   } from "@material-ui/core";
 
 import { DEFAULT_IMAGE_PATH } from "../constants/paths";
@@ -39,7 +37,7 @@ const colorScheme = [
 
 export default function CameraId({croppedImage, setCroppedImage, croppedImageURL, setCroppedImageURL, 
   coverIndex, setCoverIndex, mediaTypes, setMediaTypes, videoArray, setVideoArray, videoURLArray, 
-  setVideoURLArray, videoThumbnails, setVideoThumbnails, oldMediaTrack, setOldMediaTrack, limit}) {
+  setVideoURLArray, videoThumbnails, setVideoThumbnails, oldMediaTrack, setOldMediaTrack}) {
 
   const [isUseCamera, setUseCamera] = useState(false);
   const [photo, setPhoto] = useState(null);
@@ -54,22 +52,6 @@ export default function CameraId({croppedImage, setCroppedImage, croppedImageURL
 
 //   const [result, setResult] = useState(null);
   var camSwitch = FACING_MODES.ENVIRONMENT;
-
-  const useStyles = makeStyles(() => ({
-    paper: {
-      top: '4%',
-      height: '520px',
-      width: '375px',
-      display: 'flex',
-      flexDirection: 'column'
-    },
-    root: {
-      position: 'fixed',
-      zIndex: '10010 !important',
-    }
-  }));
-
-  const classes = useStyles();
 
   const refPhoto = useRef(null);
   const refVideo = useRef(null);
@@ -164,7 +146,19 @@ const loadVideo = file => new Promise((resolve, reject) => {
   
     return (
       <Dialog open={open}
-        classes={classes}
+      PaperProps={{
+        style: {
+          top: '4%',
+          height: '520px',
+          width: '375px',
+          display: 'flex',
+          flexDirection: 'column'
+        },
+        root: {
+          position: 'fixed',
+          zIndex: '10010 !important',
+        }
+      }}
          >
 
         <p className="text-2xl text-[#8BEDF3] font-bold text-center pt-1">Crop Image</p>
@@ -864,7 +858,7 @@ const handleSelfieCamera = () => {
 
                     }
 
-                {(croppedImage?.length > 0 && croppedImage?.length < limit ) && 
+                {(croppedImage?.length > 0 && croppedImage?.length < 2 ) && 
 
                 <div className="py-2">
 
