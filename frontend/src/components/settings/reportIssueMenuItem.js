@@ -4,7 +4,6 @@ import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import useAuth from '../../hooks/useAuth';
 import useLogout from '../../hooks/useLogout';
-import addWarnings from '../../helpers/UserData/addWarnings';
 import addEmailReport from '../../helpers/Emails/addEmailReport';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -100,14 +99,7 @@ const ReportIssueMenuItem = ({loggedUserId, setOpenMenu}) => {
         draggable: true,
         progress: undefined,
         theme: "colored",
-        });
-
-      const warnUser = await addWarnings(loggedUserId, auth.accessToken)
-      if(warnUser?.status === 202){
-        logout();
-      } else {
-        waiting = false;;
-      } 
+      });
     }
   }
 

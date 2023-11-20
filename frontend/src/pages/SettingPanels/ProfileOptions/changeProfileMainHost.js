@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Box from "@material-ui/core/Box";
-import { makeStyles } from "@material-ui/core";
 import useAuth from '../../../hooks/useAuth'
 import useLogout from '../../../hooks/useLogout';
 
@@ -13,29 +12,10 @@ import 'react-toastify/dist/ReactToastify.css';
 import editSettingsHostProfile from '../../../helpers/HostData/editSettingsHostProfile';
 import getHostProfile from '../../../helpers/HostData/getHostProfile';
 
-const useStyles = makeStyles({
-  appContainer: {
-    display: "flex",
-    flexDirection: "row",
-    width: "93vw",
-    height: "100vh",
-  },
-
-  container: {
-    display: "flex",
-    height: "100%",
-    width: "100%",
-    justifyContent: "center"
-  },
-  panel: {
-    width: "100%"
-  }
-});
 
 
 export default function ChangeProfileMainHost({loggedUserId}) {
 
-  const classes = useStyles();
   const { setAuth, auth } = useAuth();
   const logout = useLogout();
   const startRef = useRef();
@@ -520,7 +500,10 @@ const jpyvalues = [
   return (
     <>
     <Box
-        className={classes.container}
+        style={{display: "flex",
+        height: "100%",
+        width: "100%",
+        justifyContent: "center"}}
     >
         <div className='flex flex-col content-center items-center w-full'>
 
@@ -667,9 +650,9 @@ const jpyvalues = [
             <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
                 md:w-[27vh] mt-4'>
 
-                <label className='pb-4 font-bold'>Closed on Monday?</label>
+                {/* <label className='pb-4 font-bold'>Closed on Monday?</label> */}
                     <FormControlLabel
-                        value="Closed on Monday?"
+                        label="Closed on Monday?"
                         control={
                         <Checkbox checked={closedOnMonday}
                             onChange={()=>setClosedOnMonday(!closedOnMonday)}
@@ -686,9 +669,9 @@ const jpyvalues = [
                 <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
                     md:w-[27vh] mt-4'>
 
-                    <label className='pb-4 font-bold'>Open 24/7 on Monday?</label>
+                    {/* <label className='pb-4 font-bold'>Open 24/7 on Monday?</label> */}
                     <FormControlLabel
-                        value="Open 24/7 on Monday?"
+                        label="Open 24/7 on Monday?"
                         control={
                         <Checkbox checked={allDayMonday}
                                 onChange={()=>setAllDayMonday(!allDayMonday)}
@@ -753,9 +736,9 @@ const jpyvalues = [
                 <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
                     md:w-[27vh] mt-4'>
 
-                    <label className='pb-4 font-bold'>Closed on Tuesday?</label>
+                    {/* <label className='pb-4 font-bold'>Closed on Tuesday?</label> */}
                     <FormControlLabel
-                        value="Closed on Tuesday?"
+                        label="Closed on Tuesday?"
                         control={
                         <Checkbox checked={closedOnTuesday}
                                 onChange={()=>setClosedOnTuesday(!closedOnTuesday)}
@@ -773,9 +756,9 @@ const jpyvalues = [
                 <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
                     md:w-[27vh] mt-4'>
 
-                    <label className='pb-4 font-bold'>Open 24/7 on Tuesday?</label>
+                    {/* <label className='pb-4 font-bold'>Open 24/7 on Tuesday?</label> */}
                     <FormControlLabel
-                        value="Open 24/7 on Tuesday?"
+                        label="Open 24/7 on Tuesday?"
                         control={
                         <Checkbox checked={allDayTuesday}
                                 onChange={()=>setAllDayTuesday(!allDayTuesday)}
@@ -842,9 +825,9 @@ const jpyvalues = [
                 <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
                     md:w-[27vh] mt-4'>
 
-                    <label className='pb-4 font-bold'>Closed on Wednesday?</label>
+                    {/* <label className='pb-4 font-bold'>Closed on Wednesday?</label> */}
                     <FormControlLabel
-                        value="Closed on Wednesday?"
+                        label="Closed on Wednesday?"
                         control={
                         <Checkbox checked={closedOnWednesday}
                                 onChange={()=>setClosedOnWednesday(!closedOnWednesday)}
@@ -861,9 +844,9 @@ const jpyvalues = [
                 <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
                     md:w-[27vh] mt-4'>
 
-                    <label className='pb-4 font-bold'>Open 24/7 on Wednesday?</label>
+                    {/* <label className='pb-4 font-bold'>Open 24/7 on Wednesday?</label> */}
                     <FormControlLabel
-                        value="Open 24/7 on Wednesday?"
+                        label="Open 24/7 on Wednesday?"
                         control={
                         <Checkbox checked={allDayWednesday}
                                 onChange={()=>setAllDayWednesday(!allDayWednesday)}
@@ -929,9 +912,9 @@ const jpyvalues = [
                 <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
                     md:w-[27vh] mt-4'>
 
-                    <label className='pb-4 font-bold'>Closed on Thursday?</label>
+                    {/* <label className='pb-4 font-bold'>Closed on Thursday?</label> */}
                     <FormControlLabel
-                        value="Closed on Thursday?"
+                        label="Closed on Thursday?"
                         control={
                         <Checkbox checked={closedOnThursday}
                                 onChange={()=>setClosedOnThursday(!closedOnThursday)}
@@ -948,9 +931,9 @@ const jpyvalues = [
                 <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
                     md:w-[27vh] mt-4'>
 
-                    <label className='pb-4 font-bold'>Open 24/7 on Thursday?</label>
+                    {/* <label className='pb-4 font-bold'>Open 24/7 on Thursday?</label> */}
                     <FormControlLabel
-                        value="Open 24/7 on Thursday?"
+                        label="Open 24/7 on Thursday?"
                         control={
                         <Checkbox checked={allDayThursday}
                                 onChange={()=>setAllDayThursday(!allDayThursday)}
@@ -1016,9 +999,9 @@ const jpyvalues = [
                 <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
                     md:w-[27vh] mt-4'>
 
-                    <label className='pb-4 font-bold'>Closed on Friday?</label>
+                    {/* <label className='pb-4 font-bold'>Closed on Friday?</label> */}
                     <FormControlLabel
-                        value="Closed on Friday?"
+                        label="Closed on Friday?"
                         control={
                         <Checkbox checked={closedOnFriday}
                                 onChange={()=>setClosedOnFriday(!closedOnFriday)}
@@ -1035,9 +1018,9 @@ const jpyvalues = [
                 <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
                     md:w-[27vh] mt-4'>
 
-                    <label className='pb-4 font-bold'>Open 24/7 on Friday?</label>
+                    {/* <label className='pb-4 font-bold'>Open 24/7 on Friday?</label> */}
                     <FormControlLabel
-                        value="Open 24/7 on Friday?"
+                        label="Open 24/7 on Friday?"
                         control={
                         <Checkbox checked={allDayFriday}
                                 onChange={()=>setAllDayFriday(!allDayFriday)}
@@ -1104,9 +1087,9 @@ const jpyvalues = [
                 <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
                     md:w-[27vh] mt-4'>
 
-                    <label className='pb-4 font-bold'>Closed on Saturday?</label>
+                    {/* <label className='pb-4 font-bold'>Closed on Saturday?</label> */}
                     <FormControlLabel
-                        value="Closed on Saturday?"
+                        label="Closed on Saturday?"
                         control={
                         <Checkbox checked={closedOnSaturday}
                                 onChange={()=>setClosedOnSaturday(!closedOnSaturday)}
@@ -1123,9 +1106,9 @@ const jpyvalues = [
                 <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
                     md:w-[27vh] mt-4'>
 
-                    <label className='pb-4 font-bold'>Open 24/7 on Saturday?</label>
+                    {/* <label className='pb-4 font-bold'>Open 24/7 on Saturday?</label> */}
                     <FormControlLabel
-                        value="Open 24/7 on Saturday?"
+                        label="Open 24/7 on Saturday?"
                         control={
                         <Checkbox checked={allDaySaturday}
                                 onChange={()=>setAllDaySaturday(!allDaySaturday)}
@@ -1192,9 +1175,9 @@ const jpyvalues = [
                 <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
                     md:w-[27vh] mt-4'>
 
-                    <label className='pb-4 font-bold'>Closed on Sunday?</label>
+                    {/* <label className='pb-4 font-bold'>Closed on Sunday?</label> */}
                     <FormControlLabel
-                        value="Closed on Sunday?"
+                        label="Closed on Sunday?"
                         control={
                         <Checkbox checked={closedOnSunday}
                                 onChange={()=>setClosedOnSunday(!closedOnSunday)}
@@ -1211,9 +1194,9 @@ const jpyvalues = [
                 <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
                     md:w-[27vh] mt-4'>
 
-                    <label className='pb-4 font-bold'>Open 24/7 on Sunday?</label>
+                    {/* <label className='pb-4 font-bold'>Open 24/7 on Sunday?</label> */}
                     <FormControlLabel
-                        value="Open 24/7 on Sunday?"
+                        label="Open 24/7 on Sunday?"
                         control={
                         <Checkbox checked={allDaySunday}
                                 onChange={()=>setAllDaySunday(!allDaySunday)}
@@ -1281,9 +1264,9 @@ const jpyvalues = [
                 <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
                     md:w-[27vh] mt-4'>
 
-                    <label className='pb-4 font-bold'>Closed on Holidays?</label>
+                    {/* <label className='pb-4 font-bold'>Closed on Holidays?</label> */}
                     <FormControlLabel
-                        value="Closed on Holidays?"
+                        label="Closed on Holidays?"
                         control={
                         <Checkbox checked={closedOnHolidays}
                                 onChange={()=>setClosedOnHolidays(!closedOnHolidays)}
@@ -1301,9 +1284,9 @@ const jpyvalues = [
                 <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
                     md:w-[27vh] mt-4'>
 
-                    <label className='pb-4 font-bold'>Open 24/7 on Holidays?</label>
+                    {/* <label className='pb-4 font-bold'>Open 24/7 on Holidays?</label> */}
                     <FormControlLabel
-                        value="Closed on Holidays?"
+                        label="Closed on Holidays?"
                         control={
                         <Checkbox checked={allDayHolidays}
                                 onChange={()=>setAllDayHolidays(!allDayHolidays)}

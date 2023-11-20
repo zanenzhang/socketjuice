@@ -220,7 +220,6 @@ async function handleNewGroupChat(){
   }
 }
 
-
   return (
     
     <div className="bg-white w-full h-[7vh] sm:h-[6vh] md:[h-5vh] flex items-center justify-items-center pl-4 pr-2">

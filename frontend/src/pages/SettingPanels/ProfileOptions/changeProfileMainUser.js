@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Box from "@material-ui/core/Box";
-import { makeStyles, withStyles, Switch } from "@material-ui/core";
+import { withStyles, Switch } from "@material-ui/core";
 import ProfileCropper from './profileCropper'
 import axios from '../../../api/axios'
 import useAuth from '../../../hooks/useAuth'
@@ -16,24 +16,6 @@ import getDriverProfile from '../../../helpers/DriverData/getDriverProfile';
 
 const PUBLIC_MEDIA_URL = '/s3/single-profilepic';
 
-const useStyles = makeStyles({
-  appContainer: {
-    display: "flex",
-    flexDirection: "row",
-    width: "93vw",
-    height: "100vh",
-  },
-
-  container: {
-    display: "flex",
-    height: "100%",
-    width: "100%",
-    justifyContent: "center"
-  },
-  panel: {
-    width: "100%"
-  }
-});
 
 const CustomSwitch = withStyles({
     switchBase: {
@@ -52,7 +34,6 @@ const CustomSwitch = withStyles({
 
 export default function ChangeProfileMainUser({loggedUserId }) {
 
-  const classes = useStyles();
   const { setAuth, auth } = useAuth();
   const logout = useLogout();
   const startRef = useRef();
@@ -326,7 +307,10 @@ export default function ChangeProfileMainUser({loggedUserId }) {
   return (
     <>
     <Box
-        className={classes.container}
+        style={{display: "flex",
+        height: "100%",
+        width: "100%",
+        justifyContent: "center"}}
     >
         <div className='flex flex-col content-center items-center w-full'>
 
@@ -412,7 +396,7 @@ export default function ChangeProfileMainUser({loggedUserId }) {
               <div className='flex justify-start pl-2'>
                   <FormControlLabel control={
                       <Switch checked={emailNotifications} onChange={handleEmailNotifications} />
-                  } label="Push Notifications" />
+                  } label={"Email Notifications"} />
               </div>
           </div>
 
@@ -423,7 +407,7 @@ export default function ChangeProfileMainUser({loggedUserId }) {
               <div className='flex justify-start pl-2'>
                   <FormControlLabel control={
                       <Switch checked={pushNotifications} onChange={handlePushNotifications} />
-                  } label="Push Notifications" />
+                  } label={"Push Notifications"} />
               </div>
           </div>
 
@@ -434,7 +418,7 @@ export default function ChangeProfileMainUser({loggedUserId }) {
               <div className='flex justify-start pl-2'>
                   <FormControlLabel control={
                       <Switch checked={smsNotifications} onChange={handleSmsNotifications} />
-                  } label="Push Notifications" />
+                  } label={"SMS Notifications"} />
               </div>
           </div>
 
@@ -443,7 +427,7 @@ export default function ChangeProfileMainUser({loggedUserId }) {
               <div className='flex flex-col'>
               <label className='pb-4 font-bold'>J1772 AC Plug</label>
               <FormControlLabel
-                  value="J1772 AC Plug"
+                  label=""
                   control={
                   <Checkbox checked={j1772ACChecked}
                           onChange={()=>setj1772ACChecked(!j1772ACChecked)}
@@ -460,7 +444,7 @@ export default function ChangeProfileMainUser({loggedUserId }) {
               <div className='flex flex-col'>
               <label className='pb-4 font-bold'>CCS1 DC Plug</label>
               <FormControlLabel
-                  value="CCS1 DC Plug"
+                  label=""
                   control={
                   <Checkbox checked={ccs1DCChecked}
                           onChange={()=>setccs1DCChecked(!ccs1DCChecked)}
@@ -477,7 +461,7 @@ export default function ChangeProfileMainUser({loggedUserId }) {
               <div className='flex flex-col'>
               <label className='pb-4 font-bold'>Mennekes AC Plug</label>
               <FormControlLabel
-                  value="Mennekes AC Plug"
+                  label=""
                   control={
                   <Checkbox checked={mennekesACChecked}
                         onChange={()=>setmennekesACChecked(!mennekesACChecked)}
@@ -494,7 +478,7 @@ export default function ChangeProfileMainUser({loggedUserId }) {
               <div className='flex flex-col'>
               <label className='pb-4 font-bold'>CCS2 DC Plug</label>
               <FormControlLabel
-                  value="CCS2 DC Plug"
+                  label=""
                   control={
                   <Checkbox checked={ccs2DCChecked}
                           onChange={()=>setccs2DCChecked(!ccs2DCChecked)}
@@ -511,7 +495,7 @@ export default function ChangeProfileMainUser({loggedUserId }) {
               <div className='flex flex-col'>
               <label className='pb-4 font-bold'>CHAdeMO DC Plug</label>
               <FormControlLabel
-                  value="CHAdeMO DC Plug"
+                  label=""
                   control={
                   <Checkbox checked={chademoDCChecked}
                         onChange={()=>setChademoDCChecked(!chademoDCChecked)}
@@ -528,7 +512,7 @@ export default function ChangeProfileMainUser({loggedUserId }) {
               <div className='flex flex-col'>
               <label className='pb-4 font-bold'>GB/T AC Plug</label>    
               <FormControlLabel
-                  value="GB/T AC Plug"
+                  label=""
                   control={
                   <Checkbox checked={gbtACChecked}
                           onChange={()=>setgbtACChecked(!gbtACChecked)}
@@ -545,7 +529,7 @@ export default function ChangeProfileMainUser({loggedUserId }) {
               <div className='flex flex-col'>
               <label className='pb-4 font-bold'>GB/T DC Plug</label>
               <FormControlLabel
-                  value="GB/T DC Plug"
+                  label=""
                   control={
                   <Checkbox checked={gbtDCChecked}
                           onChange={()=>setgbtDCChecked(!gbtDCChecked)}
@@ -562,7 +546,7 @@ export default function ChangeProfileMainUser({loggedUserId }) {
               <div className='flex flex-col'>
               <label className='pb-4 font-bold'>Tesla</label>
               <FormControlLabel
-                  value="Tesla"
+                  label=""
                   control={
                   <Checkbox checked={teslaChecked}
                           onChange={()=>setTeslaChecked(!teslaChecked)}

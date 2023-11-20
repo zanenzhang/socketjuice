@@ -91,7 +91,7 @@ const MessagesArea = ({loggedUserId, loggedUsername, messages,
     return(
 
         <div key="messagesAreaContainer" 
-        className="flex h-[83vh] sm:h-[84vh] md:h-[85vh] overflow-y-auto flex-col" >
+        className="flex h-[83vh] sm:h-[82vh] md:h-[81vh] overflow-y-auto flex-col" >
 
             {messages?.length > 0 && 
             

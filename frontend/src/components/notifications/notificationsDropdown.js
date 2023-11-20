@@ -239,10 +239,10 @@ export default function NotificationsDropdown() {
 
       <svg 
         xmlns="http://www.w3.org/2000/svg" 
-        fill='#995372' viewBox="0 0 24 24" 
-        strokeWidth={1.5} 
-        stroke="#995372" 
-        className="mx-2 h-5 md:h-6 sm:mx-3 text-black-light animate-pulse
+        fill='#FFE142' viewBox="0 0 24 24" 
+        strokeWidth={1} 
+        stroke="#FFE142" 
+        className="mx-2 h-7 md:h-8 sm:mx-3 text-black-light animate-pulse
         cursor-pointer transform transition duration-300 hover:scale-125" 
       >
       <path 
@@ -266,12 +266,12 @@ export default function NotificationsDropdown() {
         }}
         >
       <svg 
-          className="mx-2 h-5 md:h-6 sm:mx-3 text-black-light 
+          className="mx-2 h-7 md:h-8 sm:mx-3 text-black-light 
           cursor-pointer transform transition duration-300 hover:scale-125" 
           xmlns="http://www.w3.org/2000/svg" 
-          fill="none" viewBox="0 0 24 24" 
-          strokeWidth={1.5} 
-          stroke="#995372"
+          fill="#FFE142" viewBox="0 0 24 24" 
+          strokeWidth={1} 
+          stroke="black"
       >
       <path 
           strokeLinecap="round" 
@@ -305,7 +305,7 @@ export default function NotificationsDropdown() {
               overflow: 'visible',
               borderRadius: '10px',
               border: 1,
-              borderColor: 'rgba(153,83,114,0.5)',
+              borderColor: '#00D3E0',
               // filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
               mt: 1.5,
               '& .MuiAvatar-root': {
@@ -332,7 +332,7 @@ export default function NotificationsDropdown() {
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
         >
 
-      <p className="mt-0 mb-2 pl-4 pt-1 text-lg font-bold text-[#995372]">Notifications</p>
+      <p className="mt-0 mb-2 pl-4 pt-1 text-lg font-bold text-[#00D3E0]">Notifications</p>
 
       <Divider />
 

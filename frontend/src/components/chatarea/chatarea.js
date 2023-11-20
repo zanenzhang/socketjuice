@@ -27,9 +27,7 @@ const ChatArea = ({loggedUserId, loggedUsername, selectedChat, chatsList, setCha
       async function fetchMessagesData() {
 
         if(messagesHash){
-          if(messagesHash[updatedMessage._id] !== undefined){
-            return
-          } else {
+          if(messagesHash[updatedMessage._id] === undefined){
             var newHash = cloneDeep(messagesHash);
             newHash[updatedMessage._id] = updatedMessage._id
             setMessagesHash(newHash)
@@ -151,7 +149,7 @@ const ChatArea = ({loggedUserId, loggedUsername, selectedChat, chatsList, setCha
     }, [updatedChat])
 
 
-    useEffect( async ()=> {
+    useEffect( ()=> {
 
       async function getChatData(){
 
@@ -212,10 +210,6 @@ const ChatArea = ({loggedUserId, loggedUsername, selectedChat, chatsList, setCha
 
     useEffect( () => {
 
-        if(Object.keys(socket).length === 0){
-          return
-        }
-
         if(Object.keys(socket).length !== 0){
       
           socket.on("updatedChats", (update) => {
@@ -235,8 +229,6 @@ const ChatArea = ({loggedUserId, loggedUsername, selectedChat, chatsList, setCha
           socket.on("othersTypingStop", (username) => {
             setOthersTyping("");
           })
-    
-      //Delete message, filter state
   
       }
 
@@ -244,8 +236,8 @@ const ChatArea = ({loggedUserId, loggedUsername, selectedChat, chatsList, setCha
 
 
     return (
-      <div key={"chatAreaContainer"} className="bg-gradient-to-r from-purple-50 
-      to-orange-50 bg-center overflow-auto w-full h-full">
+      <div key={"chatAreaContainer"} className="bg-gradient-to-r from-cyan-100 
+      to-yellow-50 bg-center overflow-auto w-full h-[100svh]">
         
         <MessagesArea 
           key={"messagesArea"}

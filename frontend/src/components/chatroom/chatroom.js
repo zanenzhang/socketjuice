@@ -16,7 +16,7 @@ const ChatRoom = ({loggedUserId, loggedUsername, profilePicURL}) => {
         
           <div className="flex flex-col">
 
-            <div className="flex bg-purple-50 h-[84vh] sm:h-[83vh] md:h-[82vh] border-r-2 border-white ">
+            <div className="flex bg-cyan-100 h-[83vh] sm:h-[82vh] md:h-[81vh] border-r-2 border-white ">
 
               <ChatSidebar loggedUserId={loggedUserId} selectedChat={selectedChat} setSelectedChat={setSelectedChat}
                 chatsList={chatsList} setChatsList={setChatsList} setPageNumber={setPageNumber}/>
@@ -25,7 +25,7 @@ const ChatRoom = ({loggedUserId, loggedUsername, profilePicURL}) => {
           <div className="flex flex-grow bg-[#f6f6f6]"/>
         </div>
 
-        <div className="flex flex-grow h-full">        
+        <div className="flex flex-grow h-[83vh] sm:h-[82vh] md:h-[81vh]">        
           <Chatarea loggedUserId={loggedUserId} loggedUsername={loggedUsername}
             selectedChat={selectedChat} 
             chatsList={chatsList} setChatsList={setChatsList}

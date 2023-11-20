@@ -12,6 +12,7 @@ import ResetPass from './pages/Application/ResetPass';
 import InputNewPassword from './pages/Application/InputNewPass';
 import VerifyPage from "./pages/Application/VerifyPage";
 import AdminPage from "./pages/Application/AdminPage";
+import SettingsPage from "./pages/Application/SettingsPage";
 import TestPage from "./pages/Application/TestPage";
 
 const ROLES = {
@@ -64,6 +65,10 @@ function App() {
         </Route>
 
         <Route path="/resetpassword" element={<ResetPass />}>
+
+        </Route>
+
+        <Route path="/settings" element={<SettingsPage />}>
 
         </Route>
 

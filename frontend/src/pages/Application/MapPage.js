@@ -1061,9 +1061,9 @@ const {scrollToTime} = useMemo(
                 pl-4 border-b border-gray-500'>
 
                     <div className='flex flex-row items-center justify-start gap-x-3'>
-                    <label className='text-right pr-2 text-xs sm:text-sm'>J1772 AC</label>
+                    <label className='text-right pr-1 text-xs sm:text-sm'>J1772 AC</label>
                     <FormControlLabel
-                        value="J1772 AC"
+                        label=""
                         control={
                         <Checkbox checked={j1772ACChecked}
                                 onChange={()=>setj1772ACChecked(!j1772ACChecked)}
@@ -1077,9 +1077,9 @@ const {scrollToTime} = useMemo(
                     </div>
 
                     <div className='flex flex-row items-center justify-start gap-x-3'>
-                    <label className='text-right pr-2 text-xs sm:text-sm'>CCS1 DC</label>
+                    <label className='text-right pr-1 text-xs sm:text-sm'>CCS1 DC</label>
                     <FormControlLabel
-                        value="CCS1 DC"
+                        label=""
                         control={
                         <Checkbox checked={ccs1DCChecked}
                               onChange={()=>setccs1DCChecked(!ccs1DCChecked)}
@@ -1093,9 +1093,9 @@ const {scrollToTime} = useMemo(
                     </div>
 
                     <div className='flex flex-row items-center justify-start gap-x-3'>
-                    <label className='text-right pr-2 text-xs sm:text-sm'>Mennekes AC</label>
+                    <label className='text-right pr-1 text-xs sm:text-sm'>Mennekes AC</label>
                     <FormControlLabel
-                        value="Mennekes AC"
+                        label=""
                         control={
                         <Checkbox checked={mennekesACChecked}
                               onChange={()=>setmennekesACChecked(!mennekesACChecked)}
@@ -1109,9 +1109,9 @@ const {scrollToTime} = useMemo(
                     </div>
 
                     <div className='flex flex-row items-center justify-start gap-x-3'>
-                    <label className='text-right pr-2 text-xs sm:text-sm'>CCS2 DC</label>
+                    <label className='text-right pr-1 text-xs sm:text-sm'>CCS2 DC</label>
                     <FormControlLabel
-                        value="CCS2 DC"
+                        label=""
                         control={
                         <Checkbox checked={ccs2DCChecked}
                               onChange={()=>setccs2DCChecked(!ccs2DCChecked)}
@@ -1125,9 +1125,9 @@ const {scrollToTime} = useMemo(
                     </div>
 
                     <div className='flex flex-row items-center justify-start gap-x-3'>
-                    <label className='text-right pr-2 text-xs sm:text-sm'>CHAdeMO DC</label>
+                    <label className='text-right pr-1 text-xs sm:text-sm'>CHAdeMO DC</label>
                     <FormControlLabel
-                        value="CHAdeMO DC"
+                        label=""
                         control={
                         <Checkbox checked={chademoDCChecked}
                             onChange={()=>setchademoDCChecked(!chademoDCChecked)}
@@ -1141,9 +1141,9 @@ const {scrollToTime} = useMemo(
                     </div>
 
                     <div className='flex flex-row items-center justify-start gap-x-3'>
-                    <label className='text-right pr-2 text-xs sm:text-sm'>GB/T AC</label>    
+                    <label className='text-right pr-1 text-xs sm:text-sm'>GB/T AC</label>    
                     <FormControlLabel
-                        value="GB/T AC"
+                        label=""
                         control={
                         <Checkbox checked={gbtACChecked}
                               onChange={()=>setgbtACChecked(!gbtACChecked)}
@@ -1157,9 +1157,9 @@ const {scrollToTime} = useMemo(
                     </div>
 
                     <div className='flex flex-row items-center justify-start gap-x-3'>
-                    <label className='text-right pr-2 text-xs sm:text-sm'>GB/T DC</label>
+                    <label className='text-right pr-1 text-xs sm:text-sm'>GB/T DC</label>
                     <FormControlLabel
-                        value="GB/T DC"
+                        label=""
                         control={
                         <Checkbox checked={gbtDCChecked}
                                 onChange={()=>setgbtDCChecked(!gbtDCChecked)}
@@ -1173,9 +1173,9 @@ const {scrollToTime} = useMemo(
                     </div>
 
                     <div className='flex flex-row items-center justify-start gap-x-3'>
-                    <label className='text-right pr-2 text-xs sm:text-sm'>Tesla</label>
+                    <label className='text-right pr-1 text-xs sm:text-sm'>Tesla</label>
                     <FormControlLabel
-                        value="Tesla"
+                        label=""
                         control={
                         <Checkbox checked={teslaChecked}
                                 onChange={()=>setTeslaChecked(!teslaChecked)}
@@ -1243,9 +1243,9 @@ const {scrollToTime} = useMemo(
                 pl-4 border-b border-gray-500'>
 
                     <div className='flex flex-row items-center justify-start gap-x-3'>
-                    <label className='text-right pr-2 text-xs sm:text-sm'>J1772 AC</label>
+                    <label className='text-right pr-1 text-xs sm:text-sm'>J1772 AC</label>
                     <FormControlLabel
-                        value="J1772 AC"
+                        label=""
                         control={
                         <Checkbox checked={j1772ACChecked}
                                 onChange={()=>setj1772ACChecked(!j1772ACChecked)}
@@ -1259,9 +1259,9 @@ const {scrollToTime} = useMemo(
                     </div>
 
                     <div className='flex flex-row items-center justify-start gap-x-3'>
-                    <label className='text-right pr-2 text-xs sm:text-sm'>CCS1 DC</label>
+                    <label className='text-right pr-1 text-xs sm:text-sm'>CCS1 DC</label>
                     <FormControlLabel
-                        value="CCS1 DC"
+                        label=""
                         control={
                         <Checkbox checked={ccs1DCChecked}
                               onChange={()=>setccs1DCChecked(!ccs1DCChecked)}
@@ -1275,9 +1275,9 @@ const {scrollToTime} = useMemo(
                     </div>
 
                     <div className='flex flex-row items-center justify-start gap-x-3'>
-                    <label className='text-right pr-2 text-xs sm:text-sm'>Mennekes AC</label>
+                    <label className='text-right pr-1 text-xs sm:text-sm'>Mennekes AC</label>
                     <FormControlLabel
-                        value="Mennekes AC"
+                        label=""
                         control={
                         <Checkbox checked={mennekesACChecked}
                               onChange={()=>setmennekesACChecked(!mennekesACChecked)}
@@ -1291,9 +1291,9 @@ const {scrollToTime} = useMemo(
                     </div>
 
                     <div className='flex flex-row items-center justify-start gap-x-3'>
-                    <label className='text-right pr-2 text-xs sm:text-sm'>CCS2 DC</label>
+                    <label className='text-right pr-1 text-xs sm:text-sm'>CCS2 DC</label>
                     <FormControlLabel
-                        value="CCS2 DC"
+                        label=""
                         control={
                         <Checkbox checked={ccs2DCChecked}
                               onChange={()=>setccs2DCChecked(!ccs2DCChecked)}
@@ -1307,9 +1307,9 @@ const {scrollToTime} = useMemo(
                     </div>
 
                     <div className='flex flex-row items-center justify-start gap-x-3'>
-                    <label className='text-right pr-2 text-xs sm:text-sm'>CHAdeMO DC</label>
+                    <label className='text-right pr-1 text-xs sm:text-sm'>CHAdeMO DC</label>
                     <FormControlLabel
-                        value="CHAdeMO DC"
+                        label=""
                         control={
                         <Checkbox checked={chademoDCChecked}
                             onChange={()=>setchademoDCChecked(!chademoDCChecked)}
@@ -1323,9 +1323,9 @@ const {scrollToTime} = useMemo(
                     </div>
 
                     <div className='flex flex-row items-center justify-start gap-x-3'>
-                    <label className='text-right pr-2 text-xs sm:text-sm'>GB/T AC</label>    
+                    <label className='text-right pr-1 text-xs sm:text-sm'>GB/T AC</label>    
                     <FormControlLabel
-                        value="GB/T AC"
+                        label=""
                         control={
                         <Checkbox checked={gbtACChecked}
                               onChange={()=>setgbtACChecked(!gbtACChecked)}
@@ -1339,9 +1339,9 @@ const {scrollToTime} = useMemo(
                     </div>
 
                     <div className='flex flex-row items-center justify-start gap-x-3'>
-                    <label className='text-right pr-2 text-xs sm:text-sm'>GB/T DC</label>
+                    <label className='text-right pr-1 text-xs sm:text-sm'>GB/T DC</label>
                     <FormControlLabel
-                        value="GB/T DC"
+                        label=""
                         control={
                         <Checkbox checked={gbtDCChecked}
                                 onChange={()=>setgbtDCChecked(!gbtDCChecked)}
@@ -1355,9 +1355,9 @@ const {scrollToTime} = useMemo(
                     </div>
 
                     <div className='flex flex-row items-center justify-start gap-x-3'>
-                    <label className='text-right pr-2 text-xs sm:text-sm'>Tesla</label>
+                    <label className='text-right pr-1 text-xs sm:text-sm'>Tesla</label>
                     <FormControlLabel
-                        value="Tesla"
+                        label=""
                         control={
                         <Checkbox checked={teslaChecked}
                                 onChange={()=>setTeslaChecked(!teslaChecked)}

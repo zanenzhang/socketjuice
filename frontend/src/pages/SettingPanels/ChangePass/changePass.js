@@ -1,7 +1,6 @@
 import React from "react";
 import useAuth from "../../../hooks/useAuth";
 import Box from "@material-ui/core/Box";
-import { makeStyles } from "@material-ui/core";
 import { useRef, useState, useEffect } from "react";
 import axios from '../../../api/axios';
 import useLogout from "../../../hooks/useLogout";
@@ -9,26 +8,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 
-const useStyles = makeStyles({
-  appContainer: {
-    display: "flex",
-    width: "93vw",
-    height: "100vh"
-  },
-
-  container: {
-    display: "flex",
-    height: "100%",
-    width: "100%"
-  },
-  panel: {
-    width: "100%"
-  }
-});
-
 export default function ChangePass({loggedUserId}) {
   
-    const classes = useStyles();
   const passRef = useRef();
   const CHANGE_PASS = '/profile/userpass';
 
@@ -146,8 +127,9 @@ export default function ChangePass({loggedUserId}) {
   return (
     <>
     <Box
-        className={classes.container}
-    >
+        style={{display: "flex",
+        height: "100%",
+        width: "100%"}}>
 
         <div className='flex flex-col content-center items-center w-full h-full'>
 

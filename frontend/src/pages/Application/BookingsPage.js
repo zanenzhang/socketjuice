@@ -1216,7 +1216,6 @@ const handleRegularHourChangeEnd = (event, day) => {
         loggedUserId={auth.userId} loggedUsername={auth.username} 
         profilePicURL={auth.profilePicURL} roles={auth.roles} />
 
-      {(verifiedHost && submitted ) && 
       
       <div className='flex relative flex-col items-center pt-[7vh] sm:pt-[8vh] 
               md:pt-[9vh] h-[100svh] w-[100svw] overflow-y-scroll'>
@@ -1237,6 +1236,8 @@ const handleRegularHourChangeEnd = (event, day) => {
 
           <TabPanel style={{paddingLeft: '16px', paddingRight: '16px', paddingTop: '16px', paddingBottom: '0px',
               display:'flex', flexDirection: 'column', width: '100%'}} value="0">        
+
+        {(verifiedHost && submitted ) && 
 
           <div className='pt-1 pb-4 flex flex-col gap-y-3 w-full justify-center items-center'>
 
@@ -1321,80 +1322,9 @@ const handleRegularHourChangeEnd = (event, day) => {
                   />
                   </div>
               </div>
-            </div>
-          </TabPanel>
+            </div>}
 
-          <TabPanel style={{paddingLeft: '16px', paddingRight: '16px', paddingTop: '16px', paddingBottom: '0px',
-              display:'flex', flexDirection: 'column', width: '100%'}} value="1">        
-
-              <div className='pt-1 pb-4 flex flex-col gap-y-3 w-full justify-center items-center'>
-
-              <p>Your Outgoing Bookings</p>
-
-                  <div className='flex flex-col w-[250px]'>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-
-                        <DatePicker
-                          value={dayjs(pickerDateDriver)}
-                          onChange={(date) => setPickerDateDriver(dayjs(new Date(date)))}
-                          />
-
-                    </LocalizationProvider>
-                  </div>
-
-                <div className='flex flex-col w-full max-w-[400px] overflow-y-scroll justify-center'>
-
-                    <div className='pt-1 pb-4 flex flex-col gap-y-3'>
-
-                        <p className='text-lg text-center pt-4 pb-2'>Location Schedule</p>
-
-                        <DnDCalendar
-
-                          style={{ height: "500px" }}
-
-                          date={pickerDateDriver}
-                          defaultView="day"
-                          events={driverEvents}
-                          localizer={localizer}
-                          
-                          startAccessor="start"
-                          endAccessor="end"
-                          draggableAccessor="isDraggable"
-
-                          views={['day']}
-
-                          onSelectEvent={(e)=>handleSelectEventDriver(e)}
-                          scrollToTime={scrollToTime}
-                          onNavigate={date=>handleNavigateDriver(date)}
-
-                          eventPropGetter={
-                            (event) => {
-                              let newStyle = {
-                                backgroundColor: "#FFE142",
-                                color: 'black',
-                                borderRadius: "0px",
-                                border: "none"
-                              };
-                        
-                              return {
-                                className: "",
-                                style: newStyle
-                              };
-                            }
-                          }
-
-                          selectable
-                      />
-                      </div>
-                  </div>
-              </div>
-
-          </TabPanel>
-
-          </TabContext>
-        </div>}
-
-        {(!verifiedHost && submitted) && 
+            {(!verifiedHost && submitted) && 
         
         <div className='flex relative flex-col items-center pt-[7vh] sm:pt-[8vh] 
               md:pt-[9vh] h-[100svh] w-[100svw] overflow-y-scroll'>
@@ -1406,8 +1336,7 @@ const handleRegularHourChangeEnd = (event, day) => {
 
         {(!verifiedHost && !submitted) && 
         
-        <div className='flex relative flex-col items-center pt-[7vh] sm:pt-[8vh] 
-              md:pt-[9vh] h-[100svh] w-[100svw] overflow-y-scroll px-4 gap-y-2'>
+        <div className='flex relative flex-col items-center h-[100svh] w-full overflow-y-scroll px-4 gap-y-2'>
             
           <div className='bg-[#FFE142] rounded-xl p-3 mt-3'>
             <p className=''>Please submit the information below for review. This is so drivers book and pay for the correct equipment.</p>
@@ -1415,9 +1344,9 @@ const handleRegularHourChangeEnd = (event, day) => {
           </div>
 
           <p className='text-base md:text-lg font-bold pt-4'>Step 1) Upload at least 1 photo of your charging equipment and 1 photo of the plug connection. </p>
-          <p className='text-base md:text-lg font-bold pb-2'>Here is an example: </p>
+          <p className='text-base md:text-lg font-bold pb-2'>Here is our example: </p>
 
-          <div className='flex flex-row'>
+          <div className='flex flex-col md:flex-row'>
 
               <img className='w-[375px] py-2' src={evcharger} />
               <img className='w-[375px] py-2' src={evplug} />
@@ -1579,7 +1508,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                     type="text" 
                     id="Hostcomments"
                     autoComplete="hostcomments"
-                    placeholder="Host Comments:"
+                    placeholder="(e.g. Please don't honk upon arrival)"
                     className='text-sm text-gray-700 w-full py-4 px-4 bg-white
                         border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
                     onChange={ ( e ) => setHostComments(e.target.value)}
@@ -1595,7 +1524,7 @@ const handleRegularHourChangeEnd = (event, day) => {
               </div>
 
               <div className='flex flex-col items-center md:flex-row md:justify-center w-full gap-x-6'>
-
+                
                 <div className='flex flex-col px-4 md:px-0 w-full md:w-[35vh] mt-4'>
 
                     <label className='text-base font-semibold pl-2'>Monday Hours - Start:</label>
@@ -1647,7 +1576,7 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                     <label className='pb-4 font-bold'>Closed on Monday?</label>
                         <FormControlLabel
-                            value="Closed on Monday?"
+                            label=""
                             control={
                             <Checkbox checked={closedOnMonday}
                                   onChange={()=>setClosedOnMonday(!closedOnMonday)}
@@ -1666,7 +1595,7 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                     <label className='pb-4 font-bold'>Open 24/7 Monday?</label>
                       <FormControlLabel
-                          value="Open 24/7 on Monday"
+                          label=""
                           control={
                           <Checkbox checked={allDayMonday}
                                 onChange={()=>setAllDayMonday(!allDayMonday)}
@@ -1734,7 +1663,7 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                     <label className='pb-4 font-bold'>Closed on Tuesday?</label>
                     <FormControlLabel
-                        value="Closed on Tuesday?"
+                        label=""
                         control={
                         <Checkbox checked={closedOnTuesday}
                                 onChange={()=>setClosedOnTuesday(!closedOnTuesday)}
@@ -1753,7 +1682,7 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                     <label className='pb-4 font-bold'>Open 24/7 Tuesday?</label>
                     <FormControlLabel
-                        value="Open 24/7 on Tuesday"
+                        label=""
                         control={
                         <Checkbox checked={allDayTuesday}
                                 onChange={()=>setAllDayTuesday(!allDayTuesday)}
@@ -1820,7 +1749,7 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                     <label className='pb-4 font-bold'>Closed on Wednesday?</label>
                         <FormControlLabel
-                            value="Closed on Wednesday?"
+                            label=""
                             control={
                             <Checkbox checked={closedOnWednesday}
                                     onChange={()=>setClosedOnWednesday(!closedOnWednesday)}
@@ -1838,7 +1767,7 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                     <label className='pb-4 font-bold'>Open 24/7 Wednesday?</label>
                         <FormControlLabel
-                            value="Open 24/7 on Wednesday"
+                            label=""
                             control={
                             <Checkbox checked={allDayWednesday}
                                     onChange={()=>setAllDayWednesday(!allDayWednesday)}
@@ -1906,7 +1835,7 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                     <label className='pb-4 font-bold'>Closed on Thursday?</label>
                     <FormControlLabel
-                      value="Closed on Thursday?"
+                      label=""
                       control={
                       <Checkbox checked={closedOnThursday}
                               onChange={()=>setClosedOnThursday(!closedOnThursday)}
@@ -1925,7 +1854,7 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                     <label className='pb-4 font-bold'>Open 24/7 Thursday?</label>
                     <FormControlLabel
-                      value="Open 24/7 on Thursday"
+                      label=""
                       control={
                       <Checkbox checked={allDayThursday}
                               onChange={()=>setAllDayThursday(!allDayThursday)}
@@ -1993,7 +1922,7 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                     <label className='pb-4 font-bold'>Closed on Friday?</label>
                         <FormControlLabel
-                            value="Closed on Friday?"
+                            label=""
                             control={
                             <Checkbox checked={closedOnFriday}
                                     onChange={()=>setClosedOnFriday(!closedOnFriday)}
@@ -2012,7 +1941,7 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                     <label className='pb-4 font-bold'>Open 24/7 Friday</label>
                         <FormControlLabel
-                            value="Open 24/7 on Friday"
+                            label=""
                             control={
                             <Checkbox checked={allDayFriday}
                                 onChange={()=>setAllDayFriday(!allDayFriday)}
@@ -2081,7 +2010,7 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                     <label className='pb-4 font-bold'>Closed on Saturday?</label>
                         <FormControlLabel
-                            value="Closed on Saturday?"
+                            label=""
                             control={
                             <Checkbox checked={closedOnSaturday}
                                     onChange={()=>setClosedOnSaturday(!closedOnSaturday)}
@@ -2100,7 +2029,7 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                     <label className='pb-4 font-bold'>Open 24/7 Saturday?</label>
                         <FormControlLabel
-                            value="Open 24/7 on Saturday"
+                            label=""
                             control={
                             <Checkbox checked={allDaySaturday}
                                   onChange={()=>setAllDaySaturday(!allDaySaturday)}
@@ -2169,7 +2098,7 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                     <label className='pb-4 font-bold'>Closed on Sunday?</label>
                         <FormControlLabel
-                          value="Closed on Sunday?"
+                          label=""
                           control={
                           <Checkbox checked={closedOnSunday}
                                   onChange={()=>setClosedOnSunday(!closedOnSunday)}
@@ -2188,7 +2117,7 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                     <label className='pb-4 font-bold'>Open 24/7 Sunday</label>
                         <FormControlLabel
-                          value="Open 24/7 on Sunday"
+                          label=""
                           control={
                           <Checkbox checked={allDaySunday}
                               onChange={()=>setAllDaySunday(!allDaySunday)}
@@ -2201,9 +2130,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                           }
                       />
                 </div>
-
             </div>
-
 
             <div className='flex flex-col items-center md:flex-row md:justify-center w-full gap-x-6'>
 
@@ -2258,7 +2185,7 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                   <label className='pb-4 font-bold'>Closed on Holidays?</label>
                     <FormControlLabel
-                      value="Closed on Holidays?"
+                      label=""
                       control={
                       <Checkbox checked={closedOnHolidays}
                               onChange={()=>setClosedOnHolidays(!closedOnHolidays)}
@@ -2277,7 +2204,7 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                   <label className='pb-4 font-bold'>Open 24/7 Holidays</label>
                     <FormControlLabel
-                      value="Open 24/7 on Holidays"
+                      label=""
                       control={
                       <Checkbox checked={allDayHolidays}
                           onChange={()=>setAllDayHolidays(!allDayHolidays)}
@@ -2290,10 +2217,89 @@ const handleRegularHourChangeEnd = (event, day) => {
                       }
                   />
               </div>
-
           </div>           
+
+          <div className='flex flex-row justify-center items-center 
+            w-full md:w-[45vw] px-4 md:px-0 py-4'>
+
+            <button className='border bg-gray-300 hover:bg-[#8BEDF3] px-5 py-3 rounded-xl' onClick={(e)=>handleHostPhotosUpload(e)}>
+              Submit For Review
+            </button>
+          </div>
         
         </div> }
+
+        </TabPanel>
+
+          <TabPanel style={{paddingLeft: '16px', paddingRight: '16px', paddingTop: '16px', paddingBottom: '0px',
+              display:'flex', flexDirection: 'column', width: '100%'}} value="1">        
+
+              <div className='pt-1 pb-4 flex flex-col gap-y-3 w-full justify-center items-center'>
+
+              <p>Your Outgoing Bookings</p>
+
+                  <div className='flex flex-col w-[250px]'>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+
+                        <DatePicker
+                          value={dayjs(pickerDateDriver)}
+                          onChange={(date) => setPickerDateDriver(dayjs(new Date(date)))}
+                          />
+
+                    </LocalizationProvider>
+                  </div>
+
+                <div className='flex flex-col w-full max-w-[400px] overflow-y-scroll justify-center'>
+
+                    <div className='pt-1 pb-4 flex flex-col gap-y-3'>
+
+                        <p className='text-lg text-center pt-4 pb-2'>Location Schedule</p>
+
+                        <DnDCalendar
+
+                          style={{ height: "500px" }}
+
+                          date={pickerDateDriver}
+                          defaultView="day"
+                          events={driverEvents}
+                          localizer={localizer}
+                          
+                          startAccessor="start"
+                          endAccessor="end"
+                          draggableAccessor="isDraggable"
+
+                          views={['day']}
+
+                          onSelectEvent={(e)=>handleSelectEventDriver(e)}
+                          scrollToTime={scrollToTime}
+                          onNavigate={date=>handleNavigateDriver(date)}
+
+                          eventPropGetter={
+                            (event) => {
+                              let newStyle = {
+                                backgroundColor: "#FFE142",
+                                color: 'black',
+                                borderRadius: "0px",
+                                border: "none"
+                              };
+                        
+                              return {
+                                className: "",
+                                style: newStyle
+                              };
+                            }
+                          }
+
+                          selectable
+                      />
+                      </div>
+                  </div>
+              </div>
+
+          </TabPanel>
+
+          </TabContext>
+        </div>
 
       </div>
 

@@ -58,32 +58,30 @@ const ChatInput = ({loggedUserId, selectedChat, messages, setMessages, socket}) 
 
     setMessageContent(e.target.value)
 
-    if(!socket ){
-      return
-    }
-
-    if (!currentTyping) {
-      socket.emit("typingStart", {chatId: selectedChat})
-      setCurrentTyping(true);
-    }
-
-    let lastTypingTime = new Date().getTime();
-
-    var timerLength = 3000;
-    let timer1 = setTimeout(() => {
-      var timeNow = new Date().getTime();
-      var timeDiff = timeNow - lastTypingTime;
-
-      if ( (timeDiff >= timerLength) && (currentTyping || messageContent.length === 0) ) {
-        socket.emit("typingStop", {chatId: selectedChat})  
-        setCurrentTyping(false);
+    if(socket ){
+     
+      if (!currentTyping) {
+        socket.emit("typingStart", {chatId: selectedChat})
+        setCurrentTyping(true);
       }
-      return () => {
-        clearTimeout(timer1);
-      };
-      
-    }, timerLength);
-
+  
+      let lastTypingTime = new Date().getTime();
+  
+      var timerLength = 3000;
+      let timer1 = setTimeout(() => {
+        var timeNow = new Date().getTime();
+        var timeDiff = timeNow - lastTypingTime;
+  
+        if ( (timeDiff >= timerLength) && (currentTyping || messageContent.length === 0) ) {
+          socket.emit("typingStop", {chatId: selectedChat})  
+          setCurrentTyping(false);
+        }
+        return () => {
+          clearTimeout(timer1);
+        };
+        
+      }, timerLength);
+    }
   };
 
   useEffect(() => {
@@ -105,7 +103,7 @@ const ChatInput = ({loggedUserId, selectedChat, messages, setMessages, socket}) 
 
           <input
             type="text"
-            className="box-border border-2 m-3 w-full h-12 rounded-2xl pl-15 placeholder: pl-3"
+            className="box-border border-2 m-3 w-full h-10 rounded-2xl pl-15 placeholder: pl-3"
             value={messageContent}
             onChange={messageHandler}
             placeholder="Type message"

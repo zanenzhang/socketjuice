@@ -1,5 +1,4 @@
-import { useRef, useState, useEffect } from 'react'
-
+import { useState, useEffect } from 'react'
   import MainHeader from '../../components/mainHeader/mainHeader';
   import useAuth from '../../hooks/useAuth';
   import ChatRoom from '../../components/chatroom/chatroom';
@@ -7,7 +6,7 @@ import { useRef, useState, useEffect } from 'react'
   
   const MessagesPage = () => {
   
-    const { auth } = useAuth();
+    const { auth, setActiveTab } = useAuth();
     const loggedUsername = auth.username;
     const loggedUserId = auth.userId;
     const profilePicURL = auth.profilePicURL;
@@ -15,6 +14,12 @@ import { useRef, useState, useEffect } from 'react'
 
     const [socket, setSocket] = useState("")
     const [socketConnected, setSocketConnected] = useState(false);  
+
+    useEffect( () => {
+
+      setActiveTab("chat")
+
+    }, [])
   
       return (
 
@@ -27,10 +32,10 @@ import { useRef, useState, useEffect } from 'react'
             profilePicURL={auth.profilePicURL} roles={auth.roles}
         />
 
-        <div className='flex flex-row sm:h-full pt-[12vh] sm:pt-[13vh] md:pt-[15vh]'>
-                <ChatRoom loggedUserId={loggedUserId} loggedUsername={loggedUsername} 
-                profilePicURL={profilePicURL} socket={socket} socketConnected={socketConnected}/>
-            </div>
+        <div className='flex flex-row h-[100vh] pt-[7vh] sm:pt-[8vh] md:pt-[9vh]'>
+            <ChatRoom loggedUserId={loggedUserId} loggedUsername={loggedUsername} 
+            profilePicURL={profilePicURL} socket={socket} socketConnected={socketConnected}/>
+        </div>
 
         </div>
     )
