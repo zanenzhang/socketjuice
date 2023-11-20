@@ -386,6 +386,125 @@ const jpyvalues = [
         }
     }
 
+    const handleDayClosed = (event, day) => {
+
+        if (day === 'Monday'){
+    
+          setClosedOnMonday(event.target.checked)
+          if(event.target.checked){
+            setAllDayMonday(!event.target.checked)
+          }
+           
+        } else if( day === 'Tuesday'){
+    
+            setClosedOnTuesday(event.target.checked)
+            if(event.target.checked){
+                setAllDayTuesday(!event.target.checked)
+            }
+    
+        } else if (day === 'Wednesday'){
+    
+            setClosedOnWednesday(event.target.checked)
+            if(event.target.checked){
+                setAllDayWednesday(!event.target.checked)
+            }
+    
+        } else if (day === 'Thursday'){
+    
+            setClosedOnThursday(event.target.checked)
+            if(event.target.checked){
+                setAllDayThursday(!event.target.checked)
+            }
+    
+        } else if (day === 'Friday'){
+    
+            setClosedOnFriday(event.target.checked)
+            if(event.target.checked){
+                setAllDayFriday(!event.target.checked)
+            }
+    
+        } else if (day === 'Saturday'){
+    
+            setClosedOnSaturday(event.target.checked)
+            if(event.target.checked){
+                setAllDaySaturday(!event.target.checked)
+            }
+    
+        } else if (day === 'Sunday'){
+    
+            setClosedOnSunday(event.target.checked)
+            if(event.target.checked){
+                setAllDaySunday(!event.target.checked)
+            }
+    
+        } else if (day === 'Holidays'){
+    
+            setClosedOnHolidays(event.target.checked)
+            if(event.target.checked){
+                setAllDayHolidays(!event.target.checked)
+            }
+        }
+      }
+    
+      const handleAllDay = (event, day) => {
+    
+        if (day === 'Monday'){
+    
+            setAllDayMonday(event.target.checked)   
+            if(event.target.checked){
+                setClosedOnMonday(!event.target.checked)
+            }
+           
+        } else if( day === 'Tuesday'){
+    
+            setAllDayTuesday(event.target.checked)
+            if(event.target.checked){
+                setClosedOnTuesday(!event.target.checked)
+            }
+    
+        } else if (day === 'Wednesday'){
+            
+            setAllDayWednesday(event.target.checked)
+            if(event.target.checked){
+                setClosedOnWednesday(!event.target.checked)
+            }
+    
+        } else if (day === 'Thursday'){
+    
+            setAllDayThursday(event.target.checked)
+            if(event.target.checked){
+                setClosedOnThursday(!event.target.checked)
+            }
+    
+        } else if (day === 'Friday'){
+    
+            setAllDayFriday(event.target.checked)
+            if(event.target.checked){
+                setClosedOnFriday(!event.target.checked)
+            }
+    
+        } else if (day === 'Saturday'){
+    
+            setAllDaySaturday(event.target.checked)
+            if(event.target.checked){
+                setClosedOnSaturday(!event.target.checked)
+            }
+    
+        } else if (day === 'Sunday'){
+    
+            setAllDaySunday(event.target.checked)
+            if(event.target.checked){
+                setClosedOnSunday(!event.target.checked)
+            }
+    
+        } else if (day === 'Holidays'){
+    
+            setAllDayHolidays(event.target.checked)
+            if(event.target.checked){
+                setClosedOnHolidays(!event.target.checked)
+            }
+        }
+      }
 
     const handleRegularHourChangeBegin = (event, day) => {
 
@@ -417,7 +536,7 @@ const jpyvalues = [
 
             setHoursSundayStart(event.target.value)
 
-        } else if (day === ' Holiday'){
+        } else if (day === 'Holidays'){
 
             setHolidayHoursStart(event.target.value)
         }
@@ -453,7 +572,7 @@ const jpyvalues = [
 
             setHoursSundayFinish(event.target.value)
 
-        } else if (day === ' Holiday'){
+        } else if (day === 'Holidays'){
 
             setHolidayHoursFinish(event.target.value)
         }
@@ -586,7 +705,7 @@ const jpyvalues = [
                     autoComplete="hostcomments"
                     placeholder="Host Comments:"
                     className='text-sm text-gray-700 w-full py-4 px-4 bg-white
-                        border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                        border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#8BEDF3]' 
                     onChange={ ( e ) => setHostComments(e.target.value)}
                     onKeyDown={(e) => 
                         e.stopPropagation()
@@ -611,7 +730,7 @@ const jpyvalues = [
                     id="hoursMondayStart"
                     autoComplete="off"
                     className='text-sm text-gray-700 w-full py-4 px-4 bg-white
-                        border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                        border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#8BEDF3]' 
                     onChange={ ( e ) => handleRegularHourChangeBegin(e, "Monday")}
                     onKeyDown={(e) => 
                         e.stopPropagation()
@@ -634,7 +753,7 @@ const jpyvalues = [
                     id="hoursMondayFinish"
                     autoComplete="off"
                     className='text-sm text-gray-700 w-full py-4 px-4 bg-white
-                        border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                        border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#8BEDF3]' 
                     onChange={ ( e ) => handleRegularHourChangeEnd(e, "Monday")}
                     onKeyDown={(e) => 
                         e.stopPropagation()
@@ -655,7 +774,7 @@ const jpyvalues = [
                         label="Closed on Monday?"
                         control={
                         <Checkbox checked={closedOnMonday}
-                            onChange={()=>setClosedOnMonday(!closedOnMonday)}
+                            onChange={(e)=>handleDayClosed(e, "Monday")}
                             style ={{
                             color: "#00D3E0",
                             transform: "scale(1.5)",
@@ -674,7 +793,7 @@ const jpyvalues = [
                         label="Open 24/7 on Monday?"
                         control={
                         <Checkbox checked={allDayMonday}
-                                onChange={()=>setAllDayMonday(!allDayMonday)}
+                                onChange={(e)=>handleAllDay(e, "Monday")}
                                 style ={{
                                 color: "#00D3E0",
                                 transform: "scale(1.5)",
@@ -698,7 +817,7 @@ const jpyvalues = [
                     id="hoursTuesdayStart"
                     autoComplete="off"
                     className='text-sm text-gray-700 w-full py-4 px-4 bg-white
-                        border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                        border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#8BEDF3]' 
                     onChange={ ( e ) => handleRegularHourChangeBegin(e, "Tuesday")}
                     onKeyDown={(e) => 
                         e.stopPropagation()
@@ -721,7 +840,7 @@ const jpyvalues = [
                     id="hoursTuesdayFinish"
                     autoComplete="off"
                     className='text-sm text-gray-700 w-full py-4 px-4 bg-white
-                        border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                        border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#8BEDF3]' 
                     onChange={ ( e ) => handleRegularHourChangeEnd(e, "Tuesday")}
                     onKeyDown={(e) => 
                         e.stopPropagation()
@@ -741,13 +860,13 @@ const jpyvalues = [
                         label="Closed on Tuesday?"
                         control={
                         <Checkbox checked={closedOnTuesday}
-                                onChange={()=>setClosedOnTuesday(!closedOnTuesday)}
-                                style ={{
-                                color: "#00D3E0",
-                                transform: "scale(1.5)",
-                                paddingBottom: '12pt'
-                            }}
-                            />
+                            onChange={(e)=>handleDayClosed(e, "Tuesday")}
+                            style ={{
+                            color: "#00D3E0",
+                            transform: "scale(1.5)",
+                            paddingBottom: '12pt'
+                        }}
+                        />
                         }
                     />
 
@@ -761,7 +880,7 @@ const jpyvalues = [
                         label="Open 24/7 on Tuesday?"
                         control={
                         <Checkbox checked={allDayTuesday}
-                                onChange={()=>setAllDayTuesday(!allDayTuesday)}
+                                onChange={(e)=>handleAllDay(e, "Tuesday")}
                                 style ={{
                                 color: "#00D3E0",
                                 transform: "scale(1.5)",
@@ -786,7 +905,7 @@ const jpyvalues = [
                     id="hoursWednesdayStart"
                     autoComplete="off"
                     className='text-sm text-gray-700 w-full py-4 px-4 bg-white
-                        border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                        border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#8BEDF3]' 
                     onChange={ ( e ) => handleRegularHourChangeBegin(e, "Wednesday")}
                     onKeyDown={(e) => 
                         e.stopPropagation()
@@ -809,7 +928,7 @@ const jpyvalues = [
                     id="hoursWednesdayFinish"
                     autoComplete="off"
                     className='text-sm text-gray-700 w-full py-4 px-4 bg-white
-                        border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                        border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#8BEDF3]' 
                     onChange={ ( e ) => handleRegularHourChangeEnd(e, "Wednesday")}
                     onKeyDown={(e) => 
                         e.stopPropagation()
@@ -830,7 +949,7 @@ const jpyvalues = [
                         label="Closed on Wednesday?"
                         control={
                         <Checkbox checked={closedOnWednesday}
-                                onChange={()=>setClosedOnWednesday(!closedOnWednesday)}
+                                onChange={(e)=>handleDayClosed(e, "Wednesday")}
                                 style ={{
                                 color: "#00D3E0",
                                 transform: "scale(1.5)",
@@ -849,7 +968,7 @@ const jpyvalues = [
                         label="Open 24/7 on Wednesday?"
                         control={
                         <Checkbox checked={allDayWednesday}
-                                onChange={()=>setAllDayWednesday(!allDayWednesday)}
+                                onChange={(e)=>handleAllDay(e, "Wednesday")}
                                 style ={{
                                 color: "#00D3E0",
                                 transform: "scale(1.5)",
@@ -873,7 +992,7 @@ const jpyvalues = [
                     id="hoursThursdayStart"
                     autoComplete="off"
                     className='text-sm text-gray-700 w-full py-4 px-4 bg-white
-                        border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                        border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#8BEDF3]' 
                     onChange={ ( e ) => handleRegularHourChangeBegin(e, "Thursday")}
                     onKeyDown={(e) => 
                         e.stopPropagation()
@@ -896,7 +1015,7 @@ const jpyvalues = [
                     id="hoursThursdayFinish"
                     autoComplete="off"
                     className='text-sm text-gray-700 w-full py-4 px-4 bg-white
-                        border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                        border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#8BEDF3]' 
                     onChange={ ( e ) => handleRegularHourChangeEnd(e, "Thursday")}
                     onKeyDown={(e) => 
                         e.stopPropagation()
@@ -917,13 +1036,13 @@ const jpyvalues = [
                         label="Closed on Thursday?"
                         control={
                         <Checkbox checked={closedOnThursday}
-                                onChange={()=>setClosedOnThursday(!closedOnThursday)}
+                                onChange={(e)=>handleDayClosed(e, "Thursday")}
                                 style ={{
                                 color: "#00D3E0",
                                 transform: "scale(1.5)",
                                 paddingBottom: '12pt'
                             }}
-                            />
+                        />
                         }
                     />
                 </div>
@@ -936,7 +1055,7 @@ const jpyvalues = [
                         label="Open 24/7 on Thursday?"
                         control={
                         <Checkbox checked={allDayThursday}
-                                onChange={()=>setAllDayThursday(!allDayThursday)}
+                                onChange={(e)=>handleAllDay(e, "Thursday")}
                                 style ={{
                                 color: "#00D3E0",
                                 transform: "scale(1.5)",
@@ -961,7 +1080,7 @@ const jpyvalues = [
                     id="hoursFridayStart"
                     autoComplete="off"
                     className='text-sm text-gray-700 w-full py-4 px-4 bg-white
-                        border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                        border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#8BEDF3]' 
                     onChange={ ( e ) => handleRegularHourChangeBegin(e, "Friday")}
                     onKeyDown={(e) => 
                         e.stopPropagation()
@@ -984,7 +1103,7 @@ const jpyvalues = [
                     id="hoursFridayFinish"
                     autoComplete="off"
                     className='text-sm text-gray-700 w-full py-4 px-4 bg-white
-                        border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                        border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#8BEDF3]' 
                     onChange={ ( e ) => handleRegularHourChangeEnd(e, "Friday")}
                     onKeyDown={(e) => 
                         e.stopPropagation()
@@ -1004,13 +1123,13 @@ const jpyvalues = [
                         label="Closed on Friday?"
                         control={
                         <Checkbox checked={closedOnFriday}
-                                onChange={()=>setClosedOnFriday(!closedOnFriday)}
+                                onChange={(e)=>handleDayClosed(e, "Friday")}
                                 style ={{
                                 color: "#00D3E0",
                                 transform: "scale(1.5)",
                                 paddingBottom: '12pt'
                             }}
-                            />
+                        />
                         }
                     />
                 </div>
@@ -1023,7 +1142,7 @@ const jpyvalues = [
                         label="Open 24/7 on Friday?"
                         control={
                         <Checkbox checked={allDayFriday}
-                                onChange={()=>setAllDayFriday(!allDayFriday)}
+                                onChange={(e)=>handleAllDay(e, "Friday")}
                                 style ={{
                                 color: "#00D3E0",
                                 transform: "scale(1.5)",
@@ -1048,7 +1167,7 @@ const jpyvalues = [
                     id="hoursSaturdayStart"
                     autoComplete="off"
                     className='text-sm text-gray-700 w-full py-4 px-4 bg-white
-                        border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                        border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#8BEDF3]' 
                     onChange={ ( e ) => handleRegularHourChangeBegin(e, "Saturday")}
                     onKeyDown={(e) => 
                         e.stopPropagation()
@@ -1071,7 +1190,7 @@ const jpyvalues = [
                     id="hoursSaturdayFinish"
                     autoComplete="off"
                     className='text-sm text-gray-700 w-full py-4 px-4 bg-white
-                        border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                        border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#8BEDF3]' 
                     onChange={ ( e ) => handleRegularHourChangeEnd(e, "Saturday")}
                     onKeyDown={(e) => 
                         e.stopPropagation()
@@ -1092,13 +1211,13 @@ const jpyvalues = [
                         label="Closed on Saturday?"
                         control={
                         <Checkbox checked={closedOnSaturday}
-                                onChange={()=>setClosedOnSaturday(!closedOnSaturday)}
+                                onChange={(e)=>handleDayClosed(e, "Saturday")}
                                 style ={{
                                 color: "#00D3E0",
                                 transform: "scale(1.5)",
                                 paddingBottom: '12pt'
                             }}
-                            />
+                        />
                         }
                     />
                 </div>
@@ -1111,13 +1230,13 @@ const jpyvalues = [
                         label="Open 24/7 on Saturday?"
                         control={
                         <Checkbox checked={allDaySaturday}
-                                onChange={()=>setAllDaySaturday(!allDaySaturday)}
+                                onChange={(e)=>handleAllDay(e, "Saturday")}
                                 style ={{
                                 color: "#00D3E0",
                                 transform: "scale(1.5)",
                                 paddingBottom: '12pt'
                             }}
-                            />
+                        />
                         }
                     />
                 </div>
@@ -1136,7 +1255,7 @@ const jpyvalues = [
                     id="hoursSundayStart"
                     autoComplete="off"
                     className='text-sm text-gray-700 w-full py-4 px-4 bg-white
-                        border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                        border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#8BEDF3]' 
                     onChange={ ( e ) => handleRegularHourChangeBegin(e, "Sunday")}
                     onKeyDown={(e) => 
                         e.stopPropagation()
@@ -1159,7 +1278,7 @@ const jpyvalues = [
                     id="hoursSundayFinish"
                     autoComplete="off"
                     className='text-sm text-gray-700 w-full py-4 px-4 bg-white
-                        border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                        border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#8BEDF3]' 
                     onChange={ ( e ) => handleRegularHourChangeEnd(e, "Sunday")}
                     onKeyDown={(e) => 
                         e.stopPropagation()
@@ -1180,13 +1299,13 @@ const jpyvalues = [
                         label="Closed on Sunday?"
                         control={
                         <Checkbox checked={closedOnSunday}
-                                onChange={()=>setClosedOnSunday(!closedOnSunday)}
+                                onChange={(e)=>handleDayClosed(e, "Sunday")}
                                 style ={{
                                 color: "#00D3E0",
                                 transform: "scale(1.5)",
                                 paddingBottom: '12pt'
                             }}
-                            />
+                        />
                         }
                     />
                 </div>
@@ -1199,13 +1318,13 @@ const jpyvalues = [
                         label="Open 24/7 on Sunday?"
                         control={
                         <Checkbox checked={allDaySunday}
-                                onChange={()=>setAllDaySunday(!allDaySunday)}
+                                onChange={(e)=>handleAllDay(e, "Sunday")}
                                 style ={{
                                 color: "#00D3E0",
                                 transform: "scale(1.5)",
                                 paddingBottom: '12pt'
                             }}
-                            />
+                        />
                         }
                     />
                 </div>
@@ -1225,8 +1344,8 @@ const jpyvalues = [
                     id="holidayHoursStart"
                     autoComplete="off"
                     className='text-sm text-gray-700 w-full py-4 px-4 bg-white
-                        border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
-                    onChange={ ( e ) => handleRegularHourChangeBegin(e, "Holiday")}
+                        border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#8BEDF3]' 
+                    onChange={ ( e ) => handleRegularHourChangeBegin(e, "Holidays")}
                     onKeyDown={(e) => 
                         e.stopPropagation()
                         }
@@ -1248,8 +1367,8 @@ const jpyvalues = [
                     id="hoursHolidayFinish"
                     autoComplete="off"
                     className='text-sm text-gray-700 w-full py-4 px-4 bg-white
-                        border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
-                    onChange={ ( e ) => handleRegularHourChangeEnd(e, "Holiday")}
+                        border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#8BEDF3]' 
+                    onChange={ ( e ) => handleRegularHourChangeEnd(e, "Holidays")}
                     onKeyDown={(e) => 
                         e.stopPropagation()
                         }
@@ -1269,7 +1388,7 @@ const jpyvalues = [
                         label="Closed on Holidays?"
                         control={
                         <Checkbox checked={closedOnHolidays}
-                                onChange={()=>setClosedOnHolidays(!closedOnHolidays)}
+                                onChange={(e)=>handleDayClosed(e, "Holidays")}
                                 style ={{
                                 color: "#00D3E0",
                                 transform: "scale(1.5)",
@@ -1289,7 +1408,7 @@ const jpyvalues = [
                         label="Closed on Holidays?"
                         control={
                         <Checkbox checked={allDayHolidays}
-                                onChange={()=>setAllDayHolidays(!allDayHolidays)}
+                                onChange={(e)=>handleAllDay(e, "Holidays")}
                                 style ={{
                                 color: "#00D3E0",
                                 transform: "scale(1.5)",
@@ -1305,9 +1424,9 @@ const jpyvalues = [
 
         <div className='py-6'>
         <button 
-            className={`align-center mb-4 px-4 py-4 text-[#995372] 
-            border-2 rounded-xl border-[#995372] bg-white text-base font-semibold
-            hover:bg-[#995372] hover:text-white flex justify-center items-center gap-x-3`}
+            className={`align-center mb-4 px-4 py-4 text-[#8BEDF3] 
+            border-2 rounded-xl border-[#8BEDF3] bg-white text-base font-semibold
+            hover:bg-[#8BEDF3] hover:text-white flex justify-center items-center gap-x-3`}
           type="submit"
           onClick={(e) => onSubmitHandler(e)}>
             {isLoading && 
@@ -1334,7 +1453,7 @@ const jpyvalues = [
     </Box>
 
     <ToastContainer
-    toastStyle={{ backgroundColor: "#995372" }}
+    toastStyle={{ backgroundColor: "#8BEDF3" }}
         position="bottom-center"
         autoClose={3000}
         hideProgressBar={false}

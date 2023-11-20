@@ -703,7 +703,7 @@ const handleSelfieCamera = () => {
 
             <img key={`${index}_imageURL`}
             src={croppedImageURL[index]} 
-            className={`rounded-xl w-[250px] h-[250px] '}`} />
+            className={`rounded-xl w-[350px] h-[350px] '}`} />
 
           </div>))}
 

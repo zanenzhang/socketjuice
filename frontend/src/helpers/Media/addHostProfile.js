@@ -2,7 +2,7 @@ import axios from "../../api/axios";
 const UPLOAD_URL = '/profile/host';
 
 async function addHostProfile(userId, hostPreviewMediaObjectId, hostMediaObjectIds, hostVideoObjectIds, 
-    hostObjectTypes, hostPreviewObjectType, hostCoverIndex, chargeRate, currency, connectorType, chargingLevel,
+    hostObjectTypes, hostPreviewObjectType, hostCoverIndex, chargeRate, currency, connectorType, secondaryConnectorType, chargingLevel,
     hoursMondayStart, hoursMondayFinish, hoursTuesdayStart, hoursTuesdayFinish, hoursWednesdayStart, hoursWednesdayFinish, hoursThursdayStart, hoursThursdayFinish,
     hoursFridayStart, hoursFridayFinish, hoursSaturdayStart, hoursSaturdayFinish, hoursSundayStart, hoursSundayFinish,
     holidayHoursStart, holidayHoursFinish, 
@@ -10,11 +10,20 @@ async function addHostProfile(userId, hostPreviewMediaObjectId, hostMediaObjectI
     hostComments,
     accessToken) {
 
+    console.log(userId, hostPreviewMediaObjectId, hostMediaObjectIds, hostVideoObjectIds, 
+        hostObjectTypes, hostPreviewObjectType, hostCoverIndex, chargeRate, currency, connectorType, secondaryConnectorType, chargingLevel,
+        hoursMondayStart, hoursMondayFinish, hoursTuesdayStart, hoursTuesdayFinish, hoursWednesdayStart, hoursWednesdayFinish, hoursThursdayStart, hoursThursdayFinish,
+        hoursFridayStart, hoursFridayFinish, hoursSaturdayStart, hoursSaturdayFinish, hoursSundayStart, hoursSundayFinish,
+        holidayHoursStart, holidayHoursFinish, 
+        closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays, 
+        hostComments,
+        accessToken)
+
     try {
 
         const response = await axios.post(UPLOAD_URL, 
             JSON.stringify({userId, hostPreviewMediaObjectId, hostMediaObjectIds, hostVideoObjectIds, 
-                hostObjectTypes, hostPreviewObjectType, hostCoverIndex, chargeRate, currency, connectorType, chargingLevel,
+                hostObjectTypes, hostPreviewObjectType, hostCoverIndex, chargeRate, currency, connectorType, secondaryConnectorType, chargingLevel,
                 hoursMondayStart, hoursMondayFinish, hoursTuesdayStart, hoursTuesdayFinish, hoursWednesdayStart, hoursWednesdayFinish, hoursThursdayStart, hoursThursdayFinish,
                 hoursFridayStart, hoursFridayFinish, hoursSaturdayStart, hoursSaturdayFinish, hoursSundayStart, hoursSundayFinish,
                 holidayHoursStart, holidayHoursFinish, 

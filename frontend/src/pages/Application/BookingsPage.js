@@ -307,7 +307,6 @@ const BookingsPage = () => {
       setCurrencySymbol("$")
       setChargeRate(3)
     }
-
   }, [currency])
 
   useEffect(() => {
@@ -427,79 +426,160 @@ const BookingsPage = () => {
     navigate(`/messages`);
   }
 
-  const handleRegularHourChangeBegin = (event, day) => {
+  const handleDayClosed = (event, day) => {
 
     if (day === 'Monday'){
 
-        if(event.target.value < hoursMondayFinish){
-            setHoursMondayStart(event.target.value)
-        } else {
-            setHoursMondayStart(hoursMondayFinish)
-            setClosedOnMonday(true);
-        }
-
+      setClosedOnMonday(event.target.checked)
+      if(event.target.checked){
+        setAllDayMonday(!event.target.checked)
+      }
+       
     } else if( day === 'Tuesday'){
 
-        if(event.target.value < hoursMondayFinish){
-            setHoursTuesdayStart(event.target.value)
-        } else {
-            setHoursTuesdayStart(hoursTuesdayFinish)
-            setClosedOnTuesday(true);
+        setClosedOnTuesday(event.target.checked)
+        if(event.target.checked){
+            setAllDayTuesday(!event.target.checked)
         }
 
     } else if (day === 'Wednesday'){
 
-        if(event.target.value < hoursWednesdayFinish){
-            setHoursWednesdayStart(event.target.value)
-        } else {
-            setHoursWednesdayStart(hoursWednesdayFinish)
-            setClosedOnWednesday(true);
+        setClosedOnWednesday(event.target.checked)
+        if(event.target.checked){
+            setAllDayWednesday(!event.target.checked)
         }
 
     } else if (day === 'Thursday'){
 
-        if(event.target.value < hoursThursdayFinish){
-            setHoursThursdayStart(event.target.value)
-        } else {
-            setHoursThursdayStart(hoursThursdayFinish)
-            setClosedOnThursday(true);
+        setClosedOnThursday(event.target.checked)
+        if(event.target.checked){
+            setAllDayThursday(!event.target.checked)
         }
 
     } else if (day === 'Friday'){
 
-        if(event.target.value < hoursFridayFinish){
-            setHoursFridayStart(event.target.value)
-        } else {
-            setHoursFridayStart(hoursFridayFinish)
-            setClosedOnFriday(true);
+        setClosedOnFriday(event.target.checked)
+        if(event.target.checked){
+            setAllDayFriday(!event.target.checked)
         }
 
     } else if (day === 'Saturday'){
 
-        if(event.target.value < hoursSaturdayFinish){
-            setHoursSaturdayStart(event.target.value)
-        } else {
-            setHoursSaturdayStart(hoursSaturdayFinish)
-            setClosedOnSaturday(true);
+        setClosedOnSaturday(event.target.checked)
+        if(event.target.checked){
+            setAllDaySaturday(!event.target.checked)
         }
 
     } else if (day === 'Sunday'){
 
-        if(event.target.value < hoursSundayFinish){
-            setHoursSundayStart(event.target.value)
-        } else {
-            setHoursSundayStart(hoursSundayFinish)
-            setClosedOnSunday(true);
+        setClosedOnSunday(event.target.checked)
+        if(event.target.checked){
+            setAllDaySunday(!event.target.checked)
         }
 
-    } else if (day === ' Holiday'){
+    } else if (day === 'Holidays'){
 
-        if(event.target.value < holidayHoursFinish){
-            setHolidayHoursStart(event.target.value)
-        } else {
-            setHolidayHoursStart(holidayHoursFinish)
-            setClosedOnHolidays(true);
-        }      
+        setClosedOnHolidays(event.target.checked)
+        if(event.target.checked){
+            setAllDayHolidays(!event.target.checked)
+        }
+    }
+  }
+
+  const handleAllDay = (event, day) => {
+
+    if (day === 'Monday'){
+
+        setAllDayMonday(event.target.checked)   
+        if(event.target.checked){
+            setClosedOnMonday(!event.target.checked)
+        }
+       
+    } else if( day === 'Tuesday'){
+
+        setAllDayTuesday(event.target.checked)
+        if(event.target.checked){
+            setClosedOnTuesday(!event.target.checked)
+        }
+
+    } else if (day === 'Wednesday'){
+        
+        setAllDayWednesday(event.target.checked)
+        if(event.target.checked){
+            setClosedOnWednesday(!event.target.checked)
+        }
+
+    } else if (day === 'Thursday'){
+
+        setAllDayThursday(event.target.checked)
+        if(event.target.checked){
+            setClosedOnThursday(!event.target.checked)
+        }
+
+    } else if (day === 'Friday'){
+
+        setAllDayFriday(event.target.checked)
+        if(event.target.checked){
+            setClosedOnFriday(!event.target.checked)
+        }
+
+    } else if (day === 'Saturday'){
+
+        setAllDaySaturday(event.target.checked)
+        if(event.target.checked){
+            setClosedOnSaturday(!event.target.checked)
+        }
+
+    } else if (day === 'Sunday'){
+
+        setAllDaySunday(event.target.checked)
+        if(event.target.checked){
+            setClosedOnSunday(!event.target.checked)
+        }
+
+    } else if (day === 'Holidays'){
+
+        setAllDayHolidays(event.target.checked)
+        if(event.target.checked){
+            setClosedOnHolidays(!event.target.checked)
+        }
+    }
+  }
+
+
+  const handleRegularHourChangeBegin = (event, day) => {
+
+    if (day === 'Monday'){
+
+        setHoursMondayStart(event.target.value)
+         
+    } else if( day === 'Tuesday'){
+
+        setHoursTuesdayStart(event.target.value)
+
+    } else if (day === 'Wednesday'){
+
+        setHoursWednesdayStart(event.target.value)
+
+    } else if (day === 'Thursday'){
+
+        setHoursThursdayStart(event.target.value)
+
+    } else if (day === 'Friday'){
+
+        setHoursFridayStart(event.target.value)
+
+    } else if (day === 'Saturday'){
+
+        setHoursSaturdayStart(event.target.value)
+
+    } else if (day === 'Sunday'){
+
+        setHoursSundayStart(event.target.value)
+
+    } else if (day === 'Holidays'){
+
+        setHolidayHoursStart(event.target.value)      
     }
 }
 
@@ -507,74 +587,35 @@ const handleRegularHourChangeEnd = (event, day) => {
 
     if (day === 'Monday'){
 
-        if(event.target.value > hoursMondayStart){
-            setHoursMondayFinish(event.target.value)
-        } else {
-            setHoursMondayFinish(hoursMondayStart)
-            setClosedOnMonday(true);
-        }
+        setHoursMondayFinish(event.target.value)
 
     } else if( day === 'Tuesday'){
 
-        if(event.target.value > hoursMondayStart){
-            setHoursTuesdayFinish(event.target.value)
-        } else {
-            setHoursTuesdayFinish(hoursMondayStart)
-            setClosedOnTuesday(true);
-        }
-
+        setHoursTuesdayFinish(event.target.value)
+        
     } else if (day === 'Wednesday'){
 
-        if(event.target.value > hoursWednesdayStart){
-            setHoursWednesdayFinish(event.target.value)
-        } else {
-            setHoursWednesdayFinish(hoursWednesdayStart)
-            setClosedOnWednesday(true);
-        }
+        setHoursWednesdayFinish(event.target.value)
 
     } else if (day === 'Thursday'){
 
-        if(event.target.value > hoursThursdayStart){
-            setHoursThursdayFinish(event.target.value)
-        } else {
-            setHoursThursdayFinish(hoursThursdayStart)
-            setClosedOnThursday(true);
-        }
+        setHoursThursdayFinish(event.target.value)
 
     } else if (day === 'Friday'){
 
-        if(event.target.value > hoursFridayStart){
-            setHoursFridayFinish(event.target.value)
-        } else {
-            setHoursFridayFinish(hoursFridayStart)
-            setClosedOnFriday(true);
-        }
+        setHoursFridayFinish(event.target.value)
 
     } else if (day === 'Saturday'){
 
-        if(event.target.value > hoursSaturdayStart){
-            setHoursSaturdayFinish(event.target.value)
-        } else {
-            setHoursSaturdayFinish(hoursSaturdayStart)
-            setClosedOnSaturday(true);
-        }
+        setHoursSaturdayFinish(event.target.value)
 
     } else if (day === 'Sunday'){
 
-        if(event.target.value > hoursSundayStart){
-            setHoursSundayFinish(event.target.value)
-        } else {
-            setHoursSundayFinish(hoursSundayStart)
-        }
+        setHoursSundayFinish(event.target.value)
 
-    } else if (day === ' Holiday'){
+    } else if (day === 'Holidays'){
 
-        if(event.target.value > holidayHoursStart){
-            setHolidayHoursFinish(event.target.value)
-        } else {
-            setHolidayHoursFinish(holidayHoursStart)
-        }
-        
+        setHolidayHoursFinish(event.target.value)
     }
   }
 
@@ -926,7 +967,7 @@ const handleRegularHourChangeEnd = (event, day) => {
             }
 
         } else {
-            toast.error("This post does not have an attached photo", {
+            toast.error("This submission does not have an attached photo", {
                 position: "bottom-center",
                 autoClose: 7000,
                 hideProgressBar: false,
@@ -1510,7 +1551,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                     autoComplete="hostcomments"
                     placeholder="(e.g. Please don't honk upon arrival)"
                     className='text-sm text-gray-700 w-full py-4 px-4 bg-white
-                        border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                        border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#8BEDF3]' 
                     onChange={ ( e ) => setHostComments(e.target.value)}
                     onKeyDown={(e) => 
                         e.stopPropagation()
@@ -1535,7 +1576,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                         id="hoursMondayStart"
                         autoComplete="off"
                         className='text-sm text-gray-700 w-full py-4 px-4 bg-white
-                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#8BEDF3]' 
                         onChange={ ( e ) => handleRegularHourChangeBegin(e, "Monday")}
                         onKeyDown={(e) => 
                             e.stopPropagation()
@@ -1558,7 +1599,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                         id="hoursMondayFinish"
                         autoComplete="off"
                         className='text-sm text-gray-700 w-full py-4 px-4 bg-white
-                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#8BEDF3]' 
                         onChange={ ( e ) => handleRegularHourChangeEnd(e, "Monday")}
                         onKeyDown={(e) => 
                             e.stopPropagation()
@@ -1579,7 +1620,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                             label=""
                             control={
                             <Checkbox checked={closedOnMonday}
-                                  onChange={()=>setClosedOnMonday(!closedOnMonday)}
+                                  onChange={(e)=>handleDayClosed(e, "Monday")}
                                   style ={{
                                   color: "#00D3E0",
                                   transform: "scale(1.5)",
@@ -1598,7 +1639,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                           label=""
                           control={
                           <Checkbox checked={allDayMonday}
-                                onChange={()=>setAllDayMonday(!allDayMonday)}
+                                onChange={(e)=>handleAllDay(e, "Monday")}
                                 style ={{
                                 color: "#00D3E0",
                                 transform: "scale(1.5)",
@@ -1623,7 +1664,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                         id="hoursTuesdayStart"
                         autoComplete="off"
                         className='text-sm text-gray-700 w-full py-4 px-4 bg-white
-                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#8BEDF3]' 
                         onChange={ ( e ) => handleRegularHourChangeBegin(e, "Tuesday")}
                         onKeyDown={(e) => 
                             e.stopPropagation()
@@ -1646,7 +1687,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                         id="hoursTuesdayFinish"
                         autoComplete="off"
                         className='text-sm text-gray-700 w-full py-4 px-4 bg-white
-                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#8BEDF3]' 
                         onChange={ ( e ) => handleRegularHourChangeEnd(e, "Tuesday")}
                         onKeyDown={(e) => 
                             e.stopPropagation()
@@ -1666,7 +1707,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                         label=""
                         control={
                         <Checkbox checked={closedOnTuesday}
-                                onChange={()=>setClosedOnTuesday(!closedOnTuesday)}
+                                onChange={(e)=>handleDayClosed(e, "Tuesday")}
                                 style ={{
                                 color: "#00D3E0",
                                 transform: "scale(1.5)",
@@ -1685,13 +1726,13 @@ const handleRegularHourChangeEnd = (event, day) => {
                         label=""
                         control={
                         <Checkbox checked={allDayTuesday}
-                                onChange={()=>setAllDayTuesday(!allDayTuesday)}
+                                onChange={(e)=>handleAllDay(e, "Tuesday")}
                                 style ={{
                                 color: "#00D3E0",
                                 transform: "scale(1.5)",
                                 paddingBottom: '12pt'
                             }}
-                            />
+                          />
                         }
                     />
                 </div>
@@ -1709,7 +1750,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                         id="hoursWednesdayStart"
                         autoComplete="off"
                         className='text-sm text-gray-700 w-full py-4 px-4 bg-white
-                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#8BEDF3]' 
                         onChange={ ( e ) => handleRegularHourChangeBegin(e, "Wednesday")}
                         onKeyDown={(e) => 
                             e.stopPropagation()
@@ -1731,7 +1772,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                         id="hoursWednesdayFinish"
                         autoComplete="off"
                         className='text-sm text-gray-700 w-full py-4 px-4 bg-white
-                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#8BEDF3]' 
                         onChange={ ( e ) => handleRegularHourChangeEnd(e, "Wednesday")}
                         onKeyDown={(e) => 
                             e.stopPropagation()
@@ -1752,13 +1793,13 @@ const handleRegularHourChangeEnd = (event, day) => {
                             label=""
                             control={
                             <Checkbox checked={closedOnWednesday}
-                                    onChange={()=>setClosedOnWednesday(!closedOnWednesday)}
+                                    onChange={(e)=>handleDayClosed(e, "Wednesday")}
                                     style ={{
                                     color: "#00D3E0",
                                     transform: "scale(1.5)",
                                     paddingBottom: '12pt'
                                 }}
-                                />
+                              />
                             }
                         />
                 </div>
@@ -1770,13 +1811,13 @@ const handleRegularHourChangeEnd = (event, day) => {
                             label=""
                             control={
                             <Checkbox checked={allDayWednesday}
-                                    onChange={()=>setAllDayWednesday(!allDayWednesday)}
+                                    onChange={(e)=>handleAllDay(e, "Wednesday")}
                                     style ={{
                                     color: "#00D3E0",
                                     transform: "scale(1.5)",
                                     paddingBottom: '12pt'
                                 }}
-                                />
+                              />
                             }
                         />
                 </div>
@@ -1794,7 +1835,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                         id="hoursThursdayStart"
                         autoComplete="off"
                         className='text-sm text-gray-700 w-full py-4 px-4 bg-white
-                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#8BEDF3]' 
                         onChange={ ( e ) => handleRegularHourChangeBegin(e, "Thursday")}
                         onKeyDown={(e) => 
                             e.stopPropagation()
@@ -1817,7 +1858,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                         id="hoursThursdayFinish"
                         autoComplete="off"
                         className='text-sm text-gray-700 w-full py-4 px-4 bg-white
-                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#8BEDF3]' 
                         onChange={ ( e ) => handleRegularHourChangeEnd(e, "Thursday")}
                         onKeyDown={(e) => 
                             e.stopPropagation()
@@ -1838,7 +1879,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                       label=""
                       control={
                       <Checkbox checked={closedOnThursday}
-                              onChange={()=>setClosedOnThursday(!closedOnThursday)}
+                              onChange={(e)=>handleDayClosed(e, "Thursday")}
                               style ={{
                               color: "#00D3E0",
                               transform: "scale(1.5)",
@@ -1857,13 +1898,13 @@ const handleRegularHourChangeEnd = (event, day) => {
                       label=""
                       control={
                       <Checkbox checked={allDayThursday}
-                              onChange={()=>setAllDayThursday(!allDayThursday)}
+                              onChange={(e)=>handleAllDay(e, "Thursday")}
                               style ={{
                               color: "#00D3E0",
                               transform: "scale(1.5)",
                               paddingBottom: '12pt'
                           }}
-                          />
+                        />
                       }
                   />
                 </div>
@@ -1882,7 +1923,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                         id="hoursFridayStart"
                         autoComplete="off"
                         className='text-sm text-gray-700 w-full py-4 px-4 bg-white
-                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#8BEDF3]' 
                         onChange={ ( e ) => handleRegularHourChangeBegin(e, "Friday")}
                         onKeyDown={(e) => 
                             e.stopPropagation()
@@ -1905,7 +1946,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                         id="hoursFridayFinish"
                         autoComplete="off"
                         className='text-sm text-gray-700 w-full py-4 px-4 bg-white
-                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#8BEDF3]' 
                         onChange={ ( e ) => handleRegularHourChangeEnd(e, "Friday")}
                         onKeyDown={(e) => 
                             e.stopPropagation()
@@ -1925,13 +1966,13 @@ const handleRegularHourChangeEnd = (event, day) => {
                             label=""
                             control={
                             <Checkbox checked={closedOnFriday}
-                                    onChange={()=>setClosedOnFriday(!closedOnFriday)}
+                                    onChange={(e)=>handleDayClosed(e, "Friday")}
                                     style ={{
                                     color: "#00D3E0",
                                     transform: "scale(1.5)",
                                     paddingBottom: '12pt'
                                 }}
-                                />
+                              />
                             }
                         />
                 </div>
@@ -1944,15 +1985,15 @@ const handleRegularHourChangeEnd = (event, day) => {
                             label=""
                             control={
                             <Checkbox checked={allDayFriday}
-                                onChange={()=>setAllDayFriday(!allDayFriday)}
+                                onChange={(e)=>handleAllDay(e, "Friday")}
                                 style ={{
                                 color: "#00D3E0",
                                 transform: "scale(1.5)",
                                 paddingBottom: '12pt'
                             }}
-                            />
-                            }
-                        />
+                          />
+                        }
+                      />
                 </div>
 
             </div>
@@ -1969,7 +2010,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                         id="hoursSaturdayStart"
                         autoComplete="off"
                         className='text-sm text-gray-700 w-full py-4 px-4 bg-white
-                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#8BEDF3]' 
                         onChange={ ( e ) => handleRegularHourChangeBegin(e, "Saturday")}
                         onKeyDown={(e) => 
                             e.stopPropagation()
@@ -1992,7 +2033,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                         id="hoursSaturdayFinish"
                         autoComplete="off"
                         className='text-sm text-gray-700 w-full py-4 px-4 bg-white
-                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#8BEDF3]' 
                         onChange={ ( e ) => handleRegularHourChangeEnd(e, "Saturday")}
                         onKeyDown={(e) => 
                             e.stopPropagation()
@@ -2013,13 +2054,13 @@ const handleRegularHourChangeEnd = (event, day) => {
                             label=""
                             control={
                             <Checkbox checked={closedOnSaturday}
-                                    onChange={()=>setClosedOnSaturday(!closedOnSaturday)}
-                                    style ={{
-                                    color: "#00D3E0",
-                                    transform: "scale(1.5)",
-                                    paddingBottom: '12pt'
-                                }}
-                                />
+                                  onChange={(e)=>handleDayClosed(e, "Saturday")}
+                                  style ={{
+                                  color: "#00D3E0",
+                                  transform: "scale(1.5)",
+                                  paddingBottom: '12pt'
+                              }}
+                            />
                             }
                         />
                 </div>
@@ -2032,7 +2073,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                             label=""
                             control={
                             <Checkbox checked={allDaySaturday}
-                                  onChange={()=>setAllDaySaturday(!allDaySaturday)}
+                                  onChange={(e)=>handleAllDay(e, "Saturday")}
                                   style ={{
                                   color: "#00D3E0",
                                   transform: "scale(1.5)",
@@ -2057,7 +2098,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                         id="hoursSundayStart"
                         autoComplete="off"
                         className='text-sm text-gray-700 w-full py-4 px-4 bg-white
-                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#8BEDF3]' 
                         onChange={ ( e ) => handleRegularHourChangeBegin(e, "Sunday")}
                         onKeyDown={(e) => 
                             e.stopPropagation()
@@ -2080,7 +2121,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                         id="hoursSundayFinish"
                         autoComplete="off"
                         className='text-sm text-gray-700 w-full py-4 px-4 bg-white
-                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
+                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#8BEDF3]' 
                         onChange={ ( e ) => handleRegularHourChangeEnd(e, "Sunday")}
                         onKeyDown={(e) => 
                             e.stopPropagation()
@@ -2101,13 +2142,13 @@ const handleRegularHourChangeEnd = (event, day) => {
                           label=""
                           control={
                           <Checkbox checked={closedOnSunday}
-                                  onChange={()=>setClosedOnSunday(!closedOnSunday)}
+                                  onChange={(e)=>handleDayClosed(e, "Sunday")}
                                   style ={{
                                   color: "#00D3E0",
                                   transform: "scale(1.5)",
                                   paddingBottom: '12pt'
                               }}
-                              />
+                            />
                           }
                       />
                 </div>
@@ -2120,14 +2161,14 @@ const handleRegularHourChangeEnd = (event, day) => {
                           label=""
                           control={
                           <Checkbox checked={allDaySunday}
-                              onChange={()=>setAllDaySunday(!allDaySunday)}
+                              onChange={(e)=>handleAllDay(e, "Sunday")}
                               style ={{
                               color: "#00D3E0",
                               transform: "scale(1.5)",
                               paddingBottom: '12pt'
                           }}
-                          />
-                          }
+                        />
+                        }
                       />
                 </div>
             </div>
@@ -2144,8 +2185,8 @@ const handleRegularHourChangeEnd = (event, day) => {
                         id="holidayHoursStart"
                         autoComplete="off"
                         className='text-sm text-gray-700 w-full py-4 px-4 bg-white
-                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
-                        onChange={ ( e ) => handleRegularHourChangeBegin(e, "Holiday")}
+                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#8BEDF3]' 
+                        onChange={ ( e ) => handleRegularHourChangeBegin(e, "Holidays")}
                         onKeyDown={(e) => 
                             e.stopPropagation()
                           }
@@ -2167,8 +2208,8 @@ const handleRegularHourChangeEnd = (event, day) => {
                         id="hoursHolidayFinish"
                         autoComplete="off"
                         className='text-sm text-gray-700 w-full py-4 px-4 bg-white
-                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#995372]' 
-                        onChange={ ( e ) => handleRegularHourChangeEnd(e, "Holiday")}
+                            border-2 border-gray-100 rounded-xl mb-2 focus:outline-[#8BEDF3]' 
+                        onChange={ ( e ) => handleRegularHourChangeEnd(e, "Holidays")}
                         onKeyDown={(e) => 
                             e.stopPropagation()
                           }
@@ -2188,14 +2229,14 @@ const handleRegularHourChangeEnd = (event, day) => {
                       label=""
                       control={
                       <Checkbox checked={closedOnHolidays}
-                              onChange={()=>setClosedOnHolidays(!closedOnHolidays)}
-                              style ={{
-                              color: "#00D3E0",
-                              transform: "scale(1.5)",
-                              paddingBottom: '12pt'
-                          }}
-                          />
-                      }
+                            onChange={(e)=>handleDayClosed(e, "Holidays")}
+                            style ={{
+                            color: "#00D3E0",
+                            transform: "scale(1.5)",
+                            paddingBottom: '12pt'
+                        }}
+                      />
+                    }
                   />
               </div>
 
@@ -2207,14 +2248,14 @@ const handleRegularHourChangeEnd = (event, day) => {
                       label=""
                       control={
                       <Checkbox checked={allDayHolidays}
-                          onChange={()=>setAllDayHolidays(!allDayHolidays)}
+                          onChange={(e)=>handleAllDay(e, "Holidays")}
                           style ={{
                           color: "#00D3E0",
                           transform: "scale(1.5)",
                           paddingBottom: '12pt'
                       }}
-                      />
-                      }
+                    />
+                    }
                   />
               </div>
           </div>           
@@ -2222,7 +2263,8 @@ const handleRegularHourChangeEnd = (event, day) => {
           <div className='flex flex-row justify-center items-center 
             w-full md:w-[45vw] px-4 md:px-0 py-4'>
 
-            <button className='border bg-gray-300 hover:bg-[#8BEDF3] px-5 py-3 rounded-xl' onClick={(e)=>handleHostPhotosUpload(e)}>
+            <button className='border bg-gray-300 hover:bg-[#8BEDF3] px-5 py-3 rounded-xl' 
+              onClick={(e)=>handleHostPhotosUpload(e)}>
               Submit For Review
             </button>
           </div>
@@ -2417,7 +2459,7 @@ const handleRegularHourChangeEnd = (event, day) => {
         </Modal>
 
         <ToastContainer
-            toastStyle={{ backgroundColor: "#995372" }}
+            toastStyle={{ backgroundColor: "#8BEDF3" }}
                 position="bottom-center"
                 autoClose={1500}
                 hideProgressBar={false}
