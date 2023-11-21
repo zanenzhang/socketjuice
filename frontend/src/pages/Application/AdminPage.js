@@ -1,11 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import { useNavigate } from "react-router-dom";
-import axios from '../../api/axios';
-
 import MainHeader from '../../components/mainHeader/mainHeader';
 import 'react-toastify/dist/ReactToastify.css';
-import { ToastContainer, toast } from 'react-toastify';
-import { useLocation } from 'react-router';
 
 import getUserStatus from '../../helpers/Approval/getUserStatus';
 import approvePhotos from '../../helpers/Approval/approvePhotos';
@@ -194,13 +190,13 @@ const AdminPage = () => {
                 profilePicURL={auth.profilePicURL} roles={auth.roles}
             />
 
-            <div className='w-full flex flex-col justify-center items-center pt-[10vh] h-[500px] overflow-y-auto'>
+            <div className='w-full flex flex-col items-center pt-[12vh] h-[800px] overflow-y-auto'>
 
                 <p className='text-lg font-semibold'>Users to Check</p>
 
                 {userList?.length > 0 ?
 
-                    userList.map((user) => (
+                    userList?.map((user) => (
 
                         <div key={user._id} className='flex flex-col py-10'>
 
@@ -237,13 +233,13 @@ const AdminPage = () => {
                 
             </div>
         
-            <div className='w-full flex flex-col justify-center items-center pt-[10vh] h-[500px] overflow-y-auto'>
+            <div className='w-full flex flex-col items-center pt-[12vh] h-[800px] overflow-y-auto'>
 
                 <p className='text-lg font-semibold'>Hosts to Check</p>
 
                 {hostList?.length > 0 ?
 
-                    hostList.map((host) => (
+                    hostList?.map((host) => (
 
                         <div key={host._id} className='flex flex-col py-10'>
 
@@ -257,7 +253,7 @@ const AdminPage = () => {
 
                             <div className='flex flex-wrap'>
 
-                                {hostList.mediaCarouselURLs.map((image) => (
+                                {host?.host?.mediaCarouselURLs?.map((image) => (
 
                                     <img className='w-[250px]' src={image} />
                                 ))}
@@ -283,20 +279,6 @@ const AdminPage = () => {
             </div>
 
         </div>
-
-        <ToastContainer
-            toastStyle={{ backgroundColor: "#00D3E0" }}
-                position="bottom-center"
-                autoClose={7000}
-                hideProgressBar={false}
-                newestOnTop={false}
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-                theme="colored"
-            />
 
         </>
     );

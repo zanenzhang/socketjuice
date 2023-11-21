@@ -7,6 +7,7 @@ async function addHostProfile(userId, hostPreviewMediaObjectId, hostMediaObjectI
     hoursFridayStart, hoursFridayFinish, hoursSaturdayStart, hoursSaturdayFinish, hoursSundayStart, hoursSundayFinish,
     holidayHoursStart, holidayHoursFinish, 
     closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays, 
+    allDayMonday, allDayTuesday, allDayWednesday, allDayThursday, allDayFriday, allDaySaturday, allDaySunday, allDayHolidays,
     hostComments,
     accessToken) {
 
@@ -16,6 +17,7 @@ async function addHostProfile(userId, hostPreviewMediaObjectId, hostMediaObjectI
         hoursFridayStart, hoursFridayFinish, hoursSaturdayStart, hoursSaturdayFinish, hoursSundayStart, hoursSundayFinish,
         holidayHoursStart, holidayHoursFinish, 
         closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays, 
+        allDayMonday, allDayTuesday, allDayWednesday, allDayThursday, allDayFriday, allDaySaturday, allDaySunday, allDayHolidays,
         hostComments,
         accessToken)
 
@@ -28,6 +30,7 @@ async function addHostProfile(userId, hostPreviewMediaObjectId, hostMediaObjectI
                 hoursFridayStart, hoursFridayFinish, hoursSaturdayStart, hoursSaturdayFinish, hoursSundayStart, hoursSundayFinish,
                 holidayHoursStart, holidayHoursFinish, 
                 closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays,
+                allDayMonday, allDayTuesday, allDayWednesday, allDayThursday, allDayFriday, allDaySaturday, allDaySunday, allDayHolidays,
                 hostComments
             }),
             {

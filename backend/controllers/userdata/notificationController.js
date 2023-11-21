@@ -2,6 +2,8 @@ const NotificationSettings = require('../../model/NotificationSettings');
 const Notification = require('../../model/Notification');
 const User = require('../../model/User');
 const Chat = require('../../model/Chat');
+const Appointment = require('../../model/Appointment');
+const Message = require('../../model/Message');
 
 
 const getNotifications = async (req, res) => {
@@ -26,19 +28,17 @@ const getNotifications = async (req, res) => {
 
                 let skipValue = pageNumber - 10;
                 const settings = await NotificationSettings.findOne({_userId: userId })
-                const notiData = await Notification.find({_userId: userId }).sort({createdAt: -1}).skip(skipValue).limit(10)
+                const notiData = await Notification.find({_receivingUserId: userId }).sort({createdAt: -1}).skip(skipValue).limit(10)
     
-                if(notiData && notiData?.length > 0){
-    
-                    let arr1 = [];
-                    notiData.forEach(function(item){arr1.push(item._otherUserId)})
-    
-                    const userData = await User.find({_id: {$in: arr1}}).select("_id username roles profilePicURL")
+                if(notiData && settings){
 
+                    console.log("Reached here noti data", notiData)
+    
+                    const userData = await User.find({_id: {$in: notiData.map(e=>e._otherUserId)}}).select("_id username roles profilePicURL")
                     const relatedAppointments = await Appointment.find({_id: {$in: notiData?.map((item)=>item._relatedAppointment)}})
                     const relatedMessages = await Message.find({_id: {$in: notiData?.map((item)=>item._relatedMessage)}})
     
-                    if(userData && settings && relatedAppointments && relatedMessages){
+                    if(userData && relatedAppointments && relatedMessages){
     
                         var stop = 0
                         return res.status(200).json({notiData, userData, settings, relatedAppointments, relatedMessages, stop})
@@ -52,7 +52,7 @@ const getNotifications = async (req, res) => {
                 } else {
     
                     var stop = 1
-                    return res.status(400).json({message: "failed operation", stop})
+                    return res.status(100).json({stop})
                 }
             }
         
@@ -64,6 +64,7 @@ const getNotifications = async (req, res) => {
  
     } catch(err){
 
+        console.log(err)
         res.status(400).json({"message": err.message})
     }   
 }

@@ -1,11 +1,11 @@
 import axios from "../../api/axios";
 
-async function getUserData (userId, accessToken, authUserId) {
+async function getUserData (accessToken, userId) {
 
     try {
         const response = await axios.get('/profile/userdata/', 
         {
-            headers: { "Authorization": `Bearer ${accessToken} ${authUserId}`},
+            headers: { "Authorization": `Bearer ${accessToken} ${userId}`},
             params: {
                 userId
               }

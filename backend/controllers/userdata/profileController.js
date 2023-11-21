@@ -750,10 +750,13 @@ const getUserData = async (req, res) => {
         return res.status(400).json({ message: 'Missing required info' })
     }
 
+    console.log("Getting user data")
+    console.log(userId)
+
     try {
 
-        const foundUser = await User.findOne({_id: userId}).select("_id checkedMobile receivedIdApproval")
-        const foundHost = await HostProfile.findOne({_userId: userId}).select("_id verifiedHostCharging submittedChargingForReview deactivated")
+        const foundUser = await User.findOne({_id: userId}).select("_id checkedMobile receivedIdApproval currency currencySymbol")
+        const foundHost = await HostProfile.findOne({_userId: userId}).select("_id verifiedHostCharging submittedChargingForReview deactivated currency currencySymbol")
 
         if(foundUser && foundHost){
 
@@ -768,7 +771,6 @@ const getUserData = async (req, res) => {
 
         return res.status(400).json({ message: 'Failed' })
     }
-
 }
 
 const deleteOldProfilePic = async (req, res) => {
@@ -1477,12 +1479,13 @@ const updateDriverProfile = async (req, res) => {
 
 const addHostProfile = async (req, res) => {
 
-    const { userId, hostPreviewMediaObjectId, hostMediaObjectIds, hostVideoObjectIds, hostObjectTypes, 
+    var { userId, hostPreviewMediaObjectId, hostMediaObjectIds, hostVideoObjectIds, hostObjectTypes, 
         hostPreviewObjectType, hostCoverIndex, chargeRate, currency, connectorType, secondaryConnectorType, chargingLevel,
         hoursMondayStart, hoursMondayFinish, hoursTuesdayStart, hoursTuesdayFinish, hoursWednesdayStart, hoursWednesdayFinish, hoursThursdayStart, hoursThursdayFinish,
         hoursFridayStart, hoursFridayFinish, hoursSaturdayStart, hoursSaturdayFinish, hoursSundayStart, hoursSundayFinish,
         holidayHoursStart, holidayHoursFinish, 
         closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays,
+        allDayMonday, allDayTuesday, allDayWednesday, allDayThursday, allDayFriday, allDaySaturday, allDaySunday, allDayHolidays,
         hostComments,
          } = req.body
 
@@ -1494,6 +1497,7 @@ const addHostProfile = async (req, res) => {
         hoursFridayStart, hoursFridayFinish, hoursSaturdayStart, hoursSaturdayFinish, hoursSundayStart, hoursSundayFinish,
         holidayHoursStart, holidayHoursFinish, 
         closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays,
+        allDayMonday, allDayTuesday, allDayWednesday, allDayThursday, allDayFriday, allDaySaturday, allDaySunday, allDayHolidays,
         hostComments)
 
     if (!userId || !hostMediaObjectIds || hostMediaObjectIds?.length < 2 ) {
@@ -1562,7 +1566,6 @@ const addHostProfile = async (req, res) => {
             foundDriver.teslaChecked = true
         }    
 
-
         foundHost.chargeRatePerHalfHour = chargeRate
         foundHost.currency = currency
         foundHost.currencySymbol = currencySymbol
@@ -1604,7 +1607,7 @@ const addHostProfile = async (req, res) => {
             }
         }
 
-        var signedPreviewURL = signedMediaURLs[coverIndex]
+        var signedPreviewURL = signedMediaURLs[hostCoverIndex]
 
         hostPreviewMediaObjectId ? foundHost.previewMediaObjectId = hostPreviewMediaObjectId : null;
         hostMediaObjectIds ? foundHost.mediaCarouselObjectIds = hostMediaObjectIds : null;
@@ -1625,6 +1628,15 @@ const addHostProfile = async (req, res) => {
         closedOnSaturday ?  foundHost.closedOnSaturday = closedOnSaturday : foundHost.closedOnSaturday = false;
         closedOnSunday ?  foundHost.closedOnSunday = closedOnSunday : foundHost.closedOnSunday = false;
         closedOnHolidays ?  foundHost.closedOnHolidays = closedOnHolidays : foundHost.closedOnHolidays = false;
+
+        allDayMonday ?  foundHost.allDayMonday = allDayMonday : foundHost.allDayMonday = false;
+        allDayTuesday ?  foundHost.allDayTuesday = allDayTuesday : foundHost.allDayTuesday = false;
+        allDayWednesday ?  foundHost.allDayWednesday = allDayWednesday : foundHost.allDayWednesday = false;
+        allDayThursday ?  foundHost.allDayThursday = allDayThursday : foundHost.allDayThursday = false;
+        allDayFriday ?  foundHost.allDayFriday = allDayFriday : foundHost.allDayFriday = false;
+        allDaySaturday ?  foundHost.allDaySaturday = allDaySaturday : foundHost.closedOnSaturday = false;
+        allDaySunday ?  foundHost.allDaySunday = allDaySunday : foundHost.closedOnSunday = false;
+        allDayHolidays ?  foundHost.allDayHolidays = allDayHolidays : foundHost.closedOnHolidays = false;
 
         hoursMondayStart ? foundHost.hoursMondayStart = hoursMondayStart : foundHost.hoursMondayStart = "";
         hoursTuesdayStart ? foundHost.hoursTuesdayStart = hoursTuesdayStart : foundHost.hoursTuesdayStart = "";
@@ -1647,6 +1659,7 @@ const addHostProfile = async (req, res) => {
         const savedHost = await foundHost.save()
 
         if(savedHost){
+            console.log("Saved new host profile")
             return res.status(200).json({"message": "Operation success"})
         }
     

@@ -642,19 +642,21 @@ const handleRegularHourChangeEnd = (event, day) => {
 
       async function getUser() {
         
-        const userdata = await getUserData()
+        console.log(auth.accessToken, auth.userId)
 
-        if(userdata){
-          console.log(userdata)
+        const userdata = await getUserData(auth.accessToken, auth.userId)
 
-          //Set verified and submitted
-          //check submittedChargingForReview and verifiedHostCharging
-          // setCurrency(userdata.currency)
-          // setCurrencySymbol(userdata.currencySymbol)
+        if(userdata && !userdata?.foundHost?.deactivated){
+
+          setVerifiedHost(userdata?.foundHost?.verifiedHostCharging)
+          setSubmitted(userdata?.foundHost?.submittedChargingForReview)
+
+          setCurrency(userdata?.foundUser?.currency)
+          setCurrencySymbol(userdata.foundUser?.currencySymbol)
         }
       }
 
-      if(auth){
+      if(auth.userId){
 
         getUser()
 
@@ -826,7 +828,7 @@ const handleRegularHourChangeEnd = (event, day) => {
         return
       }
 
-      toast.info("Checking for inappropriate content, please wait...", {
+        toast.info("Checking for inappropriate content, please wait...", {
           position: "bottom-center",
           autoClose: 7000,
           hideProgressBar: false,
@@ -835,7 +837,7 @@ const handleRegularHourChangeEnd = (event, day) => {
           draggable: true,
           progress: undefined,
           theme: "colored",
-      });
+        });
 
         setWaiting(true);
 
@@ -963,6 +965,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                 progress: undefined,
                 theme: "colored",
                 });
+                setWaiting(false)
                 break
             }
 
@@ -977,6 +980,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                 progress: undefined,
                 theme: "colored",
             });
+            setWaiting(false)
             break
         }
 
@@ -995,6 +999,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                   hoursFridayStart, hoursFridayFinish, hoursSaturdayStart, hoursSaturdayFinish, hoursSundayStart, hoursSundayFinish,
                   holidayHoursStart, holidayHoursFinish, 
                   closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays,
+                  allDayMonday, allDayTuesday, allDayWednesday, allDayThursday, allDayFriday, allDaySaturday, allDaySunday, allDayHolidays,
                   hostComments,
                   auth.accessToken)
 
@@ -1013,6 +1018,8 @@ const handleRegularHourChangeEnd = (event, day) => {
                         progress: undefined,
                         theme: "colored",
                     });
+
+                    setWaiting(false)
                 }
 
             } catch(err){
@@ -1278,17 +1285,18 @@ const handleRegularHourChangeEnd = (event, day) => {
           <TabPanel style={{paddingLeft: '16px', paddingRight: '16px', paddingTop: '16px', paddingBottom: '0px',
               display:'flex', flexDirection: 'column', width: '100%'}} value="0">        
 
-        {(verifiedHost && submitted ) && 
+        {(verifiedHost ) && 
 
           <div className='pt-1 pb-4 flex flex-col gap-y-3 w-full justify-center items-center'>
 
           <p>Received Bookings From Other EV Drivers</p>
 
-            <div className='flex flex-col w-[250px] h-[400px]'>
+            <div className='flex flex-col w-[250px] max-h-[400px]'>
 
               {hostEvents.map((event) => (
                 
-                <div key={event.id} className='flex flex-row w-full border border-[#00D3E0]'>
+                <div key={event.id} className='flex flex-row w-full border border-[#00D3E0]'
+                  onClick={()=>{}}>
 
                   <div className='flex flex-col'>
                     <img className='w-[50px] rounded-full' src={event.profilePicURL} />
@@ -1367,12 +1375,12 @@ const handleRegularHourChangeEnd = (event, day) => {
 
             {(!verifiedHost && submitted) && 
         
-        <div className='flex relative flex-col items-center pt-[7vh] sm:pt-[8vh] 
-              md:pt-[9vh] h-[100svh] w-[100svw] overflow-y-scroll'>
-        
-          <p>We are currently reviewing your charging location, please hold</p>
-        
-        </div> }
+            <div className='flex relative flex-col items-center pt-[7vh] sm:pt-[8vh] 
+                  md:pt-[9vh] h-[100svh] w-[100svw] overflow-y-scroll'>
+            
+              <p>We are currently reviewing your charging location, please hold</p>
+            
+            </div> }
 
 
         {(!verifiedHost && !submitted) && 
@@ -2273,23 +2281,48 @@ const handleRegularHourChangeEnd = (event, day) => {
 
         </TabPanel>
 
-          <TabPanel style={{paddingLeft: '16px', paddingRight: '16px', paddingTop: '16px', paddingBottom: '0px',
+          <TabPanel style={{paddingLeft: '16px', paddingRight: '16px', paddingTop: '0px', paddingBottom: '0px',
               display:'flex', flexDirection: 'column', width: '100%'}} value="1">        
 
-              <div className='pt-1 pb-4 flex flex-col gap-y-3 w-full justify-center items-center'>
+            <div className='pt-1 pb-4 flex flex-col gap-y-3 w-full justify-center items-center'>
 
               <p>Your Outgoing Bookings</p>
 
-                  <div className='flex flex-col w-[250px]'>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <div className='flex flex-col w-[250px] max-h-[400px]'>
 
-                        <DatePicker
-                          value={dayjs(pickerDateDriver)}
-                          onChange={(date) => setPickerDateDriver(dayjs(new Date(date)))}
-                          />
+              {driverEvents.map((event) => (
+                
+                <div key={event.id} className='flex flex-row w-full border border-[#00D3E0]'
+                  onClick={()=>{}}>
 
-                    </LocalizationProvider>
+                  <div className='flex flex-col'>
+                    <img className='w-[50px] rounded-full' src={event.profilePicURL} />
                   </div>
+
+                  <div className='flex flex-col'>
+                    <p>Address: {event.address}</p>
+                    <p>Start: {event.start.toLocaleTimeString()}</p>
+                    <p>End: {event.end.toLocaleTimeString()}</p>
+                    <p>Status: {event.status}</p>
+                  </div>
+
+                </div>
+
+              ))}
+
+            </div>
+
+              <div className='flex flex-col w-[250px]'>
+
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+
+                    <DatePicker
+                      value={dayjs(pickerDateDriver)}
+                      onChange={(date) => setPickerDateDriver(dayjs(new Date(date)))}
+                      />
+
+                </LocalizationProvider>
+              </div>
 
                 <div className='flex flex-col w-full max-w-[400px] overflow-y-scroll justify-center'>
 

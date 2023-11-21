@@ -78,7 +78,7 @@ const approveHostProfile = async (req, res) => {
             return res.status(400).json({ 'message': 'Missing required fields!' });
         }
 
-        const checkUser = await HostProfile.findOne({_id: userId})
+        const checkUser = await HostProfile.findOne({_userId: userId})
 
         if(checkUser && checkUser.submittedChargingForReview){
 
@@ -94,7 +94,7 @@ const approveHostProfile = async (req, res) => {
         
         } else {
 
-            return res.status(402).json({"message": "Failed"})
+            return res.status(401).json({"message": "Failed"})
         }
     })
 }
@@ -758,5 +758,4 @@ const rejectHostProfile = async (req, res) => {
 
 
 module.exports = { approveUserProfilePhone, approveUserIdPhotos, rejectUserUploads, 
-    getUserStatusPhotos, getHostsToCheck, approveHostProfile, rejectHostProfile }
-    
+    getUserStatusPhotos, getHostsToCheck, approveHostProfile, rejectHostProfile } 
