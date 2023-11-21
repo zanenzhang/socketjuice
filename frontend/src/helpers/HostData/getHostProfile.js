@@ -9,7 +9,7 @@ async function getHostProfile(loggedUserId, accessToken)  {
             params: {loggedUserId }});
 
         if(response){
-            return response
+            return response.data
         }
 
     } catch (err) {

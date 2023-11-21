@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import Box from "@material-ui/core/Box";
 import useAuth from '../../../hooks/useAuth'
 import useLogout from '../../../hooks/useLogout';
@@ -18,11 +18,11 @@ export default function ChangeProfileMainHost({loggedUserId}) {
 
   const { setAuth, auth } = useAuth();
   const logout = useLogout();
-  const startRef = useRef();
 
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
+  const [scheduleCheck, setScheduleCheck] = useState(false)
   const [closedOnMonday, setClosedOnMonday] = useState(false);
   const [closedOnTuesday, setClosedOnTuesday] = useState(false);
   const [closedOnWednesday, setClosedOnWednesday] = useState(false);
@@ -49,71 +49,67 @@ export default function ChangeProfileMainHost({loggedUserId}) {
   const [currencySymbol, setCurrencySymbol] = useState("$");
   const [chargeRate, setChargeRate] = useState(3);
 
-  const [hoursMondayStart, setHoursMondayStart] = useState('');
+  const [hoursMondayStart, setHoursMondayStart] = useState('09:00');
   const [validHoursMondayStart, setValidHoursMondayStart] = useState(false);
   const [hoursMondayStartFocus, setHoursMondayStartFocus] = useState(false);
 
-  const [hoursMondayFinish, setHoursMondayFinish] = useState('');
+  const [hoursMondayFinish, setHoursMondayFinish] = useState('20:00');
   const [validHoursMondayFinish, setValidHoursMondayFinish] = useState(false);
   const [hoursMondayFinishFocus, setHoursMondayFinishFocus] = useState(false);
 
-  const [hoursTuesdayStart, setHoursTuesdayStart] = useState('');
+  const [hoursTuesdayStart, setHoursTuesdayStart] = useState('09:00');
   const [validHoursTuesdayStart, setValidHoursTuesdayStart] = useState(false);
   const [hoursTuesdayStartFocus, setHoursTuesdayStartFocus] = useState(false);
 
-  const [hoursTuesdayFinish, setHoursTuesdayFinish] = useState('');
+  const [hoursTuesdayFinish, setHoursTuesdayFinish] = useState('20:00');
   const [validHoursTuesdayFinish, setValidHoursTuesdayFinish] = useState(false);
   const [hoursTuesdayFinishFocus, setHoursTuesdayFinishFocus] = useState(false);
 
-  const [hoursWednesdayStart, setHoursWednesdayStart] = useState('');
+  const [hoursWednesdayStart, setHoursWednesdayStart] = useState('09:00');
   const [validHoursWednesdayStart, setValidHoursWednesdayStart] = useState(false);
   const [hoursWednesdayStartFocus, setHoursWednesdayStartFocus] = useState(false);
 
-  const [hoursWednesdayFinish, setHoursWednesdayFinish] = useState('');
+  const [hoursWednesdayFinish, setHoursWednesdayFinish] = useState('20:00');
   const [validHoursWednesdayFinish, setValidHoursWednesdayFinish] = useState(false);
   const [hoursWednesdayFinishFocus, setHoursWednesdayFinishFocus] = useState(false);
 
-  const [hoursThursdayStart, setHoursThursdayStart] = useState('');
+  const [hoursThursdayStart, setHoursThursdayStart] = useState('09:00');
   const [validHoursThursdayStart, setValidHoursThursdayStart] = useState(false);
   const [hoursThursdayStartFocus, setHoursThursdayStartFocus] = useState(false);
 
-  const [hoursThursdayFinish, setHoursThursdayFinish] = useState('');
+  const [hoursThursdayFinish, setHoursThursdayFinish] = useState('20:00');
   const [validHoursThursdayFinish, setValidHoursThursdayFinish] = useState(false);
   const [hoursThursdayFinishFocus, setHoursThursdayFinishFocus] = useState(false);
 
-  const [hoursFridayStart, setHoursFridayStart] = useState('');
+  const [hoursFridayStart, setHoursFridayStart] = useState('09:00');
   const [validHoursFridayStart, setValidHoursFridayStart] = useState(false);
   const [hoursFridayStartFocus, setHoursFridayStartFocus] = useState(false);
 
-  const [hoursFridayFinish, setHoursFridayFinish] = useState('');
+  const [hoursFridayFinish, setHoursFridayFinish] = useState('20:00');
   const [validHoursFridayFinish, setValidHoursFridayFinish] = useState(false);
   const [hoursFridayFinishFocus, setHoursFridayFinishFocus] = useState(false);
 
-  const [hoursSaturdayStart, setHoursSaturdayStart] = useState('');
+  const [hoursSaturdayStart, setHoursSaturdayStart] = useState('09:00');
   const [validHoursSaturdayStart, setValidHoursSaturdayStart] = useState(false);
   const [hoursSaturdayStartFocus, setHoursSaturdayStartFocus] = useState(false);
 
-  const [hoursSaturdayFinish, setHoursSaturdayFinish] = useState('');
+  const [hoursSaturdayFinish, setHoursSaturdayFinish] = useState('20:00');
   const [validHoursSaturdayFinish, setValidHoursSaturdayFinish] = useState(false);
   const [hoursSaturdayFinishFocus, setHoursSaturdayFinishFocus] = useState(false);
 
-  const [hoursSundayStart, setHoursSundayStart] = useState('');
+  const [hoursSundayStart, setHoursSundayStart] = useState('09:00');
   const [validHoursSundayStart, setValidHoursSundayStart] = useState(false);
   const [hoursSundayStartFocus, setHoursSundayStartFocus] = useState(false);
 
-  const [hoursSundayFinish, setHoursSundayFinish] = useState('');
+  const [hoursSundayFinish, setHoursSundayFinish] = useState('20:00');
   const [validHoursSundayFinish, setValidHoursSundayFinish] = useState(false);
   const [hoursSundayFinishFocus, setHoursSundayFinishFocus] = useState(false);
 
-  const [holidayHours, setHolidayHours] = useState('');
-  const [validHolidayHours, setValidHolidayHours] = useState(false);
-  const [holidayHoursFocus, setHolidayHoursFocus] = useState(false);
-
-  const [holidayHoursStart, setHolidayHoursStart] = useState('');
+  const [holidayHoursStart, setHolidayHoursStart] = useState('09:00');
   const [validHolidayHoursStart, setValidHolidayHoursStart] = useState(false);
   const [holidayHoursStartFocus, setHolidayHoursStartFocus] = useState(false);
 
-  const [holidayHoursFinish, setHolidayHoursFinish] = useState('');
+  const [holidayHoursFinish, setHolidayHoursFinish] = useState('20:00');
   const [validHolidayHoursFinish, setValidHolidayHoursFinish] = useState(false);
   const [holidayHoursFinishFocus, setHolidayHoursFinishFocus] = useState(false);
 
@@ -219,14 +215,31 @@ const jpyvalues = [
     {value: 9.0, text: "$9.00"},{value: 10.0, text: "$10.00"},
   ]
 
-  useEffect(() => {
-        const ele = startRef.current
-        ele.focus();
-    }, [])
+useEffect(() => {
+    setValidHostComments(COMMENTS_REGEX.test(hostComments));
+}, [hostComments])
 
-    useEffect(() => {
-        setValidHostComments(COMMENTS_REGEX.test(hostComments));
-    }, [hostComments])
+useEffect( () => {
+
+    if( ((!hoursMondayStart || !hoursMondayFinish) && !closedOnMonday && !allDayMonday) ||
+        ((!hoursTuesdayStart || !hoursTuesdayFinish) && !closedOnTuesday && !allDayTuesday) ||
+        ((!hoursWednesdayStart || !hoursWednesdayFinish) && !closedOnWednesday && !allDayWednesday) ||
+        ((!hoursThursdayStart || !hoursThursdayFinish) && !closedOnThursday && !allDayThursday) ||
+        ((!hoursMondayStart || !hoursMondayFinish) && !closedOnMonday && !allDayMonday) ||
+        ((!hoursMondayStart || !hoursMondayFinish) && !closedOnMonday && !allDayMonday) ||
+        ((!hoursMondayStart || !hoursMondayFinish) && !closedOnMonday && !allDayMonday) ||
+        ((!hoursMondayStart || !hoursMondayFinish) && !closedOnMonday && !allDayMonday)
+    ){
+        setScheduleCheck(false)
+    } else {
+        setScheduleCheck(true)
+    }
+    
+    }, [hoursMondayStart, hoursMondayFinish, hoursTuesdayStart, hoursTuesdayFinish, hoursWednesdayStart, hoursWednesdayFinish, hoursThursdayStart, hoursThursdayFinish,
+    hoursFridayStart, hoursFridayFinish, hoursSaturdayStart, hoursSaturdayFinish, hoursSundayStart, hoursSundayFinish,
+    holidayHoursStart, holidayHoursFinish, 
+    closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays,
+    allDayMonday, allDayTuesday, allDayWednesday, allDayThursday, allDayFriday, allDaySaturday, allDaySunday, allDayHolidays,])
 
     useEffect(() => {
         setValidHoursMondayStart(REGULAR_HOURS_REGEX.test(hoursMondayStart));
@@ -299,47 +312,47 @@ const jpyvalues = [
   
           const response = await getHostProfile(auth.userId, auth.accessToken)
   
-          if(response && response.hostProfile){
+          if(response && response.foundHostProfile){
             
-            setHoursMondayStart(response.hostProfile.hoursMondayStart)
-            setHoursMondayFinish(response.hostProfile.hoursMondayFinish)
-            setHoursTuesdayStart(response.hostProfile.hoursTuesdayStart)
-            setHoursTuesdayFinish(response.hostProfile.hoursTuesdayFinish)
-            setHoursWednesdayStart(response.hostProfile.hoursWednesdayStart)
-            setHoursWednesdayFinish(response.hostProfile.hoursWednesdayFinish)
-            setHoursThursdayStart(response.hostProfile.hoursThursdayStart)
-            setHoursThursdayFinish(response.hostProfile.hoursThursdayFinish)
-            setHoursFridayStart(response.hostProfile.hoursFridayStart)
-            setHoursFridayFinish(response.hostProfile.hoursFridayFinish)
-            setHoursSaturdayStart(response.hostProfile.hoursSaturdayStart)
-            setHoursSaturdayFinish(response.hostProfile.hoursSaturdayFinish)
-            setHoursSundayStart(response.hostProfile.hoursSundayStart)
-            setHoursSundayFinish(response.hostProfile.hoursSundayFinish)
-            setHolidayHoursStart(response.hostProfile.holidayHoursStart)
-            setHolidayHoursFinish(response.hostProfile.holidayHoursFinish)
+            setHoursMondayStart(response.foundHostProfile.hoursMondayStart)
+            setHoursMondayFinish(response.foundHostProfile.hoursMondayFinish)
+            setHoursTuesdayStart(response.foundHostProfile.hoursTuesdayStart)
+            setHoursTuesdayFinish(response.foundHostProfile.hoursTuesdayFinish)
+            setHoursWednesdayStart(response.foundHostProfile.hoursWednesdayStart)
+            setHoursWednesdayFinish(response.foundHostProfile.hoursWednesdayFinish)
+            setHoursThursdayStart(response.foundHostProfile.hoursThursdayStart)
+            setHoursThursdayFinish(response.foundHostProfile.hoursThursdayFinish)
+            setHoursFridayStart(response.foundHostProfile.hoursFridayStart)
+            setHoursFridayFinish(response.foundHostProfile.hoursFridayFinish)
+            setHoursSaturdayStart(response.foundHostProfile.hoursSaturdayStart)
+            setHoursSaturdayFinish(response.foundHostProfile.hoursSaturdayFinish)
+            setHoursSundayStart(response.foundHostProfile.hoursSundayStart)
+            setHoursSundayFinish(response.foundHostProfile.hoursSundayFinish)
+            setHolidayHoursStart(response.foundHostProfile.holidayHoursStart)
+            setHolidayHoursFinish(response.foundHostProfile.holidayHoursFinish)
             
-            setClosedOnMonday(response.hostProfile.closedOnMonday)
-            setClosedOnTuesday(response.hostProfile.closedOnTuesday)
-            setClosedOnWednesday(response.hostProfile.closedOnWednesday)
-            setClosedOnThursday(response.hostProfile.closedOnThursday)
-            setClosedOnFriday(response.hostProfile.closedOnFriday)
-            setClosedOnSaturday(response.hostProfile.closedOnSaturday)
-            setClosedOnSunday(response.hostProfile.closedOnSunday)
-            setClosedOnHolidays(response.hostProfile.closedOnHolidays)
+            setClosedOnMonday(response.foundHostProfile.closedOnMonday)
+            setClosedOnTuesday(response.foundHostProfile.closedOnTuesday)
+            setClosedOnWednesday(response.foundHostProfile.closedOnWednesday)
+            setClosedOnThursday(response.foundHostProfile.closedOnThursday)
+            setClosedOnFriday(response.foundHostProfile.closedOnFriday)
+            setClosedOnSaturday(response.foundHostProfile.closedOnSaturday)
+            setClosedOnSunday(response.foundHostProfile.closedOnSunday)
+            setClosedOnHolidays(response.foundHostProfile.closedOnHolidays)
 
-            setAllDayMonday(response.hostProfile.allDayMonday)
-            setAllDayTuesday(response.hostProfile.allDayTuesday)
-            setAllDayWednesday(response.hostProfile.allDayWednesday)
-            setAllDayThursday(response.hostProfile.allDayThursday)
-            setAllDayFriday(response.hostProfile.allDayFriday)
-            setAllDaySaturday(response.hostProfile.allDaySaturday)
-            setAllDaySunday(response.hostProfile.allDaySunday)
-            setAllDayHolidays(response.hostProfile.allDayHolidays)
+            setAllDayMonday(response.foundHostProfile.allDayMonday)
+            setAllDayTuesday(response.foundHostProfile.allDayTuesday)
+            setAllDayWednesday(response.foundHostProfile.allDayWednesday)
+            setAllDayThursday(response.foundHostProfile.allDayThursday)
+            setAllDayFriday(response.foundHostProfile.allDayFriday)
+            setAllDaySaturday(response.foundHostProfile.allDaySaturday)
+            setAllDaySunday(response.foundHostProfile.allDaySunday)
+            setAllDayHolidays(response.foundHostProfile.allDayHolidays)
 
-            setHostComments(response.hostProfile.hostComments)
-            setCurrency(response.hostProfile.currency)
-            setCurrencySymbol(response.hostProfile.currencySymbol)
-            setChargeRate(response.hostProfile.chargeRatePerHalfHour)
+            setHostComments(response.foundHostProfile.hostComments)
+            setCurrency(response.foundHostProfile.currency)
+            setCurrencySymbol(response.foundHostProfile.currencySymbol)
+            setChargeRate(response.foundHostProfile.chargeRatePerHalfHour)
             
           }
         }
@@ -391,6 +404,8 @@ const jpyvalues = [
         if (day === 'Monday'){
     
           setClosedOnMonday(event.target.checked)
+          setHoursMondayStart("")
+          setHoursMondayFinish("")
           if(event.target.checked){
             setAllDayMonday(!event.target.checked)
           }
@@ -398,6 +413,8 @@ const jpyvalues = [
         } else if( day === 'Tuesday'){
     
             setClosedOnTuesday(event.target.checked)
+            setHoursTuesdayStart("")
+            setHoursTuesdayFinish("")
             if(event.target.checked){
                 setAllDayTuesday(!event.target.checked)
             }
@@ -405,6 +422,8 @@ const jpyvalues = [
         } else if (day === 'Wednesday'){
     
             setClosedOnWednesday(event.target.checked)
+            setHoursWednesdayStart("")
+            setHoursWednesdayFinish("")
             if(event.target.checked){
                 setAllDayWednesday(!event.target.checked)
             }
@@ -412,6 +431,8 @@ const jpyvalues = [
         } else if (day === 'Thursday'){
     
             setClosedOnThursday(event.target.checked)
+            setHoursThursdayStart("")
+            setHoursThursdayFinish("")
             if(event.target.checked){
                 setAllDayThursday(!event.target.checked)
             }
@@ -419,6 +440,8 @@ const jpyvalues = [
         } else if (day === 'Friday'){
     
             setClosedOnFriday(event.target.checked)
+            setHoursFridayStart("")
+            setHoursFridayFinish("")
             if(event.target.checked){
                 setAllDayFriday(!event.target.checked)
             }
@@ -426,6 +449,8 @@ const jpyvalues = [
         } else if (day === 'Saturday'){
     
             setClosedOnSaturday(event.target.checked)
+            setHoursSaturdayStart("")
+            setHoursSaturdayFinish("")
             if(event.target.checked){
                 setAllDaySaturday(!event.target.checked)
             }
@@ -433,6 +458,8 @@ const jpyvalues = [
         } else if (day === 'Sunday'){
     
             setClosedOnSunday(event.target.checked)
+            setHoursSundayStart("")
+            setHoursSundayFinish("")
             if(event.target.checked){
                 setAllDaySunday(!event.target.checked)
             }
@@ -440,6 +467,8 @@ const jpyvalues = [
         } else if (day === 'Holidays'){
     
             setClosedOnHolidays(event.target.checked)
+            setHolidayHoursStart("")
+            setHolidayHoursFinish("")
             if(event.target.checked){
                 setAllDayHolidays(!event.target.checked)
             }
@@ -451,6 +480,8 @@ const jpyvalues = [
         if (day === 'Monday'){
     
             setAllDayMonday(event.target.checked)   
+            setHoursMondayStart("")
+            setHoursMondayFinish("")
             if(event.target.checked){
                 setClosedOnMonday(!event.target.checked)
             }
@@ -458,6 +489,8 @@ const jpyvalues = [
         } else if( day === 'Tuesday'){
     
             setAllDayTuesday(event.target.checked)
+            setHoursTuesdayStart("")
+            setHoursTuesdayFinish("")
             if(event.target.checked){
                 setClosedOnTuesday(!event.target.checked)
             }
@@ -465,6 +498,8 @@ const jpyvalues = [
         } else if (day === 'Wednesday'){
             
             setAllDayWednesday(event.target.checked)
+            setHoursWednesdayStart("")
+            setHoursWednesdayFinish("")
             if(event.target.checked){
                 setClosedOnWednesday(!event.target.checked)
             }
@@ -472,6 +507,8 @@ const jpyvalues = [
         } else if (day === 'Thursday'){
     
             setAllDayThursday(event.target.checked)
+            setHoursThursdayStart("")
+            setHoursThursdayFinish("")
             if(event.target.checked){
                 setClosedOnThursday(!event.target.checked)
             }
@@ -479,6 +516,8 @@ const jpyvalues = [
         } else if (day === 'Friday'){
     
             setAllDayFriday(event.target.checked)
+            setHoursFridayStart("")
+            setHoursFridayFinish("")
             if(event.target.checked){
                 setClosedOnFriday(!event.target.checked)
             }
@@ -486,6 +525,8 @@ const jpyvalues = [
         } else if (day === 'Saturday'){
     
             setAllDaySaturday(event.target.checked)
+            setHoursSaturdayStart("")
+            setHoursSaturdayFinish("")
             if(event.target.checked){
                 setClosedOnSaturday(!event.target.checked)
             }
@@ -493,6 +534,8 @@ const jpyvalues = [
         } else if (day === 'Sunday'){
     
             setAllDaySunday(event.target.checked)
+            setHoursSundayStart("")
+            setHoursSundayFinish("")
             if(event.target.checked){
                 setClosedOnSunday(!event.target.checked)
             }
@@ -500,6 +543,8 @@ const jpyvalues = [
         } else if (day === 'Holidays'){
     
             setAllDayHolidays(event.target.checked)
+            setHolidayHoursStart("")
+            setHolidayHoursFinish("")
             if(event.target.checked){
                 setClosedOnHolidays(!event.target.checked)
             }
@@ -626,7 +671,7 @@ const jpyvalues = [
     >
         <div className='flex flex-col content-center items-center w-full'>
 
-            <div className='w-full flex flex-col items-end pt-4 gap-y-4'>
+            <div className='w-full flex flex-col pt-4 gap-y-4'>
 
                 <div className="flex flex-row justify-center items-center gap-x-2">
 
@@ -650,7 +695,7 @@ const jpyvalues = [
 
                 </div>
 
-                <div className="flex flex-row justify-center items-center gap-x-2">
+                <div className="flex flex-row justify-center items-center gap-x-2 pb-4">
 
                     <div className='flex flex-col p-2'>
                         <p className="flex font-semibold">Charge Rate Per 30 Min:</p>
@@ -1426,8 +1471,10 @@ const jpyvalues = [
         <button 
             className={`align-center mb-4 px-4 py-4 text-[#8BEDF3] 
             border-2 rounded-xl border-[#8BEDF3] bg-white text-base font-semibold
-            hover:bg-[#8BEDF3] hover:text-white flex justify-center items-center gap-x-3`}
+            ${scheduleCheck ? "hover:cursor-not-allowed " : "hover:bg-[#8BEDF3] hover:text-white "}
+             flex justify-center items-center gap-x-3`}
           type="submit"
+          disabled={!scheduleCheck}
           onClick={(e) => onSubmitHandler(e)}>
             {isLoading && 
                 <div aria-label="Loading..." role="status">

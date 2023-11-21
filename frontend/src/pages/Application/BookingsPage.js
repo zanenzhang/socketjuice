@@ -56,10 +56,13 @@ const BookingsPage = () => {
 
   const navigate = useNavigate();
 
+  const [isLoaded, setIsLoaded] = useState(false)
   const [value, setValue] = useState("0");
   const [waiting, setWaiting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const IMAGE_UPLOAD_URL = '/s3/singleimage';
+
+  const [scheduleCheck, setScheduleCheck] = useState(false)
 
   const [pickerDateDriver, setPickerDateDriver] = useState(new Date())
   const [pickerDateHost, setPickerDateHost] = useState(new Date())
@@ -92,71 +95,67 @@ const BookingsPage = () => {
   const [closedOnSunday, setClosedOnSunday] = useState(false);
   const [closedOnHolidays, setClosedOnHolidays] = useState(false);
 
-  const [hoursMondayStart, setHoursMondayStart] = useState('');
+  const [hoursMondayStart, setHoursMondayStart] = useState('09:00');
   const [validhoursMondayStart, setValidhoursMondayStart] = useState(false);
   const [hoursMondayStartFocus, setHoursMondayStartFocus] = useState(false);
 
-  const [hoursMondayFinish, setHoursMondayFinish] = useState('');
+  const [hoursMondayFinish, setHoursMondayFinish] = useState('20:00');
   const [validhoursMondayFinish, setValidhoursMondayFinish] = useState(false);
   const [hoursMondayFinishFocus, setHoursMondayFinishFocus] = useState(false);
 
-  const [hoursTuesdayStart, setHoursTuesdayStart] = useState('');
+  const [hoursTuesdayStart, setHoursTuesdayStart] = useState('09:00');
   const [validhoursTuesdayStart, setValidhoursTuesdayStart] = useState(false);
   const [hoursTuesdayStartFocus, setHoursTuesdayStartFocus] = useState(false);
 
-  const [hoursTuesdayFinish, setHoursTuesdayFinish] = useState('');
+  const [hoursTuesdayFinish, setHoursTuesdayFinish] = useState('20:00');
   const [validhoursTuesdayFinish, setValidhoursTuesdayFinish] = useState(false);
   const [hoursTuesdayFinishFocus, setHoursTuesdayFinishFocus] = useState(false);
 
-  const [hoursWednesdayStart, setHoursWednesdayStart] = useState('');
+  const [hoursWednesdayStart, setHoursWednesdayStart] = useState('09:00');
   const [validhoursWednesdayStart, setValidhoursWednesdayStart] = useState(false);
   const [hoursWednesdayStartFocus, setHoursWednesdayStartFocus] = useState(false);
 
-  const [hoursWednesdayFinish, setHoursWednesdayFinish] = useState('');
+  const [hoursWednesdayFinish, setHoursWednesdayFinish] = useState('20:00');
   const [validhoursWednesdayFinish, setValidhoursWednesdayFinish] = useState(false);
   const [hoursWednesdayFinishFocus, setHoursWednesdayFinishFocus] = useState(false);
 
-  const [hoursThursdayStart, setHoursThursdayStart] = useState('');
+  const [hoursThursdayStart, setHoursThursdayStart] = useState('09:00');
   const [validhoursThursdayStart, setValidhoursThursdayStart] = useState(false);
   const [hoursThursdayStartFocus, setHoursThursdayStartFocus] = useState(false);
 
-  const [hoursThursdayFinish, setHoursThursdayFinish] = useState('');
+  const [hoursThursdayFinish, setHoursThursdayFinish] = useState('20:00');
   const [validhoursThursdayFinish, setValidhoursThursdayFinish] = useState(false);
   const [hoursThursdayFinishFocus, setHoursThursdayFinishFocus] = useState(false);
 
-  const [hoursFridayStart, setHoursFridayStart] = useState('');
+  const [hoursFridayStart, setHoursFridayStart] = useState('09:00');
   const [validhoursFridayStart, setValidhoursFridayStart] = useState(false);
   const [hoursFridayStartFocus, setHoursFridayStartFocus] = useState(false);
 
-  const [hoursFridayFinish, setHoursFridayFinish] = useState('');
+  const [hoursFridayFinish, setHoursFridayFinish] = useState('20:00');
   const [validhoursFridayFinish, setValidhoursFridayFinish] = useState(false);
   const [hoursFridayFinishFocus, setHoursFridayFinishFocus] = useState(false);
 
-  const [hoursSaturdayStart, setHoursSaturdayStart] = useState('');
+  const [hoursSaturdayStart, setHoursSaturdayStart] = useState('09:00');
   const [validhoursSaturdayStart, setValidhoursSaturdayStart] = useState(false);
   const [hoursSaturdayStartFocus, setHoursSaturdayStartFocus] = useState(false);
 
-  const [hoursSaturdayFinish, setHoursSaturdayFinish] = useState('');
+  const [hoursSaturdayFinish, setHoursSaturdayFinish] = useState('20:00');
   const [validhoursSaturdayFinish, setValidhoursSaturdayFinish] = useState(false);
   const [hoursSaturdayFinishFocus, setHoursSaturdayFinishFocus] = useState(false);
 
-  const [hoursSundayStart, setHoursSundayStart] = useState('');
+  const [hoursSundayStart, setHoursSundayStart] = useState('09:00');
   const [validhoursSundayStart, setValidhoursSundayStart] = useState(false);
   const [hoursSundayStartFocus, setHoursSundayStartFocus] = useState(false);
 
-  const [hoursSundayFinish, setHoursSundayFinish] = useState('');
+  const [hoursSundayFinish, setHoursSundayFinish] = useState('20:00');
   const [validhoursSundayFinish, setValidhoursSundayFinish] = useState(false);
   const [hoursSundayFinishFocus, setHoursSundayFinishFocus] = useState(false);
 
-  const [holidayHours, setHolidayHours] = useState('');
-  const [validHolidayHours, setValidHolidayHours] = useState(false);
-  const [holidayHoursFocus, setHolidayHoursFocus] = useState(false);
-
-  const [holidayHoursStart, setHolidayHoursStart] = useState('');
+  const [holidayHoursStart, setHolidayHoursStart] = useState('09:00');
   const [validHolidayHoursStart, setValidHolidayHoursStart] = useState(false);
   const [holidayHoursStartFocus, setHolidayHoursStartFocus] = useState(false);
 
-  const [holidayHoursFinish, setHolidayHoursFinish] = useState('');
+  const [holidayHoursFinish, setHolidayHoursFinish] = useState('20:00');
   const [validHolidayHoursFinish, setValidHolidayHoursFinish] = useState(false);
   const [holidayHoursFinishFocus, setHolidayHoursFinishFocus] = useState(false);
 
@@ -377,6 +376,28 @@ const BookingsPage = () => {
     setValidHostComments(COMMENTS_REGEX.test(hostComments));
 }, [hostComments])
 
+useEffect( () => {
+
+  if( ((!hoursMondayStart || !hoursMondayFinish) && !closedOnMonday && !allDayMonday) ||
+      ((!hoursTuesdayStart || !hoursTuesdayFinish) && !closedOnTuesday && !allDayTuesday) ||
+      ((!hoursWednesdayStart || !hoursWednesdayFinish) && !closedOnWednesday && !allDayWednesday) ||
+      ((!hoursThursdayStart || !hoursThursdayFinish) && !closedOnThursday && !allDayThursday) ||
+      ((!hoursMondayStart || !hoursMondayFinish) && !closedOnMonday && !allDayMonday) ||
+      ((!hoursMondayStart || !hoursMondayFinish) && !closedOnMonday && !allDayMonday) ||
+      ((!hoursMondayStart || !hoursMondayFinish) && !closedOnMonday && !allDayMonday) ||
+      ((!hoursMondayStart || !hoursMondayFinish) && !closedOnMonday && !allDayMonday)
+  ){
+    setScheduleCheck(false)
+  } else {
+    setScheduleCheck(true)
+  }
+
+}, [hoursMondayStart, hoursMondayFinish, hoursTuesdayStart, hoursTuesdayFinish, hoursWednesdayStart, hoursWednesdayFinish, hoursThursdayStart, hoursThursdayFinish,
+  hoursFridayStart, hoursFridayFinish, hoursSaturdayStart, hoursSaturdayFinish, hoursSundayStart, hoursSundayFinish,
+  holidayHoursStart, holidayHoursFinish, 
+  closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays,
+  allDayMonday, allDayTuesday, allDayWednesday, allDayThursday, allDayFriday, allDaySaturday, allDaySunday, allDayHolidays,])
+
   const [croppedImageURL, setCroppedImageURL] = useState([]);
   const [croppedImage, setCroppedImage] = useState([]);
   const [coverIndex, setCoverIndex] = useState(0);
@@ -431,6 +452,8 @@ const BookingsPage = () => {
     if (day === 'Monday'){
 
       setClosedOnMonday(event.target.checked)
+      setHoursMondayStart("")
+      setHoursMondayFinish("")
       if(event.target.checked){
         setAllDayMonday(!event.target.checked)
       }
@@ -438,6 +461,8 @@ const BookingsPage = () => {
     } else if( day === 'Tuesday'){
 
         setClosedOnTuesday(event.target.checked)
+        setHoursTuesdayStart("")
+        setHoursTuesdayFinish("")
         if(event.target.checked){
             setAllDayTuesday(!event.target.checked)
         }
@@ -445,6 +470,8 @@ const BookingsPage = () => {
     } else if (day === 'Wednesday'){
 
         setClosedOnWednesday(event.target.checked)
+        setHoursWednesdayStart("")
+        setHoursWednesdayFinish("")
         if(event.target.checked){
             setAllDayWednesday(!event.target.checked)
         }
@@ -452,6 +479,8 @@ const BookingsPage = () => {
     } else if (day === 'Thursday'){
 
         setClosedOnThursday(event.target.checked)
+        setHoursThursdayStart("")
+        setHoursThursdayFinish("")
         if(event.target.checked){
             setAllDayThursday(!event.target.checked)
         }
@@ -459,6 +488,8 @@ const BookingsPage = () => {
     } else if (day === 'Friday'){
 
         setClosedOnFriday(event.target.checked)
+        setHoursFridayStart("")
+        setHoursFridayFinish("")
         if(event.target.checked){
             setAllDayFriday(!event.target.checked)
         }
@@ -466,6 +497,8 @@ const BookingsPage = () => {
     } else if (day === 'Saturday'){
 
         setClosedOnSaturday(event.target.checked)
+        setHoursSaturdayStart("")
+        setHoursSaturdayFinish("")
         if(event.target.checked){
             setAllDaySaturday(!event.target.checked)
         }
@@ -473,6 +506,8 @@ const BookingsPage = () => {
     } else if (day === 'Sunday'){
 
         setClosedOnSunday(event.target.checked)
+        setHoursSundayStart("")
+        setHoursSundayFinish("")
         if(event.target.checked){
             setAllDaySunday(!event.target.checked)
         }
@@ -480,6 +515,8 @@ const BookingsPage = () => {
     } else if (day === 'Holidays'){
 
         setClosedOnHolidays(event.target.checked)
+        setHolidayHoursStart("")
+        setHolidayHoursFinish("")
         if(event.target.checked){
             setAllDayHolidays(!event.target.checked)
         }
@@ -491,6 +528,8 @@ const BookingsPage = () => {
     if (day === 'Monday'){
 
         setAllDayMonday(event.target.checked)   
+        setHoursMondayStart("")
+        setHoursMondayFinish("")
         if(event.target.checked){
             setClosedOnMonday(!event.target.checked)
         }
@@ -498,6 +537,8 @@ const BookingsPage = () => {
     } else if( day === 'Tuesday'){
 
         setAllDayTuesday(event.target.checked)
+        setHoursTuesdayStart("")
+        setHoursTuesdayFinish("")
         if(event.target.checked){
             setClosedOnTuesday(!event.target.checked)
         }
@@ -505,6 +546,8 @@ const BookingsPage = () => {
     } else if (day === 'Wednesday'){
         
         setAllDayWednesday(event.target.checked)
+        setHoursWednesdayStart("")
+        setHoursWednesdayFinish("")
         if(event.target.checked){
             setClosedOnWednesday(!event.target.checked)
         }
@@ -512,6 +555,8 @@ const BookingsPage = () => {
     } else if (day === 'Thursday'){
 
         setAllDayThursday(event.target.checked)
+        setHoursThursdayStart("")
+        setHoursThursdayFinish("")
         if(event.target.checked){
             setClosedOnThursday(!event.target.checked)
         }
@@ -519,6 +564,8 @@ const BookingsPage = () => {
     } else if (day === 'Friday'){
 
         setAllDayFriday(event.target.checked)
+        setHoursFridayStart("")
+        setHoursFridayFinish("")
         if(event.target.checked){
             setClosedOnFriday(!event.target.checked)
         }
@@ -526,6 +573,8 @@ const BookingsPage = () => {
     } else if (day === 'Saturday'){
 
         setAllDaySaturday(event.target.checked)
+        setHoursSaturdayStart("")
+        setHoursSaturdayFinish("")
         if(event.target.checked){
             setClosedOnSaturday(!event.target.checked)
         }
@@ -533,6 +582,8 @@ const BookingsPage = () => {
     } else if (day === 'Sunday'){
 
         setAllDaySunday(event.target.checked)
+        setHoursSundayStart("")
+        setHoursSundayFinish("")
         if(event.target.checked){
             setClosedOnSunday(!event.target.checked)
         }
@@ -540,6 +591,8 @@ const BookingsPage = () => {
     } else if (day === 'Holidays'){
 
         setAllDayHolidays(event.target.checked)
+        setHolidayHoursStart("")
+        setHolidayHoursFinish("")
         if(event.target.checked){
             setClosedOnHolidays(!event.target.checked)
         }
@@ -653,6 +706,7 @@ const handleRegularHourChangeEnd = (event, day) => {
 
           setCurrency(userdata?.foundUser?.currency)
           setCurrencySymbol(userdata.foundUser?.currencySymbol)
+          setIsLoaded(true)
         }
       }
 
@@ -743,15 +797,16 @@ const handleRegularHourChangeEnd = (event, day) => {
           setNewrequest(!newrequest)
         }
 
-      } else if (selectedEventStatus === "Approved"){
+      } 
+      // else if (selectedEventStatus === "Approved"){
 
-        const bookingCompleted = await addAppointmentCompletion(e._userId, auth.userId, e.start, e.end, auth.accessToken)
+      //   const bookingCompleted = await addAppointmentCompletion(e._userId, auth.userId, e.start, e.end, auth.accessToken)
 
-        if(bookingCompleted){
-          console.log("Booking completed")
-          setNewrequest(!newrequest)
-        }
-      }
+      //   if(bookingCompleted){
+      //     console.log("Booking completed")
+      //     setNewrequest(!newrequest)
+      //   }
+      // }
     }
 
     const handleEventActionDriver = async (e) => {
@@ -1285,7 +1340,7 @@ const handleRegularHourChangeEnd = (event, day) => {
           <TabPanel style={{paddingLeft: '16px', paddingRight: '16px', paddingTop: '16px', paddingBottom: '0px',
               display:'flex', flexDirection: 'column', width: '100%'}} value="0">        
 
-        {(verifiedHost ) && 
+        {(verifiedHost && isLoaded ) && 
 
           <div className='pt-1 pb-4 flex flex-col gap-y-3 w-full justify-center items-center'>
 
@@ -1373,7 +1428,7 @@ const handleRegularHourChangeEnd = (event, day) => {
               </div>
             </div>}
 
-            {(!verifiedHost && submitted) && 
+            {(!verifiedHost && submitted && isLoaded) && 
         
             <div className='flex relative flex-col items-center pt-[7vh] sm:pt-[8vh] 
                   md:pt-[9vh] h-[100svh] w-[100svw] overflow-y-scroll'>
@@ -1383,7 +1438,7 @@ const handleRegularHourChangeEnd = (event, day) => {
             </div> }
 
 
-        {(!verifiedHost && !submitted) && 
+        {(!verifiedHost && !submitted && isLoaded) && 
         
         <div className='flex relative flex-col items-center h-[100svh] w-full overflow-y-scroll px-4 gap-y-2'>
             
@@ -1543,7 +1598,6 @@ const handleRegularHourChangeEnd = (event, day) => {
                           <option value="Level 3">Level 3</option>
 
                       </select> 
-
                   </div>
               </div>
 
@@ -2271,7 +2325,10 @@ const handleRegularHourChangeEnd = (event, day) => {
           <div className='flex flex-row justify-center items-center 
             w-full md:w-[45vw] px-4 md:px-0 py-4'>
 
-            <button className='border bg-gray-300 hover:bg-[#8BEDF3] px-5 py-3 rounded-xl' 
+            <button className={`border bg-gray-300 
+                  ${scheduleCheck ? "hover:cursor-not-allowed" : "hover:bg-[#8BEDF3] "}
+                  px-5 py-3 rounded-xl`}
+              disabled={!scheduleCheck}
               onClick={(e)=>handleHostPhotosUpload(e)}>
               Submit For Review
             </button>
@@ -2405,7 +2462,6 @@ const handleRegularHourChangeEnd = (event, day) => {
                       ${ (selectedEventStatus === "Completed" || selectedEventStatus === "Cancelled" || driverRequestedCancel) ? "bg-[#c1f2f5] cursor-not-allowed" : "bg-[#c1f2f5] hover:bg-[#00D3E0] " } `}
                       onClick={(e)=>handleEventActionDriver(e)}>
                         {(selectedEventStatus === "Requested" && !driverRequestedCancel && !hostRequestedCancel) && <p>Approve Booking Request</p> }
-                        {(selectedEventStatus === "Approved" && !driverRequestedCancel) && <p>Approved - Ask To Cancel</p> }
                         {(selectedEventStatus === "CancelSubmitted" && driverRequestedCancel) && <p>You Asked To Cancel</p> }
                         {(selectedEventStatus === "CancelSubmitted" && hostRequestedCancel) && <p>Host Asked To Cancel</p> }
                         {(selectedEventStatus === "Cancelled") && <p>Cancelled</p> }
@@ -2418,13 +2474,20 @@ const handleRegularHourChangeEnd = (event, day) => {
                         Cancel Booking Request
                       </button>}
 
-                    {(selectedAddress && selectedHostUserId !== auth.userId) && <button className='border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]'
+                    {(selectedEventStatus === "Approved" && !driverRequestedCancel) && 
+                      <button className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]`}
+                      onClick={(e)=>handleEventCancelDriver(e)}>
+                        Approved - Request to Cancel
+                      </button>}
+
+                    {(selectedAddress && selectedHostUserId !== auth.userId) && 
+                    <button className='border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]'
                       onClick={(e)=>handleLinkURLDirections(e, selectedAddress)}>
                         Get Directions (Opens Map)
                     </button>}
 
                     {(selectedEventStatus !== "Requested") 
-                    && <button onClick={(e)=>handleMessageDriver(e)}>
+                      && <button onClick={(e)=>handleMessageDriver(e)}>
                       Send Message
                     </button>}
 
@@ -2463,7 +2526,6 @@ const handleRegularHourChangeEnd = (event, day) => {
                       || hostRequestedCancel) ? "bg-[#c1f2f5] cursor-not-allowed" : "bg-[#c1f2f5] hover:bg-[#00D3E0] " } `}
                       onClick={(e)=>handleEventActionHost(e)}>
                         {(selectedEventStatus === "Requested" && !driverRequestedCancel && !hostRequestedCancel) && <p>Booking Requested - Approve</p> }
-                        {(selectedEventStatus === "Approved" && !driverRequestedCancel && !hostRequestedCancel) && <p>Approved - Ask To Cancel</p> }
                         {(selectedEventStatus === "CancelSubmitted" && driverRequestedCancel) && <p>You Asked To Cancel</p> }
                         {(selectedEventStatus === "CancelSubmitted" && hostRequestedCancel) && <p>Host Asked To Cancel</p> }
                         {(selectedEventStatus === "Cancelled") && <p>Cancelled</p> }
@@ -2475,6 +2537,13 @@ const handleRegularHourChangeEnd = (event, day) => {
                       onClick={(e)=>handleEventRejectHost(e)}>
                         Cancel Booking Request
                     </button>}
+
+                    {(selectedEventStatus === "Approved" && !driverRequestedCancel && !hostRequestedCancel) && 
+                    <button 
+                    className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]`}
+                    onClick={(e)=>handleEventCancelHost(e)}>
+                      Approved - Ask to Cancel
+                    </button> }
 
                     {(selectedAddress && selectedHostUserId !== auth.userId) && <button className='border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]'
                       onClick={(e)=>handleLinkURLDirections(e, selectedAddress)}>

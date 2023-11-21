@@ -21,10 +21,10 @@ const CustomSwitch = withStyles({
     switchBase: {
       color: 'black',
       '&$checked': {
-        color: '#00D3E0',
+        color: '#8BEDF3',
       },
       '&$checked + $track': {
-        backgroundColor: '#00D3E0',
+        backgroundColor: '#8BEDF3',
       },
     },
     checked: {},
@@ -36,7 +36,6 @@ export default function ChangeProfileMainUser({loggedUserId }) {
 
   const { setAuth, auth } = useAuth();
   const logout = useLogout();
-  const startRef = useRef();
 
   const [image, setImage] = useState("");
   const [croppedImage, setCroppedImage] = useState("");
@@ -67,12 +66,6 @@ export default function ChangeProfileMainUser({loggedUserId }) {
 
   const FIRST_NAME_REGEX = /^[a-zA-Z_ ]{0,48}$/;
   const LAST_NAME_REGEX = /^[a-zA-Z_ ]{0,48}$/;
-
-
-  useEffect(() => {
-    const ele = startRef.current
-    ele.focus();
-  }, [])
 
   useEffect(() => {
       setValidFirstName(FIRST_NAME_REGEX.test(firstName));
@@ -312,12 +305,12 @@ export default function ChangeProfileMainUser({loggedUserId }) {
         width: "100%",
         justifyContent: "center"}}
     >
-        <div className='flex flex-col content-center items-center w-full'>
+        <div className='flex flex-col content-center items-center w-full justify-center'>
 
         <ProfileCropper setCroppedImage={setCroppedImage} setImage={setImage} 
             image={image} profilePicURL={auth.profilePicURL} />
 
-        <div className='flex flex-col items-center md:flex-row md:justify-center w-full gap-x-6 mt-5' >
+        <div className='flex flex-col items-center justify-center w-full gap-x-6 mt-5' >
           
           <div className='flex flex-col w-full px-4 md:px-0 md:w-[45vh] pt-2'>
             
@@ -326,7 +319,6 @@ export default function ChangeProfileMainUser({loggedUserId }) {
                   aria-label="First name: " 
                   type="text" 
                   id="FirstName"
-                  ref={startRef}
                   autoComplete="new-password"
                   placeholder="First name:"
                   className='text-sm text-gray-700 w-full py-4 px-4 bg-white
@@ -391,171 +383,182 @@ export default function ChangeProfileMainUser({loggedUserId }) {
 
           <div className="w-[300px] flex flex-col pt-4">
               <div className='flex justify-start'>
-                  <label className='text-lg font-medium'>Toggle Email Notifications</label>
+                  <label className='text-base font-semibold'>Email Notifications</label>
               </div>
               <div className='flex justify-start pl-2'>
                   <FormControlLabel control={
-                      <Switch checked={emailNotifications} onChange={handleEmailNotifications} />
-                  } label={"Email Notifications"} />
+                      <CustomSwitch checked={emailNotifications} onChange={handleEmailNotifications} />
+                  } label={emailNotifications ? "On" : "Off"} />
               </div>
           </div>
 
-          <div className="w-[300px] flex flex-col pt-4">
+          {/* <div className="w-[300px] flex flex-col pt-4">
               <div className='flex justify-start'>
-                  <label className='text-lg font-medium'>Toggle Push Notifications</label>
+                  <label className='text-lg font-medium'>Push Notifications {pushNotifications ? "On" : "Off"}</label>
               </div>
               <div className='flex justify-start pl-2'>
                   <FormControlLabel control={
-                      <Switch checked={pushNotifications} onChange={handlePushNotifications} />
+                      <CustomSwitch checked={pushNotifications} onChange={handlePushNotifications} />
                   } label={"Push Notifications"} />
               </div>
-          </div>
+          </div> */}
 
           <div className="w-[300px] flex flex-col pt-4">
               <div className='flex justify-start'>
-                  <label className='text-lg font-medium'>SMS(Text Message) Notifications</label>
+                  <label className='text-base font-semibold'>SMS(Text) Notifications</label>
               </div>
               <div className='flex justify-start pl-2'>
                   <FormControlLabel control={
-                      <Switch checked={smsNotifications} onChange={handleSmsNotifications} />
-                  } label={"SMS Notifications"} />
+                      <CustomSwitch checked={smsNotifications} onChange={handleSmsNotifications} />
+                  } label={smsNotifications ? "On" : "Off"} />
               </div>
           </div>
 
-          <div className='flex flex-col h-[500px] overflow-y-scroll'>
+          <div className='flex flex-col items-start w-full pt-6'>
 
-              <div className='flex flex-col'>
-              <label className='pb-4 font-bold'>J1772 AC Plug</label>
+            <p className='text-base font-semibold text-center py-4'>
+              Driver Plug Preferences</p>
+
+              <div className='flex flex-col items-start'>
+              <label className='font-medium'>J1772 AC Plug</label>
               <FormControlLabel
                   label=""
                   control={
                   <Checkbox checked={j1772ACChecked}
                           onChange={()=>setj1772ACChecked(!j1772ACChecked)}
                           style ={{
-                          color: "#995372",
+                          color: "#8BEDF3",
                           transform: "scale(1.5)",
-                          paddingBottom: '12pt'
+                          paddingBottom: '12pt',
+                          paddingLeft: '12pt'
                       }}
                       />
                   }
               />
               </div>
 
-              <div className='flex flex-col'>
-              <label className='pb-4 font-bold'>CCS1 DC Plug</label>
+              <div className='flex flex-col items-start'>
+              <label className='font-medium'>CCS1 DC Plug</label>
               <FormControlLabel
                   label=""
                   control={
                   <Checkbox checked={ccs1DCChecked}
                           onChange={()=>setccs1DCChecked(!ccs1DCChecked)}
                           style ={{
-                          color: "#995372",
+                          color: "#8BEDF3",
                           transform: "scale(1.5)",
-                          paddingBottom: '12pt'
+                          paddingBottom: '12pt',
+                          paddingLeft: '12pt'
                       }}
                       />
                   }
               />
               </div>
 
-              <div className='flex flex-col'>
-              <label className='pb-4 font-bold'>Mennekes AC Plug</label>
+              <div className='flex flex-col items-start'>
+              <label className='font-medium'>Mennekes AC Plug</label>
               <FormControlLabel
                   label=""
                   control={
                   <Checkbox checked={mennekesACChecked}
                         onChange={()=>setmennekesACChecked(!mennekesACChecked)}
                         style ={{
-                        color: "#995372",
+                        color: "#8BEDF3",
                         transform: "scale(1.5)",
-                        paddingBottom: '12pt'
+                        paddingBottom: '12pt',
+                        paddingLeft: '12pt'
                     }}
                     />
                   }
               />
               </div>
 
-              <div className='flex flex-col'>
-              <label className='pb-4 font-bold'>CCS2 DC Plug</label>
+              <div className='flex flex-col items-start'>
+              <label className='font-medium'>CCS2 DC Plug</label>
               <FormControlLabel
                   label=""
                   control={
                   <Checkbox checked={ccs2DCChecked}
                           onChange={()=>setccs2DCChecked(!ccs2DCChecked)}
                           style ={{
-                          color: "#995372",
-                          transform: "scale(1.5)",
-                          paddingBottom: '12pt'
+                            color: "#8BEDF3",
+                            transform: "scale(1.5)",
+                            paddingBottom: '12pt',
+                            paddingLeft: '12pt'
                       }}
                       />
                   }
               />
               </div>
 
-              <div className='flex flex-col'>
-              <label className='pb-4 font-bold'>CHAdeMO DC Plug</label>
+              <div className='flex flex-col items-start'>
+              <label className='font-medium'>CHAdeMO DC Plug</label>
               <FormControlLabel
                   label=""
                   control={
                   <Checkbox checked={chademoDCChecked}
                         onChange={()=>setChademoDCChecked(!chademoDCChecked)}
                         style ={{
-                        color: "#995372",
-                        transform: "scale(1.5)",
-                        paddingBottom: '12pt'
+                          color: "#8BEDF3",
+                          transform: "scale(1.5)",
+                          paddingBottom: '12pt',
+                          paddingLeft: '12pt'
                     }}
                     />
                   }
               />
               </div>
 
-              <div className='flex flex-col'>
-              <label className='pb-4 font-bold'>GB/T AC Plug</label>    
+              <div className='flex flex-col items-start'>
+              <label className='font-medium'>GB/T AC Plug</label>    
               <FormControlLabel
                   label=""
                   control={
                   <Checkbox checked={gbtACChecked}
                           onChange={()=>setgbtACChecked(!gbtACChecked)}
                           style ={{
-                          color: "#995372",
-                          transform: "scale(1.5)",
-                          paddingBottom: '12pt'
+                            color: "#8BEDF3",
+                            transform: "scale(1.5)",
+                            paddingBottom: '12pt',
+                            paddingLeft: '12pt'
                       }}
                       />
                   }
               />
               </div>
 
-              <div className='flex flex-col'>
-              <label className='pb-4 font-bold'>GB/T DC Plug</label>
+              <div className='flex flex-col items-start'>
+              <label className='font-medium'>GB/T DC Plug</label>
               <FormControlLabel
                   label=""
                   control={
                   <Checkbox checked={gbtDCChecked}
-                          onChange={()=>setgbtDCChecked(!gbtDCChecked)}
-                          style ={{
-                          color: "#995372",
-                          transform: "scale(1.5)",
-                          paddingBottom: '12pt'
-                      }}
-                      />
+                      onChange={()=>setgbtDCChecked(!gbtDCChecked)}
+                      style ={{
+                        color: "#8BEDF3",
+                        transform: "scale(1.5)",
+                        paddingBottom: '12pt',
+                        paddingLeft: '12pt'
+                  }}
+                  />
                   }
               />
               </div>
 
-              <div className='flex flex-col'>
-              <label className='pb-4 font-bold'>Tesla</label>
+              <div className='flex flex-col items-start'>
+              <label className='font-medium'>Tesla Plug</label>
               <FormControlLabel
                   label=""
                   control={
                   <Checkbox checked={teslaChecked}
-                          onChange={()=>setTeslaChecked(!teslaChecked)}
-                          style ={{
-                          color: "#995372",
-                          transform: "scale(1.5)",
-                          paddingBottom: '12pt'
-                      }}
-                      />
+                      onChange={()=>setTeslaChecked(!teslaChecked)}
+                      style ={{
+                        color: "#8BEDF3",
+                        transform: "scale(1.5)",
+                        paddingBottom: '12pt',
+                        paddingLeft: '12pt'
+                    }}
+                  />
                   }
               />
               </div>
