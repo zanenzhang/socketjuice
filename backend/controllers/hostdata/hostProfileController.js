@@ -55,58 +55,20 @@ const getHostProfile = async (req, res) => {
 
 const getHostProfilesCoord = async (req, res) => {
     
-    var { coordinatesInput, loggedUserId, dayofweek, localtime, j1772ACChecked, ccs1DCChecked, mennekesACChecked, 
-        ccs2DCChecked, chademoDCChecked, gbtACChecked, gbtDCChecked, teslaChecked } = req.query
+    var { coordinatesInput, loggedUserId, dayofweek, localtime } = req.query
 
     if (!coordinatesInput || !loggedUserId || !dayofweek ) {
         return res.status(400).json({ message: 'Missing required info' })
     }
 
-    console.log(dayofweek, localtime)
-
     coordinatesInput = JSON.parse(coordinatesInput)
 
     try {
-
-        var connectorarray = []
-
-        if(j1772ACChecked){
-            connectorarray.push("AC-J1772-Type1")
-        }
-         
-        if(ccs1DCChecked){
-            connectorarray.push("DC-CCS1")
-        }
-        
-        if(mennekesACChecked){
-            connectorarray.push("AC-Mennekes-Type2")
-        }
-        
-        if(gbtACChecked){
-            connectorarray.push("AC-GB/T")
-        }
-        
-        if(chademoDCChecked){
-            connectorarray.push("DC-CHAdeMO")
-        }
-        
-        if(gbtDCChecked){
-            connectorarray.push("DC-GB/T")
-        }
-
-        if(ccs2DCChecked){
-            connectorarray.push("DC-CCS2")
-        }
-
-        if(teslaChecked){
-            connectorarray.push("Tesla")
-        }
         
         var searchobj = {
             "$or": [],
             deactivated: false,
             verifiedHostCharging: true,
-            connectorType: {"$in": connectorarray},
             location:
             { "$near":
                 {
@@ -116,10 +78,13 @@ const getHostProfilesCoord = async (req, res) => {
             }
         }
 
+        var allDayString = ""
+
         if(dayofweek === "Monday"){
 
             searchobj["closedOnMonday"] = false
             
+            allDayString = "allDayMonday";
             var array = [{"allDayMonday": true},{"hoursMondayStart": {"$lte": localtime}}];
             searchobj["$or"] = array
 
@@ -127,6 +92,7 @@ const getHostProfilesCoord = async (req, res) => {
 
             searchobj["closedOnTuesday"] = false
             
+            allDayString = "allDayTuesday";
             var array = [{"allDayTuesday": true},{"hoursTuesdayStart": {"$lte": localtime}}];
             searchobj["$or"] = array
 
@@ -134,6 +100,7 @@ const getHostProfilesCoord = async (req, res) => {
 
             searchobj["closedOnWednesday"] = false
             
+            allDayString = "allDayWednesday";
             var array = [{"allDayWednesday": true},{"hoursWednesdayStart": {"$lte": localtime}}];
             searchobj["$or"] = array
 
@@ -141,6 +108,7 @@ const getHostProfilesCoord = async (req, res) => {
 
             searchobj["closedOnThursday"] = false
             
+            allDayString = "allDayThursday";
             var array = [{"allDayThursday": true},{"hoursThursdayStart": {"$lte": localtime}}];
             searchobj["$or"] = array
 
@@ -148,6 +116,7 @@ const getHostProfilesCoord = async (req, res) => {
 
             searchobj["closedOnFriday"] = false
             
+            allDayString = "allDayFriday";
             var array = [{"allDayFriday": true},{"hoursFridayStart": {"$lte": localtime}}];
             searchobj["$or"] = array
 
@@ -155,6 +124,7 @@ const getHostProfilesCoord = async (req, res) => {
 
             searchobj["closedOnSaturday"] = false
             
+            allDayString = "allDaySaturday";
             var array = [{"allDaySaturday": true},{"hoursSaturdayStart": {"$lte": localtime}}];
             searchobj["$or"] = array
             
@@ -162,9 +132,12 @@ const getHostProfilesCoord = async (req, res) => {
 
             searchobj["closedOnSunday"] = false
             
+            allDayString = "allDaySunday";
             var array = [{"allDaySunday": true},{"hoursSundayStart": {"$lte": localtime}}];
             searchobj["$or"] = array
         }
+
+        console.log("SEARCH OBJ HERE", searchobj)
 
         const preFoundHostProfiles = await HostProfile.find(searchobj).limit(10)
 
@@ -175,7 +148,7 @@ const getHostProfilesCoord = async (req, res) => {
 
         if(preFoundHostProfiles?.length > 0){
 
-            console.log(preFoundHostProfiles)
+            console.log(preFoundHostProfiles?.length)
 
             var foundHostProfiles = []
             var startstr = ""
@@ -183,50 +156,60 @@ const getHostProfilesCoord = async (req, res) => {
 
             if(dayofweek === "Monday"){
 
-                startstr = hoursMondayStart
-                endstr = hoursMondayFinish
+                startstr = "hoursMondayStart"
+                endstr = "hoursMondayFinish"
     
             } else if (dayofweek === "Tuesday"){
     
-                startstr = hoursTuesdayStart
-                endstr = hoursTuesdayFinish
+                startstr = "hoursTuesdayStart"
+                endstr = "hoursTuesdayFinish"
     
             } else if (dayofweek === "Wednesday"){
     
-                startstr = hoursWednesdayStart
-                endstr = hoursWednesdayFinish
+                startstr = "hoursWednesdayStart"
+                endstr = "hoursWednesdayFinish"
     
             } else if (dayofweek === "Thursday"){
     
-                startstr = hoursThursdayStart
-                endstr = hoursThursdayFinish
+                startstr = "hoursThursdayStart"
+                endstr = "hoursThursdayFinish"
     
             } else if (dayofweek === "Friday"){
     
-                startstr = hoursFridayStart
-                endstr = hoursFridayFinish
+                startstr = "hoursFridayStart"
+                endstr = "hoursFridayFinish"
     
             } else if (dayofweek === "Saturday"){
     
-                startstr = hoursSaturdayStart
-                endstr = hoursSaturdayFinish
+                startstr = "hoursSaturdayStart"
+                endstr = "hoursSaturdayFinish"
                 
             } else if (dayofweek === "Sunday"){
     
-                startstr = hoursSundayStart
-                endstr = hoursSundayFinish
+                startstr = "hoursSundayStart"
+                endstr = "hoursSundayFinish"
             }
 
             for(let i=0; i<preFoundHostProfiles?.length; i++){
 
-                if(preFoundHostProfiles[i][endstr] < preFoundHostProfiles[i][startstr]){
+                console.log(preFoundHostProfiles[i][allDayString])
+                console.log(preFoundHostProfiles[i][endstr])
+                console.log(preFoundHostProfiles[i][startstr])
+
+                if(preFoundHostProfiles[i][allDayString]){
+                
+                    foundHostProfiles.push(preFoundHostProfiles[i])
+                
+                } else if(preFoundHostProfiles[i][endstr] < preFoundHostProfiles[i][startstr]){
+                    
                     if(localtime > preFoundHostProfiles[i][endstr] && localtime < preFoundHostProfiles[i][startstr]){
                         continue
                     } else {
                         foundHostProfiles.push(preFoundHostProfiles[i])
                     }
-                
+                    
                 } else if (preFoundHostProfiles[i][endstr] > preFoundHostProfiles[i][startstr]){
+                
                     if(localtime > preFoundHostProfiles[i][endstr]){
                         continue
                     } else {
@@ -468,6 +451,8 @@ const editSettingsHostProfile = async (req, res) => {
             hoursFridayFinish ? foundHostProfile.hoursFridayFinish = hoursFridayFinish : foundHostProfile.hoursFridayFinish = "";
             hoursSaturdayFinish ? foundHostProfile.hoursSaturdayFinish = hoursSaturdayFinish : foundHostProfile.hoursSaturdayFinish = "";
             hoursSundayFinish ? foundHostProfile.hoursSundayFinish = hoursSundayFinish : foundHostProfile.hoursSundayFinish = "";
+            
+            hostComments ? foundHostProfile.hostComments = hostComments : foundHostProfile.hostComments = "";
             
             const savedFoundProfile = await foundHostProfile.save()
 

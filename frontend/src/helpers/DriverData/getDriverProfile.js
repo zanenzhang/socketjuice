@@ -9,7 +9,7 @@ async function getDriverProfile(profileUserId, loggedUserId, accessToken)  {
             params: {profileUserId, loggedUserId}});
 
         if(response){
-            return response
+            return response.data
         }
 
     } catch (err) {

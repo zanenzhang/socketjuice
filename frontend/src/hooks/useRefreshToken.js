@@ -32,12 +32,12 @@ const useRefreshToken = () => {
 
                     j1772ACChecked: response?.data?.j1772ACChecked,
                     ccs1DCChecked: response?.data?.ccs1DCChecked,
-                    // mennekesACChecked: response?.data?.mennekesACChecked,
-                    // ccs2DCChecked: response?.data?.ccs2DCChecked,
-                    // chademoDCChecked: response?.data?.chademoDCChecked,
-                    // gbtACChecked: response?.data?.gbtACChecked,
-                    // gbtDCChecked: response?.data?.gbtDCChecked,
-                    // teslaChecked: response?.data?.teslaChecked
+                    mennekesACChecked: response?.data?.mennekesACChecked,
+                    ccs2DCChecked: response?.data?.ccs2DCChecked,
+                    chademoDCChecked: response?.data?.chademoDCChecked,
+                    gbtACChecked: response?.data?.gbtACChecked,
+                    gbtDCChecked: response?.data?.gbtDCChecked,
+                    teslaChecked: response?.data?.teslaChecked
                 }
             });
 

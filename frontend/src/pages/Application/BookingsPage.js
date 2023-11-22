@@ -378,21 +378,21 @@ const BookingsPage = () => {
 
 useEffect( () => {
 
-  if( ((!hoursMondayStart || !hoursMondayFinish) && !closedOnMonday && !allDayMonday) ||
-      ((!hoursTuesdayStart || !hoursTuesdayFinish) && !closedOnTuesday && !allDayTuesday) ||
-      ((!hoursWednesdayStart || !hoursWednesdayFinish) && !closedOnWednesday && !allDayWednesday) ||
-      ((!hoursThursdayStart || !hoursThursdayFinish) && !closedOnThursday && !allDayThursday) ||
-      ((!hoursMondayStart || !hoursMondayFinish) && !closedOnMonday && !allDayMonday) ||
-      ((!hoursMondayStart || !hoursMondayFinish) && !closedOnMonday && !allDayMonday) ||
-      ((!hoursMondayStart || !hoursMondayFinish) && !closedOnMonday && !allDayMonday) ||
-      ((!hoursMondayStart || !hoursMondayFinish) && !closedOnMonday && !allDayMonday)
+  if( ((!hoursMondayStart || !hoursMondayFinish) && (!closedOnMonday && !allDayMonday)) ||
+      ((!hoursTuesdayStart || !hoursTuesdayFinish) && (!closedOnTuesday && !allDayTuesday)) ||
+      ((!hoursWednesdayStart || !hoursWednesdayFinish) && (!closedOnWednesday && !allDayWednesday)) ||
+      ((!hoursThursdayStart || !hoursThursdayFinish) && (!closedOnThursday && !allDayThursday)) ||
+      ((!hoursFridayStart || !hoursFridayFinish) && (!closedOnFriday && !allDayFriday)) ||
+      ((!hoursSaturdayStart || !hoursSaturdayFinish) && (!closedOnSaturday && !allDaySaturday)) ||
+      ((!hoursSundayStart || !hoursSundayFinish) && (!closedOnSunday && !allDaySunday)) ||
+      ((!holidayHoursStart || !holidayHoursFinish) && (!closedOnHolidays && !allDayHolidays))
   ){
-    setScheduleCheck(false)
+      setScheduleCheck(false)
   } else {
-    setScheduleCheck(true)
+      setScheduleCheck(true)
   }
-
-}, [hoursMondayStart, hoursMondayFinish, hoursTuesdayStart, hoursTuesdayFinish, hoursWednesdayStart, hoursWednesdayFinish, hoursThursdayStart, hoursThursdayFinish,
+  
+  }, [hoursMondayStart, hoursMondayFinish, hoursTuesdayStart, hoursTuesdayFinish, hoursWednesdayStart, hoursWednesdayFinish, hoursThursdayStart, hoursThursdayFinish,
   hoursFridayStart, hoursFridayFinish, hoursSaturdayStart, hoursSaturdayFinish, hoursSundayStart, hoursSundayFinish,
   holidayHoursStart, holidayHoursFinish, 
   closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays,
@@ -2326,7 +2326,7 @@ const handleRegularHourChangeEnd = (event, day) => {
             w-full md:w-[45vw] px-4 md:px-0 py-4'>
 
             <button className={`border bg-gray-300 
-                  ${scheduleCheck ? "hover:cursor-not-allowed" : "hover:bg-[#8BEDF3] "}
+                  ${!scheduleCheck ? "hover:cursor-not-allowed" : "hover:bg-[#8BEDF3] "}
                   px-5 py-3 rounded-xl`}
               disabled={!scheduleCheck}
               onClick={(e)=>handleHostPhotosUpload(e)}>

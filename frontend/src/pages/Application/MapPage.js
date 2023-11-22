@@ -98,6 +98,7 @@ const MapPage = () => {
 
   const [userLat, setUserLat]= useState();
   const [userLng, setUserLng]= useState();
+  const [preHostLocations, setPreHostLocations] = useState([])
   const [hostLocations, setHostLocations] = useState([])
   const [userAddress, setUserAddress] = useState('');
 
@@ -168,6 +169,48 @@ const {isLoaded} = useJsApiLoader({
 
 useEffect( ()=> {
 
+  var typesarray = []
+
+  if(j1772ACChecked){
+    typesarray.push("AC-J1772-Type1")
+  }
+  if(ccs1DCChecked){
+    typesarray.push("DC-CCS1")
+  }
+  if(mennekesACChecked){
+    typesarray.push("AC-Mennekes-Type2")
+  }
+  if(ccs2DCChecked){
+    typesarray.push("DC-CCS2")
+  } 
+  if(chademoDCChecked){
+    typesarray.push("DC-CHAdeMO")
+  }
+  if(gbtACChecked){
+    typesarray.push("AC-GB/T")
+  }
+  if(gbtDCChecked){
+    typesarray.push("DC-GB/T")
+  }
+  if(teslaChecked){
+    typesarray.push("Tesla")
+  }
+
+  if(preHostLocations?.length > 0){
+    
+      const filtered = preHostLocations.filter(e => typesarray.includes(e.connectionType) || typesarray.includes(e.secondaryConnectionType) )
+      console.log(filtered)
+      setHostLocations(filtered)
+  } else {
+    setHostLocations([])
+  }
+
+}, [preHostLocations, j1772ACChecked, ccs1DCChecked, mennekesACChecked, ccs2DCChecked,
+    chademoDCChecked, gbtACChecked, gbtDCChecked, teslaChecked ])
+
+
+useEffect( ()=> {
+
   if(currentDuration !== null){
     console.log(currentDuration)
 
@@ -215,13 +258,6 @@ useEffect( () => {
       }
 
       var today = new Date();
-      var test = {
-        id: `proposed_${auth.userId}`,
-        title: 'Test Event 1',
-        start: new Date(),
-        end: new Date(today.getFullYear(), today.getMonth(), today.getDate(), today.getHours()+2),
-        isDraggable: true
-      }
 
       var filteredevents = proposedEvents.filter(e => e.id !== `proposed_${auth.userId}`)
       filteredevents = [...filteredevents, test, updatedCurrent]
@@ -253,7 +289,7 @@ const handleSelectSlot = (e) => {
 
     var updatedCurrent = {
       id: `proposed_${auth.userId}`,
-      title: "Proposed Booking Time",
+      title: "Proposed Time",
       start: new Date(e.start),
       end: new Date(e.end),
       isDraggable: true
@@ -372,10 +408,9 @@ const {scrollToTime} = useMemo(
 
   useEffect( () => {
 
-    if(isLoaded && google && auth){
+    if(isLoaded && google){
 
       console.log("Map has been loaded")
-      console.log(auth)
 
       const svg = {
         path: "M45.699 24.145l-7.89-13.293c-.314-.584-1.072-.852-1.721-.852h-7.088v-6c0-1.1-.9-2-2-2h-5c-1.1 0-2 .9-2 2v6h-5.96c-.65 0-1.44.268-1.754.852l-7.921 13.398c-1.301 0-2.365.987-2.365 2.322v12.139c0 1.335 1.064 2.289 2.365 2.289h2.635v3.78c0 2.004 1.328 3.22 3.279 3.22h1.183c1.951 0 3.538-1.216 3.538-3.22v-3.78h20v3.78c0 2.004 1.714 3.22 3.665 3.22h1.184c1.951 0 3.151-1.216 3.151-3.22v-3.78h2.763c1.3 0 2.237-.954 2.237-2.289v-12.139c0-1.335-1-2.427-2.301-2.427zm-37.194 9.71c-1.633 0-2.958-1.358-2.958-3.034 0-1.677 1.324-3.035 2.958-3.035s2.957 1.358 2.957 3.035c0 1.676-1.323 3.034-2.957 3.034zm1.774-9.855l5.384-9.377c.292-.598 1.063-.623 1.713-.623h15.376c.65 0 1.421.025 1.712.623l5.385 9.377h-29.57zm31.343 9.855c-1.632 0-2.957-1.358-2.957-3.034 0-1.677 1.325-3.035 2.957-3.035 1.633 0 2.958 1.358 2.958 3.035 0 1.676-1.325 3.034-2.958 3.034z",
@@ -387,38 +422,39 @@ const {scrollToTime} = useMemo(
         anchor: new google.maps.Point(30,30),
       }
 
-      setCurrentIcon(svg)
+      setCurrentIcon(svg) 
+    }
 
-      if(auth){
-        console.log(auth)
-        if(auth?.j1772ACChecked){
-          setj1772ACChecked(true)
-        }
-        if(auth?.ccs1DCChecked){
-          setccs1DCChecked(true)
-        }
-        if(auth?.mennekesACChecked){
-          setmennekesACChecked(true)
-        }
-        if(auth?.ccs2DCChecked){
-          setccs2DCChecked(true)
-        }
-        if(auth?.chademoDCChecked){
-          setchademoDCChecked(true)
-        }
-        if(auth?.gbtACChecked){
-          setgbtACChecked(true)
-        }
-        if(auth?.gbtDCChecked){
-          setgbtDCChecked(true)
-        }
-        if(auth?.teslaChecked){
-          setTeslaChecked(true)
-        }
-      } 
+    if(auth){
+      console.log(auth)
+      if(auth?.j1772ACChecked){
+        setj1772ACChecked(true)
+      }
+      if(auth?.ccs1DCChecked){
+        setccs1DCChecked(true)
+      }
+      if(auth?.mennekesACChecked){
+        setmennekesACChecked(true)
+      }
+      if(auth?.ccs2DCChecked){
+        setccs2DCChecked(true)
+      }
+      if(auth?.chademoDCChecked){
+        setchademoDCChecked(true)
+      }
+      if(auth?.gbtACChecked){
+        setgbtACChecked(true)
+      }
+      if(auth?.gbtDCChecked){
+        setgbtDCChecked(true)
+      }
+      if(auth?.teslaChecked){
+        setTeslaChecked(true)
+      }
     }
 
   }, [isLoaded, auth])
+
 
   useEffect( ()=> {
 
@@ -710,12 +746,14 @@ const {scrollToTime} = useMemo(
 
   async function handleCenterChanged() {
       
-    if (!mapRef.current){
+    if (!mapRef.current || !isLoaded){
       return
     } 
       const newPos = mapRef.current.getCenter().toJSON();
 
       if(newPos && auth.userId){
+
+        console.log(auth)
 
         var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
@@ -725,8 +763,7 @@ const {scrollToTime} = useMemo(
       
         var coordinatesInput = [newPos.lng, newPos.lat]
         const locations = await getHostProfilesCoord(coordinatesInput, dayofweek, localtime,
-          j1772ACChecked, ccs1DCChecked, mennekesACChecked, ccs2DCChecked, chademoDCChecked, gbtACChecked, 
-          gbtDCChecked, teslaChecked, auth.userId, auth.accessToken)
+           auth.userId, auth.accessToken)
 
         if(locations){
 
@@ -771,7 +808,7 @@ const {scrollToTime} = useMemo(
               }
               
               locations.foundHostProfiles.sort((a,b) => a.durationValue - b.durationValue)
-              setHostLocations(locations.foundHostProfiles)
+              setPreHostLocations(locations.foundHostProfiles)
             }
           }
         }

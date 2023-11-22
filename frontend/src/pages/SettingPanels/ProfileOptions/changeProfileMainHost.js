@@ -221,14 +221,14 @@ useEffect(() => {
 
 useEffect( () => {
 
-    if( ((!hoursMondayStart || !hoursMondayFinish) && !closedOnMonday && !allDayMonday) ||
-        ((!hoursTuesdayStart || !hoursTuesdayFinish) && !closedOnTuesday && !allDayTuesday) ||
-        ((!hoursWednesdayStart || !hoursWednesdayFinish) && !closedOnWednesday && !allDayWednesday) ||
-        ((!hoursThursdayStart || !hoursThursdayFinish) && !closedOnThursday && !allDayThursday) ||
-        ((!hoursMondayStart || !hoursMondayFinish) && !closedOnMonday && !allDayMonday) ||
-        ((!hoursMondayStart || !hoursMondayFinish) && !closedOnMonday && !allDayMonday) ||
-        ((!hoursMondayStart || !hoursMondayFinish) && !closedOnMonday && !allDayMonday) ||
-        ((!hoursMondayStart || !hoursMondayFinish) && !closedOnMonday && !allDayMonday)
+    if( ((!hoursMondayStart || !hoursMondayFinish) && (!closedOnMonday && !allDayMonday)) ||
+        ((!hoursTuesdayStart || !hoursTuesdayFinish) && (!closedOnTuesday && !allDayTuesday)) ||
+        ((!hoursWednesdayStart || !hoursWednesdayFinish) && (!closedOnWednesday && !allDayWednesday)) ||
+        ((!hoursThursdayStart || !hoursThursdayFinish) && (!closedOnThursday && !allDayThursday)) ||
+        ((!hoursFridayStart || !hoursFridayFinish) && (!closedOnFriday && !allDayFriday)) ||
+        ((!hoursSaturdayStart || !hoursSaturdayFinish) && (!closedOnSaturday && !allDaySaturday)) ||
+        ((!hoursSundayStart || !hoursSundayFinish) && (!closedOnSunday && !allDaySunday)) ||
+        ((!holidayHoursStart || !holidayHoursFinish) && (!closedOnHolidays && !allDayHolidays))
     ){
         setScheduleCheck(false)
     } else {
@@ -1471,7 +1471,7 @@ useEffect( () => {
         <button 
             className={`align-center mb-4 px-4 py-4 text-[#8BEDF3] 
             border-2 rounded-xl border-[#8BEDF3] bg-white text-base font-semibold
-            ${scheduleCheck ? "hover:cursor-not-allowed " : "hover:bg-[#8BEDF3] hover:text-white "}
+            ${!scheduleCheck ? "hover:cursor-not-allowed " : "hover:bg-[#8BEDF3] hover:text-white "}
              flex justify-center items-center gap-x-3`}
           type="submit"
           disabled={!scheduleCheck}

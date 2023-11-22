@@ -15,7 +15,7 @@ async function editSettingsHostProfile (loggedUserId, hoursMondayStart, hoursMon
                 holidayHoursStart, holidayHoursFinish, 
                 closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays,
                 allDayMonday, allDayTuesday, allDayWednesday, allDayThursday, allDayFriday, allDaySaturday, allDaySunday, allDayHolidays,
-                currency, chargeRate, hostComments, }),
+                currency, chargeRate, hostComments }),
             {
                 headers: { "Authorization": `Bearer ${accessToken} ${loggedUserId}`, 
                     'Content-Type': 'application/json'},

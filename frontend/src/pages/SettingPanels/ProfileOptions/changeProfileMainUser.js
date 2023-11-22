@@ -59,10 +59,10 @@ export default function ChangeProfileMainUser({loggedUserId }) {
   const [ccs1DCChecked, setccs1DCChecked] = useState(false);
   const [mennekesACChecked, setmennekesACChecked] = useState(false);
   const [ccs2DCChecked, setccs2DCChecked] = useState(false);
-  const [chademoDCChecked, setChademoDCChecked] = useState(false);
+  const [chademoDCChecked, setchademoDCChecked] = useState(false);
   const [gbtACChecked, setgbtACChecked] = useState(false);
   const [gbtDCChecked, setgbtDCChecked] = useState(false);
-  const [teslaChecked, setTeslaChecked] = useState(false);
+  const [teslaChecked, setteslaChecked] = useState(false);
 
   const FIRST_NAME_REGEX = /^[a-zA-Z_ ]{0,48}$/;
   const LAST_NAME_REGEX = /^[a-zA-Z_ ]{0,48}$/;
@@ -98,15 +98,25 @@ export default function ChangeProfileMainUser({loggedUserId }) {
 
         const response = await getDriverProfile(auth.userId, auth.userId, auth.accessToken)
 
-        if(response){
+        if(response && response.userFound){
 
-          if(response.userFound){
-            setFirstName(response.userFound.firstName)
-            setLastName(response.userFound.lastName)
-            setSmsNotifications(response.userFound.smsNotifications)
-            setEmailNotifications(response.userFound.emailNotifications)
-            setPushNotifications(response.userFound.pushNotifications)
-          }
+            console.log(response)
+
+            setSmsNotifications(response.userFound?.smsNotifications)
+            setEmailNotifications(response.userFound?.emailNotifications)
+            setPushNotifications(response.userFound?.pushNotifications)
+
+            setFirstName(response.userFound?.firstName)
+            setLastName(response.userFound?.lastName)
+
+            setj1772ACChecked(response.userProfile?.j1772ACChecked)
+            setccs1DCChecked(response.userProfile?.ccs1DCChecked)
+            setmennekesACChecked(response.userProfile?.mennekesACChecked)
+            setccs2DCChecked(response.userProfile?.ccs2DCChecked)
+            setchademoDCChecked(response.userProfile?.chademoDCChecked)
+            setgbtACChecked(response.userProfile?.gbtACChecked)
+            setgbtDCChecked(response.userProfile?.gbtDCChecked)
+            setteslaChecked(response.userProfile?.teslaChecked)
         }
       }
 
@@ -138,7 +148,7 @@ export default function ChangeProfileMainUser({loggedUserId }) {
 
     setIsLoading(true);
 
-      if(croppedImage){
+      if(croppedImage && croppedImage?.length > 0){
 
         toast.info("Checking image, please wait...", {
           position: "bottom-center",
@@ -277,6 +287,10 @@ export default function ChangeProfileMainUser({loggedUserId }) {
                   ...prev,
                   firstName: firstName,
                   lastName: lastName,
+
+                  pushNotifications: pushNotifications,
+                  emailNotifications: emailNotifications, 
+                  smsNotifications: smsNotifications,
               }
           });
 
@@ -420,7 +434,7 @@ export default function ChangeProfileMainUser({loggedUserId }) {
               Driver Plug Preferences</p>
 
               <div className='flex flex-col items-start'>
-              <label className='font-medium'>J1772 AC Plug</label>
+              <label className='font-medium pb-1'>J1772 AC Plug</label>
               <FormControlLabel
                   label=""
                   control={
@@ -438,7 +452,7 @@ export default function ChangeProfileMainUser({loggedUserId }) {
               </div>
 
               <div className='flex flex-col items-start'>
-              <label className='font-medium'>CCS1 DC Plug</label>
+              <label className='font-medium pb-1'>CCS1 DC Plug</label>
               <FormControlLabel
                   label=""
                   control={
@@ -456,7 +470,7 @@ export default function ChangeProfileMainUser({loggedUserId }) {
               </div>
 
               <div className='flex flex-col items-start'>
-              <label className='font-medium'>Mennekes AC Plug</label>
+              <label className='font-medium pb-1'>Mennekes AC Plug</label>
               <FormControlLabel
                   label=""
                   control={
@@ -474,7 +488,7 @@ export default function ChangeProfileMainUser({loggedUserId }) {
               </div>
 
               <div className='flex flex-col items-start'>
-              <label className='font-medium'>CCS2 DC Plug</label>
+              <label className='font-medium pb-1'>CCS2 DC Plug</label>
               <FormControlLabel
                   label=""
                   control={
@@ -492,12 +506,12 @@ export default function ChangeProfileMainUser({loggedUserId }) {
               </div>
 
               <div className='flex flex-col items-start'>
-              <label className='font-medium'>CHAdeMO DC Plug</label>
+              <label className='font-medium pb-1'>CHAdeMO DC Plug</label>
               <FormControlLabel
                   label=""
                   control={
                   <Checkbox checked={chademoDCChecked}
-                        onChange={()=>setChademoDCChecked(!chademoDCChecked)}
+                        onChange={()=>setchademoDCChecked(!chademoDCChecked)}
                         style ={{
                           color: "#8BEDF3",
                           transform: "scale(1.5)",
@@ -510,7 +524,7 @@ export default function ChangeProfileMainUser({loggedUserId }) {
               </div>
 
               <div className='flex flex-col items-start'>
-              <label className='font-medium'>GB/T AC Plug</label>    
+              <label className='font-medium pb-1'>GB/T AC Plug</label>    
               <FormControlLabel
                   label=""
                   control={
@@ -528,7 +542,7 @@ export default function ChangeProfileMainUser({loggedUserId }) {
               </div>
 
               <div className='flex flex-col items-start'>
-              <label className='font-medium'>GB/T DC Plug</label>
+              <label className='font-medium pb-1'>GB/T DC Plug</label>
               <FormControlLabel
                   label=""
                   control={
@@ -546,12 +560,12 @@ export default function ChangeProfileMainUser({loggedUserId }) {
               </div>
 
               <div className='flex flex-col items-start'>
-              <label className='font-medium'>Tesla Plug</label>
+              <label className='font-medium pb-1'>Tesla Plug</label>
               <FormControlLabel
                   label=""
                   control={
                   <Checkbox checked={teslaChecked}
-                      onChange={()=>setTeslaChecked(!teslaChecked)}
+                      onChange={()=>setteslaChecked(!teslaChecked)}
                       style ={{
                         color: "#8BEDF3",
                         transform: "scale(1.5)",

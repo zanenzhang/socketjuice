@@ -47,7 +47,7 @@ const getDriverProfile = async (req, res) => {
     try {
 
         const userProfile = await DriverProfile.findOne({_userId: profileUserId})
-        const userFound = await User.findOne({_id: profileUserId}).select("_id profilePicURL pushNotifications emailNotifications smsNotifications")
+        const userFound = await User.findOne({_id: profileUserId}).select("_id profilePicURL firstName lastName pushNotifications emailNotifications smsNotifications")
         const flaggedList = await Flags.findOne({_userId: loggedUserId}).select("userFlags")
         const bookmarksFound = await Bookmark.findOne({_userId: loggedUserId})
 
@@ -307,9 +307,6 @@ const editSettingsUserProfile = async (req, res) => {
         
         const {loggedUserId, firstname, lastname, profilePicKey, profilePicURL, pushNotifications, emailNotifications, smsNotifications,
             j1772ACChecked, ccs1DCChecked, mennekesACChecked, ccs2DCChecked, chademoDCChecked, gbtACChecked, gbtDCChecked, teslaChecked } = req.body
-
-        console.log(j1772ACChecked, ccs1DCChecked, mennekesACChecked, ccs2DCChecked, chademoDCChecked, gbtACChecked, gbtDCChecked, teslaChecked)
-        console.log(typeof(j1772ACChecked))
     
         if(!loggedUserId || !firstname || !foundUser._id.toString() === ((loggedUserId)) ) {
             return res.status(400).json({ 'message': 'Missing required fields!' });
@@ -340,20 +337,20 @@ const editSettingsUserProfile = async (req, res) => {
                 profilePicKey ? foundUser.profilePicKey = profilePicKey : null;
                 profilePicURL ? foundUser.profilePicURL = profilePicURL : null;
 
-                firstname ? foundUser.firstname = firstname : foundUser.firstname = "";
-                lastname ? foundUser.lastname = lastname : foundUser.lastname = "";
-                smsNotifications ? foundUser.smsNotifications = smsNotifications : foundUser.smsNotifications = "";
-                pushNotifications ? foundUser.pushNotifications = pushNotifications : foundUser.pushNotifications = "";
-                emailNotifications ? foundUser.emailNotifications = emailNotifications : foundUser.emailNotifications = "";
+                firstname ? foundUser.firstName = firstname : foundUser.firstName = "";
+                lastname ? foundUser.lastName = lastname : foundUser.lastName = "";
+                smsNotifications ? foundUser.smsNotifications = smsNotifications : foundUser.smsNotifications = false;
+                pushNotifications ? foundUser.pushNotifications = pushNotifications : foundUser.pushNotifications = false;
+                emailNotifications ? foundUser.emailNotifications = emailNotifications : foundUser.emailNotifications = false;
                 
                 j1772ACChecked ? foundDriver.j1772ACChecked = j1772ACChecked : foundDriver.j1772ACChecked = false;
                 ccs1DCChecked ? foundDriver.ccs1DCChecked = ccs1DCChecked : foundDriver.ccs1DCChecked = false;
-                mennekesACChecked ? foundDriver.mennekesACChecked = mennekesACChecked : foundDriver.mennekesACChecked = "";
-                ccs2DCChecked ? foundDriver.ccs2DCChecked = ccs2DCChecked : foundDriver.ccs2DCChecked = "";
-                chademoDCChecked ? foundDriver.chademoDCChecked = chademoDCChecked : foundDriver.chademoDCChecked = "";
-                gbtACChecked ? foundDriver.gbtACChecked = gbtACChecked : foundDriver.gbtACChecked = "";
-                gbtDCChecked ? foundDriver.gbtDCChecked = gbtDCChecked : foundDriver.gbtDCChecked = "";
-                teslaChecked ? foundDriver.teslaChecked = teslaChecked : foundDriver.teslaChecked = "";
+                mennekesACChecked ? foundDriver.mennekesACChecked = mennekesACChecked : foundDriver.mennekesACChecked = false;
+                ccs2DCChecked ? foundDriver.ccs2DCChecked = ccs2DCChecked : foundDriver.ccs2DCChecked = false;
+                chademoDCChecked ? foundDriver.chademoDCChecked = chademoDCChecked : foundDriver.chademoDCChecked = false;
+                gbtACChecked ? foundDriver.gbtACChecked = gbtACChecked : foundDriver.gbtACChecked = false;
+                gbtDCChecked ? foundDriver.gbtDCChecked = gbtDCChecked : foundDriver.gbtDCChecked = false;
+                teslaChecked ? foundDriver.teslaChecked = teslaChecked : foundDriver.teslaChecked = false;
             
                 const savedFoundUser = await foundUser.save()
                 const savedFoundDriver = await foundDriver.save()
@@ -371,20 +368,20 @@ const editSettingsUserProfile = async (req, res) => {
                     profilePicKey ? foundUser.profilePicKey = profilePicKey : null;
                     profilePicURL ? foundUser.profilePicURL = profilePicURL : null;
 
-                    firstname ? foundUser.firstname = firstname : foundUser.firstname = "";
-                    lastname ? foundUser.lastname = lastname : foundUser.lastname = "";
-                    smsNotifications ? foundUser.smsNotifications = smsNotifications : foundUser.smsNotifications = "";
-                    pushNotifications ? foundUser.pushNotifications = pushNotifications : foundUser.pushNotifications = "";
-                    emailNotifications ? foundUser.emailNotifications = emailNotifications : foundUser.emailNotifications = "";
+                    firstname ? foundUser.firstName = firstname : foundUser.firstName = "";
+                    lastname ? foundUser.lastName = lastname : foundUser.lastName = "";
+                    smsNotifications ? foundUser.smsNotifications = smsNotifications : foundUser.smsNotifications = false;
+                    pushNotifications ? foundUser.pushNotifications = pushNotifications : foundUser.pushNotifications = false;
+                    emailNotifications ? foundUser.emailNotifications = emailNotifications : foundUser.emailNotifications = false;
 
                     j1772ACChecked ? foundDriver.j1772ACChecked = j1772ACChecked : foundDriver.j1772ACChecked = false;
                     ccs1DCChecked ? foundDriver.ccs1DCChecked = ccs1DCChecked : foundDriver.ccs1DCChecked = false;
-                    mennekesACChecked ? foundDriver.mennekesACChecked = mennekesACChecked : foundDriver.mennekesACChecked = "";
-                    ccs2DCChecked ? foundDriver.ccs2DCChecked = ccs2DCChecked : foundDriver.ccs2DCChecked = "";
-                    chademoDCChecked ? foundDriver.chademoDCChecked = chademoDCChecked : foundDriver.chademoDCChecked = "";
-                    gbtACChecked ? foundDriver.gbtACChecked = gbtACChecked : foundDriver.gbtACChecked = "";
-                    gbtDCChecked ? foundDriver.gbtDChecked = gbtDChecked : foundDriver.gbtDCChecked = "";
-                    teslaChecked ? foundDriver.teslaChecked = teslaChecked : foundDriver.teslaChecked = "";
+                    mennekesACChecked ? foundDriver.mennekesACChecked = mennekesACChecked : foundDriver.mennekesACChecked = false;
+                    ccs2DCChecked ? foundDriver.ccs2DCChecked = ccs2DCChecked : foundDriver.ccs2DCChecked = false;
+                    chademoDCChecked ? foundDriver.chademoDCChecked = chademoDCChecked : foundDriver.chademoDCChecked = false;
+                    gbtACChecked ? foundDriver.gbtACChecked = gbtACChecked : foundDriver.gbtACChecked = false;
+                    gbtDCChecked ? foundDriver.gbtDChecked = gbtDChecked : foundDriver.gbtDCChecked = false;
+                    teslaChecked ? foundDriver.teslaChecked = teslaChecked : foundDriver.teslaChecked = false;
                 
                     const savedFoundUser = await foundUser.save()
                     const savedFoundDriver = await foundDriver.save()
@@ -396,20 +393,20 @@ const editSettingsUserProfile = async (req, res) => {
             
             } else {
 
-                firstname ? foundUser.firstname = firstname : foundUser.firstname = "";
-                lastname ? foundUser.lastname = lastname : foundUser.lastname = "";
-                smsNotifications ? foundUser.smsNotifications = smsNotifications : foundUser.smsNotifications = "";
-                pushNotifications ? foundUser.pushNotifications = pushNotifications : foundUser.pushNotifications = "";
-                emailNotifications ? foundUser.emailNotifications = emailNotifications : foundUser.emailNotifications = "";
+                firstname ? foundUser.firstName = firstname : foundUser.firstName = "";
+                lastname ? foundUser.lastName = lastname : foundUser.lastName = "";
+                smsNotifications ? foundUser.smsNotifications = smsNotifications : foundUser.smsNotifications = false;
+                pushNotifications ? foundUser.pushNotifications = pushNotifications : foundUser.pushNotifications = false;
+                emailNotifications ? foundUser.emailNotifications = emailNotifications : foundUser.emailNotifications = false;
 
                 j1772ACChecked ? foundDriver.j1772ACChecked = j1772ACChecked : foundDriver.j1772ACChecked = false;
                 ccs1DCChecked ? foundDriver.ccs1DCChecked = ccs1DCChecked : foundDriver.ccs1DCChecked = false;
-                mennekesACChecked ? foundDriver.mennekesACChecked = mennekesACChecked : foundDriver.mennekesACChecked = "";
-                ccs2DCChecked ? foundDriver.ccs2DCChecked = ccs2DCChecked : foundDriver.ccs2DCChecked = "";
-                chademoDCChecked ? foundDriver.chademoDCChecked = chademoDCChecked : foundDriver.chademoDCChecked = "";
-                gbtACChecked ? foundDriver.gbtACChecked = gbtACChecked : foundDriver.gbtACChecked = "";
-                gbtDCChecked ? foundDriver.gbtDCChecked = gbtDCChecked : foundDriver.gbtDCChecked = "";
-                teslaChecked ? foundDriver.teslaChecked = teslaChecked : foundDriver.teslaChecked = "";
+                mennekesACChecked ? foundDriver.mennekesACChecked = mennekesACChecked : foundDriver.mennekesACChecked = false;
+                ccs2DCChecked ? foundDriver.ccs2DCChecked = ccs2DCChecked : foundDriver.ccs2DCChecked = false;
+                chademoDCChecked ? foundDriver.chademoDCChecked = chademoDCChecked : foundDriver.chademoDCChecked = false;
+                gbtACChecked ? foundDriver.gbtACChecked = gbtACChecked : foundDriver.gbtACChecked = false;
+                gbtDCChecked ? foundDriver.gbtDCChecked = gbtDCChecked : foundDriver.gbtDCChecked = false;
+                teslaChecked ? foundDriver.teslaChecked = teslaChecked : foundDriver.teslaChecked = false;
             
                 const savedFoundUser = await foundUser.save()
                 const savedFoundDriver = await foundDriver.save()
