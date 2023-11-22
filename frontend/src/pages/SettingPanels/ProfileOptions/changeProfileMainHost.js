@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Box from "@material-ui/core/Box";
 import useAuth from '../../../hooks/useAuth'
 import useLogout from '../../../hooks/useLogout';
+import { withStyles, Switch } from "@material-ui/core";
 
 import '../../../pages/AutoCompleteForm.css';
 import Checkbox from '@mui/material/Checkbox';
@@ -13,8 +14,37 @@ import editSettingsHostProfile from '../../../helpers/HostData/editSettingsHostP
 import getHostProfile from '../../../helpers/HostData/getHostProfile';
 
 
-
 export default function ChangeProfileMainHost({loggedUserId}) {
+
+    const CustomSwitch = withStyles({
+        switchBase: {
+          color: '#8BEDF3',
+          '&$checked': {
+            color: '#8BEDF3',
+          },
+          '&$checked + $track': {
+            backgroundColor: '#8BEDF3',
+          },
+        },
+        colorSecondary: {
+            "&$checked": {
+              // Controls checked color for the thumb
+              color: "#8BEDF3"
+            }
+          },
+          track: {
+            // Controls default (unchecked) color for the track
+            opacity: 0.2,
+            backgroundColor: "#8BEDF3",
+            "$checked$checked + &": {
+              // Controls checked color for the track
+              opacity: 0.7,
+              backgroundColor: "#8BEDF3"
+            }
+          },
+        checked: {},
+        track: {},
+      })(Switch);
 
   const { setAuth, auth } = useAuth();
   const logout = useLogout();
@@ -48,6 +78,7 @@ export default function ChangeProfileMainHost({loggedUserId}) {
   const [currency, setCurrency] = useState("cad");
   const [currencySymbol, setCurrencySymbol] = useState("$");
   const [chargeRate, setChargeRate] = useState(3);
+  const [offeringCharging, setOfferingCharging] = useState(false);
 
   const [hoursMondayStart, setHoursMondayStart] = useState('09:00');
   const [validHoursMondayStart, setValidHoursMondayStart] = useState(false);
@@ -353,6 +384,7 @@ useEffect( () => {
             setCurrency(response.foundHostProfile.currency)
             setCurrencySymbol(response.foundHostProfile.currencySymbol)
             setChargeRate(response.foundHostProfile.chargeRatePerHalfHour)
+            setOfferingCharging(!response.foundHostProfile.deactivated)
             
           }
         }
@@ -363,6 +395,10 @@ useEffect( () => {
   
       }, [auth.userId])
 
+    
+    const handleOfferingCharging = (e) => {
+        setOfferingCharging(e.target.checked)
+    }
 
     const handleCurrencyChange = (e) => {
 
@@ -640,7 +676,7 @@ useEffect( () => {
         holidayHoursStart, holidayHoursFinish, 
         closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays,
         allDayMonday, allDayTuesday, allDayWednesday, allDayThursday, allDayFriday, allDaySaturday, allDaySunday, allDayHolidays,
-        currency, chargeRate, hostComments,
+        chargeRate, hostComments, offeringCharging,
         auth.accessToken)
 
     if(editedSettings){
@@ -673,27 +709,24 @@ useEffect( () => {
 
             <div className='w-full flex flex-col pt-4 gap-y-4'>
 
-                <div className="flex flex-row justify-center items-center gap-x-2">
-
-                    <label className="flex justify-center items-center pr-2 font-semibold">Currency:</label>
-
-                    <select onChange={(event)=>handleCurrencyChange(event)}
-                    value={currency}
-                    className={`pl-6 w-30 md:w-40 h-9 border border-gray-primary justify-center items-center`}>
-
-                        <option value="usd">$USD</option>
-                        <option value="cad">$CAD</option>
-                        <option value="eur">€EUR</option>
-                        <option value="gbp">£GBP</option>
-                        <option value="inr">₹INR</option>
-                        <option value="jpy">¥JPY</option>
-                        <option value="cny">¥CNY</option>
-                        <option value="aud">$AUD</option>
-                        <option value="nzd">$NZD</option>
-
-                    </select> 
-
-                </div>
+            <div className="flex flex-col justify-center items-center pt-4">
+              <div className='flex justify-start'>
+                  <label className='text-base font-semibold'>Offer Charging (Turn On/Off Temporarily If Away on Vacation, etc) </label>
+              </div>
+              <div className='flex justify-start pl-2 pt-2'>
+                  <FormControlLabel control={
+                      <CustomSwitch checked={offeringCharging} onChange={handleOfferingCharging} 
+                      sx={{
+                        "&.MuiSwitch-root .MuiSwitch-switchBase": {
+                          color: "#8BEDF3"
+                        },
+                        "&.MuiSwitch-root .Mui-checked": {
+                         color: "#8BEDF3"
+                        }
+                       }}/>
+                  } label={offeringCharging ? "Charging Offered (On)" : "Not Offering (Off)"} />
+              </div>
+          </div>
 
                 <div className="flex flex-row justify-center items-center gap-x-2 pb-4">
 

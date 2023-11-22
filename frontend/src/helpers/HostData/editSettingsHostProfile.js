@@ -6,7 +6,7 @@ async function editSettingsHostProfile (loggedUserId, hoursMondayStart, hoursMon
     holidayHoursStart, holidayHoursFinish, 
     closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays,
     allDayMonday, allDayTuesday, allDayWednesday, allDayThursday, allDayFriday, allDaySaturday, allDaySunday, allDayHolidays,
-    currency, chargeRate, hostComments, accessToken) {
+    chargeRate, hostComments, offeringCharging, accessToken) {
 
     try {
         const response = await axios.patch(HOST_SETTINGS_PROFILE_URL, 
@@ -15,7 +15,7 @@ async function editSettingsHostProfile (loggedUserId, hoursMondayStart, hoursMon
                 holidayHoursStart, holidayHoursFinish, 
                 closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays,
                 allDayMonday, allDayTuesday, allDayWednesday, allDayThursday, allDayFriday, allDaySaturday, allDaySunday, allDayHolidays,
-                currency, chargeRate, hostComments }),
+                chargeRate, hostComments, offeringCharging }),
             {
                 headers: { "Authorization": `Bearer ${accessToken} ${loggedUserId}`, 
                     'Content-Type': 'application/json'},

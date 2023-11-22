@@ -61,6 +61,8 @@ const getHostProfilesCoord = async (req, res) => {
         return res.status(400).json({ message: 'Missing required info' })
     }
 
+    console.log(coordinatesInput, loggedUserId, dayofweek, localtime)
+
     coordinatesInput = JSON.parse(coordinatesInput)
 
     try {
@@ -389,7 +391,7 @@ const editSettingsHostProfile = async (req, res) => {
             holidayHoursStart, holidayHoursFinish, 
             closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays,
             allDayMonday, allDayTuesday, allDayWednesday, allDayThursday, allDayFriday, allDaySaturday, allDaySunday, allDayHolidays,
-            currency, chargeRate, hostComments } = req.body
+            chargeRate, hostComments, offeringCharging } = req.body
         
         if ( !loggedUserId ) {    
             return res.status(400).json({ message: 'Missing required fields!' })
@@ -423,7 +425,6 @@ const editSettingsHostProfile = async (req, res) => {
             holidayHoursStart ? foundHostProfile.holidayHoursStart = holidayHoursStart : foundHostProfile.holidayHoursStart = "";
             holidayHoursFinish ? foundHostProfile.holidayHoursFinish = holidayHoursFinish : foundHostProfile.holidayHoursFinish = "";
             
-            currency ? foundHostProfile.currency = currency : foundHostProfile.currency = "";
             chargeRate ? foundHostProfile.chargeRatePerHalfHour = chargeRate : foundHostProfile.chargeRatePerHalfHour = "";
             
             closedOnMonday ?  foundHostProfile.closedOnMonday = closedOnMonday : foundHostProfile.closedOnMonday = false;
@@ -453,6 +454,7 @@ const editSettingsHostProfile = async (req, res) => {
             hoursSundayFinish ? foundHostProfile.hoursSundayFinish = hoursSundayFinish : foundHostProfile.hoursSundayFinish = "";
             
             hostComments ? foundHostProfile.hostComments = hostComments : foundHostProfile.hostComments = "";
+            offeringCharging ? foundHostProfile.deactivated = false : foundHostProfile.deactivated = true;
             
             const savedFoundProfile = await foundHostProfile.save()
 

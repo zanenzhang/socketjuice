@@ -60,6 +60,7 @@ const MapPage = () => {
   const [distance, setDistance] = useState('')
   const [duration, setDuration] = useState('')
   const [mediaURLs, setMediaURLs] = useState([])
+  const [hostComments, setHostComments] = useState([])
 
   const sliderRefPre = useRef(null);
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -83,6 +84,12 @@ const MapPage = () => {
   const [selectedHostUserId, setSelectedHostUserId] = useState("")
   const [selectedEventId, setSelectedEventId] = useState("")
   const [selectedAddress, setSelectedAddress] = useState("")
+  const [selectedChargeRate, setSelectedChargeRate] = useState("")
+  const [selectedCurrency, setSelectedCurrency] = useState("")
+  const [selectedCurrencySymbol, setSelectedCurrencySymbol] = useState("")
+  const [selectedDistance, setSelectedDistance] = useState("")
+  const [selectedDuration, setSelectedDuration] = useState("")
+  
   const [selectedEventStatus, setSelectedEventStatus] = useState("")
   const [selectedEventStart, setSelectedEventStart] = useState("")
   const [selectedEventEnd, setSelectedEventEnd] = useState("")
@@ -104,7 +111,6 @@ const MapPage = () => {
 
   const [openReserveModal, setOpenReserveModal] = useState(false);
   const [openDetailsModal, setOpenDetailsModal] = useState(false);
-  const [destinationAddress, setDestinationAddress] = useState("");
 
   const [iconLarge, setIconLarge] = useState({})
   const [iconRegular, setIconRegular] = useState({})
@@ -257,10 +263,8 @@ useEffect( () => {
         isDraggable: true
       }
 
-      var today = new Date();
-
       var filteredevents = proposedEvents.filter(e => e.id !== `proposed_${auth.userId}`)
-      filteredevents = [...filteredevents, test, updatedCurrent]
+      filteredevents = [...filteredevents, updatedCurrent]
 
       setProposedEvents([...filteredevents])
       setEvents([...filteredevents, ...hostEvents])
@@ -325,6 +329,13 @@ const handleSelectEvent = (e) => {
 
     setDriverRequestedCancel(e.driverRequestedCancel)
     setHostRequestedCancel(e.hostRequestedCancel)
+
+    setSelectedChargeRate(e.chargeRatePerHalfHour)
+    setSelectedCurrency(e.currency)
+    setSelectedCurrencySymbol(e.currencySymbol)
+
+    setSelectedDistance(e.distanceText)
+    setSelectedDuration(e.durationText)
   
   } else {
   
@@ -670,6 +681,11 @@ const {scrollToTime} = useMemo(
                 hostRequestedCancel: hostresults.hostAppointments[i].cancelRequestHostSubmit,
                 connectionType: hostresults.hostAppointments[i].connectionType,
                 secondaryConnectionType: hostresults.hostAppointments[i].secondaryConnectionType,
+                chargeRatePerHalfHour: hostresults.hostAppointments[i].chargeRatePerHalfHour,
+                currency: hostresults.hostAppointments[i].currency,
+                currencySymbol: hostresults.hostAppointments[i].currencySymbol,
+                durationText: hostresults.hostAppointments[i].durationText,
+                distanceText: hostresults.hostAppointments[i].distanceText,
                 isDraggable: true
               }
     
@@ -692,16 +708,24 @@ const {scrollToTime} = useMemo(
   }, [hostUserId, newrequest, currentDate, auth])
 
 
-  const handleOpenReserveModal = (e, host, address, duration, mediaurls) => {
+  const handleOpenReserveModal = (e, host) => {
 
     e.preventDefault()
 
-    setDestinationAddress(address)
-    setCurrentDuration(duration)
-    setMediaURLs(mediaurls)
+    setSelectedAddress(host.address)
+    setCurrentDuration(host.durationValue)
+    setMediaURLs(host.mediaCarouselURLs)
+    setHostComments(host.hostComments)
     setHostUserId(host._userId)
     setSelectedConnection(host.connectionType)
     setSecondaryConnection(host.secondaryConnectionType)
+
+    setSelectedChargeRate(host.chargeRatePerHalfHour)
+    setSelectedCurrency(host.currency)
+    setSelectedCurrencySymbol(host.currencySymbol)
+
+    setSelectedDistance(host.distanceText)
+    setSelectedDuration(host.durationText)
 
     setOpenReserveModal(true)
   }
@@ -762,6 +786,8 @@ const {scrollToTime} = useMemo(
         const localtime = today.toTimeString().slice(0,5)
       
         var coordinatesInput = [newPos.lng, newPos.lat]
+        console.log(dayofweek, localtime)
+
         const locations = await getHostProfilesCoord(coordinatesInput, dayofweek, localtime,
            auth.userId, auth.accessToken)
 
@@ -1247,21 +1273,22 @@ const {scrollToTime} = useMemo(
                     
                     </div>
                     
-                    <div className='flex flex-row w-full gap-x-4 justify-around pt-2'>
-                      <p>Distance: {host.distanceText} / {host.durationText}</p>
-                      <p>Available: Now</p>
-                    </div>
-
-                    <div className='flex flex-row w-full gap-x-4 justify-around'>
-                    <p>30 Min Rate: {host.currencySymbol}{host.chargeRatePerHalfHour.toFixed(2)}</p>
+                    <div className='flex flex-row w-full justify-between items-center'>
+                      
+                      <div className='flex flex-col w-full'>
+                        <p>Distance: {host.distanceText} / {host.durationText}</p>
+                        <p>30 Min Rate: {host.currencySymbol}{Number(host.chargeRatePerHalfHour).toFixed(2)}</p>
+                      </div>
+                    
+                      <div className='flex flex-row'>
                       
                       <button 
-                        className='px-3 py-1 bg-[#FFE142] hover:bg-[orange] rounded-lg'
-                        onClick={(e)=>handleOpenReserveModal(e, host, host.address, host.durationValue)}
+                        className='px-3 py-2 bg-[#FFE142] hover:bg-[orange] rounded-lg'
+                        onClick={(e)=>handleOpenReserveModal(e, host)}
                         >
                           Reserve
                       </button>
-
+                      </div>
                     </div>
 
                   </div>
@@ -1435,11 +1462,12 @@ const {scrollToTime} = useMemo(
                     </div>
 
                     <div className='flex flex-row w-full gap-x-4 justify-around'>
+                    <p>Distance: {selectedDistance} / {selectedDuration}</p>
                     <p>30 Min Rate: {host.currencySymbol}{host.chargeRatePerHalfHour.toFixed(2)}</p>
                       
                       <button 
                         className='px-3 py-1 bg-[#FFE142] hover:bg-[orange] rounded-lg'
-                        onClick={(e)=>handleOpenReserveModal(e, host, host.address, host.durationValue)}
+                        onClick={(e)=>handleOpenReserveModal(e, host)}
                         >
                           Reserve
                       </button>
@@ -1471,6 +1499,13 @@ const {scrollToTime} = useMemo(
         <Box sx={{ ...profileStyle }}>
 
           <div className='flex flex-col w-full overflow-y-scroll'>
+
+          <div className='py-2'>
+          <p className='text-lg text-center font-semibold pb-2 text-black'> Host Information: </p>
+            <p className='text-center'><b>Address:</b> {selectedAddress.slice(0, selectedAddress.lastIndexOf(',', selectedAddress.lastIndexOf(',')-1))}</p>
+            <p className='text-center'><b>Connector:</b> {selectedConnection}</p>
+            <p className='text-center'><b>Other Adapter:</b> {secondaryConnection}</p>
+          </div>
 
           <Slider {...settings} ref={sliderRefPre}>
             
@@ -1514,10 +1549,9 @@ const {scrollToTime} = useMemo(
 
             </Slider>
 
-                <p>Connector Type: {selectedConnection}</p>
-                <p>Adapter Connector: {secondaryConnection}</p>
+              <p className='text-center pt-4'><b>30 Min Rate:</b> {selectedCurrency.toUpperCase()} {selectedCurrencySymbol}{Number(selectedChargeRate).toFixed(2)}</p>
 
-                <p className='text-lg text-center font-semibold'> Enter Requested Time Below: </p>
+                <p className='text-base text-center font-semibold pt-4 pb-2'> Enter Requested Time Below: </p>
 
                 <div className='pt-1 pb-4 flex flex-col gap-y-3'>
 
@@ -1546,7 +1580,11 @@ const {scrollToTime} = useMemo(
                       Submit Request
                     </button>
 
-                    <div className='flex flex-col'>
+                    <div className='flex flex-col pt-4'>
+                      <div className='flex flex-row justify-center'>
+                      <span className='bg-[#D1D5DB] h-[50px] w-[100px] flex justify-center items-center p-2'>Proposed Time</span>
+                      <span className='bg-[#FFE142] h-[50px] w-[100px] flex justify-center items-center p-2'>Booked Time</span>
+                    </div>
 
                     <p className='text-lg text-center pt-4 pb-2'>Location Schedule</p>
 
@@ -1576,14 +1614,14 @@ const {scrollToTime} = useMemo(
                       eventPropGetter={
                         (event) => {
                           let newStyle = {
-                            backgroundColor: "lightgrey",
+                            backgroundColor: "#D1D5DB",
                             color: 'black',
                             borderRadius: "0px",
                             border: "none"
                           };
                     
                           if (event.requesterId === auth.userId){
-                            newStyle.backgroundColor = "#FFE142"
+                            newStyle.backgroundColor = ""
                           }
                     
                           return {
@@ -1619,6 +1657,9 @@ const {scrollToTime} = useMemo(
 
                     <p className='text-center text-lg font-semibold'>Details of Booking Request</p>
 
+                    <p className='text-center'>Rate Per 30 Min: {selectedCurrency}{selectedCurrencySymbol}{Number(selectedChargeRate).toFixed(2)}</p>
+                    {hostComments?.length > 0 && <p className='flex-wrap pl-2'>Special Directions / Comments from Host: {hostComments}</p>}
+
                     <img className='w-[350px] h-[350px]' src={`https://maps.googleapis.com/maps/api/staticmap?center=${selectedAddress}&zoom=14&size=300x300&markers=color:yellow%7C${selectedLat},${selectedLng}&maptype=roadmap&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`} />
                     
                     <p>Start Time: {selectedEventStart}</p>
@@ -1649,7 +1690,7 @@ const {scrollToTime} = useMemo(
                     </button>}
 
                     <button className='border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]'
-                      onClick={(e)=>handleLinkURLDirections(e, destinationAddress)}>
+                      onClick={(e)=>handleLinkURLDirections(e, selectedAddress)}>
                         Get Directions (Opens Map)
                     </button>
 

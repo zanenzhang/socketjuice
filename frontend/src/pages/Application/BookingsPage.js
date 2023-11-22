@@ -78,6 +78,7 @@ const BookingsPage = () => {
 
   const [verifiedHost, setVerifiedHost] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [deactivated, setDeactivated] = useState(false)
 
   const [chargeRate, setChargeRate] = useState(3.0);
   const [currency, setCurrency] = useState("cad");
@@ -699,10 +700,11 @@ const handleRegularHourChangeEnd = (event, day) => {
 
         const userdata = await getUserData(auth.accessToken, auth.userId)
 
-        if(userdata && !userdata?.foundHost?.deactivated){
+        if(userdata && userdata?.foundHost){
 
           setVerifiedHost(userdata?.foundHost?.verifiedHostCharging)
           setSubmitted(userdata?.foundHost?.submittedChargingForReview)
+          setDeactivated(userdata?.foundHost?.deactivated)
 
           setCurrency(userdata?.foundUser?.currency)
           setCurrencySymbol(userdata.foundUser?.currencySymbol)
@@ -1345,6 +1347,7 @@ const handleRegularHourChangeEnd = (event, day) => {
           <div className='pt-1 pb-4 flex flex-col gap-y-3 w-full justify-center items-center'>
 
           <p>Received Bookings From Other EV Drivers</p>
+          {deactivated && <p>Please note: You are currently not offering charging in your host settings</p>}
 
             <div className='flex flex-col w-[250px] max-h-[400px]'>
 

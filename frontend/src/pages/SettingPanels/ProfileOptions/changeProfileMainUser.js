@@ -17,7 +17,10 @@ import getDriverProfile from '../../../helpers/DriverData/getDriverProfile';
 const PUBLIC_MEDIA_URL = '/s3/single-profilepic';
 
 
-const CustomSwitch = withStyles({
+
+export default function ChangeProfileMainUser({loggedUserId }) {
+
+  const CustomSwitch = withStyles({
     switchBase: {
       color: 'black',
       '&$checked': {
@@ -30,9 +33,6 @@ const CustomSwitch = withStyles({
     checked: {},
     track: {},
   })(Switch);
-
-
-export default function ChangeProfileMainUser({loggedUserId }) {
 
   const { setAuth, auth } = useAuth();
   const logout = useLogout();
@@ -401,7 +401,15 @@ export default function ChangeProfileMainUser({loggedUserId }) {
               </div>
               <div className='flex justify-start pl-2'>
                   <FormControlLabel control={
-                      <CustomSwitch checked={emailNotifications} onChange={handleEmailNotifications} />
+                      <CustomSwitch checked={emailNotifications} onChange={handleEmailNotifications} 
+                      sx={{
+                        "&.MuiSwitch-root .MuiSwitch-switchBase": {
+                          color: "#8BEDF3"
+                        },
+                        "&.MuiSwitch-root .Mui-checked": {
+                         color: "#8BEDF3"
+                        }
+                       }}/>
                   } label={emailNotifications ? "On" : "Off"} />
               </div>
           </div>
