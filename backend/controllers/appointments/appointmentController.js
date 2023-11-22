@@ -9,6 +9,7 @@ const UsageLimit = require('../../model/UsageLimit');
 const BannedUser = require("../../model/BannedUser");
 const  {deleteFile} = require("../../controllers/media/s3Controller");
 const { sendNotiEmail } = require("../../middleware/mailer")
+const { sendSmsNotification } = require("../../controllers/authentication/twilioController")
 
 
 const ObjectId  = require('mongodb').ObjectId;
@@ -78,13 +79,9 @@ const getHostAppointments = async (req, res) => {
 
         if(hostAppointments && hostAppointments?.length > 0){
 
-            console.log("Host appointments", hostAppointments.length)
-
             foundHostProfiles = await HostProfile.find({_userId: {$in: hostAppointments.map(e=>e._hostUserId)}})
 
             if(foundHostProfiles && foundHostProfiles?.length > 0){
-
-                console.log("Host profiles nested", foundHostProfiles)
 
                 userData = await User.find({_id: {$in: foundHostProfiles.map(e=>e._userId)}}).select("_id profilePicURL phonePrimary")
 
@@ -237,14 +234,14 @@ const addAppointmentRequest = async (req, res) => {
 
     if (!userId || !hostUserId ) return res.status(400).json({ 'message': 'Missing required fields!' });
 
-    console.log(userId, hostUserId, appointmentStart, appointmentEnd)
+    console.log("Adding new appointment request", userId, hostUserId, appointmentStart, appointmentEnd)
 
     try {
 
         const foundHostProfile = await HostProfile.findOne({_userId: hostUserId})
         const foundDriverProfile = await DriverProfile.findOne({_userId: userId})
         const foundLimits = await UsageLimit.findOne({_userId: userId})
-        const foundUser = await User.fineOne({_id: userId})
+        const foundUser = await User.findOne({_id: userId})
 
         var todaysDate = new Date().toLocaleDateString()
 
@@ -271,7 +268,8 @@ const addAppointmentRequest = async (req, res) => {
 
                         if(foundLimits.numberOfAppointments[i].date === todaysDate){
     
-                            if(foundLimits.numberOfAppointments[i].appointmentsNumber >= 5){
+                            if(foundLimits.numberOfAppointments[i].appointmentsNumber >= 25){
+                                //Set found limits to 5 for production
                                 
                                 return res.status(401).json({ message: 'Reached appointment limit for today' })
                             
@@ -313,9 +311,9 @@ const addAppointmentRequest = async (req, res) => {
                 {$and:[
                     {$or: [{_requestUserId: userId}, {_hostUserId: hostUserId}]}, 
                     {$or: [ 
-                        { start : { $lt: requestStart }, end : { $gt: requestStart } },
-                        { start : { $lt: requestEnd }, end : { $gt: requestEnd } },
-                        { start : { $gt: requestStart }, end : { $lt: requestEnd } }]}, 
+                        { start : { $lte: requestStart }, end : { $gt: requestStart } },
+                        { start : { $lt: requestEnd }, end : { $gte: requestEnd } },
+                        { start : { $gte: requestStart }, end : { $lte: requestEnd } }]}, 
                     {$or: [{status: "Approved" }, {status: "Requested" }]}
                 ]})
 
@@ -331,7 +329,7 @@ const addAppointmentRequest = async (req, res) => {
                     const newNoti = await Notification.create({_receivingUserId: hostUserId, _sendingUserId: userId, notificationType: "Requested", 
                         _relatedAppointment: newAppointment._id })
 
-                    if(foundUser.emailNotifications){
+                    if(foundUser?.emailNotifications){
                         const success = await sendNotiEmail({firstName: foundUser.firstName, toUser:foundUser.email, notificationType: "Requested"})
                         if(success){
                             doneEmail = true
@@ -340,8 +338,8 @@ const addAppointmentRequest = async (req, res) => {
                         doneEmail = true
                     }
 
-                    if(foundUser.smsNotifications){
-                        const success = await sendSmsNotification({receivingUserId: hostUserId, notificationType: "Requested"})
+                    if(foundUser?.smsNotifications){
+                        const success = await sendSmsNotification(hostUserId, "Requested")
                         if(success){
                             doneSms = true
                         }
@@ -439,7 +437,6 @@ const addAppointmentApproval = async (req, res) => {
         const foundAppointment = await Appointment.findOne({_id: appointmentId})
         const foundUser = await User.findOne({_id: userId})
 
-        var doneNoti = false;
         var doneEmail = false;
         var doneSms = false;
 
@@ -452,9 +449,9 @@ const addAppointmentApproval = async (req, res) => {
                 {$and:[
                     {$or: [{_requestUserId: userId}, {_hostUserId: hostUserId}]}, 
                     {$or: [ 
-                        { start : { $lt: requestStart }, end : { $gt: requestStart } },
-                        { start : { $lt: requestEnd }, end : { $gt: requestEnd } },
-                        { start : { $gt: requestStart }, end : { $lt: requestEnd } }]}, 
+                        { start : { $lte: requestStart }, end : { $gt: requestStart } },
+                        { start : { $lt: requestEnd }, end : { $gte: requestEnd } },
+                        { start : { $gte: requestStart }, end : { $lte: requestEnd } }]}, 
                     {$or: [{status: "Approved" }]}
                 ]})
 
@@ -485,7 +482,7 @@ const addAppointmentApproval = async (req, res) => {
                 }
 
                 if(foundUser.smsNotifications){
-                    const success = await sendSmsNotification({receivingUserId: hostUserId, notificationType: "Approval"})
+                    const success = await sendSmsNotification(hostUserId, "Approval")
                     if(success){
                         doneSms = true
                     }
@@ -493,7 +490,7 @@ const addAppointmentApproval = async (req, res) => {
                     doneSms = true
                 }
 
-                if(updatedAppointment && newNoti && doneNoti && doneEmail && doneSms){
+                if(updatedAppointment && newNoti && doneEmail && doneSms){
 
                     if(conflictingAppointments && conflictingAppointments?.length > 0){
                         
@@ -561,7 +558,6 @@ const addAppointmentCompletion = async (req, res) => {
         const foundAppointment = await Appointment.findOne({_id: appointmentId})
         const foundUser = await User.findOne({_id: userId})
 
-        var doneNoti = false;
         var doneEmail = false;
         var doneSms = false;
 
@@ -582,7 +578,7 @@ const addAppointmentCompletion = async (req, res) => {
             }
 
             if(foundUser.smsNotifications){
-                const success = await sendSmsNotification({receivingUserId: hostUserId, notificationType: "Completed"})
+                const success = await sendSmsNotification(hostUserId, "Completed")
                 if(success){
                     doneSms = true
                 }
@@ -590,7 +586,7 @@ const addAppointmentCompletion = async (req, res) => {
                 doneSms = true
             }
 
-            if(updatedAppointment && newNoti && doneNoti && doneEmail && doneSms){
+            if(updatedAppointment && newNoti && doneEmail && doneSms){
                 
                 return res.status(201).json({ message: 'Success' })
 
@@ -617,7 +613,6 @@ const driverRequestCancelSubmit = async (req, res) =>{
 
         const foundUser = await User.findOne({_id: userId})
 
-        var doneNoti = false;
         var doneEmail = false;
         var doneSms = false;
 
@@ -639,7 +634,7 @@ const driverRequestCancelSubmit = async (req, res) =>{
             }
 
             if(foundUser.smsNotifications){
-                const success = await sendSmsNotification({receivingUserId: hostUserId, notificationType: "CancelSubmitted"})
+                const success = await sendSmsNotification(hostUserId, "CancelSubmitted")
                 if(success){
                     doneSms = true
                 }
@@ -647,7 +642,7 @@ const driverRequestCancelSubmit = async (req, res) =>{
                 doneSms = true
             }
 
-            if(foundAppointment && updateDriverProfile && newNoti && doneNoti && doneEmail && doneSms){
+            if(foundAppointment && updateDriverProfile && newNoti && doneEmail && doneSms){
 
                 return res.status(201).json({ message: 'Success' })
             }
@@ -673,7 +668,6 @@ const addDriverReject = async (req, res) =>{
 
         const foundUser = await User.findOne({_id: userId})
 
-        var doneNoti = false;
         var doneEmail = false;
         var doneSms = false;
 
@@ -686,7 +680,7 @@ const addDriverReject = async (req, res) =>{
                             _relatedAppointment: foundAppointment._id})
 
             if(foundUser.emailNotifications){
-                const success = await sendNotiEmail({firstName: foundUser.firstName, toUser:foundUser.email, notificationType: "CancelSubmitted"})
+                const success = await sendNotiEmail({firstName: foundUser.firstName, toUser:foundUser.email, notificationType: "Cancelled"})
                 if(success){
                     doneEmail = true
                 }
@@ -695,7 +689,7 @@ const addDriverReject = async (req, res) =>{
             }
 
             if(foundUser.smsNotifications){
-                const success = await sendSmsNotification({receivingUserId: hostUserId, notificationType: "CancelSubmitted"})
+                const success = await sendSmsNotification(hostUserId, "Cancelled")
                 if(success){
                     doneSms = true
                 }
@@ -703,7 +697,7 @@ const addDriverReject = async (req, res) =>{
                 doneSms = true
             }
 
-            if(foundAppointment && updateDriverProfile && newNoti && doneNoti && doneEmail && doneSms){
+            if(foundAppointment && updateDriverProfile && newNoti && doneEmail && doneSms){
 
                 return res.status(201).json({ message: 'Success' })
             }
@@ -729,7 +723,6 @@ const driverRequestCancelApprove = async (req, res) =>{
 
         const foundUser = await User.findOne({_id: userId})
 
-        var doneNoti = false;
         var doneEmail = false;
         var doneSms = false;
 
@@ -755,7 +748,7 @@ const driverRequestCancelApprove = async (req, res) =>{
                 }
 
                 if(foundUser.smsNotifications){
-                    const success = await sendSmsNotification({receivingUserId: hostUserId, notificationType: "Cancelled"})
+                    const success = await sendSmsNotification(hostUserId, "Cancelled")
                     if(success){
                         doneSms = true
                     }
@@ -763,7 +756,7 @@ const driverRequestCancelApprove = async (req, res) =>{
                     doneSms = true
                 }
 
-                if(foundDriverProfile && foundHostProfile && newNoti && doneNoti && doneEmail && doneSms){
+                if(foundDriverProfile && foundHostProfile && newNoti && doneEmail && doneSms){
 
                     const updatedAppointment = await Appointment.updateOne({_id: appointmentId},{$set:{status: "Cancelled"}})
 
@@ -796,7 +789,6 @@ const hostRequestCancelSubmit = async (req, res) =>{
 
     if (!userId || !appointmentId || !hostUserId ) return res.status(400).json({ 'message': 'Missing required fields!' });
 
-    var doneNoti = false;
     var doneEmail = false;
     var doneSms = false;
 
@@ -822,7 +814,7 @@ const hostRequestCancelSubmit = async (req, res) =>{
             }
 
             if(foundUser.smsNotifications){
-                const success = await sendSmsNotification({receivingUserId: hostUserId, notificationType: "CancelSubmitted"})
+                const success = await sendSmsNotification(hostUserId, "CancelSubmitted")
                 if(success){
                     doneSms = true
                 }
@@ -830,7 +822,7 @@ const hostRequestCancelSubmit = async (req, res) =>{
                 doneSms = true
             }
 
-            if(foundAppointment && updateHostProfile && newNoti && doneNoti && doneEmail && doneSms){
+            if(foundAppointment && updateHostProfile && newNoti && doneEmail && doneSms){
 
                 return res.status(201).json({ message: 'Success' })
             }
@@ -853,7 +845,6 @@ const addHostReject = async (req, res) =>{
 
     if (!userId || !appointmentId || !hostUserId ) return res.status(400).json({ 'message': 'Missing required fields!' });
 
-    var doneNoti = false;
     var doneEmail = false;
     var doneSms = false;
 
@@ -879,7 +870,7 @@ const addHostReject = async (req, res) =>{
             }
 
             if(foundUser.smsNotifications){
-                const success = await sendSmsNotification({receivingUserId: hostUserId, notificationType: "CancelSubmitted"})
+                const success = await sendSmsNotification(hostUserId, "CancelSubmitted")
                 if(success){
                     doneSms = true
                 }
@@ -887,7 +878,7 @@ const addHostReject = async (req, res) =>{
                 doneSms = true
             }
 
-            if(foundAppointment && updateHostProfile && newNoti && doneNoti && doneEmail && doneSms){
+            if(foundAppointment && updateHostProfile && newNoti && doneEmail && doneSms){
 
                 return res.status(201).json({ message: 'Success' })
             }
@@ -915,7 +906,6 @@ const hostRequestCancelApprove = async (req, res) =>{
 
         const foundUser = await User.findOne({_id: userId})
 
-        var doneNoti = false;
         var doneEmail = false;
         var doneSms = false;
 
@@ -941,7 +931,7 @@ const hostRequestCancelApprove = async (req, res) =>{
                 }
     
                 if(foundUser.smsNotifications){
-                    const success = await sendSmsNotification({receivingUserId: hostUserId, notificationType: "CancelSubmitted"})
+                    const success = await sendSmsNotification(hostUserId, "CancelSubmitted")
                     if(success){
                         doneSms = true
                     }
@@ -949,7 +939,7 @@ const hostRequestCancelApprove = async (req, res) =>{
                     doneSms = true
                 }
 
-                if(foundDriverProfile && foundHostProfile && newNoti && doneNoti && doneEmail && doneSms){
+                if(foundDriverProfile && foundHostProfile && newNoti && doneEmail && doneSms){
 
                     const updatedAppointment = await Appointment.updateOne({_id: appointmentId},{$set:{status: "Cancelled"}})
 

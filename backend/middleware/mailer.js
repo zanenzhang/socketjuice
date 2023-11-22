@@ -29,7 +29,6 @@ exports.sendReverifyEmail = function({toUser, userId, hash, firstName}) {
 
   const message = {
     from: process.env.EMAIL_SUPPORT,
-    // to: toUser.email // in production uncomment this
     to: toUser,
     subject: 'SocketJuice - Please Reupload Photos For Profile',
     html: `
@@ -56,25 +55,33 @@ exports.sendNotiEmail = function({firstName, toUser, notificationType}) {
   var message = ""
 
   if(notificationType === "Approved"){
-    message = `Hi ${firstName}, your booking request was approved. Please open the app to get directions at www.socketjuice.com/bookings`
+    
+    message = `Congratulations! Your booking request was approved. Please open the app to get directions. Happy charging!`
+  
   } else if (notificationType === "Rejected"){
-      message = `Hi ${firstName}, your booking request was approved. Please open the app to make review the booking at www.socketjuice.com/bookings`
+    
+      message = `Sorry! Unfortunately, your booking request was not approved or someone got to the time slot first. Please try another booking!`
+  
   } else if (notificationType === "Requested"){
-      message = `Hi ${firstName}, a booking request was made. Please open the app to review the request, and approve or reject at www.socketjuice.com/bookings`
+
+      message = `Awesome, a booking request was made for your charger! Please open the app to review and approve the request.`
+  
   } else if (notificationType === "CancelSubmitted"){
-      message = `Hi ${firstName}, a booking cancellation request was made. Please open the app to review the request, and approve or reject at www.socketjuice.com/bookings`
+
+      message = `Unfortunately, someone requested to cancel and refund their booking. Please open the app to approve or reject the cancellation and refund request.`
   }
 
+  console.log("Sending noti email")
+
   const messageObj = {
-    from: process.env.NOTI_SUPPORT,
-    // to: toUser.email // in production uncomment this
+    from: process.env.EMAIL_SUPPORT,
+    // add a new email address in development for notifications
     to: toUser,
     subject: 'SocketJuice - Booking Notification (No Reply)',
     html: `
       <img src = "cid:myImg" style="width:200px;"/>
       <h3> Hello ${firstName}! </h3>
       <p> ${message} </p>
-      <p> Please open the app to review the request, and approve or reject at </p>
       <p><a target="_" href="${process.env.API}/bookings">${process.env.MAIL_FROM_NAME}/bookings </a></p>
       <p>Thanks,</p>
       <p>The ${process.env.MAIL_FROM_NAME} team</p>

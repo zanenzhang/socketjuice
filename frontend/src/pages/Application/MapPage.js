@@ -76,6 +76,7 @@ const MapPage = () => {
   const [teslaChecked, setTeslaChecked] = useState(false);
   
   const [waitingCurrent, setWaitingCurrent] = useState(false);
+  const [waitingSubmit, setWaitingSubmit] = useState(false);
   const [currentMarker, setCurrentMarker] = useState("")
   const [hostUserId, setHostUserId] = useState("")
   const [currentIcon, setCurrentIcon] = useState("")
@@ -221,7 +222,7 @@ useEffect( ()=> {
     console.log(currentDuration)
 
     var hours = Math.floor(currentDuration / 3600)
-    var min = Math.floor(currentDuration % 3600) / 60
+    var min = (Math.floor(currentDuration % 3600) / 60) + 3
 
     const today = new Date()
     const timePlusDuration = new Date(today.getFullYear(), today.getMonth(), today.getDate(), today.getHours()+hours, today.getMinutes()+min);
@@ -545,13 +546,16 @@ const {scrollToTime} = useMemo(
 
   const handleEventRejectDriver = async (e) => {
 
-    console.log(e)
+    e.preventDefault()
+    setWaitingSubmit(true);
 
     const submitted = await addDriverReject(auth.userId, selectedHostUserId, selectedEventId, auth.userId, auth.accessToken)
 
     if(submitted){
       console.log("Cancel submitted")
+      setOpenDetailsModal(false)
       setNewrequest(!newrequest)
+      setWaitingSubmit(false);
     }
   }
 
@@ -571,13 +575,17 @@ const {scrollToTime} = useMemo(
   async function handleAddAppointment(e) {
 
     e.preventDefault()
+    setWaitingSubmit(true)
 
     const added = await addAppointmentRequest(auth.userId, hostUserId, bookingStart, bookingEnd, auth.accessToken)
 
     if(added){
       alert("Submitted booking request")
-      //Refresh get driver and get host appointments
       setNewrequest(!newrequest)
+      setOpenReserveModal(false);
+      setWaitingSubmit(false)
+    } else {
+      setWaitingSubmit(false);
     }
   }
 
@@ -661,6 +669,10 @@ const {scrollToTime} = useMemo(
                 hostresults.hostAppointments[i].address = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.address
                 hostresults.hostAppointments[i].connectionType = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.connectionType
                 hostresults.hostAppointments[i].secondaryConnectionType = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.secondaryConnectionType
+                
+                hostresults.hostAppointments[i].currency = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.currency
+                hostresults.hostAppointments[i].currencySymbol = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.currencySymbol
+                hostresults.hostAppointments[i].chargeRatePerHalfHour = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.chargeRatePerHalfHour
 
                 hostresults.hostAppointments[i].locationlat = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.location?.coordinates[1]
                 hostresults.hostAppointments[i].locationlng = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.location?.coordinates[0]
@@ -1502,7 +1514,7 @@ const {scrollToTime} = useMemo(
 
           <div className='py-2'>
           <p className='text-lg text-center font-semibold pb-2 text-black'> Host Information: </p>
-            <p className='text-center'><b>Address:</b> {selectedAddress.slice(0, selectedAddress.lastIndexOf(',', selectedAddress.lastIndexOf(',')-1))}</p>
+            {/* <p className='text-center'><b>Address:</b> {selectedAddress.slice(0, selectedAddress.lastIndexOf(',', selectedAddress.lastIndexOf(',')-1))}</p> */}
             <p className='text-center'><b>Connector:</b> {selectedConnection}</p>
             <p className='text-center'><b>Other Adapter:</b> {secondaryConnection}</p>
           </div>
@@ -1549,7 +1561,7 @@ const {scrollToTime} = useMemo(
 
             </Slider>
 
-              <p className='text-center pt-4'><b>30 Min Rate:</b> {selectedCurrency.toUpperCase()} {selectedCurrencySymbol}{Number(selectedChargeRate).toFixed(2)}</p>
+              <p className='text-center pt-4'><b>30 Min Rate:</b> {selectedCurrency?.toUpperCase()} {selectedCurrencySymbol}{Number(selectedChargeRate).toFixed(2)}</p>
 
                 <p className='text-base text-center font-semibold pt-4 pb-2'> Enter Requested Time Below: </p>
 
@@ -1574,16 +1586,31 @@ const {scrollToTime} = useMemo(
                     <p> Length of Booking: {bookingLengthText}</p>
 
                     <button className='border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] 
-                      hover:bg-[#00D3E0]'
+                      hover:bg-[#00D3E0] flex flex-row gap-x-2 justify-center items-center'
 
                       onClick={(e)=>handleAddAppointment(e)}>
+
+                  {waitingSubmit && 
+                    <div aria-label="Loading..." role="status">
+                        <svg className="h-4 w-4 animate-spin" viewBox="3 3 18 18">
+                        <path
+                            className="fill-gray-200"
+                            d="M12 5C8.13401 5 5 8.13401 5 12C5 15.866 8.13401 19 12 19C15.866 19 19 15.866 19 12C19 8.13401 15.866 5 12 5ZM3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12Z"></path>
+                        <path
+                            className="fill-[#00D3E0]"
+                            d="M16.9497 7.05015C14.2161 4.31648 9.78392 4.31648 7.05025 7.05015C6.65973 7.44067 6.02656 7.44067 5.63604 7.05015C5.24551 6.65962 5.24551 6.02646 5.63604 5.63593C9.15076 2.12121 14.8492 2.12121 18.364 5.63593C18.7545 6.02646 18.7545 6.65962 18.364 7.05015C17.9734 7.44067 17.3403 7.44067 16.9497 7.05015Z"></path>
+                        </svg>
+                    </div>
+                    }
+
                       Submit Request
                     </button>
 
                     <div className='flex flex-col pt-4'>
                       <div className='flex flex-row justify-center'>
                       <span className='bg-[#D1D5DB] h-[50px] w-[100px] flex justify-center items-center p-2'>Proposed Time</span>
-                      <span className='bg-[#FFE142] h-[50px] w-[100px] flex justify-center items-center p-2'>Booked Time</span>
+                      <span className='bg-[#8BEDF3] h-[50px] w-[100px] flex justify-center items-center p-2'>Booked Time</span>
+                      <span className='bg-[#FFE142] h-[50px] w-[100px] flex justify-center items-center p-2'>Your Booking</span>
                     </div>
 
                     <p className='text-lg text-center pt-4 pb-2'>Location Schedule</p>
@@ -1621,7 +1648,12 @@ const {scrollToTime} = useMemo(
                           };
                     
                           if (event.requesterId === auth.userId){
-                            newStyle.backgroundColor = ""
+                          
+                            newStyle.backgroundColor = "#FFE142"
+                          
+                          } else if (event.title !== "Proposed Booking Time"){
+
+                            newStyle.backgroundColor = "#8BEDF3"
                           }
                     
                           return {
@@ -1657,7 +1689,7 @@ const {scrollToTime} = useMemo(
 
                     <p className='text-center text-lg font-semibold'>Details of Booking Request</p>
 
-                    <p className='text-center'>Rate Per 30 Min: {selectedCurrency}{selectedCurrencySymbol}{Number(selectedChargeRate).toFixed(2)}</p>
+                    <p className='text-center'><b>Rate Per 30 Min: </b>{selectedCurrency?.toUpperCase()}{selectedCurrencySymbol}{Number(selectedChargeRate).toFixed(2)}</p>
                     {hostComments?.length > 0 && <p className='flex-wrap pl-2'>Special Directions / Comments from Host: {hostComments}</p>}
 
                     <img className='w-[350px] h-[350px]' src={`https://maps.googleapis.com/maps/api/staticmap?center=${selectedAddress}&zoom=14&size=300x300&markers=color:yellow%7C${selectedLat},${selectedLng}&maptype=roadmap&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`} />
@@ -1681,11 +1713,25 @@ const {scrollToTime} = useMemo(
 
                     {selectedEventStatus === "Requested" && 
                     <button 
-                      disabled={(selectedEventStatus === "Cancelled")}
-                      className={`border border-gray-300 px-3 py-2 rounded-xl 
-                        ${( (selectedEventStatus === "CancelSubmitted" && driverRequestedCancel) || selectedEventStatus === "Cancelled" ) 
+                      disabled={(selectedEventStatus === "Cancelled" || selectedEventStatus === "CancelSubmitted")}
+                      className={`border border-gray-300 px-3 py-2 rounded-xl flex flex-row justify-center items-center gap-x-2
+                        ${( (selectedEventStatus === "CancelSubmitted" || selectedEventStatus === "Cancelled"  && driverRequestedCancel) || selectedEventStatus === "Cancelled" ) 
                         ? "cursor-not-allowed bg-gray-300" : "bg-[rgb(193,242,245)] hover:bg-[#00D3E0]" }`}
                       onClick={(e)=>handleEventRejectDriver(e)}>
+
+                      {waitingSubmit && 
+                        <div aria-label="Loading..." role="status">
+                            <svg className="h-4 w-4 animate-spin" viewBox="3 3 18 18">
+                            <path
+                                className="fill-gray-200"
+                                d="M12 5C8.13401 5 5 8.13401 5 12C5 15.866 8.13401 19 12 19C15.866 19 19 15.866 19 12C19 8.13401 15.866 5 12 5ZM3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12Z"></path>
+                            <path
+                                className="fill-[#00D3E0]"
+                                d="M16.9497 7.05015C14.2161 4.31648 9.78392 4.31648 7.05025 7.05015C6.65973 7.44067 6.02656 7.44067 5.63604 7.05015C5.24551 6.65962 5.24551 6.02646 5.63604 5.63593C9.15076 2.12121 14.8492 2.12121 18.364 5.63593C18.7545 6.02646 18.7545 6.65962 18.364 7.05015C17.9734 7.44067 17.3403 7.44067 16.9497 7.05015Z"></path>
+                            </svg>
+                        </div>
+                        }
+
                         {(selectedEventStatus === "Requested" && !driverRequestedCancel) && <p>Cancel Booking Request</p> }
                     </button>}
 

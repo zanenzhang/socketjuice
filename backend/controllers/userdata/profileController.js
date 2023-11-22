@@ -1120,8 +1120,7 @@ const editUserReceivePayments = async (req, res) => {
 
 const uploadUserPhotos = async (req, res) => {
 
-    var { userId, frontObjectId, backObjectId, smsNotifications, 
-        emailNotifications, pushNotifications } = req.body
+    var { userId, frontObjectId, backObjectId } = req.body
 
     if (!userId || !frontObjectId || !backObjectId ) {
 
@@ -1129,8 +1128,9 @@ const uploadUserPhotos = async (req, res) => {
     }
 
     const foundUser = await User.findOne({_id: userId})
+    const foundDriver = await DriverProfile.findOne({_userId: userId})
 
-    if(foundUser){
+    if(foundUser && foundDriver){
 
         if(!foundUser.checkedMobile || foundUser.receivedIdApproval){
         
@@ -1140,25 +1140,6 @@ const uploadUserPhotos = async (req, res) => {
 
             foundUser.frontObjectId = frontObjectId
             foundUser.backObjectId = backObjectId
-            
-            if(smsNotifications || smsNotifications === 'true'){
-                foundUser.smsNotifications = true
-            } else {
-                foundUser.smsNotifications = false
-            }
-
-            if(pushNotifications || pushNotifications === 'true'){
-                foundUser.pushNotifications = true
-            } else {
-                foundUser.pushNotifications = false
-            }
-
-            if(emailNotifications || emailNotifications === 'true'){
-                foundUser.emailNotifications = true
-            } else {
-                foundUser.emailNotifications = false
-            }
-
 
             try{
 
@@ -1195,7 +1176,18 @@ const uploadUserPhotos = async (req, res) => {
 
                 const lessMotion = foundUser.lessMotion;
                 const pushNotifications = foundUser.pushNotifications;
+                const smsNotifications = foundUser.smsNotifications;
+                const emailNotifications = foundUser.emailNotifications;
                 const userTheme = foundUser.userTheme;
+
+                const j1772ACChecked = foundDriver?.j1772ACChecked
+                const ccs1DCChecked = foundDriver?.ccs1DCChecked
+                const mennekesACChecked = foundDriver?.mennekesACChecked
+                const gbtACChecked = foundDriver?.gbtACChecked
+                const ccs2DCChecked = foundDriver?.ccs2DCChecked
+                const chademoDCChecked = foundDriver?.chademoDCChecked
+                const gbtDCChecked = foundDriver?.gbtDCChecked
+                const teslaChecked = foundDriver?.teslaChecked
 
                 const roles = Object.values(foundUser.roles).filter(Boolean);
 
@@ -1243,7 +1235,9 @@ const uploadUserPhotos = async (req, res) => {
                         });
 
                         res.status(200).json({ firstName, lastName, userId, roles, accessToken, phoneNumber, profilePicURL, 
-                            currency, currencySymbol, lessMotion, pushNotifications, userTheme, FXRates, credits })
+                            currency, currencySymbol, lessMotion, pushNotifications, smsNotifications, emailNotifications, 
+                            userTheme, FXRates, credits, j1772ACChecked, ccs1DCChecked, mennekesACChecked, ccs2DCChecked, 
+                            chademoDCChecked, gbtACChecked, gbtDCChecked, teslaChecked })
                     }
                 }
 

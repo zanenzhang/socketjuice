@@ -178,13 +178,13 @@ async function checkVerification (req, res) {
 }
 
 
-async function sendSmsNotification (req, res) {
-
-    const {receivingUserId, notificationType} = req.body
+async function sendSmsNotification (receivingUserId, notificationType) {
 
     if (!receivingUserId || !notificationType ) {
         return res.status(400).json({ message: 'Missing required info' })
     }
+
+    console.log("Starting sms notification")
 
     const foundReceiver = await User.findOne({_id: receivingUserId})
 
@@ -192,22 +192,20 @@ async function sendSmsNotification (req, res) {
 
         try {
 
-            console.log("Sending notification")
+            console.log("Sending sms notification")
 
             var message = ""
 
             if(notificationType === "Approved"){
-                message = `Hi ${foundReceiver.firstName}, your booking request was approved. 
-                    Please open the app to get directions at www.socketjuice.com`
+                message = `Hi ${foundReceiver.firstName}, your booking request was approved. Please open the app to get directions at www.socketjuice.com`
             } else if (notificationType === "Rejected"){
-                message = `Hi ${foundReceiver.firstName}, your booking request was approved. 
-                    Please open the app to make a new booking at www.socketjuice.com`
+                message = `Hi ${foundReceiver.firstName}, your booking request was approved. Please open the app to make a new booking at www.socketjuice.com`
             } else if (notificationType === "Requested"){
-                message = `Hi ${foundReceiver.firstName}, a booking request was made. 
-                    Please open the app to review the request, and approve or reject at www.socketjuice.com`
+                message = `Hi ${foundReceiver.firstName}, a booking request was made. Please open the app to review the request, and approve or reject at www.socketjuice.com`
             } else if (notificationType === "CancelSubmitted"){
-                message = `Hi ${foundReceiver.firstName}, a booking cancellation request was made. 
-                    Please open the app to review the request, and approve or reject at www.socketjuice.com`
+                message = `Hi ${foundReceiver.firstName}, a cancellation and refund request was made. Please open the app to review the request, and approve or reject at www.socketjuice.com`
+            } else if (notificationType === "Cancelled"){
+                message = `Hi ${foundReceiver.firstName}, sorry, a booking request was cancelled prior to approval. Accounts tied to high volumes of cancellations will be reviewed. `
             }
 
             const sent = await client.messages
@@ -220,21 +218,21 @@ async function sendSmsNotification (req, res) {
             if(sent && sent.status === 'sent'){
                 
                 console.log("Success")
-                res.status(200).send({result: sent.status})
+                return ({result: sent.status})
                 
             } else {
-                res.status(400);    
+                return ({result: "Not sent"})
             }
 
         } catch(err){
 
-            res.status(400);    
             console.log(err)
+            return ({result: "Operation failed"})
         }
 
     } else {
 
-        return res.status(401).json({ message: 'Already approved' })
+        return ({ result: "Operation failed", message: 'Mobile number was not verified' })
     } 
 }
 

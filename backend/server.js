@@ -274,7 +274,7 @@ connection.once('open', () => {
                 //     createdAt: change.fullDocument.createdAt,
                 // };
 
-                io.to(change.fullDocument._userId.toString()).emit("newNotiication", change.fullDocument);
+                io.to(change.fullDocument._receivingUserId.toString()).emit("newNotiication", change.fullDocument);
                 break;
         };
     });

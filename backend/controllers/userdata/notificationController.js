@@ -31,8 +31,6 @@ const getNotifications = async (req, res) => {
                 const notiData = await Notification.find({_receivingUserId: userId }).sort({createdAt: -1}).skip(skipValue).limit(10)
     
                 if(notiData && settings){
-
-                    console.log("Reached here noti data", notiData)
     
                     const userData = await User.find({_id: {$in: notiData.map(e=>e._otherUserId)}}).select("_id username roles profilePicURL")
                     const relatedAppointments = await Appointment.find({_id: {$in: notiData?.map((item)=>item._relatedAppointment)}})
@@ -62,7 +60,7 @@ const getNotifications = async (req, res) => {
             res.status(400).json({"message": err.message, stop})
         } 
  
-    } catch(err){
+    } catch(err) {
 
         console.log(err)
         res.status(400).json({"message": err.message})

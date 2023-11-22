@@ -218,11 +218,11 @@ const AdminPage = () => {
                             <div className='flex flex-row w-full justify-between'>
 
                                 <button onClick={(e)=>handleRejectUser(e, user._id)}>
-                                    Reject
+                                    Reject User
                                     </button>
 
                                 <button onClick={(e)=>handleApproveUser(e, user._id)}>
-                                    Approve
+                                    Approve User
                                     </button>
 
                             </div>
@@ -245,8 +245,11 @@ const AdminPage = () => {
 
                             <p>{host._id}</p>
                             <p>{host.firstName} {host.lastName}</p>
-                            <p>{host.host.address}</p>
-                            <p>{host.phonePrimary}</p>
+                            <p>Address: {host.host.address}</p>
+                            <p>Phone: {host.phonePrimary}</p>
+                            <p>Connection: {host.host.connectionType}</p>
+                            <p>Adapter: {host.host.secondaryConnectionType}</p>
+                            <p>Level: {host.host.chargingLevel}</p>
                             <p>{host.host.city}, {host.host.region}</p>
 
                             <img className='w-[250px]' src={host.profilePicURL} />
@@ -263,11 +266,11 @@ const AdminPage = () => {
                             <div className='flex flex-row w-full justify-between'>
 
                                 <button onClick={(e)=>handleRejectHost(e, host._id)}>
-                                    Reject
+                                    Reject Host
                                     </button>
 
                                 <button onClick={(e)=>handleApproveHost(e, host._id)}>
-                                    Approve
+                                    Approve Host
                                     </button>
 
                             </div>
