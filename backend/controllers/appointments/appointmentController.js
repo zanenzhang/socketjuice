@@ -805,14 +805,14 @@ const hostRequestCancelSubmit = async (req, res) =>{
 
         if(foundUser){
 
-            const foundAppointment = await Appointment.updateOne({_id: appointmentId, _requestUserId: userId, _hostUserId: hostUserId}, {$set: {cancelRequestHostSubmit: true, status: "CancelSubmitted"}})
+            const foundAppointment = await Appointment.updateOne({_id: appointmentId, _requestUserId: userId, _hostUserId: hostUserId}, {$set: {cancelRequestHostSubmit: true, status: "Cancelled"}})
             const updateHostProfile = await HostProfile.updateOne({_id: hostUserId},{$inc: {numberOfAppointmentCancellations: 1}})
 
-            const newNoti = await Notification.create({_receivingUserId: userId, _sendingUserId: hostUserId, notificationType: "CancelSubmitted", 
+            const newNoti = await Notification.create({_receivingUserId: userId, _sendingUserId: hostUserId, notificationType: "HostCancelled", 
                     _relatedAppointment: foundAppointment._id})    
 
             if(foundUser.emailNotifications){
-                const success = await sendNotiEmail({firstName: foundUser.firstName, toUser:foundUser.email, notificationType: "CancelSubmitted"})
+                const success = await sendNotiEmail({firstName: foundUser.firstName, toUser:foundUser.email, notificationType: "HostCancelled"})
                 if(success){
                     doneEmail = true
                 }
@@ -821,7 +821,7 @@ const hostRequestCancelSubmit = async (req, res) =>{
             }
 
             if(foundUser.smsNotifications){
-                const success = await sendSmsNotification(hostUserId, "CancelSubmitted")
+                const success = await sendSmsNotification(hostUserId, "HostCancelled")
                 if(success){
                     doneSms = true
                 }

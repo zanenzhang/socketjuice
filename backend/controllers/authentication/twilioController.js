@@ -124,7 +124,7 @@ async function checkVerification (req, res) {
                     currency = "jpy"
                     currencySymbol = "¥"
                     searchObj["j1772ACChecked"] = true
-                    searchObj["chademoDChecked"] = true
+                    searchObj["chademoDCChecked"] = true
                     searchObj["teslaChecked"] = true
 
                 } else if(phoneCountryCode == "cn"){

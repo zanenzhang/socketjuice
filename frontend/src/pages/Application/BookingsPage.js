@@ -59,8 +59,8 @@ const BookingsPage = () => {
   const [isLoaded, setIsLoaded] = useState(false)
   const [value, setValue] = useState("0");
   const [waiting, setWaiting] = useState(false);
-  const [waitingHost, setWaitingHost] = useState(false);
-  const [waitingDriver, setWaitingDriver] = useState(false);
+  const [waitingSubmit, setWaitingSubmit] = useState(false);
+  const [waitingCancel, setWaitingCancel] = useState(false);
   
   const [errorMessage, setErrorMessage] = useState("");
   const IMAGE_UPLOAD_URL = '/s3/singleimage';
@@ -777,17 +777,22 @@ const handleRegularHourChangeEnd = (event, day) => {
 
     const handleEventRejectHost = async (e) => {
 
-      console.log(e)
+      setWaitingCancel(true)
 
-      const submitted = await addHostReject(e.userId, auth.userId, e.appointmentId, auth.userId, auth.accessToken)
+      const submitted = await addHostReject(selectedDriverUserId, auth.userId, selectedEventId, auth.userId, auth.accessToken)
 
       if(submitted){
         console.log("Cancel submitted")
+        alert("Submitted cancel request")
+        setOpenDetailsModalHost(false)
         setNewrequest(!newrequest)
+        setWaitingCancel(false)
       }
     }
 
     const handleEventCancelHost = async (e) => {
+
+      setWaitingCancel(true)
 
       const submitted = await addHostCancelSubmit(selectedDriverUserId, auth.userId, selectedEventId, auth.userId, auth.accessToken)
 
@@ -795,6 +800,7 @@ const handleRegularHourChangeEnd = (event, day) => {
         console.log("Cancel submitted")
         alert("Asked driver to cancel")
         setNewrequest(!newrequest)
+        setWaitingCancel(false)
         setOpenDetailsModalHost(false)
       }
     }
@@ -802,24 +808,30 @@ const handleRegularHourChangeEnd = (event, day) => {
 
     const handleEventRejectDriver = async (e) => {
 
-      console.log(e)
+      setWaitingCancel(true)
 
-      const submitted = await addDriverReject(e.userId, auth.userId, e.appointmentId, auth.userId, auth.accessToken)
+      const submitted = await addDriverReject(auth.userId, selectedHostUserId, selectedEventId, auth.userId, auth.accessToken)
 
       if(submitted){
         console.log("Cancel submitted")
+        alert("Asked to cancel")
+        setOpenDetailsModalDriver(false)
+        setWaitingCancel(false)
         setNewrequest(!newrequest)
       }
     }
 
     const handleEventCancelDriver = async (e) => {
 
-      console.log(e)
+      setWaitingCancel(true)
 
-      const submitted = await addDriverCancelSubmit(e.userId, auth.userId, e.appointmentId, auth.userId, auth.accessToken)
+      const submitted = await addDriverCancelSubmit(auth.userId, selectedDriverUserId, selectedEventId, auth.userId, auth.accessToken)
 
       if(submitted){
         console.log("Cancel submitted")
+        alert("Asked to cancel")
+        setOpenDetailsModalDriver(false)
+        setWaitingCancel(false)
         setNewrequest(!newrequest)
       }
     }
@@ -832,6 +844,8 @@ const handleRegularHourChangeEnd = (event, day) => {
         return
       }
 
+      setWaitingSubmit(true)
+
       if(driverRequestedCancel){
 
         const approvedCancel = await addHostCancelApprove(selectedDriverUserId, auth.userId, selectedEventId, auth.userId, auth.accessToken)
@@ -839,7 +853,9 @@ const handleRegularHourChangeEnd = (event, day) => {
         if(approvedCancel){
           console.log("Cancelled booking")
           alert("Cancelled booking")
+          setOpenDetailsModalHost(false)
           setNewrequest(!newrequest)
+          setWaitingSubmit(false)
         }
 
       } else if (selectedEventStatus === "Requested"){
@@ -851,6 +867,7 @@ const handleRegularHourChangeEnd = (event, day) => {
           alert("Booking approved")
           setOpenDetailsModalHost(false)
           setNewrequest(!newrequest)
+          setWaitingSubmit(false)
         }
 
       } 
@@ -867,22 +884,23 @@ const handleRegularHourChangeEnd = (event, day) => {
 
     const handleEventActionDriver = async (e) => {
 
-      console.log(e)
-
       if(driverRequestedCancel){
         return
       }
 
+      setWaitingSubmit(true)
+
       if(hostRequestedCancel){
 
-        const approvedCancel = await addDriverCancelApprove(auth.userId, e.hostId, selectedEventId, auth.userId, auth.accessToken)
+        const approvedCancel = await addDriverCancelApprove(auth.userId, selectedHostUserId, selectedEventId, auth.userId, auth.accessToken)
 
         if(approvedCancel){
           console.log("Booking completed")
           alert("Booking completed")
+          setOpenDetailsModalDriver(false)
           setNewrequest(!newrequest)
+          setWaitingSubmit(false)
         }
-
       } 
     }
 
@@ -1404,7 +1422,7 @@ const handleRegularHourChangeEnd = (event, day) => {
           <p>Received Bookings From Other EV Drivers</p>
           {deactivated && <p>Please note: You are currently not offering charging in your host settings</p>}
 
-            <div className='flex flex-col w-[350px] h-[400px] overflow-y-auto mx-2 hover:cursor-pointer'>
+            <div className='flex flex-col w-[350px] max-h-[400px] overflow-y-auto mx-2 hover:cursor-pointer'>
 
               {hostEvents.map((event) => (
                 
@@ -1419,7 +1437,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                     <p>Booked By: {event.firstName}</p>
                     <p>Start: {event.start.toLocaleTimeString()}</p>
                     <p>End: {event.end.toLocaleTimeString()}</p>
-                    <p>Status: {event.status}</p>
+                    <p>Status: {event.status === "CancelSubmitted" ? "Asked to Cancel" : event.status}</p>
                   </div>
 
                 </div>
@@ -2417,7 +2435,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                     <p>Address: {event.address.slice(0, (event.address.lastIndexOf(',', (event.address).lastIndexOf(',')-1))) }</p>
                     <p>Start: {event.start.toLocaleTimeString()}</p>
                     <p>End: {event.end.toLocaleTimeString()}</p>
-                    <p>Status: {event.status}</p>
+                    <p>Status: {event.status === "CancelSubmitted" ? "Asked to Cancel" : event.status}</p>
                   </div>
 
                 </div>
@@ -2516,9 +2534,23 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                     {(selectedEventStatus !== "Requested" && selectedEventStatus !== "Approved") &&
                     <button disabled={selectedEventStatus === "Approved" || selectedEventStatus === "Cancelled" || driverRequestedCancel} 
-                      className={`border border-gray-300 px-3 py-2 rounded-xl 
+                      className={`border border-gray-300 px-3 py-2 rounded-xl gap-x-2 flex flex-row justify-center items-center
                       ${ (selectedEventStatus === "Completed" || selectedEventStatus === "Cancelled" || driverRequestedCancel) ? "bg-[#c1f2f5] cursor-not-allowed" : "bg-[#c1f2f5] hover:bg-[#00D3E0] " } `}
                       onClick={(e)=>handleEventActionDriver(e)}>
+
+                    {waitingSubmit && 
+                      <div aria-label="Loading..." role="status">
+                          <svg className="h-4 w-4 animate-spin" viewBox="3 3 18 18">
+                          <path
+                              className="fill-gray-200"
+                              d="M12 5C8.13401 5 5 8.13401 5 12C5 15.866 8.13401 19 12 19C15.866 19 19 15.866 19 12C19 8.13401 15.866 5 12 5ZM3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12Z"></path>
+                          <path
+                              className="fill-[#00D3E0]"
+                              d="M16.9497 7.05015C14.2161 4.31648 9.78392 4.31648 7.05025 7.05015C6.65973 7.44067 6.02656 7.44067 5.63604 7.05015C5.24551 6.65962 5.24551 6.02646 5.63604 5.63593C9.15076 2.12121 14.8492 2.12121 18.364 5.63593C18.7545 6.02646 18.7545 6.65962 18.364 7.05015C17.9734 7.44067 17.3403 7.44067 16.9497 7.05015Z"></path>
+                          </svg>
+                      </div>
+                      }
+
                         {(selectedEventStatus === "Requested" && !driverRequestedCancel && !hostRequestedCancel) && <p>Approve Booking Request</p> }
                         {(selectedEventStatus === "CancelSubmitted" && driverRequestedCancel) && <p>You Asked To Cancel</p> }
                         {(selectedEventStatus === "CancelSubmitted" && hostRequestedCancel) && <p>Host Asked To Cancel</p> }
@@ -2527,14 +2559,44 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                     {selectedEventStatus === "Requested" && 
                       <button 
-                      className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]`}
+                      className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]
+                        gap-x-2 flex flex-row justify-center items-center`}
                       onClick={(e)=>handleEventRejectDriver(e)}>
+
+                    {waitingCancel && 
+                      <div aria-label="Loading..." role="status">
+                          <svg className="h-4 w-4 animate-spin" viewBox="3 3 18 18">
+                          <path
+                              className="fill-gray-200"
+                              d="M12 5C8.13401 5 5 8.13401 5 12C5 15.866 8.13401 19 12 19C15.866 19 19 15.866 19 12C19 8.13401 15.866 5 12 5ZM3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12Z"></path>
+                          <path
+                              className="fill-[#00D3E0]"
+                              d="M16.9497 7.05015C14.2161 4.31648 9.78392 4.31648 7.05025 7.05015C6.65973 7.44067 6.02656 7.44067 5.63604 7.05015C5.24551 6.65962 5.24551 6.02646 5.63604 5.63593C9.15076 2.12121 14.8492 2.12121 18.364 5.63593C18.7545 6.02646 18.7545 6.65962 18.364 7.05015C17.9734 7.44067 17.3403 7.44067 16.9497 7.05015Z"></path>
+                          </svg>
+                      </div>
+                      }
+
                         Cancel Booking Request
                       </button>}
 
                     {(selectedEventStatus === "Approved" && !driverRequestedCancel) && 
-                      <button className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]`}
+                      <button className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0] 
+                        gap-x-2 flex flex-row justify-center items-center`}
                       onClick={(e)=>handleEventCancelDriver(e)}>
+
+                      {waitingCancel && 
+                      <div aria-label="Loading..." role="status">
+                          <svg className="h-4 w-4 animate-spin" viewBox="3 3 18 18">
+                          <path
+                              className="fill-gray-200"
+                              d="M12 5C8.13401 5 5 8.13401 5 12C5 15.866 8.13401 19 12 19C15.866 19 19 15.866 19 12C19 8.13401 15.866 5 12 5ZM3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12Z"></path>
+                          <path
+                              className="fill-[#00D3E0]"
+                              d="M16.9497 7.05015C14.2161 4.31648 9.78392 4.31648 7.05025 7.05015C6.65973 7.44067 6.02656 7.44067 5.63604 7.05015C5.24551 6.65962 5.24551 6.02646 5.63604 5.63593C9.15076 2.12121 14.8492 2.12121 18.364 5.63593C18.7545 6.02646 18.7545 6.65962 18.364 7.05015C17.9734 7.44067 17.3403 7.44067 16.9497 7.05015Z"></path>
+                          </svg>
+                      </div>
+                      }
+
                         Approved - Request to Cancel
                       </button>}
 
@@ -2579,13 +2641,28 @@ const handleRegularHourChangeEnd = (event, day) => {
                     <p>End Time: {selectedEventEnd}</p>
                     <p>Status: {(driverRequestedCancel && selectedEventStatus !== "Cancelled") ? "Driver Requested To Cancel" : (( hostRequestedCancel && selectedEventStatus !== "Cancelled" ) ? "You Asked to Cancel" : (selectedEventStatus === "Requested" ? "Booking Requested" : (selectedEventStatus === "Approved" ? "Approved" : (selectedEventStatus === "Cancelled" ? "Cancelled" : "Completed")))) }</p>
 
-                    {(selectedEventStatus !== "Requested" && selectedEventStatus !== "Approved") &&
+                    {(selectedEventStatus !== "Approved") &&
                     <button   
                       disabled={(selectedEventStatus === "Approved" || selectedEventStatus === "Cancelled" || hostRequestedCancel )} 
                       className={`border border-gray-300 px-3 py-2 rounded-xl 
                       ${(selectedEventStatus === "Completed" || selectedEventStatus === "Cancelled" 
-                      || hostRequestedCancel) ? "bg-[#c1f2f5] cursor-not-allowed" : "bg-[#c1f2f5] hover:bg-[#00D3E0] " } `}
+                      || hostRequestedCancel) ? "bg-[#c1f2f5] cursor-not-allowed" : "bg-[#c1f2f5] hover:bg-[#00D3E0] " } 
+                        gap-x-2 flex flex-row justify-center items-center`}
                       onClick={(e)=>handleEventActionHost(e)}>
+
+                    {waitingSubmit && 
+                      <div aria-label="Loading..." role="status">
+                          <svg className="h-4 w-4 animate-spin" viewBox="3 3 18 18">
+                          <path
+                              className="fill-gray-200"
+                              d="M12 5C8.13401 5 5 8.13401 5 12C5 15.866 8.13401 19 12 19C15.866 19 19 15.866 19 12C19 8.13401 15.866 5 12 5ZM3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12Z"></path>
+                          <path
+                              className="fill-[#00D3E0]"
+                              d="M16.9497 7.05015C14.2161 4.31648 9.78392 4.31648 7.05025 7.05015C6.65973 7.44067 6.02656 7.44067 5.63604 7.05015C5.24551 6.65962 5.24551 6.02646 5.63604 5.63593C9.15076 2.12121 14.8492 2.12121 18.364 5.63593C18.7545 6.02646 18.7545 6.65962 18.364 7.05015C17.9734 7.44067 17.3403 7.44067 16.9497 7.05015Z"></path>
+                          </svg>
+                      </div>
+                      }
+
                         {(selectedEventStatus === "Requested" && !driverRequestedCancel && !hostRequestedCancel) && <p>Booking Requested - Approve</p> }
                         {(selectedEventStatus === "CancelSubmitted" && driverRequestedCancel) && <p>You Asked To Cancel</p> }
                         {(selectedEventStatus === "CancelSubmitted" && hostRequestedCancel) && <p>Host Asked To Cancel</p> }
@@ -2594,15 +2671,45 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                     {selectedEventStatus === "Requested" && 
                     <button 
-                      className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]`}
+                      className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]
+                        gap-x-2 flex flex-row justify-center items-center`}
                       onClick={(e)=>handleEventRejectHost(e)}>
+
+                    {waitingCancel && 
+                      <div aria-label="Loading..." role="status">
+                          <svg className="h-4 w-4 animate-spin" viewBox="3 3 18 18">
+                          <path
+                              className="fill-gray-200"
+                              d="M12 5C8.13401 5 5 8.13401 5 12C5 15.866 8.13401 19 12 19C15.866 19 19 15.866 19 12C19 8.13401 15.866 5 12 5ZM3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12Z"></path>
+                          <path
+                              className="fill-[#00D3E0]"
+                              d="M16.9497 7.05015C14.2161 4.31648 9.78392 4.31648 7.05025 7.05015C6.65973 7.44067 6.02656 7.44067 5.63604 7.05015C5.24551 6.65962 5.24551 6.02646 5.63604 5.63593C9.15076 2.12121 14.8492 2.12121 18.364 5.63593C18.7545 6.02646 18.7545 6.65962 18.364 7.05015C17.9734 7.44067 17.3403 7.44067 16.9497 7.05015Z"></path>
+                          </svg>
+                      </div>
+                      }
+
                         Cancel Booking Request
                     </button>}
 
                     {(selectedEventStatus === "Approved" && !driverRequestedCancel && !hostRequestedCancel) && 
                     <button 
-                    className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]`}
+                    className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]
+                      gap-x-2 flex flex-row justify-center items-center`}
                     onClick={(e)=>handleEventCancelHost(e)}>
+
+                    {waitingCancel && 
+                      <div aria-label="Loading..." role="status">
+                          <svg className="h-4 w-4 animate-spin" viewBox="3 3 18 18">
+                          <path
+                              className="fill-gray-200"
+                              d="M12 5C8.13401 5 5 8.13401 5 12C5 15.866 8.13401 19 12 19C15.866 19 19 15.866 19 12C19 8.13401 15.866 5 12 5ZM3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12Z"></path>
+                          <path
+                              className="fill-[#00D3E0]"
+                              d="M16.9497 7.05015C14.2161 4.31648 9.78392 4.31648 7.05025 7.05015C6.65973 7.44067 6.02656 7.44067 5.63604 7.05015C5.24551 6.65962 5.24551 6.02646 5.63604 5.63593C9.15076 2.12121 14.8492 2.12121 18.364 5.63593C18.7545 6.02646 18.7545 6.65962 18.364 7.05015C17.9734 7.44067 17.3403 7.44067 16.9497 7.05015Z"></path>
+                          </svg>
+                      </div>
+                      }
+
                       Approved - Ask Driver to Cancel
                     </button> }
 

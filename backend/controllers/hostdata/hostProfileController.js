@@ -61,7 +61,7 @@ const getHostProfilesCoord = async (req, res) => {
         return res.status(400).json({ message: 'Missing required info' })
     }
 
-    console.log(coordinatesInput, loggedUserId, dayofweek, localtime)
+    console.log("Getting host coord", coordinatesInput, loggedUserId, dayofweek, localtime)
 
     coordinatesInput = JSON.parse(coordinatesInput)
 

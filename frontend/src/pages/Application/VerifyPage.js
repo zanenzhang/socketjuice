@@ -653,6 +653,15 @@ const VerifyPage = () => {
 
                         const credits = uploadedUserPhotos?.data?.credits
 
+                        const j1772ACChecked = uploadedUserPhotos?.data?.j1772ACChecked
+                        const ccs1DCChecked = uploadedUserPhotos?.data?.ccs1DCChecked
+                        const mennekesACChecked = uploadedUserPhotos?.data?.mennekesACChecked
+                        const ccs2DCChecked = uploadedUserPhotos?.data?.ccs2DCChecked
+                        const chademoDCChecked = uploadedUserPhotos?.data?.chademoDCChecked
+                        const gbtACChecked = uploadedUserPhotos?.data?.gbtACChecked
+                        const gbtDCChecked = uploadedUserPhotos?.data?.gbtDCChecked
+                        const teslaChecked = uploadedUserPhotos?.data?.teslaChecked
+
                         setAuth(prev => {
                             return {
                                 ...prev,
@@ -665,7 +674,16 @@ const VerifyPage = () => {
                                 phoneNumber: phoneNumber,
                                 currency: currency, 
                                 currencySymbol: currencySymbol, 
-                                credits: credits
+                                credits: credits,
+
+                                j1772ACChecked: j1772ACChecked,
+                                ccs1DCChecked: ccs1DCChecked,
+                                mennekesACChecked: mennekesACChecked,
+                                ccs2DCChecked: ccs2DCChecked,
+                                chademoDCChecked: chademoDCChecked,
+                                gbtACChecked: gbtACChecked,
+                                gbtDCChecked: gbtDCChecked,
+                                teslaChecked: teslaChecked
                             }
                         });      
 

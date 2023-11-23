@@ -9,7 +9,7 @@ const Flags = require('../../model/Flags');
 const BannedUser = require('../../model/BannedUser');
 const ForexRate = require('../../model/ForexRate');
 
-const { sendPassResetConfirmation } = require('../../middleware/mailer');
+const { sendPassResetConfirmation, sendNewHostToAdmin } = require('../../middleware/mailer');
 const bcrypt = require('bcrypt');
 const ObjectId  = require('mongodb').ObjectId;
 
@@ -1160,7 +1160,6 @@ const uploadUserPhotos = async (req, res) => {
     
                 var signedURLBackPhoto = s3.getSignedUrl('getObject', signParamsBack);
 
-
                 foundUser.frontMediaURL = signedURLFrontPhoto
                 foundUser.backMediaURL = signedURLBackPhoto
                 foundUser.currentStage = 3
@@ -1482,15 +1481,6 @@ const addHostProfile = async (req, res) => {
 
     console.log("Adding new host profile")
 
-    console.log(userId, hostPreviewMediaObjectId, hostMediaObjectIds, hostVideoObjectIds, hostObjectTypes, 
-        hostPreviewObjectType, hostCoverIndex, chargeRate, currency, connectorType, secondaryConnectorType, chargingLevel,
-        hoursMondayStart, hoursMondayFinish, hoursTuesdayStart, hoursTuesdayFinish, hoursWednesdayStart, hoursWednesdayFinish, hoursThursdayStart, hoursThursdayFinish,
-        hoursFridayStart, hoursFridayFinish, hoursSaturdayStart, hoursSaturdayFinish, hoursSundayStart, hoursSundayFinish,
-        holidayHoursStart, holidayHoursFinish, 
-        closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays,
-        allDayMonday, allDayTuesday, allDayWednesday, allDayThursday, allDayFriday, allDaySaturday, allDaySunday, allDayHolidays,
-        hostComments)
-
     if (!userId || !hostMediaObjectIds || hostMediaObjectIds?.length < 2 ) {
         return res.status(400).json({ message: 'User ID Required' })
     }
@@ -1648,8 +1638,10 @@ const addHostProfile = async (req, res) => {
         holidayHoursFinish ? foundHost.holidayHoursFinish = holidayHoursFinish : foundHost.holidayHoursFinish = "";
 
         const savedHost = await foundHost.save()
+        const sentEmail = await sendNewHostToAdmin({hostUserId: foundHost._id, hostPhone: foundUser.phonePrimary, hostFirstName: foundUser.firstName, 
+            hostLastName: foundUser.lastName, hostAddress: foundHost.address})
 
-        if(savedHost){
+        if(savedHost && sentEmail){
             console.log("Saved new host profile")
             return res.status(200).json({"message": "Operation success"})
         }

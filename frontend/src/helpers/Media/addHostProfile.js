@@ -11,16 +11,6 @@ async function addHostProfile(userId, hostPreviewMediaObjectId, hostMediaObjectI
     hostComments,
     accessToken) {
 
-    console.log(userId, hostPreviewMediaObjectId, hostMediaObjectIds, hostVideoObjectIds, 
-        hostObjectTypes, hostPreviewObjectType, hostCoverIndex, chargeRate, currency, connectorType, secondaryConnectorType, chargingLevel,
-        hoursMondayStart, hoursMondayFinish, hoursTuesdayStart, hoursTuesdayFinish, hoursWednesdayStart, hoursWednesdayFinish, hoursThursdayStart, hoursThursdayFinish,
-        hoursFridayStart, hoursFridayFinish, hoursSaturdayStart, hoursSaturdayFinish, hoursSundayStart, hoursSundayFinish,
-        holidayHoursStart, holidayHoursFinish, 
-        closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays, 
-        allDayMonday, allDayTuesday, allDayWednesday, allDayThursday, allDayFriday, allDaySaturday, allDaySunday, allDayHolidays,
-        hostComments,
-        accessToken)
-
     try {
 
         const response = await axios.post(UPLOAD_URL, 

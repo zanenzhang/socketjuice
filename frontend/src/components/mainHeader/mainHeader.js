@@ -515,14 +515,14 @@ const MainHeader = ({loggedUserId} ) => {
                 const ccs1DCChecked = response?.data?.ccs1DCChecked
                 const mennekesACChecked = response?.data?.mennekesACChecked
                 const ccs2DCChecked = response?.data?.ccs2DCChecked
-                const chademoDChecked = response?.data?.chademoDChecked
+                const chademoDCChecked = response?.data?.chademoDCChecked
                 const gbtACChecked = response?.data?.gbtACChecked
                 const gbtDCChecked = response?.data?.gbtDCChecked
                 const teslaChecked = response?.data?.teslaChecked
 
                 setAuth({ firstName, lastName, userId, roles, accessToken, profilePicURL, phoneNumber,
                     currency, currencySymbol, credits, smsNotifications, pushNotifications, emailNotifications,
-                    j1772ACChecked, ccs1DCChecked, mennekesACChecked, ccs2DCChecked, chademoDChecked, gbtACChecked, 
+                    j1772ACChecked, ccs1DCChecked, mennekesACChecked, ccs2DCChecked, chademoDCChecked, gbtACChecked, 
                     gbtDCChecked, teslaChecked });
 
                 localStorage.setItem("socketjuice-persist", persist)

@@ -216,6 +216,25 @@ exports.sendVerifiedEmail = function({toUser, firstName}) {
     return sendEmail(message);
   }
 
+  exports.sendNewHostToAdmin = function({hostUserId, hostPhone, hostFirstName, hostLastName, hostAddress}) {
+    const message = {
+      from: process.env.EMAIL_SUPPORT,
+      // to: toUser.email // in production uncomment this
+      to: process.env.EMAIL_SUPPORT,
+      subject: 'SocketJuice - New Host Submitted',
+      html: `
+        <p>A new host has applied </p>
+        <p>UserId: ${hostUserId}</p>
+        <p>Phone Number: ${hostPhone}</p>
+        <p>First Name: ${hostFirstName}</p>
+        <p>Last Name: ${hostLastName}</p>
+        <p>Address: ${hostAddress}</p>
+      `,
+    }
+  
+    return sendEmail(message);
+  }
+
   exports.sendVerifiedAccount = function({toUser, firstName}) {
     const message = {
       from: process.env.EMAIL_SUPPORT,
