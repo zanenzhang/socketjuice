@@ -23,8 +23,12 @@ function NotificationItem({notiLine}) {
 
             setMessage(`Your cancellation request at ${notiLine?.appointment?.address} for ${notiLine?.appointment?.start.toTimeString()} was submitted. `)
 
+        } else if (notiLine?.notificationType === "Cancelled"){
+
+            setMessage(`Your booking at ${notiLine?.appointment?.address} for ${notiLine?.appointment?.start.toTimeString()} was cancelled and refunded. `)
+
         } else if (notiLine?.notificationType === "Completed"){
-            
+
             setMessage(`Your booking at ${notiLine?.appointment?.address} has ended. `)
         }
 

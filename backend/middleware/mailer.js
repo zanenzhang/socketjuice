@@ -69,6 +69,10 @@ exports.sendNotiEmail = function({firstName, toUser, notificationType}) {
   } else if (notificationType === "CancelSubmitted"){
 
       message = `Unfortunately, someone requested to cancel and refund their booking. Please open the app to approve or reject the cancellation and refund request.`
+  
+  } else if (notificationType === "Cancelled"){
+
+    message = `Sorry, your booking request was cancelled and refunded. Accounts with high volumes of cancellations will be reviewed.`
   }
 
   console.log("Sending noti email")

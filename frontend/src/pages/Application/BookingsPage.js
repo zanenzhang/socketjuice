@@ -495,7 +495,7 @@ useEffect( () => {
     setSelectedLng(driverevent.location[1])
     setSelectProfilePic(driverevent.profilePicURL)
     
-    setOpenDetailsModalHost(true)
+    setOpenDetailsModalDriver(true)
 
   }
 
@@ -2420,7 +2420,7 @@ const handleRegularHourChangeEnd = (event, day) => {
 
               <p>Your Outgoing Bookings</p>
 
-              <div className='flex flex-col w-[350px] h-[400px] overflow-y-auto mx-2 hover:cursor-pointer'>
+              <div className='flex flex-col w-[350px] max-h-[400px] overflow-y-auto mx-2 hover:cursor-pointer'>
 
               {driverEvents.map((event) => (
                 
@@ -2524,13 +2524,13 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                 <div className='pt-1 pb-4 flex flex-col gap-y-3'>
 
-                    <p className='text-center text-lg font-semibold'>Details of Booking Request</p>
+                    <p className='text-center text-lg font-semibold'>Details of Outgoing Booking Request</p>
 
                     <img className='w-[350px] h-[350px]' src={`https://maps.googleapis.com/maps/api/staticmap?center=${selectedAddress}&zoom=14&size=300x300&markers=color:yellow%7C${selectedLat},${selectedLng}&maptype=roadmap&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`} />
                     
                     <p>Start Time: {selectedEventStart}</p>
                     <p>End Time: {selectedEventEnd}</p>
-                    <p>Status: {(driverRequestedCancel && selectedEventStatus !== "Cancelled") ? "You Requested To Cancel" : ( (hostRequestedCancel && selectedEventStatus !== "Cancelled" ) ? "You Asked to Cancel" : (selectedEventStatus === "Requested" ? "Booking Requested" : (selectedEventStatus === "Approved" ? "Approved" : (selectedEventStatus === "Cancelled" ? "Cancelled" : "Completed")))) }</p>
+                    <p>Status: {(driverRequestedCancel && selectedEventStatus !== "Cancelled") ? "You Asked To Cancel" : ( (hostRequestedCancel && selectedEventStatus !== "Cancelled" ) ? "You Asked to Cancel" : (selectedEventStatus === "Requested" ? "Booking Requested" : (selectedEventStatus === "Approved" ? "Approved" : (selectedEventStatus === "Cancelled" ? "Cancelled" : "Completed")))) }</p>
 
                     {(selectedEventStatus !== "Requested" && selectedEventStatus !== "Approved") &&
                     <button disabled={selectedEventStatus === "Approved" || selectedEventStatus === "Cancelled" || driverRequestedCancel} 
@@ -2552,7 +2552,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                       }
 
                         {(selectedEventStatus === "Requested" && !driverRequestedCancel && !hostRequestedCancel) && <p>Approve Booking Request</p> }
-                        {(selectedEventStatus === "CancelSubmitted" && driverRequestedCancel) && <p>You Asked To Cancel</p> }
+                        {(selectedEventStatus === "CancelSubmitted" && driverRequestedCancel) && <p>You Asked To Cancel - Waiting For Cancellation and Refund</p> }
                         {(selectedEventStatus === "CancelSubmitted" && hostRequestedCancel) && <p>Host Asked To Cancel</p> }
                         {(selectedEventStatus === "Cancelled") && <p>Cancelled</p> }
                     </button>}
@@ -2633,13 +2633,13 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                 <div className='pt-1 pb-4 flex flex-col gap-y-3'>
 
-                    <p className='text-center text-lg font-semibold'>Details of Booking Request</p>
+                    <p className='text-center text-lg font-semibold'>Details of Incoming Booking Request</p>
 
                     <img className='w-[350px] h-[350px]' src={`https://maps.googleapis.com/maps/api/staticmap?center=${selectedAddress}&zoom=14&size=300x300&markers=color:yellow%7C${selectedLat},${selectedLng}&maptype=roadmap&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`} />
                     
                     <p>Start Time: {selectedEventStart}</p>
                     <p>End Time: {selectedEventEnd}</p>
-                    <p>Status: {(driverRequestedCancel && selectedEventStatus !== "Cancelled") ? "Driver Requested To Cancel" : (( hostRequestedCancel && selectedEventStatus !== "Cancelled" ) ? "You Asked to Cancel" : (selectedEventStatus === "Requested" ? "Booking Requested" : (selectedEventStatus === "Approved" ? "Approved" : (selectedEventStatus === "Cancelled" ? "Cancelled" : "Completed")))) }</p>
+                    <p>Status: {(driverRequestedCancel && selectedEventStatus === "CancelSubmitted") ? "Driver Requested To Cancel" : ((selectedEventStatus === "Requested" ? "Booking Requested" : (selectedEventStatus === "Approved" ? "Approved" : (selectedEventStatus === "Cancelled" ? "Cancelled" : "Completed")))) }</p>
 
                     {(selectedEventStatus !== "Approved") &&
                     <button   
@@ -2664,7 +2664,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                       }
 
                         {(selectedEventStatus === "Requested" && !driverRequestedCancel && !hostRequestedCancel) && <p>Booking Requested - Approve</p> }
-                        {(selectedEventStatus === "CancelSubmitted" && driverRequestedCancel) && <p>You Asked To Cancel</p> }
+                        {(selectedEventStatus === "CancelSubmitted" && driverRequestedCancel) && <p>Driver Asked To Cancel - Refund and Approve Cancellation</p> }
                         {(selectedEventStatus === "CancelSubmitted" && hostRequestedCancel) && <p>Host Asked To Cancel</p> }
                         {(selectedEventStatus === "Cancelled") && <p>Cancelled</p> }
                     </button>}
@@ -2710,7 +2710,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                       </div>
                       }
 
-                      Approved - Ask Driver to Cancel
+                      Approved - Cancel and Refund
                     </button> }
 
                     {(selectedAddress && selectedHostUserId !== auth.userId) && 

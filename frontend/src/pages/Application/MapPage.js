@@ -1742,7 +1742,9 @@ const {scrollToTime} = useMemo(
                     </button>
 
                     {(selectedEventStatus !== "Requested") 
-                      && <button onClick={(e)=>handleMessage(e)}>
+                      && 
+                      <button className='border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]'
+                      onClick={(e)=>handleMessage(e)}>
                       Send Message
                     </button>}
 

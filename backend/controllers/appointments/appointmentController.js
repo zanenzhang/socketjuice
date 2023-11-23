@@ -808,11 +808,11 @@ const hostRequestCancelSubmit = async (req, res) =>{
             const foundAppointment = await Appointment.updateOne({_id: appointmentId, _requestUserId: userId, _hostUserId: hostUserId}, {$set: {cancelRequestHostSubmit: true, status: "Cancelled"}})
             const updateHostProfile = await HostProfile.updateOne({_id: hostUserId},{$inc: {numberOfAppointmentCancellations: 1}})
 
-            const newNoti = await Notification.create({_receivingUserId: userId, _sendingUserId: hostUserId, notificationType: "HostCancelled", 
+            const newNoti = await Notification.create({_receivingUserId: userId, _sendingUserId: hostUserId, notificationType: "Cancelled", 
                     _relatedAppointment: foundAppointment._id})    
 
             if(foundUser.emailNotifications){
-                const success = await sendNotiEmail({firstName: foundUser.firstName, toUser:foundUser.email, notificationType: "HostCancelled"})
+                const success = await sendNotiEmail({firstName: foundUser.firstName, toUser:foundUser.email, notificationType: "Cancelled"})
                 if(success){
                     doneEmail = true
                 }
@@ -821,7 +821,7 @@ const hostRequestCancelSubmit = async (req, res) =>{
             }
 
             if(foundUser.smsNotifications){
-                const success = await sendSmsNotification(hostUserId, "HostCancelled")
+                const success = await sendSmsNotification(hostUserId, "Cancelled")
                 if(success){
                     doneSms = true
                 }
@@ -929,7 +929,7 @@ const hostRequestCancelApprove = async (req, res) =>{
                         _relatedAppointment: foundAppointment._id})
 
                 if(foundUser.emailNotifications){
-                    const success = await sendNotiEmail({firstName: foundUser.firstName, toUser:foundUser.email, notificationType: "CancelSubmitted"})
+                    const success = await sendNotiEmail({firstName: foundUser.firstName, toUser:foundUser.email, notificationType: "Cancelled"})
                     if(success){
                         doneEmail = true
                     }
@@ -938,7 +938,7 @@ const hostRequestCancelApprove = async (req, res) =>{
                 }
     
                 if(foundUser.smsNotifications){
-                    const success = await sendSmsNotification(hostUserId, "CancelSubmitted")
+                    const success = await sendSmsNotification(hostUserId, "Cancelled")
                     if(success){
                         doneSms = true
                     }
