@@ -553,9 +553,12 @@ const {scrollToTime} = useMemo(
 
     if(submitted){
       console.log("Cancel submitted")
+      
       setOpenDetailsModal(false)
       setNewrequest(!newrequest)
       setWaitingSubmit(false);
+
+      alert("Booking request has been cancelled")
     }
   }
 
@@ -1468,24 +1471,23 @@ const {scrollToTime} = useMemo(
                     
                     </div>
                     
-                    <div className='flex flex-row w-full gap-x-4 justify-around pt-2'>
-                      <p>Distance: {host.distanceText} / {host.durationText}</p>
-                      <p>Available: Now</p>
-                    </div>
+                    <div className='flex flex-row w-full justify-between items-center'>
 
-                    <div className='flex flex-row w-full gap-x-4 justify-around'>
-                    <p>Distance: {selectedDistance} / {selectedDuration}</p>
-                    <p>30 Min Rate: {host.currencySymbol}{host.chargeRatePerHalfHour.toFixed(2)}</p>
+                    <div className='flex flex-col w-full'>
+                        <p>Distance: {host.distanceText} / {host.durationText}</p>
+                        <p>30 Min Rate: {host.currencySymbol}{Number(host.chargeRatePerHalfHour).toFixed(2)}</p>
+                      </div>
+                    
+                      <div className='flex flex-row'>
                       
                       <button 
-                        className='px-3 py-1 bg-[#FFE142] hover:bg-[orange] rounded-lg'
+                        className='px-3 py-2 bg-[#FFE142] hover:bg-[orange] rounded-lg'
                         onClick={(e)=>handleOpenReserveModal(e, host)}
                         >
                           Reserve
                       </button>
-
+                      </div>
                     </div>
-
                 </div>
                 ))}
 

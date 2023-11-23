@@ -59,6 +59,9 @@ const BookingsPage = () => {
   const [isLoaded, setIsLoaded] = useState(false)
   const [value, setValue] = useState("0");
   const [waiting, setWaiting] = useState(false);
+  const [waitingHost, setWaitingHost] = useState(false);
+  const [waitingDriver, setWaitingDriver] = useState(false);
+  
   const [errorMessage, setErrorMessage] = useState("");
   const IMAGE_UPLOAD_URL = '/s3/singleimage';
 
@@ -448,6 +451,54 @@ useEffect( () => {
     navigate(`/messages`);
   }
 
+
+  const handleHostEventListClick = (event, hostevent) => {
+
+    event.preventDefault()
+    console.log(hostevent)
+
+    setSelectedDriverUserId(hostevent.requesterId)
+    setSelectedHostUserId(hostevent.hostId)
+    setSelectedEventId(hostevent.appointmentId)
+    setSelectedAddress(hostevent.address)
+    setSelectedEventStart(hostevent.start.toLocaleTimeString())
+    setSelectedEventEnd(hostevent.end.toLocaleTimeString())
+    setSelectedEventStatus(hostevent.status)
+    
+    setDriverRequestedCancel(hostevent.driverRequestedCancel)
+    setHostRequestedCancel(hostevent.hostRequestedCancel)
+
+    setSelectedLat(hostevent.location[0])
+    setSelectedLng(hostevent.location[1])
+    setSelectProfilePic(hostevent.profilePicURL)
+    
+    setOpenDetailsModalHost(true)
+  }
+
+  const handleDriverEventListClick = (event, driverevent) => {
+
+    event.preventDefault()
+    console.log(driverevent)
+
+    setSelectedDriverUserId(driverevent.requesterId)
+    setSelectedHostUserId(driverevent.hostId)
+    setSelectedEventId(driverevent.appointmentId)
+    setSelectedAddress(driverevent.address)
+    setSelectedEventStart(driverevent.start.toLocaleTimeString())
+    setSelectedEventEnd(driverevent.end.toLocaleTimeString())
+    setSelectedEventStatus(driverevent.status)
+    
+    setDriverRequestedCancel(driverevent.driverRequestedCancel)
+    setHostRequestedCancel(driverevent.hostRequestedCancel)
+
+    setSelectedLat(driverevent.location[0])
+    setSelectedLng(driverevent.location[1])
+    setSelectProfilePic(driverevent.profilePicURL)
+    
+    setOpenDetailsModalHost(true)
+
+  }
+
   const handleDayClosed = (event, day) => {
 
     if (day === 'Monday'){
@@ -738,13 +789,13 @@ const handleRegularHourChangeEnd = (event, day) => {
 
     const handleEventCancelHost = async (e) => {
 
-      console.log(e)
-
-      const submitted = await addHostCancelSubmit(e.userId, auth.userId, e.appointmentId, auth.userId, auth.accessToken)
+      const submitted = await addHostCancelSubmit(selectedDriverUserId, auth.userId, selectedEventId, auth.userId, auth.accessToken)
 
       if(submitted){
         console.log("Cancel submitted")
+        alert("Asked driver to cancel")
         setNewrequest(!newrequest)
+        setOpenDetailsModalHost(false)
       }
     }
 
@@ -775,7 +826,7 @@ const handleRegularHourChangeEnd = (event, day) => {
     
     const handleEventActionHost = async (e) => {
 
-      console.log(e)
+      e.preventDefault()
 
       if(hostRequestedCancel){
         return
@@ -787,15 +838,18 @@ const handleRegularHourChangeEnd = (event, day) => {
 
         if(approvedCancel){
           console.log("Cancelled booking")
+          alert("Cancelled booking")
           setNewrequest(!newrequest)
         }
 
       } else if (selectedEventStatus === "Requested"){
 
-        const bookingApproved = await addAppointmentApproval(e._userId, auth.userId, e.start, e.end, auth.accessToken)
+        const bookingApproved = await addAppointmentApproval(selectedDriverUserId, auth.userId, selectedEventId, auth.accessToken)
 
         if(bookingApproved){
           console.log("Booking approved")
+          alert("Booking approved")
+          setOpenDetailsModalHost(false)
           setNewrequest(!newrequest)
         }
 
@@ -825,6 +879,7 @@ const handleRegularHourChangeEnd = (event, day) => {
 
         if(approvedCancel){
           console.log("Booking completed")
+          alert("Booking completed")
           setNewrequest(!newrequest)
         }
 
@@ -1177,10 +1232,12 @@ const handleRegularHourChangeEnd = (event, day) => {
 
             if(hostuserdata[hostresults.hostAppointments[i]._hostUserId]){
               hostresults.hostAppointments[i].profilePicURL = hostuserdata[hostresults.hostAppointments[i]._hostUserId].profilePicURL
+              hostresults.hostAppointments[i].firstName = hostuserdata[hostresults.hostAppointments[i]._hostUserId].firstName
+              hostresults.hostAppointments[i].lastName = hostuserdata[hostresults.hostAppointments[i]._hostUserId].lastName
             }
             
             var instance = {
-              id: `booking_${hostresults.hostAppointments[i]._hostUserId}`,
+              id: `booking_${hostresults.hostAppointments[i]._id}`,
               appointmentId: hostresults.hostAppointments[i]._id, 
               title: "Booked Time",
               address: hostresults.hostAppointments[i].address,
@@ -1193,6 +1250,8 @@ const handleRegularHourChangeEnd = (event, day) => {
               driverRequestedCancel: hostresults.hostAppointments[i].cancelRequestDriverSubmit,
               hostRequestedCancel: hostresults.hostAppointments[i].cancelRequestHostSubmit,
               profilePicURL: hostresults.hostAppointments[i].profilePicURL,
+              firstName: hostresults.hostAppointments[i].firstName,
+              lastName: hostresults.hostAppointments[i].lastName,
               isDraggable: true
             }
   
@@ -1269,7 +1328,7 @@ const handleRegularHourChangeEnd = (event, day) => {
             }
             
             var instance = {
-              id: `booking_${driverresults.userAppointments[i]._hostUserId}`,
+              id: `booking_${driverresults.userAppointments[i]._id}`,
               appointmentId: driverresults.userAppointments[i]._id, 
               title: "Booked Time",
               address: driverresults.userAppointments[i].address,
@@ -1282,6 +1341,8 @@ const handleRegularHourChangeEnd = (event, day) => {
               driverRequestedCancel: driverresults.userAppointments[i].cancelRequestDriverSubmit,
               hostRequestedCancel: driverresults.userAppointments[i].cancelRequestHostSubmit,
               profilePicURL: driverresults.userAppointments[i].profilePicURL,
+              firstName: driverresults.userAppointments[i].firstName,
+              lastName: driverresults.userAppointments[i].lastName,
               isDraggable: true
             }
 
@@ -1301,12 +1362,6 @@ const handleRegularHourChangeEnd = (event, day) => {
   
     }, [currentDateDriver, auth, value, newrequest])
 
-
-    useEffect( ()=> {
-
-
-
-    }, [pickerDateHost])
 
     
   return (
@@ -1349,31 +1404,30 @@ const handleRegularHourChangeEnd = (event, day) => {
           <p>Received Bookings From Other EV Drivers</p>
           {deactivated && <p>Please note: You are currently not offering charging in your host settings</p>}
 
-            <div className='flex flex-col w-[250px] max-h-[400px]'>
+            <div className='flex flex-col w-[350px] h-[400px] overflow-y-auto mx-2 hover:cursor-pointer'>
 
               {hostEvents.map((event) => (
                 
                 <div key={event.id} className='flex flex-row w-full border border-[#00D3E0]'
-                  onClick={()=>{}}>
+                  onClick={(e)=>{handleHostEventListClick(e, event)}}>
 
-                  <div className='flex flex-col'>
+                  <div className='flex flex-col p-4 flex-shrink-0'>
                     <img className='w-[50px] rounded-full' src={event.profilePicURL} />
                   </div>
 
-                  <div className='flex flex-col'>
-                    <p>Address: {event.address}</p>
+                  <div className='flex flex-col gap-y-1 pl-4'>
+                    <p>Booked By: {event.firstName}</p>
                     <p>Start: {event.start.toLocaleTimeString()}</p>
                     <p>End: {event.end.toLocaleTimeString()}</p>
                     <p>Status: {event.status}</p>
                   </div>
 
                 </div>
-
               ))}
 
             </div>
 
-              <div className='flex flex-col w-[250px]'>
+              <div className='flex flex-col w-[250px] pt-4'>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
 
                     <DatePicker
@@ -2348,19 +2402,19 @@ const handleRegularHourChangeEnd = (event, day) => {
 
               <p>Your Outgoing Bookings</p>
 
-              <div className='flex flex-col w-[250px] max-h-[400px]'>
+              <div className='flex flex-col w-[350px] h-[400px] overflow-y-auto mx-2 hover:cursor-pointer'>
 
               {driverEvents.map((event) => (
                 
                 <div key={event.id} className='flex flex-row w-full border border-[#00D3E0]'
-                  onClick={()=>{}}>
+                  onClick={(e)=>{handleDriverEventListClick(e, event)}}>
 
-                  <div className='flex flex-col'>
+                  <div className='flex flex-col p-4 flex-shrink-0'>
                     <img className='w-[50px] rounded-full' src={event.profilePicURL} />
                   </div>
 
-                  <div className='flex flex-col'>
-                    <p>Address: {event.address}</p>
+                  <div className='flex flex-col gap-y-1 pl-4'>
+                    <p>Address: {event.address.slice(0, (event.address.lastIndexOf(',', (event.address).lastIndexOf(',')-1))) }</p>
                     <p>Start: {event.start.toLocaleTimeString()}</p>
                     <p>End: {event.end.toLocaleTimeString()}</p>
                     <p>Status: {event.status}</p>
@@ -2372,7 +2426,7 @@ const handleRegularHourChangeEnd = (event, day) => {
 
             </div>
 
-              <div className='flex flex-col w-[250px]'>
+              <div className='flex flex-col w-[250px] pt-4'>
 
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
 
@@ -2460,6 +2514,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                     <p>End Time: {selectedEventEnd}</p>
                     <p>Status: {(driverRequestedCancel && selectedEventStatus !== "Cancelled") ? "You Requested To Cancel" : ( (hostRequestedCancel && selectedEventStatus !== "Cancelled" ) ? "You Asked to Cancel" : (selectedEventStatus === "Requested" ? "Booking Requested" : (selectedEventStatus === "Approved" ? "Approved" : (selectedEventStatus === "Cancelled" ? "Cancelled" : "Completed")))) }</p>
 
+                    {(selectedEventStatus !== "Requested" && selectedEventStatus !== "Approved") &&
                     <button disabled={selectedEventStatus === "Approved" || selectedEventStatus === "Cancelled" || driverRequestedCancel} 
                       className={`border border-gray-300 px-3 py-2 rounded-xl 
                       ${ (selectedEventStatus === "Completed" || selectedEventStatus === "Cancelled" || driverRequestedCancel) ? "bg-[#c1f2f5] cursor-not-allowed" : "bg-[#c1f2f5] hover:bg-[#00D3E0] " } `}
@@ -2468,7 +2523,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                         {(selectedEventStatus === "CancelSubmitted" && driverRequestedCancel) && <p>You Asked To Cancel</p> }
                         {(selectedEventStatus === "CancelSubmitted" && hostRequestedCancel) && <p>Host Asked To Cancel</p> }
                         {(selectedEventStatus === "Cancelled") && <p>Cancelled</p> }
-                    </button>
+                    </button>}
 
                     {selectedEventStatus === "Requested" && 
                       <button 
@@ -2489,8 +2544,10 @@ const handleRegularHourChangeEnd = (event, day) => {
                         Get Directions (Opens Map)
                     </button>}
 
-                    {(selectedEventStatus !== "Requested") 
-                      && <button onClick={(e)=>handleMessageDriver(e)}>
+                    {(selectedEventStatus !== "Requested" && selectedEventStatus !== "Cancelled" && selectedEventStatus !== "Completed" ) 
+                      && 
+                    <button className='border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]'
+                    onClick={(e)=>handleMessageDriver(e)}>
                       Send Message
                     </button>}
 
@@ -2522,6 +2579,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                     <p>End Time: {selectedEventEnd}</p>
                     <p>Status: {(driverRequestedCancel && selectedEventStatus !== "Cancelled") ? "Driver Requested To Cancel" : (( hostRequestedCancel && selectedEventStatus !== "Cancelled" ) ? "You Asked to Cancel" : (selectedEventStatus === "Requested" ? "Booking Requested" : (selectedEventStatus === "Approved" ? "Approved" : (selectedEventStatus === "Cancelled" ? "Cancelled" : "Completed")))) }</p>
 
+                    {(selectedEventStatus !== "Requested" && selectedEventStatus !== "Approved") &&
                     <button   
                       disabled={(selectedEventStatus === "Approved" || selectedEventStatus === "Cancelled" || hostRequestedCancel )} 
                       className={`border border-gray-300 px-3 py-2 rounded-xl 
@@ -2532,7 +2590,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                         {(selectedEventStatus === "CancelSubmitted" && driverRequestedCancel) && <p>You Asked To Cancel</p> }
                         {(selectedEventStatus === "CancelSubmitted" && hostRequestedCancel) && <p>Host Asked To Cancel</p> }
                         {(selectedEventStatus === "Cancelled") && <p>Cancelled</p> }
-                    </button>
+                    </button>}
 
                     {selectedEventStatus === "Requested" && 
                     <button 
@@ -2545,16 +2603,19 @@ const handleRegularHourChangeEnd = (event, day) => {
                     <button 
                     className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]`}
                     onClick={(e)=>handleEventCancelHost(e)}>
-                      Approved - Ask to Cancel
+                      Approved - Ask Driver to Cancel
                     </button> }
 
-                    {(selectedAddress && selectedHostUserId !== auth.userId) && <button className='border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]'
+                    {(selectedAddress && selectedHostUserId !== auth.userId) && 
+                    <button className='border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]'
                       onClick={(e)=>handleLinkURLDirections(e, selectedAddress)}>
                         Get Directions (Opens Map)
                     </button>}
 
-                    {(selectedEventStatus !== "Requested") 
-                      && <button onClick={(e)=>handleMessageHost(e)}>
+                    {(selectedEventStatus !== "Requested" && selectedEventStatus !== "Cancelled" && selectedEventStatus !== "Completed" ) 
+                      && 
+                    <button className='border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]'
+                    onClick={(e)=>handleMessageDriver(e)}>
                       Send Message
                     </button>}
 

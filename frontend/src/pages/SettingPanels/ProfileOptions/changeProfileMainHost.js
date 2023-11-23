@@ -845,11 +845,11 @@ useEffect( () => {
             </div>
 
             <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
-                md:w-[27vh] mt-4'>
+                md:w-[30vh] mt-4'>
 
-                {/* <label className='pb-4 font-bold'>Closed on Monday?</label> */}
+                    <label className='pb-4 font-bold'>Closed on Monday?</label>
                     <FormControlLabel
-                        label="Closed on Monday?"
+                        label=""
                         control={
                         <Checkbox checked={closedOnMonday}
                             onChange={(e)=>handleDayClosed(e, "Monday")}
@@ -864,11 +864,11 @@ useEffect( () => {
             </div>
 
                 <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
-                    md:w-[27vh] mt-4'>
+                    md:w-[30vh] mt-4'>
 
-                    {/* <label className='pb-4 font-bold'>Open 24/7 on Monday?</label> */}
+                    <label className='pb-4 font-bold'>Open 24/7 on Monday?</label>
                     <FormControlLabel
-                        label="Open 24/7 on Monday?"
+                        label=""
                         control={
                         <Checkbox checked={allDayMonday}
                                 onChange={(e)=>handleAllDay(e, "Monday")}
@@ -931,11 +931,11 @@ useEffect( () => {
             </div>
 
                 <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
-                    md:w-[27vh] mt-4'>
+                    md:w-[30vh] mt-4'>
 
-                    {/* <label className='pb-4 font-bold'>Closed on Tuesday?</label> */}
+                    <label className='pb-4 font-bold'>Closed on Tuesday?</label>
                     <FormControlLabel
-                        label="Closed on Tuesday?"
+                        label=""
                         control={
                         <Checkbox checked={closedOnTuesday}
                             onChange={(e)=>handleDayClosed(e, "Tuesday")}
@@ -951,11 +951,11 @@ useEffect( () => {
                 </div>
 
                 <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
-                    md:w-[27vh] mt-4'>
+                    md:w-[30vh] mt-4'>
 
-                    {/* <label className='pb-4 font-bold'>Open 24/7 on Tuesday?</label> */}
+                    <label className='pb-4 font-bold'>Open 24/7 on Tuesday?</label>
                     <FormControlLabel
-                        label="Open 24/7 on Tuesday?"
+                        label=""
                         control={
                         <Checkbox checked={allDayTuesday}
                                 onChange={(e)=>handleAllDay(e, "Tuesday")}
@@ -1020,11 +1020,11 @@ useEffect( () => {
             </div>
 
                 <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
-                    md:w-[27vh] mt-4'>
+                    md:w-[30vh] mt-4'>
 
-                    {/* <label className='pb-4 font-bold'>Closed on Wednesday?</label> */}
+                    <label className='pb-4 font-bold'>Closed on Wednesday?</label>
                     <FormControlLabel
-                        label="Closed on Wednesday?"
+                        label=""
                         control={
                         <Checkbox checked={closedOnWednesday}
                                 onChange={(e)=>handleDayClosed(e, "Wednesday")}
@@ -1039,11 +1039,11 @@ useEffect( () => {
                 </div>
 
                 <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
-                    md:w-[27vh] mt-4'>
+                    md:w-[30vh] mt-4'>
 
-                    {/* <label className='pb-4 font-bold'>Open 24/7 on Wednesday?</label> */}
+                    <label className='pb-4 font-bold'>Open 24/7 on Wednesday?</label>
                     <FormControlLabel
-                        label="Open 24/7 on Wednesday?"
+                        label=""
                         control={
                         <Checkbox checked={allDayWednesday}
                                 onChange={(e)=>handleAllDay(e, "Wednesday")}
@@ -1107,11 +1107,11 @@ useEffect( () => {
             </div>
 
                 <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
-                    md:w-[27vh] mt-4'>
+                    md:w-[30vh] mt-4'>
 
-                    {/* <label className='pb-4 font-bold'>Closed on Thursday?</label> */}
+                    <label className='pb-4 font-bold'>Closed on Thursday?</label>
                     <FormControlLabel
-                        label="Closed on Thursday?"
+                        label=""
                         control={
                         <Checkbox checked={closedOnThursday}
                                 onChange={(e)=>handleDayClosed(e, "Thursday")}
@@ -1126,11 +1126,11 @@ useEffect( () => {
                 </div>
 
                 <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
-                    md:w-[27vh] mt-4'>
+                    md:w-[30vh] mt-4'>
 
-                    {/* <label className='pb-4 font-bold'>Open 24/7 on Thursday?</label> */}
+                    <label className='pb-4 font-bold'>Open 24/7 on Thursday?</label>
                     <FormControlLabel
-                        label="Open 24/7 on Thursday?"
+                        label=""
                         control={
                         <Checkbox checked={allDayThursday}
                                 onChange={(e)=>handleAllDay(e, "Thursday")}
@@ -1194,11 +1194,11 @@ useEffect( () => {
             </div>
 
                 <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
-                    md:w-[27vh] mt-4'>
+                    md:w-[30vh] mt-4'>
 
-                    {/* <label className='pb-4 font-bold'>Closed on Friday?</label> */}
+                    <label className='pb-4 font-bold'>Closed on Friday?</label>
                     <FormControlLabel
-                        label="Closed on Friday?"
+                        label=""
                         control={
                         <Checkbox checked={closedOnFriday}
                                 onChange={(e)=>handleDayClosed(e, "Friday")}
@@ -1213,11 +1213,11 @@ useEffect( () => {
                 </div>
 
                 <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
-                    md:w-[27vh] mt-4'>
+                    md:w-[30vh] mt-4'>
 
-                    {/* <label className='pb-4 font-bold'>Open 24/7 on Friday?</label> */}
+                    <label className='pb-4 font-bold'>Open 24/7 on Friday?</label>
                     <FormControlLabel
-                        label="Open 24/7 on Friday?"
+                        label=""
                         control={
                         <Checkbox checked={allDayFriday}
                                 onChange={(e)=>handleAllDay(e, "Friday")}
@@ -1282,11 +1282,11 @@ useEffect( () => {
             </div>
 
                 <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
-                    md:w-[27vh] mt-4'>
+                    md:w-[30vh] mt-4'>
 
-                    {/* <label className='pb-4 font-bold'>Closed on Saturday?</label> */}
+                    <label className='pb-4 font-bold'>Closed on Saturday?</label>
                     <FormControlLabel
-                        label="Closed on Saturday?"
+                        label=""
                         control={
                         <Checkbox checked={closedOnSaturday}
                                 onChange={(e)=>handleDayClosed(e, "Saturday")}
@@ -1301,11 +1301,11 @@ useEffect( () => {
                 </div>
 
                 <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
-                    md:w-[27vh] mt-4'>
+                    md:w-[30vh] mt-4'>
 
-                    {/* <label className='pb-4 font-bold'>Open 24/7 on Saturday?</label> */}
+                    <label className='pb-4 font-bold'>Open 24/7 on Saturday?</label>
                     <FormControlLabel
-                        label="Open 24/7 on Saturday?"
+                        label=""
                         control={
                         <Checkbox checked={allDaySaturday}
                                 onChange={(e)=>handleAllDay(e, "Saturday")}
@@ -1370,11 +1370,11 @@ useEffect( () => {
             </div>
 
                 <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
-                    md:w-[27vh] mt-4'>
+                    md:w-[30vh] mt-4'>
 
-                    {/* <label className='pb-4 font-bold'>Closed on Sunday?</label> */}
+                    <label className='pb-4 font-bold'>Closed on Sunday?</label>
                     <FormControlLabel
-                        label="Closed on Sunday?"
+                        label=""
                         control={
                         <Checkbox checked={closedOnSunday}
                                 onChange={(e)=>handleDayClosed(e, "Sunday")}
@@ -1389,11 +1389,11 @@ useEffect( () => {
                 </div>
 
                 <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
-                    md:w-[27vh] mt-4'>
+                    md:w-[30vh] mt-4'>
 
-                    {/* <label className='pb-4 font-bold'>Open 24/7 on Sunday?</label> */}
+                    <label className='pb-4 font-bold'>Open 24/7 on Sunday?</label>
                     <FormControlLabel
-                        label="Open 24/7 on Sunday?"
+                        label=""
                         control={
                         <Checkbox checked={allDaySunday}
                                 onChange={(e)=>handleAllDay(e, "Sunday")}
@@ -1459,11 +1459,11 @@ useEffect( () => {
             </div>
 
                 <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
-                    md:w-[27vh] mt-4'>
+                    md:w-[30vh] mt-4'>
 
-                    {/* <label className='pb-4 font-bold'>Closed on Holidays?</label> */}
+                    <label className='pb-4 font-bold'>Closed on Holidays?</label>
                     <FormControlLabel
-                        label="Closed on Holidays?"
+                        label=""
                         control={
                         <Checkbox checked={closedOnHolidays}
                                 onChange={(e)=>handleDayClosed(e, "Holidays")}
@@ -1479,11 +1479,11 @@ useEffect( () => {
                 </div>
 
                 <div className='flex flex-col justify-center items-center px-4 md:px-0 w-2/3
-                    md:w-[27vh] mt-4'>
+                    md:w-[30vh] mt-4'>
 
-                    {/* <label className='pb-4 font-bold'>Open 24/7 on Holidays?</label> */}
+                    <label className='pb-4 font-bold'>Open 24/7 on Holidays?</label>
                     <FormControlLabel
-                        label="Closed on Holidays?"
+                        label=""
                         control={
                         <Checkbox checked={allDayHolidays}
                                 onChange={(e)=>handleAllDay(e, "Holidays")}
