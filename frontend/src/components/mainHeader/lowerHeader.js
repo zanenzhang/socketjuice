@@ -35,7 +35,7 @@ const LowerHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket
 
     const handleMessagesClick =  async (event) => {
         if(!auth.userId || browse === 'yes'){
-            navigate('/home');
+            navigate('/map');
             return
         }
         event.preventDefault();

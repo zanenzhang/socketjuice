@@ -305,7 +305,7 @@ const addAppointmentRequest = async (req, res) => {
                 }
             }
 
-            const newToken = crypto.randomBytes(16).toString('hex')
+            const newToken = crypto.randomBytes(3).toString('hex')
 
             const checkAppointments = await Appointment.findOne(
                 {$and:[

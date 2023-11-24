@@ -10,7 +10,7 @@ const RequireAuth = ({ allowedRoles }) => {
             ? <Outlet />
             : auth?.accessToken //changed from user to accessToken to persist login after refresh
                 ? <Navigate to="/unauthorized" state={{ from: location }} replace />
-                : <Navigate to="/home" state={{ from: location }} replace />
+                : <Navigate to="/map" state={{ from: location }} replace />
     );
 }
 

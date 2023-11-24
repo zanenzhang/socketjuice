@@ -1,21 +1,23 @@
 import { useRef, useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import axios from "../../api/axios";
 import { useLocation } from 'react-router';
 import socketjuice_full_logo from "../../images/SocketJuice.png";
+import { useNavigate } from 'react-router-dom';
 
 
 const InputNewPassword = () => {
 
     const PWD_REGEX = /^(?=(.*[0-9]))(?=.*[!@#$%^&*()\\[\]{}\-_+=~`|:;"'<>,./?])(?=.*[a-z])(?=(.*[A-Z]))(?=(.*)).{8,48}$/;
 
+    const navigate = useNavigate();
+    
     const search = useLocation().search;
     const pwdRef = useRef();
     const captchaRef = useRef(null)
     const userId = new URLSearchParams(search).get("userId");
     const hash = new URLSearchParams(search).get("hash");
 
-    const INPUT_NEW_PASS = 'http://localhost:5000/api/inputnewpassword';
+    const INPUT_NEW_PASS = 'http://localhost:5500/api/inputnewpassword';
 
     const [geoData, setGeoData] = useState(false);
     const [pwd, setPwd] = useState('');
@@ -46,19 +48,6 @@ const InputNewPassword = () => {
         setErrMsg('');
     }, [pwd, matchPwd])
 
-    useEffect(async () => {
-        const ele = pwdRef.current
-        ele.focus();
-
-        if(geoData === 'req'){
-            const geo = await axios.get('https://geolocation-db.com/json/')
-            
-            if(geo){
-                setGeoData(geo.data)
-            }
-        }
-
-    }, [geoData])
 
     const isInvalid = pwd === '' || matchPwd ==='' ;
 
@@ -80,19 +69,19 @@ const InputNewPassword = () => {
 
         try {
             const response = await axios.post(INPUT_NEW_PASS,
-                JSON.stringify({ userId, hash, pwd, geoData }),
+                JSON.stringify({ userId, hash, pwd }),
                 {
                     headers: { 'Content-Type': 'application/json' },
-                    withCredentials: true
                 }
             );
 
-            if(response){
+            if(response && response.status === 200){
                 setSuccess(true);
                 alert("Successful! Password has been reset!")
                 setPwd("")
                 setMatchPwd("")
                 setWaiting(false);
+                navigate("/map")
             
             } else {
                 setSuccess(false);
@@ -102,6 +91,7 @@ const InputNewPassword = () => {
 
         } catch (err) {
 
+            console.log(err)
             if (!err?.response) {
                 setErrMsg('No Server Response');
             } else if (err.response?.status === 400) {
@@ -138,7 +128,6 @@ const InputNewPassword = () => {
                             aria-label="Enter your password" 
                             type={"password"}
                             id="password"
-                            ref={pwdRef}
 
                             onChange={ ( e ) => setPwd(e.target.value)}
                             value={pwd}
@@ -239,10 +228,23 @@ const InputNewPassword = () => {
                         
                         <button className={`active:scale-[.98] active:duration-75 transition-all hover:scale-[1.01]  
                             ease-in-out transform py-4 bg-[#00D3E0] rounded-xl text-white font-bold text-lg
+                            flex flex-row justify-center items-center gap-x-2
                             ${(isInvalid || !validPwd || !validMatch || success || waiting) && ' opacity-50' }`}
                             disabled={isInvalid || !validPwd || !validMatch || success || waiting}
-                            onClick={handleSubmit}
+                            onClick={(e)=>handleSubmit(e)}
                         >
+                            {waiting && 
+                            <div aria-label="Loading..." role="status">
+                                <svg className="h-4 w-4 animate-spin" viewBox="3 3 18 18">
+                                <path
+                                    className="fill-gray-200"
+                                    d="M12 5C8.13401 5 5 8.13401 5 12C5 15.866 8.13401 19 12 19C15.866 19 19 15.866 19 12C19 8.13401 15.866 5 12 5ZM3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12Z"></path>
+                                <path
+                                    className="fill-[#00D3E0]"
+                                    d="M16.9497 7.05015C14.2161 4.31648 9.78392 4.31648 7.05025 7.05015C6.65973 7.44067 6.02656 7.44067 5.63604 7.05015C5.24551 6.65962 5.24551 6.02646 5.63604 5.63593C9.15076 2.12121 14.8492 2.12121 18.364 5.63593C18.7545 6.02646 18.7545 6.65962 18.364 7.05015C17.9734 7.44067 17.3403 7.44067 16.9497 7.05015Z"></path>
+                                </svg>
+                            </div>
+                            }
                             Reset Password
                         </button>
 
@@ -258,7 +260,7 @@ const InputNewPassword = () => {
         
         <div className='w-full flex flex-col pt-16 justify-center pb-4 gap-y-2'>
             {/* <div className='flex flex-row justify-center gap-x-6'>
-                <Link to={"/home"} className='flex flex-col text-[#00D3E0] 
+                <Link to={"/map"} className='flex flex-col text-[#00D3E0] 
                     text-[12px] sm:text-sm md:text-base underline'> Home </Link>
                 <Link to={"/terms"} className='flex flex-col text-[#00D3E0] 
                     text-[12px] sm:text-sm md:text-base underline'> Terms of Service </Link>

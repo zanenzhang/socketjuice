@@ -914,7 +914,7 @@ const MainHeader = ({loggedUserId} ) => {
                 <div className='flex flex-col gap-y-4 pb-10'>
 
                     <div className='flex flex-col justify-center items-center'>
-                        <Link to={ROUTES.MAP} >
+                        <Link to={ROUTES.RESET_PASS} >
                             <button className='text-lg md:text-xl text-[#00D3E0]'>
                                     {' Forgot Password?'}
                             </button>

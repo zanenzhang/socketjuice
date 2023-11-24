@@ -16,7 +16,8 @@ const SignOutMenuItem = () => {
         const response = await logout();
 
         if(response){
-            navigate('/home');
+            navigate('/map');
+            navigate(0)
         }
     }
 

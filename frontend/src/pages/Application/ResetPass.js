@@ -5,8 +5,8 @@ import ReCAPTCHA from "react-google-recaptcha";
 import socketjuice_full_logo from "../../images/SocketJuice.png";
 
 const EMAIL_REGEX = /\S+@\S+\.\S+/;
-const RESET_PASSWORD_URL = 'http://localhost:5000/api/resetpassword';
-const RESEND_VERIFICATION_URL = 'http://localhost:5000/api/resendemailverification';
+const RESET_PASSWORD_URL = 'http://localhost:5500/api/resetpassword';
+const RESEND_VERIFICATION_URL = 'http://localhost:5500/api/resendemailverification';
 
 
 const ResetPass = () => {
@@ -32,26 +32,8 @@ const ResetPass = () => {
     const [success, setSuccess] = useState(false);
 
     useEffect(() => {
-        emailRef.current.focus();
-    }, [])
-
-    useEffect(() => {
         setValidEmail(EMAIL_REGEX.test(email));
     }, [email])
-
-    useEffect(async () => {
-        const ele = emailRef.current
-        ele.focus();
-        
-        if(geoData === 'req'){
-            const geo = await axios.get('https://geolocation-db.com/json/')
-            
-            if(geo){
-                setGeoData(geo.data)
-            }
-        }
-
-    }, [errMsg, geoData])
 
     const handleRecaptcha = () =>{
         const recaptchaToken = captchaRef.current.getValue();
@@ -194,10 +176,24 @@ const ResetPass = () => {
                         
                         <button className={`active:scale-[.98] active:duration-75 transition-all hover:scale-[1.01]  
                             ease-in-out transform py-4 bg-[#00D3E0] rounded-xl text-white font-bold text-base md:text-lg
+                            flex flex-row gap-x-2 justify-center items-center
                             ${(isInvalid || !validEmail ||!recapToken || success || waiting) && ' opacity-50' }`}
                             disabled={isInvalid || !validEmail || success || waiting || !recapToken}
                             onClick={handleSubmit}
                         >
+                            {waiting && 
+                            <div aria-label="Loading..." role="status">
+                                <svg className="h-4 w-4 animate-spin" viewBox="3 3 18 18">
+                                <path
+                                    className="fill-gray-200"
+                                    d="M12 5C8.13401 5 5 8.13401 5 12C5 15.866 8.13401 19 12 19C15.866 19 19 15.866 19 12C19 8.13401 15.866 5 12 5ZM3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12Z"></path>
+                                <path
+                                    className="fill-[#00D3E0]"
+                                    d="M16.9497 7.05015C14.2161 4.31648 9.78392 4.31648 7.05025 7.05015C6.65973 7.44067 6.02656 7.44067 5.63604 7.05015C5.24551 6.65962 5.24551 6.02646 5.63604 5.63593C9.15076 2.12121 14.8492 2.12121 18.364 5.63593C18.7545 6.02646 18.7545 6.65962 18.364 7.05015C17.9734 7.44067 17.3403 7.44067 16.9497 7.05015Z"></path>
+                                </svg>
+                            </div>
+                            }
+
                             Get Link To Reset Password
                         </button>
 
@@ -209,7 +205,7 @@ const ResetPass = () => {
                             />
                         </div>
                         
-                        <Link className="flex flex-col" to="/home" >
+                        <Link className="flex flex-col" to="/map" >
                         <button 
                             className='flex items-center justify-center gap-2 active:scale-[.98] active:duration-75 transition-all hover:scale-[1.01]  ease-in-out transform py-4  rounded-xl text-gray-700 font-semibold text-base md:text-lg 
                                 border-2 border-[#00D3E0]/10 bg-white '>
@@ -236,7 +232,7 @@ const ResetPass = () => {
             
             <div className='w-full flex flex-col pt-16 justify-center pb-4 gap-y-2'>
                 {/* <div className='flex flex-row justify-center gap-x-6'>
-                    <Link to={"/home"} className='flex flex-col text-[#00D3E0] 
+                    <Link to={"/map"} className='flex flex-col text-[#00D3E0] 
                         text-[12px] sm:text-sm md:text-base underline'> Home </Link>
                     <Link to={"/terms"} className='flex flex-col text-[#00D3E0] 
                         text-[12px] sm:text-sm md:text-base underline'> Terms of Service </Link>

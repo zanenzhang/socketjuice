@@ -53,8 +53,10 @@ const handleResendVerificationEmail = async (req, res) => {
                             userLimits.emailVerifications = userLimits.emailVerifications + 1
                             const savedLimits = await userLimits.save()
                             if(savedLimits){
-                                sendConfirmationEmail( {toUser: email, userId:doc._id, hash: newtoken })
-                                res.status(201).json({ 'message': 'Please check your email to activate!' });
+                                const sentemail = await sendConfirmationEmail( {toUser: email, userId:doc._id, firstName: doc.firstName, hash: newtoken })
+                                if(sentemail){
+                                    res.status(201).json({ 'message': 'Please check your email to activate!' });
+                                }
                             }
                         }
                     })

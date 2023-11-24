@@ -9,9 +9,6 @@ const useLogout = () => {
         
         setAuth("");
         setSocket("");
-        setBrowse("yes")
-        localStorage.removeItem("purchies-tab");
-        localStorage.setItem("purchies-browse", 'yes')
 
         try {
             

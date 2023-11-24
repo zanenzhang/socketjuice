@@ -491,7 +491,7 @@ const {scrollToTime} = useMemo(
     }
 
     var originString = ""
-    var destinationString = destinations.join(" ")
+    var destinationString = destinations.join("|")
     var destinationString = encodeURIComponent(destinationString)
     
     if(userLat && userLng){
@@ -506,6 +506,7 @@ const {scrollToTime} = useMemo(
       originString = encodeURIComponent(originString)
     } 
 
+    console.log(originString, destinationString)
     const matrix = await getGoogleMatrix(originString, destinationString, auth.userId, auth.accessToken)
 
     if(matrix){
@@ -801,7 +802,6 @@ const {scrollToTime} = useMemo(
         const localtime = today.toTimeString().slice(0,5)
       
         var coordinatesInput = [newPos.lng, newPos.lat]
-        console.log(dayofweek, localtime)
 
         const locations = await getHostProfilesCoord(coordinatesInput, dayofweek, localtime,
            auth.userId, auth.accessToken)
@@ -814,7 +814,7 @@ const {scrollToTime} = useMemo(
           var hostIndexHash = {}
           
           for(let i=0; i< locations?.foundHostProfiles?.length; i++){
-            
+
             if(locations.foundHostProfiles[i]?.address){
 
               destinations.push(locations.foundHostProfiles[i].address)
@@ -825,11 +825,15 @@ const {scrollToTime} = useMemo(
               hostIndexHash[locations.foundHostProfiles[i].address] = i
             }
           }
+
+          console.log(destinations, newPos.lat, newPos.lng)
           
           if(locations?.foundHostProfiles?.length > 0){
             const {matrix} = await getDistanceDurationsMatrix(destinations, newPos.lat, newPos.lng)
 
             if(matrix){
+
+              console.log(matrix)
 
               for(let i=0; i<matrix?.rows[0]?.elements?.length; i++){
                 
@@ -863,7 +867,7 @@ const {scrollToTime} = useMemo(
     }
   }
 
-  const colorsList = ["red", "#FFE142", "orange", "purple", "blue", "aqua", "maroon", "pink", "gray", "lime"]
+  const colorsList = ["red", "blue", "orange", "purple", "green", "aqua", "maroon", "pink", "gray", "lime"]
 
   const svgMarkerPins = (color) => {
 
@@ -1271,7 +1275,7 @@ const {scrollToTime} = useMemo(
                   
                   <div key={`${host._id}_leftsquare`} 
                     className={`w-full flex flex-col px-2 bg-[#c1f2f5]
-                    py-2 ${currentMarker === host._id ? 'border-2 border-['.concat(colorsList[index],']')   
+                    py-2 ${currentMarker === host._id ? 'border-2 border-[#FFE142] '   
                     : 'border border-gray-300  '} rounded-lg`}>
                     
                     <div className='flex flex-row'>

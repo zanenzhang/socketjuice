@@ -2,6 +2,7 @@ const User = require('../../model/User');
 const ExternalWall = require('../../model/ExternalWall');
 const BannedUser = require('../../model/BannedUser');
 const ResetPassToken = require('../../model/ResetPassToken');
+const UsageLimit = require('../../model/UsageLimit');
 const { sendPassResetConfirmation } = require('../../middleware/mailer');
 const bcrypt = require('bcrypt');
 const axios = require('axios');
@@ -16,9 +17,9 @@ const handleInputNewPassword = async (req, res) => {
         return res.status(401).json({message: 'Content does not meet requirements'})
     }
 
-    if (!hash || !userId || !pwd) {
+    var updatedWall = false;
 
-        var updatedWall = false;
+    if (hash && userId && pwd) {
 
         if(geoData){
 
@@ -48,14 +49,14 @@ const handleInputNewPassword = async (req, res) => {
         } else {
             updatedWall = true;
         }
-        
-        if(updatedWall){
-            return res.status(401).json({message: 'Missing required information!'})
-        }
+    } else {
+
+        return res.status(403).json({ 'message': 'Operation failed' });
     }
 
     checkBan = false;
-    if(geoData){
+    
+    if(updatedWall && geoData){
         
         const bannedIP = await BannedUser.findOne({admin: "admin", "ipAddresses.userIP": geoData.IPv4})
 
@@ -74,10 +75,9 @@ const handleInputNewPassword = async (req, res) => {
 
         const saltRounds = 10;
 
-        User.findOne({_id: userId}, function(err, foundUser){
-            if (err || !foundUser){
-                return res.status(401).send({msg:'The user cannot be validated!'});
-            }
+        const foundUser = await User.findOne({_id: userId})
+        
+        if(foundUser){
 
             if (!foundUser.active){
                 return res.status(400).send({msg:'Please activate your account!'});
@@ -102,26 +102,30 @@ const handleInputNewPassword = async (req, res) => {
                             foundUser.password = hashedPwd
                             foundUser.lockedOut = false;
 
-                            foundUser.save( function(error) {
+                            foundUser.save( async function(error) {
+                                
                                 if (error){
                                     return res.status(500).send({msg:err.message});
                                 } 
 
-                                sendPassResetConfirmation({toUser: foundUser.email})
+                                const sentemail = await sendPassResetConfirmation({toUser: foundUser.email, firstName: foundUser.firstName})
                                 
-                                ResetPassToken.deleteMany( { _userId : foundUser._id} ,function(err){
-                                    if (err){
-                                        return res.status(500).send({msg:err.message});
-                                    }
+                                const deletedTokens = await ResetPassToken.deleteMany({ _userId : foundUser._id})
+                                
+                                if (deletedTokens && sentemail){
                                     return res.status(200).send({msg:'Your password has been reset!'});
-                                })
+                                } else {
+                                    return res.status(500).send({msg:err.message});
+                                }
                             })
                             
                         })
                     })
                 }
             })
-        })
+        } else {
+            return res.status(401).send({msg:'The user cannot be validated!'});
+        }
     }
 }
      

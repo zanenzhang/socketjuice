@@ -176,8 +176,31 @@ exports.sendVerifiedEmail = function({toUser, firstName}) {
     return sendEmail(message);
   }
 
+  exports.sendHostProfileConfirm = function({toUser, firstName}) {
+    const message = {
+      from: process.env.EMAIL_SUPPORT,
+      // to: toUser.email // in production uncomment this
+      to: toUser,
+      subject: 'SocketJuice - Host Profile Verified',
+      html: `
+        <img src = "cid:myImg" style="width:200px;"/>
+        <h3> Hello ${firstName}! </h3>
+        <p>Your charging equipment looks great, you can now accept bookings from other EV drivers and earn money! </p>
+        <p>Cheers,</p>
+        <p>The ${process.env.MAIL_FROM_NAME} team</p>
+      `,
+      attachments: [{
+        filename: 'SocketJuiceLogo.png',
+        path: __dirname + '/SocketJuice.png',
+        cid: 'myImg'
+      }]    
+    }
+  
+    return sendEmail(message);
+  }
 
-  exports.sendRejectedEmail = function({toUser, firstName}) {
+
+  exports.sendRejectedHost = function({toUser, firstName}) {
     const message = {
       from: process.env.EMAIL_SUPPORT,
       // to: toUser.email // in production uncomment this
@@ -188,7 +211,8 @@ exports.sendVerifiedEmail = function({toUser, firstName}) {
         <h3> Hello ${firstName}! </h3>
         <p> Would it be possible to reupload your charging information and content? </p>
         <p> As a reminder, the photo of the plug connector is to allow us to see the connector type (head pattern). </p>
-        <p>Thanks,</p>
+        <p><a target="_" href="${process.env.API}/bookings">${process.env.MAIL_FROM_NAME}/bookings </a></p>
+        <p>Thanks very much,</p>
         <p>The ${process.env.MAIL_FROM_NAME} team</p>
       `,
       attachments: [{
@@ -324,36 +348,48 @@ exports.sendVerifiedEmail = function({toUser, firstName}) {
     return sendEmail(message);
   }
 
-exports.sendResetPasswordEmail = ({toUser, userId, hash}) => {
+exports.sendResetPasswordEmail = ({toUser, firstName, userId, hash}) => {
   const message = {
     from: process.env.EMAIL_SUPPORT,
     // to: toUser.email // in production uncomment this
     to: toUser,
     subject: 'SocketJuice - Reset Password',
     html: `
-      <h3>Hello!</h3>
+      <img src = "cid:myImg" style="width:200px;"/>
+      <h3>Hello ${firstName}!</h3>
       <p>To reset your password please follow this link: <a target="_" href="${process.env.CLIENT}/inputnewpassword?userId=${userId}&hash=${hash}">${process.env.MAIL_FROM_NAME}/inputnewpassword</a></p>
       <p>Cheers,</p>
       <p>The ${process.env.MAIL_FROM_NAME} team</p>
-    `
+    `,
+    attachments: [{
+      filename: 'SocketJuiceLogo.png',
+      path: __dirname + '/SocketJuice.png',
+      cid: 'myImg'
+    }]
   }
 
   return sendEmail(message);
 }
 
 
-exports.sendPassResetConfirmation = ({toUser}) => {
+exports.sendPassResetConfirmation = ({toUser, firstName}) => {
     const message = {
         from: process.env.EMAIL_SUPPORT,
         // to: toUser.email // in production uncomment this
         to: toUser,
         subject: 'SocketJuice - Password Was Reset!',
         html: `
-          <h3>Hello!</h3>
+          <img src = "cid:myImg" style="width:200px;"/>
+          <h3>Hello ${firstName}!</h3>
           <p>This email is to notify that your password reset is complete. </p>
           <p>Cheers,</p>
           <p>The ${process.env.MAIL_FROM_NAME} team</p>
-        `
+        `,
+        attachments: [{
+          filename: 'SocketJuiceLogo.png',
+          path: __dirname + '/SocketJuice.png',
+          cid: 'myImg'
+        }]
       }
 
     return sendEmail(message);

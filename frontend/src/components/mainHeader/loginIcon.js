@@ -7,7 +7,7 @@ const LoginIcon = () => {
 
     return (
 
-        <Link to={'/home'} aria-label="Login">
+        <Link to={'/map'} aria-label="Login">
             
             <svg 
                 className="w-8 mr-6 text-black-light cursor-pointer"

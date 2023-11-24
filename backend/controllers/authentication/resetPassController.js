@@ -120,7 +120,7 @@ const handleResetPassword = async (req, res) => {
                                     } else {
                                         const updatedLimits = await UsageLimit.updateOne({_userId: foundUser._id},{$inc: {passwordResetRequests: 1}})
                                         if(updatedLimits){
-                                            sendResetPasswordEmail( {toUser: email, userId:foundUser._id, hash: newToken })
+                                            sendResetPasswordEmail( {toUser: email, firstName: foundUser.firstName, userId:foundUser._id, hash: newToken })
                                             return res.status(201).json({ 'message': 'Please check your email to reset your password!' });    
                                         }
                                     }
@@ -129,14 +129,17 @@ const handleResetPassword = async (req, res) => {
                         } else {
             
                             const resetToken = new ResetPassToken({"_userId": foundUser.id, "token": newToken})
-                            resetToken.save( function(err){
+                            resetToken.save(async function(err){
                                 if (err) { 
                                     return res.status(500).send({msg:err.message});
                                 }
+
+                                const sentemail = await sendResetPasswordEmail( {toUser: email, firstName: foundUser.firstName, userId:foundUser._id, hash: newToken })
+
+                                if(sentemail){
+                                    return res.status(201).json({ 'message': 'Please check your email to reset your password!' });
+                                }
                             })
-            
-                            sendResetPasswordEmail( {toUser: email, userId:foundUser._id, hash: newToken })
-                            return res.status(201).json({ 'message': 'Please check your email to reset your password!' });
                         }
                     }) 
                 })

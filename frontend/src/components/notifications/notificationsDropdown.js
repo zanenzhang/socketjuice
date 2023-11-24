@@ -9,7 +9,6 @@ import socketIO from "socket.io-client";
 import getNotifications from '../../helpers/Notifications/getNotifications';
 import NotificationItem from './notificationItem';
 import editOpenedAlert from '../../helpers/Notifications/editOpenedAlert';
-import addNotification from 'react-push-notification';
 
 
 export default function NotificationsDropdown() {
@@ -129,12 +128,6 @@ export default function NotificationsDropdown() {
   
       socket.on("newNotification", (noti) => {        
         setNotiItems([...notiItems, noti]);
-        addNotification({
-          title: `${noti.notificationType}`,
-          message: `${noti.messageContent}`,
-          theme: 'darkblue',
-          native: true // when using native, your OS will handle theming.
-      });
       })
     }
 
@@ -209,7 +202,7 @@ export default function NotificationsDropdown() {
 
   const handleClick = (event) => {
     if(!auth.userId){
-      navigate('/home');
+      navigate('/map');
       return
     }
     setAnchorEl(event.currentTarget);

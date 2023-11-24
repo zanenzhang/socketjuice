@@ -748,6 +748,7 @@ const VerifyPage = () => {
                     onChange={ ( e, data ) => handlePhonePrimary(e, data)} 
                     onFocus={() => setPhonePrimaryFocus(true)}
                     onBlur={() => setPhonePrimaryFocus(false)}
+                    disabled={codeInput?.length > 0 || verifiedPhone || resendCode}
                     required
                 />
                 </div>
@@ -914,10 +915,10 @@ const VerifyPage = () => {
                         </div>
                     </div>
 
-                    <button disabled={submittedPhotos} onClick={(e)=>handlePhotosUpload(e)} 
+                    <button disabled={submittedPhotos || croppedImageURLId?.length < 2} onClick={(e)=>handlePhotosUpload(e)} 
                         className={`my-2 mb-8 py-4 px-3 rounded-2xl border-2 
                             border-[#00D3E0]  flex flex-row gap-x-1 
-                            ${submittedPhotos ? "bg-gray-200 cursor-not-allowed " : 'hover:bg-[#00D3E0]' }   `}>
+                            ${(submittedPhotos || croppedImageURLId?.length < 2) ? "bg-gray-200 cursor-not-allowed " : 'hover:bg-[#00D3E0]' }   `}>
 
                         {waitingPhotos && 
                         <div aria-label="Loading..." role="status">

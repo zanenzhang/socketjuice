@@ -9,7 +9,7 @@ const Missing = () => {
             <h1>Oops!</h1>
             <p>Page Not Found</p>
             <div className="flexGrow">
-                <Link to="/home">Visit Our Homepage</Link>
+                <Link to="/map">Visit Our Homepage</Link>
                 </div> 
             <div >
                 <button onClick={() => navigate(-2)}>Go back</button>

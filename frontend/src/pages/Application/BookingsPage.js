@@ -1534,7 +1534,7 @@ const handleRegularHourChangeEnd = (event, day) => {
 
           <div className="w-full flex flex-col items-center justify-center">
 
-          <p className='text-base md:text-lg font-bold pb-2'>Your charging equipment photos: </p>
+          <p className='text-base md:text-lg font-bold pb-2'>Attach your charging equipment photos: </p>
             
             <CameraPlug croppedImage={croppedImage} setCroppedImage={setCroppedImage} croppedImageURL={croppedImageURL} setCroppedImageURL={setCroppedImageURL} 
               coverIndex={coverIndex} setCoverIndex={setCoverIndex} mediaTypes={mediaTypes} setMediaTypes={setMediaTypes} videoArray={videoArray} setVideoArray={setVideoArray} 

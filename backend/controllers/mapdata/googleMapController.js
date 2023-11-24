@@ -77,7 +77,7 @@ async function getCoordinates (req, res) {
             return res.status(200).json({latlong: latlong.data})
         
         } else {
-            
+
             return res.status(401).json({ message: 'Operation failed' })
         }
 
@@ -155,7 +155,10 @@ async function getMatrix (req, res) {
         const matrix = await Axios.get(`https://maps.googleapis.com/maps/api/distancematrix/json?departure_time=now&origins=${originString}&destinations=${destinationString}&key=${process.env.GOOGLE_MAPS_API_KEY}`)
 
         if(matrix && doneOperation){
-            
+
+            console.log("Getting Google Matrix")
+            console.log(matrix)
+
             return res.status(200).json({matrix: matrix.data})
         
         } else {

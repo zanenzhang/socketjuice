@@ -5,7 +5,7 @@ const ActivateToken = require("../../model/ActivateToken");
 const jwt = require('jsonwebtoken');
 const S3 = require("aws-sdk/clients/s3");
 const { deleteFile } = require("../media/s3Controller");
-const { sendReverifyEmail, sendRejectedHost } = require("../../middleware/mailer")
+const { sendReverifyEmail, sendRejectedHost, sendHostProfileConfirm } = require("../../middleware/mailer")
 const crypto = require('crypto');
 
 const wasabiPrivateBucketUSA = process.env.WASABI_PRIVATE_BUCKET_NAME_USA;
@@ -86,8 +86,9 @@ const approveHostProfile = async (req, res) => {
             checkUser.verifiedHostCharging = true;
 
             const savedUser = await checkUser.save()
+            const sentEmail = await sendHostProfileConfirm({toUser: foundUser.email, firstName: foundUser.firstName})
 
-            if(savedUser){
+            if(savedUser && sentEmail){
 
                 return res.status(200).json({"message": "Success"})
             }
