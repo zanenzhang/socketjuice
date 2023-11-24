@@ -5,7 +5,7 @@ import addMessage from "../../../helpers/Chats/addMessage";
 import addMessageNoti from "../../../helpers/Notifications/addMessageNoti";
 
 
-const ChatInput = ({loggedUserId, selectedChat, messages, setMessages, socket}) => {
+const ChatInput = ({loggedUserId, loggedFirstName, selectedChat, messages, setMessages, socket}) => {
 
   const {auth} = useAuth();
   const [messageContent, setMessageContent] = useState("");
@@ -26,10 +26,10 @@ const ChatInput = ({loggedUserId, selectedChat, messages, setMessages, socket}) 
 
     socket.emit("typingStop", {chatId: selectedChat});  
       
-    const addedMessage = await addMessage(loggedUserId, selectedChat, messageContent, auth.accessToken)
+    const addedMessage = await addMessage(auth.userId, selectedChat, messageContent, auth.accessToken)
   
     if(addedMessage){
-      const addedNoti = await addMessageNoti(loggedUserId, selectedChat, auth.accessToken)  
+      const addedNoti = await addMessageNoti(auth.userId, selectedChat, auth.accessToken)  
 
       if(addedNoti){
         setMessageContent("");

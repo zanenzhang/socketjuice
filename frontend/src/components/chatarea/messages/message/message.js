@@ -3,8 +3,7 @@ import { formatDistanceToNowStrict, format } from 'date-fns';
 
 import MessageOptions from "../../../options/messageOptions";
 
-const Message = ({ message, senderUsername,loggedUserId, loggedUsername, 
-  chatId }) => {
+const Message = ({ message, loggedUserId, loggedFirstName, senderUserId, chatId }) => {
   
   const [hiddenToggle, setHiddenToggle] = useState(message.hidden);
   const [showReceivedName, setShowReceivedName] = useState(false);
@@ -47,7 +46,7 @@ const Message = ({ message, senderUsername,loggedUserId, loggedUsername,
           <p className="">-- {format(new Date(message.createdAt), "cccc',' LLLL d',' yyyy h':'mm b")} --</p>
       </div>}
     
-      {senderUsername !== loggedUsername ? 
+      {senderUserId !== loggedUserId ? 
       
       (<div className="flex flex-row float-right pl-4 pr-4 py-4">
 
@@ -91,11 +90,11 @@ const Message = ({ message, senderUsername,loggedUserId, loggedUsername,
 
               <div className={`${showReceivedName ? 'flex' : 'hidden' } `}>
                 <p className="flex justify-center 
-                  items-center pb-1 text-xs font-semibold">{message?.username}</p>
+                  items-center pb-1 text-xs font-semibold">{message?.firstName}</p>
               </div>
 
               {message?.username && <MessageOptions userProfilePicURL={message.userProfilePicURL} chatId={chatId}
-                loggedUserId={loggedUserId} messageId={message._id} loggedUsername={loggedUsername}
+                loggedUserId={loggedUserId} messageId={message._id} loggedFirstName={loggedFirstName}
                   hiddenToggle={hiddenToggle} setHiddenToggle={setHiddenToggle}
                   messageUserId={message._userId} handleRecNameClick={handleRecNameClick}
               />}
@@ -107,8 +106,8 @@ const Message = ({ message, senderUsername,loggedUserId, loggedUsername,
     
     (<div className="flex flex-row float-left ml-4">
 
-        {(message?.content) && <MessageOptions userProfilePicURL={message.userProfilePicURL} loggedUsername={loggedUsername}
-          loggedUserId={loggedUserId} messageId={message._id} chatId={chatId}
+        {(message?.content) && <MessageOptions userProfilePicURL={message.userProfilePicURL} 
+          loggedUserId={loggedUserId} loggedFirstName={loggedFirstName} messageId={message._id} chatId={chatId}
             hiddenToggle={hiddenToggle} setHiddenToggle={setHiddenToggle}
             messageUserId={message._userId}
         />}

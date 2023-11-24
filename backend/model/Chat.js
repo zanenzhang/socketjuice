@@ -7,7 +7,10 @@ var chatSchema = new Schema({
             type: Schema.Types.ObjectId, 
             ref: 'User' 
         },
-        username: {
+        firstName: {
+            type: String
+        },
+        lastName: {
             type: String
         },
         isActive: {
@@ -23,7 +26,10 @@ var chatSchema = new Schema({
             type: Schema.Types.ObjectId, 
             ref: 'User' 
         },
-        username: {
+        firstName: {
+            type: String
+        },
+        lastName: {
             type: String
         },
         content: {

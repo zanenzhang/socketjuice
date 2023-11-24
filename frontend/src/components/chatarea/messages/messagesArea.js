@@ -5,7 +5,7 @@ import TypingLine from "./message/typing";
 import getChatMessages from "../../../helpers/Chats/getChatMessages";
 import cloneDeep from 'lodash/cloneDeep';
 
-const MessagesArea = ({loggedUserId, loggedUsername, messages, 
+const MessagesArea = ({loggedUserId, loggedFirstName, messages, 
         setMessages, selectedChat, othersTyping, pageNumber, setPageNumber,
         setScrollStop, scrollStop, messagesHash, setMessagesHash }) => {
   
@@ -100,18 +100,18 @@ const MessagesArea = ({loggedUserId, loggedUsername, messages,
                 {(messages?.length > 0) && messages?.map((message, index) => (
 
                     <Message 
-                    key={`${message._id}${index}`}
-                    message={message}
-                    chatId={message._chatId}
-                    senderUsername={message.username} 
-                    loggedUsername={loggedUsername}
-                    loggedUserId={loggedUserId}
+                        key={`${message._id}${index}`}
+                        message={message}
+                        chatId={message._chatId}
+                        senderUsername={message.username} 
+                        loggedUserId={loggedUserId}
+                        loggedFirstName={loggedFirstName}
                     />
                 )) }
 
             </div>}
         
-        <TypingLine key={"typingLine"} othersTyping={othersTyping} loggedUsername={loggedUsername} />
+        <TypingLine key={"typingLine"} othersTyping={othersTyping} loggedUserId={loggedUserId} loggedFirstName={loggedFirstName} />
         
         
         <div key={"lastMessage"} ref={lastMessageRef} />

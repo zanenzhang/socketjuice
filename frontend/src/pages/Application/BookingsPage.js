@@ -417,6 +417,9 @@ useEffect( () => {
   
   const [selectedHostUserId, setSelectedHostUserId] = useState("")
   const [selectedDriverUserId, setSelectedDriverUserId] = useState("")
+  const [selectedHostFirstName, setSelectedHostFirstName] = useState("")
+  const [selectedDriverFirstName, setSelectedDriverFirstName] = useState("")
+
   const [selectedAddress, setSelectedAddress] = useState("")
   const [selectedEventStatus, setSelectedEventStatus] = useState("")
   const [selectedEventStart, setSelectedEventStart] = useState("")
@@ -426,28 +429,25 @@ useEffect( () => {
   
   const [selectedLat, setSelectedLat] = useState("")
   const [selectedLng, setSelectedLng] = useState("")
-  const [selectProfilePic, setSelectProfilePic] = useState("")
 
 
   const handleMessageDriver = async () => {
 
     if(!auth.userId){
-        navigate('/map');
         return
     }
 
-    setNewIndividualChat({userId: selectedHostUserId});
+    setNewIndividualChat({userId: selectedHostUserId, firstName: selectedHostFirstName});
     navigate(`/messages`);
   }
 
   const handleMessageHost = async () => {
 
     if(!auth.userId){
-        navigate('/map');
         return
     }
 
-    setNewIndividualChat({userId: selectedDriverUserId});
+    setNewIndividualChat({userId: selectedDriverUserId, firstName: selectedDriverFirstName});
     navigate(`/messages`);
   }
 
@@ -459,6 +459,9 @@ useEffect( () => {
 
     setSelectedDriverUserId(hostevent.requesterId)
     setSelectedHostUserId(hostevent.hostId)
+    setSelectedDriverFirstName(hostevent.driverFirstName)
+    setSelectedHostFirstName(hostevent.hostFirstName)
+
     setSelectedEventId(hostevent.appointmentId)
     setSelectedAddress(hostevent.address)
     setSelectedEventStart(hostevent.start.toLocaleTimeString())
@@ -470,7 +473,6 @@ useEffect( () => {
 
     setSelectedLat(hostevent.location[0])
     setSelectedLng(hostevent.location[1])
-    setSelectProfilePic(hostevent.profilePicURL)
     
     setOpenDetailsModalHost(true)
   }
@@ -482,6 +484,10 @@ useEffect( () => {
 
     setSelectedDriverUserId(driverevent.requesterId)
     setSelectedHostUserId(driverevent.hostId)
+    
+    setSelectedDriverFirstName(driverevent.driverFirstName)
+    setSelectedHostFirstName(driverevent.hostFirstName)
+
     setSelectedEventId(driverevent.appointmentId)
     setSelectedAddress(driverevent.address)
     setSelectedEventStart(driverevent.start.toLocaleTimeString())
@@ -493,7 +499,6 @@ useEffect( () => {
 
     setSelectedLat(driverevent.location[0])
     setSelectedLng(driverevent.location[1])
-    setSelectProfilePic(driverevent.profilePicURL)
     
     setOpenDetailsModalDriver(true)
 
@@ -1179,7 +1184,6 @@ const handleRegularHourChangeEnd = (event, day) => {
   
       setSelectedLat(e.location[0])
       setSelectedLng(e.location[1])
-      setSelectProfilePic(e.profilePicURL)
       
       setOpenDetailsModalHost(true)
     }
@@ -1204,7 +1208,6 @@ const handleRegularHourChangeEnd = (event, day) => {
   
       setSelectedLat(e.location[0])
       setSelectedLng(e.location[1])
-      setSelectProfilePic(e.profilePicURL)
       
       setOpenDetailsModalDriver(true)
     }
@@ -1242,16 +1245,22 @@ const handleRegularHourChangeEnd = (event, day) => {
   
           for (let i=0; i<hostresults?.hostAppointments.length; i++){
   
-            if(hostprofiledata[hostresults?.hostAppointments[i]._hostUserId]){
+            if(hostprofiledata[hostresults?.hostAppointments[i]._hostUserId] !== undefined){
               hostresults.hostAppointments[i].address = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.address
               hostresults.hostAppointments[i].locationlat = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.location?.coordinates[1]
               hostresults.hostAppointments[i].locationlng = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.location?.coordinates[0]
             }
 
-            if(hostuserdata[hostresults.hostAppointments[i]._hostUserId]){
-              hostresults.hostAppointments[i].profilePicURL = hostuserdata[hostresults.hostAppointments[i]._hostUserId].profilePicURL
-              hostresults.hostAppointments[i].firstName = hostuserdata[hostresults.hostAppointments[i]._hostUserId].firstName
-              hostresults.hostAppointments[i].lastName = hostuserdata[hostresults.hostAppointments[i]._hostUserId].lastName
+            if(hostuserdata[hostresults.hostAppointments[i]._hostUserId] !== undefined){
+              hostresults.hostAppointments[i].hostProfilePicURL = hostuserdata[hostresults.hostAppointments[i]._hostUserId].profilePicURL
+              hostresults.hostAppointments[i].hostFirstName = hostuserdata[hostresults.hostAppointments[i]._hostUserId].firstName
+              hostresults.hostAppointments[i].hostLastName = hostuserdata[hostresults.hostAppointments[i]._hostUserId].lastName
+            }
+
+            if(hostuserdata[hostresults.hostAppointments[i]._requestUserId] !== undefined){
+              hostresults.hostAppointments[i].driverProfilePicURL = hostuserdata[hostresults.hostAppointments[i]._requestUserId].profilePicURL
+              hostresults.hostAppointments[i].driverFirstName = hostuserdata[hostresults.hostAppointments[i]._requestUserId].firstName
+              hostresults.hostAppointments[i].driverLastName = hostuserdata[hostresults.hostAppointments[i]._requestUserId].lastName
             }
             
             var instance = {
@@ -1267,9 +1276,15 @@ const handleRegularHourChangeEnd = (event, day) => {
               requesterId: hostresults.hostAppointments[i]._requestUserId,
               driverRequestedCancel: hostresults.hostAppointments[i].cancelRequestDriverSubmit,
               hostRequestedCancel: hostresults.hostAppointments[i].cancelRequestHostSubmit,
-              profilePicURL: hostresults.hostAppointments[i].profilePicURL,
-              firstName: hostresults.hostAppointments[i].firstName,
-              lastName: hostresults.hostAppointments[i].lastName,
+              
+              hostProfilePicURL: hostresults.hostAppointments[i].hostProfilePicURL,
+              hostFirstName: hostresults.hostAppointments[i].hostFirstName,
+              hostLastName: hostresults.hostAppointments[i].hostLastName,
+
+              driverProfilePicURL: hostresults.hostAppointments[i].driverProfilePicURL,
+              driverFirstName: hostresults.hostAppointments[i].driverFirstName,
+              driverLastName: hostresults.hostAppointments[i].driverLastName,
+
               isDraggable: true
             }
   
@@ -1342,7 +1357,15 @@ const handleRegularHourChangeEnd = (event, day) => {
             }
 
             if(hostuserdata[driverresults.userAppointments[i]._hostUserId]){
-              driverresults.userAppointments[i].profilePicURL = hostuserdata[driverresults.userAppointments[i]._hostUserId].profilePicURL
+              driverresults.userAppointments[i].hostProfilePicURL = hostuserdata[driverresults.userAppointments[i]._hostUserId].profilePicURL
+              driverresults.userAppointments[i].hostFirstName = hostuserdata[driverresults.userAppointments[i]._hostUserId].firstName
+              driverresults.userAppointments[i].hostLastName = hostuserdata[driverresults.userAppointments[i]._hostUserId].lastName
+            }
+
+            if(hostuserdata[driverresults.userAppointments[i]._requestUserId]){
+              driverresults.userAppointments[i].driverProfilePicURL = hostuserdata[driverresults.userAppointments[i]._requestUserId].profilePicURL
+              driverresults.userAppointments[i].driverFirstName = hostuserdata[driverresults.userAppointments[i]._requestUserId].firstName
+              driverresults.userAppointments[i].driverLastName = hostuserdata[driverresults.userAppointments[i]._requestUserId].lastName
             }
             
             var instance = {
@@ -1358,9 +1381,15 @@ const handleRegularHourChangeEnd = (event, day) => {
               requesterId: driverresults.userAppointments[i]._requestUserId,
               driverRequestedCancel: driverresults.userAppointments[i].cancelRequestDriverSubmit,
               hostRequestedCancel: driverresults.userAppointments[i].cancelRequestHostSubmit,
-              profilePicURL: driverresults.userAppointments[i].profilePicURL,
-              firstName: driverresults.userAppointments[i].firstName,
-              lastName: driverresults.userAppointments[i].lastName,
+              
+              hostProfilePicURL: driverresults.userAppointments[i].hostProfilePicURL,
+              hostFirstName: driverresults.userAppointments[i].hostFirstName,
+              hostLastName: driverresults.userAppointments[i].hostLastName,
+
+              driverProfilePicURL: driverresults.userAppointments[i].driverProfilePicURL,
+              driverFirstName: driverresults.userAppointments[i].driverFirstName,
+              driverLastName: driverresults.userAppointments[i].driverLastName,
+
               isDraggable: true
             }
 
@@ -1430,11 +1459,11 @@ const handleRegularHourChangeEnd = (event, day) => {
                   onClick={(e)=>{handleHostEventListClick(e, event)}}>
 
                   <div className='flex flex-col p-4 flex-shrink-0'>
-                    <img className='w-[50px] rounded-full' src={event.profilePicURL} />
+                    <img className='w-[50px] rounded-full' src={event.driverProfilePicURL} />
                   </div>
 
                   <div className='flex flex-col gap-y-1 pl-4'>
-                    <p>Booked By: {event.firstName}</p>
+                    <p>Booked By: {event.driverFirstName}</p>
                     <p>Start: {event.start.toLocaleTimeString()}</p>
                     <p>End: {event.end.toLocaleTimeString()}</p>
                     <p>Status: {event.status === "CancelSubmitted" ? "Asked to Cancel" : event.status}</p>
@@ -2428,7 +2457,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                   onClick={(e)=>{handleDriverEventListClick(e, event)}}>
 
                   <div className='flex flex-col p-4 flex-shrink-0'>
-                    <img className='w-[50px] rounded-full' src={event.profilePicURL} />
+                    <img className='w-[50px] rounded-full' src={event.hostProfilePicURL} />
                   </div>
 
                   <div className='flex flex-col gap-y-1 pl-4'>
@@ -2722,7 +2751,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                     {(selectedEventStatus !== "Requested" && selectedEventStatus !== "Cancelled" && selectedEventStatus !== "Completed" ) 
                       && 
                     <button className='border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]'
-                    onClick={(e)=>handleMessageDriver(e)}>
+                    onClick={(e)=>handleMessageHost(e)}>
                       Send Message
                     </button>}
 

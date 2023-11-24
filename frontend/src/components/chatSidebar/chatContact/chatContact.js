@@ -2,7 +2,6 @@ import React from "react";
 import { DEFAULT_IMAGE_PATH } from "../../../constants/paths";
 
 const ChatContact = ({chatItem, loggedUserId }) => {
-
   
   return (
     <div className="w-full flex flex-row">
@@ -21,7 +20,7 @@ const ChatContact = ({chatItem, loggedUserId }) => {
                           }}
                     />
                     <div className="flex flex-row pr-6">
-                      <span className="font-md">{item.username.slice(0,20)}{item.username.length > 20 ? '...' : null}</span>
+                      <span className="font-md">{item?.firstName?.slice(0,20)}{item?.firstName?.length > 20 ? '...' : null}</span>
                     </div>
                 </div>))
 

@@ -3,9 +3,8 @@ import ChatSlot from "../chatContact/chatSlot";
 import useAuth from "../../../hooks/useAuth";
 import addChat from "../../../helpers/Chats/addChat";
 
-const Chatsbar = ({chatsList, changedData, setChangedData, loggedUserId, 
-    loggedUsername, selectedChat, setSelectedChat, setPageNumber,
-    drawerState, setDrawerState }) => {
+const Chatsbar = ({chatsList, changedData, setChangedData, selectedChat, setSelectedChat, 
+    setPageNumber, drawerState, setDrawerState, loggedUserId, loggedFirstName }) => {
   
       const [previous, setPrevious] = useState("")
       const { newIndividualChat, setNewIndividualChat, auth } = useAuth();    
@@ -15,7 +14,7 @@ const Chatsbar = ({chatsList, changedData, setChangedData, loggedUserId,
         if(newIndividualChat.userId && loggedUserId && newIndividualChat.userId !== loggedUserId){
 
           let newChatUserId = newIndividualChat.userId
-          let newChatUsername = newIndividualChat.username
+          let newChatFirstName = newIndividualChat.firstName
 
           async function checkContext(){
 
@@ -38,10 +37,12 @@ const Chatsbar = ({chatsList, changedData, setChangedData, loggedUserId,
 
                 if(!alreadyChatting){
 
-                  var participants = [{_userId: loggedUserId, username: loggedUsername}, 
-                    {_userId: newChatUserId, username: newChatUsername}]    
+                  var participants = [{_userId: loggedUserId, loggedFirstName: auth.firstName}, 
+                    {_userId: newChatUserId, firstName: newChatFirstName}]    
                     
-                    participants.sort((a,b) => a.username > b.username ? 1 : -1);
+                    participants.sort((a,b) => a.firstName > b.firstName ? 1 : -1);
+
+                    console.log(participants)
                         
                     const added = await addChat(participants, loggedUserId, auth.accessToken)
           
@@ -74,7 +75,7 @@ const Chatsbar = ({chatsList, changedData, setChangedData, loggedUserId,
               setSelectedChat={setSelectedChat} 
               chatItem={item}
               loggedUserId={loggedUserId}
-              loggedUsername={loggedUsername}
+              loggedFirstName={loggedFirstName}
               previous={previous}
               setPrevious={setPrevious}
               setPageNumber={setPageNumber}

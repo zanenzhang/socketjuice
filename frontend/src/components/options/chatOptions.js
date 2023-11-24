@@ -246,7 +246,7 @@ useEffect( ()=> {
       >
         <div className='flex flex-col w-[200px'>
             
-
+{/* 
         <div className='flex flex-row'>
             <button 
                 className='h-12 hover:bg-gray-200 pl-4 pt-2 pb-2 
@@ -268,7 +268,7 @@ useEffect( ()=> {
             </div>
 
             </button>
-        </div>
+        </div> */}
         
         <div className='flex flex-row'>
             <button 

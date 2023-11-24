@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react'
   const MessagesPage = () => {
   
     const { auth, setActiveTab } = useAuth();
-    const loggedUsername = auth.username;
+    const loggedFirstName = auth.firstName;
     const loggedUserId = auth.userId;
     const profilePicURL = auth.profilePicURL;
     const roles = auth.roles;
@@ -28,12 +28,12 @@ import { useState, useEffect } from 'react'
                         flex flex-col fixed w-full">
 
         <MainHeader 
-            loggedUserId={auth.userId} loggedUsername={auth.username} 
+            loggedUserId={auth.userId} 
             profilePicURL={auth.profilePicURL} roles={auth.roles}
         />
 
         <div className='flex flex-row h-[100vh] pt-[7vh] sm:pt-[8vh] md:pt-[9vh]'>
-            <ChatRoom loggedUserId={loggedUserId} loggedUsername={loggedUsername} 
+            <ChatRoom loggedUserId={auth.userId} loggedFirstName={auth.firstName}
             profilePicURL={profilePicURL} socket={socket} socketConnected={socketConnected}/>
         </div>
 

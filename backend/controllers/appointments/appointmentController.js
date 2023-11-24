@@ -79,7 +79,8 @@ const getHostAppointments = async (req, res) => {
 
         if(hostAppointments && hostAppointments?.length > 0){
 
-            foundHostProfiles = await HostProfile.find({_userId: {$in: hostAppointments.map(e=>e._hostUserId)}})
+            foundHostProfiles = await HostProfile.find({$or:[{_userId: {$in: hostAppointments.map(e=>e._hostUserId)}}, 
+                {_userId: {$in: hostAppointments.map(e=>e._requestUserId)}}]})
 
             if(foundHostProfiles && foundHostProfiles?.length > 0){
 
@@ -177,7 +178,8 @@ const getDriverAppointments = async (req, res) => {
 
             console.log("Found appointments", userAppointments.length)
 
-            foundHostProfiles = await HostProfile.find({_userId: {$in: userAppointments.map(e=>e._hostUserId)}})
+            foundHostProfiles = await HostProfile.find({$or:[{_userId: {$in: userAppointments.map(e=>e._hostUserId)}}, 
+                {_userId: {$in: userAppointments.map(e=>e._requestUserId)}}]})
 
             if(foundHostProfiles && foundHostProfiles?.length > 0){
 

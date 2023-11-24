@@ -40,7 +40,7 @@ const getUserChats = async (req, res) => {
                 }
 
                 const userData = await User.find({_id:{$in: Object.keys(chatsHash)}}).
-                    select("_id username roles profilePicURL")
+                    select("_id username roles profilePicURL firstName lastName")
 
                 if(userData){
                 
@@ -95,6 +95,8 @@ const addChat = async (req, res) => {
 
     const { participantsList } = req.body
 
+    console.log("Adding new chat", participantsList)
+
     if (!participantsList ) return res.status(400).json({ 'message': 'Missing required fields!' });
 
     try {
@@ -139,7 +141,7 @@ const addChat = async (req, res) => {
 
                     try{
 
-                        Comm.findOne({_userId: item._userId}, function(err, newComm){
+                        Comm.findOne({_userId: item._userId}, async function(err, newComm){
 
                             if(err) {return res.status(400).json({message: "Operation failed"})}
         
@@ -147,16 +149,19 @@ const addChat = async (req, res) => {
             
                                 newComm.chats.push({_chatId: savedNew._id, participants: participantsList, 
                                     participantsNumber: newCount})
-                                
-                                newComm.save();
             
                             } else {
             
                                 newComm.chats = [{_chatId: savedNew._id, participants: participantsList, 
                                     participantsNumber: newCount}]
-            
-                                newComm.save()
-        
+                            }
+
+                            const savedComm = await newComm.save();
+
+                            if(savedComm){
+                                return res.status(201).json({ savedNew });
+                            } else {
+                                return res.status(401).json({"message": "Failed operation"});
                             }
                         })
 
@@ -164,11 +169,8 @@ const addChat = async (req, res) => {
 
                         console.log(err)
                         res.status(500).json({ 'Message': err.message });        
-
                     }
                 }
-
-                res.status(201).json({ savedNew });
 
             } else {
 
