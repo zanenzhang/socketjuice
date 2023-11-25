@@ -1420,8 +1420,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                     flex flex-col fixed w-full">
 
     <MainHeader 
-        loggedUserId={auth.userId} loggedUsername={auth.username} 
-        profilePicURL={auth.profilePicURL} roles={auth.roles} />
+        loggedUserId={auth.userId}  />
 
       
       <div className='flex relative flex-col items-center pt-[7vh] sm:pt-[8vh] 

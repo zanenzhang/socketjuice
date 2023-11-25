@@ -8,7 +8,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import addChat from "../../../helpers/Chats/addChat";
 
 
-export default function SingleInviteMenuItem({loggedUserId, loggedUsername, followerUsername, followerUserId, 
+export default function SingleInviteMenuItem({loggedUserId, loggedFirstName, followerUsername, followerUserId, 
     followerUserProfilePicURL, changedData, setChangedData, chatsList, 
     handleClosePopover, setSelectedChat, drawerState, setDrawerState }){
     
@@ -28,7 +28,7 @@ export default function SingleInviteMenuItem({loggedUserId, loggedUsername, foll
         
         } else {
 
-            var participants = [{_userId: loggedUserId, username: loggedUsername}, 
+            var participants = [{_userId: loggedUserId, firstName: loggedFirstName}, 
             {_userId: followerUserId, username: followerUsername}]
             
             participants.sort((a,b) => a.username > b.username ? 1 : -1);

@@ -48,6 +48,9 @@ export const AuthProvider = ({ children }) => {
     const [socket, setSocket] = useState("");
     const [newMessages, setNewMessages] = useState("");
     const [newRequests, setNewRequests] = useState("");
+    const [selectedChat, setSelectedChat] = useState("");
+    const [previousChat, setPreviousChat] = useState("");
+
     const [geoData, setGeoData] = useState('req');
     const [activeTab, setActiveTab] = useState('map');
     const [newIndividualChat, setNewIndividualChat] = useState("");
@@ -58,8 +61,8 @@ export const AuthProvider = ({ children }) => {
         <AuthContext.Provider value={{ auth, setAuth, persist, setPersist, 
             socket, setSocket, newMessages, setNewMessages, newIndividualChat, 
             setNewIndividualChat, refresh, setRefresh,
-            newRequests, setNewRequests, 
-            browse, setBrowse, publicFX, setPublicFX,
+            newRequests, setNewRequests, selectedChat, setSelectedChat, 
+            browse, setBrowse, publicFX, setPublicFX, previousChat, setPreviousChat,
             publicRates, setPublicRates, 
             geoData, setGeoData, activeTab, setActiveTab }}>
             {children}

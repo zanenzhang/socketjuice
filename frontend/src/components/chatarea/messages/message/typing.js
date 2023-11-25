@@ -2,14 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Player, Controls } from '@lottiefiles/react-lottie-player';
 import animationData from "../../../../animations/typingAnimation.json";
 
-export default function TypingLine({othersTyping, loggedUsername}){
+export default function TypingLine({othersTyping, loggedFirstName}){
 
     const [typingSwitch, setTypingSwitch] = useState(false);
     const typingRef = useRef(null);
 
     useEffect( ()=> {
 
-        if(othersTyping !== loggedUsername){
+        if(othersTyping !== loggedFirstName){
             
             if(othersTyping){
                 setTypingSwitch(true);
@@ -53,5 +53,3 @@ export default function TypingLine({othersTyping, loggedUsername}){
     )
 
 }
-
-// \u00A0

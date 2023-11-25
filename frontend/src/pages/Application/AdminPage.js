@@ -186,7 +186,7 @@ const AdminPage = () => {
         <div className='flex flex-col w-full h-full'>
 
             <MainHeader 
-                loggedUserId={auth.userId} loggedUsername={auth.username} 
+                loggedUserId={auth.userId} loggedFirstName={auth.firstName} 
                 profilePicURL={auth.profilePicURL} roles={auth.roles}
             />
 

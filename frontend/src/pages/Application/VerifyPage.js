@@ -726,8 +726,7 @@ const VerifyPage = () => {
         <div className='flex flex-col w-full h-full'>
 
         <MainHeader 
-            loggedUserId={auth.userId} loggedUsername={auth.username} 
-            profilePicURL={auth.profilePicURL} roles={auth.roles}
+            loggedUserId={auth.userId} 
         />
 
         <div className='w-full flex flex-col justify-center items-center pt-[10vh]'>

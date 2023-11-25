@@ -1,79 +1,36 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import ChatContact from "./chatContact";
-import { formatDistanceToNowStrict } from 'date-fns';
 import useAuth from "../../../hooks/useAuth";
 import ChatOptions from "../../options/chatOptions";
 
-const ChatSlot = ({chatItem, selectedChat, setSelectedChat, loggedUserId,
-    loggedUsername, previous, setPrevious, setPageNumber, chatsList,
-    changedData, setChangedData, drawerState, setDrawerState }) => {
+const ChatSlot = ({chatItem, loggedUserId, loggedFirstName, 
+    chatsList, changedData, setChangedData, drawerState, setDrawerState }) => {
 
-    const { socket } = useAuth();    
+    const { selectedChat, setSelectedChat } = useAuth();    
 
-    // useEffect( () => {
-
-    //     if(chatItem?.mostRecentMessage){
-    //         console.log(chatItem.mostRecentMessage);
-    //     }
-        
-    // }, [])
-
-    function handleSelectContact(item){
-        setSelectedChat(item._id);        
+    const handleSelectContact = (event, item) => {
+        event.preventDefault()
+        console.log(item._id)
+        setSelectedChat(item._id);  
         setDrawerState({ ...drawerState, ['left']: false });
     }
 
-    useEffect( ()=> {
-
-        if(Object.keys(socket) !== 0){
-    
-          if(previous !== ''){
-            socket.emit("leave", {chatId: previous, userId: loggedUserId})
-          } 
-    
-          socket.emit("join", {chatId: selectedChat, userId: loggedUserId})
-          
-          if(previous !== selectedChat){
-              setPrevious(selectedChat)
-          }
-        }
-    
-      }, [selectedChat])
-    
 
   return (
 
     <>
-    <div className={`${chatItem._id === selectedChat ? 'bg-[#fadeeb]' : 'bg-[#fff7fc]'}  
-    flex flex-row shadow-inner shadow-[#8BEDF3]/30 hover:bg-blue-100 cursor-pointer `}>
+    <div className={`${chatItem._id === selectedChat ? 'bg-[#FFE142]' : 'bg-[#8BEDF3]'} 
+        flex flex-row shadow-inner shadow-[#8BEDF3]/50 hover:bg-[#00D3E0] cursor-pointer 
+            border-b border-[#00D3E0]`}>
             
         <div className="overflow-x-auto flex flex-grow ">
         
             <button 
-                onClick={(event)=>handleSelectContact(chatItem)} 
-                className="w-full pb-4 pt-3 
+                onClick={(event)=>handleSelectContact(event, chatItem)} 
+                className="w-full pt-2 pb-3 
                     overflow-x-auto inset-1 "
             >
                 <ChatContact chatItem={chatItem} loggedUserId={loggedUserId} />
-                
-                {(chatItem?.mostRecentMessage?.content) &&
-
-                    <div>
-                        <div className="flex flex-col pl-5 justify-start">
-                            <div className="flex flex-wrap break-all ">
-                                {chatItem.mostRecentMessage.username === loggedUsername ? 
-                                    (<span>{"You:"} &nbsp;</span>) :   
-                                    <span>{chatItem.mostRecentMessage.username.slice(0,8)}: &nbsp;</span>                                     
-                                }
-                                <span>{chatItem.mostRecentMessage.content.slice(0,13)}{chatItem.mostRecentMessage.content.length > 13 ? '...' : null}</span>
-                            </div>
-                            <div className="flex flex-row text-sm">
-                                {chatItem.lastUpdated && <p>{formatDistanceToNowStrict(new Date(chatItem.lastUpdated),{addSuffix: true})}</p>}
-                            </div>
-                        </div>
-                        
-                    </div>
-                }
 
             </button>
 
@@ -85,7 +42,7 @@ const ChatSlot = ({chatItem, selectedChat, setSelectedChat, loggedUserId,
                 <ChatOptions 
                     chatId={chatItem._id}
                     loggedUserId={loggedUserId}
-                    loggedUsername={loggedUsername}
+                    loggedFirstName={loggedFirstName}
                     chatsList={chatsList}
                     changedData={changedData} 
                     setChangedData={setChangedData} 
@@ -98,8 +55,8 @@ const ChatSlot = ({chatItem, selectedChat, setSelectedChat, loggedUserId,
             <svg 
                 xmlns="http://www.w3.org/2000/svg" 
                 fill="none" viewBox="0 0 24 24" 
-                strokeWidth="1" 
-                stroke="#8BEDF3" 
+                strokeWidth="0.5" 
+                stroke="black" 
                 className="w-8 h-8"
             >
                 <path 

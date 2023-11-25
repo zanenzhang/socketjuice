@@ -178,15 +178,14 @@ io.on('connection', function(socket){
     }) 
 
     socket.on("join", (data) => {
-        console.log("Chat id here");
-        console.log(data.userId)
-        console.log(`Joining chat ${data.chatId}`);
+        console.log("Joining here")
+        console.log(data)
+        console.log(`Joining chat ${data?.chatId}`);
         socket.join(data.chatId);
         // io.to(data.chatId).emit("Testing room connection")
     })
 
     socket.on("leave", (data) => {
-        console.log("Chat id here")
         console.log(`Leaving chat ${data.chatId}`)
         socket.leave(data.chatId)
     })
@@ -253,6 +252,9 @@ connection.once('open', () => {
                 //     username: change.fullDocument.username,
                 //     createdAt: change.fullDocument.createdAt,
                 // };
+
+                console.log("New message")
+                console.log(change.fullDocument)
 
                 io.to(change.fullDocument._chatId.toString()).emit("newMessage", change.fullDocument);
                 break;

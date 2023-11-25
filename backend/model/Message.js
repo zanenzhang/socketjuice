@@ -11,7 +11,10 @@ var messageSchema = new Schema({
         type: Schema.Types.ObjectId, 
         required: true, ref: 'User' 
     },
-    username: {
+    firstName: {
+        type: String
+    },
+    lastName: {
         type: String
     },
     flagged: {

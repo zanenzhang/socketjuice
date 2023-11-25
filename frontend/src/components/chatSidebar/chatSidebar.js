@@ -8,10 +8,9 @@ import SwipeableDrawer from '@mui/material/SwipeableDrawer';
 import getUserChats from "../../helpers/Chats/getUserChats";
 
 
-const ChatSidebar = ({loggedUserId, loggedFirstName, selectedChat, 
-    setSelectedChat, chatsList, setChatsList, socketConnected, setPageNumber}) => {
+const ChatSidebar = ({loggedUserId, loggedFirstName, chatsList, setChatsList, setPageNumber}) => {
 
-  const {auth, setActiveTab} = useAuth();
+  const {auth} = useAuth();
   const [changedData, setChangedData] = useState(false);
   const [drawerState, setDrawerState] = useState({
     left: true
@@ -49,11 +48,11 @@ const ChatSidebar = ({loggedUserId, loggedFirstName, selectedChat,
       }
     }
 
-    if(loggedUserId){
+    if(auth.userId){
       fetchChatsData();
     }
 
-  }, [selectedChat, changedData])
+  }, [changedData, auth])
 
 
 const handleDrawerOpen = (event) => {
@@ -84,8 +83,10 @@ const toggleDrawer = (anchor, open) => (event) => {
           
           <div className="h-full w-full overflow-y-auto flex flex-col">
             <p className="text-lg font-semibold text-center pb-2">Conversations</p>
-            <Chatsbar chatsList={chatsList} setChatsList={setChatsList} changedData={changedData} setChangedData={setChangedData} 
-              loggedUserId={loggedUserId} loggedFirstName={loggedFirstName} selectedChat={selectedChat} setSelectedChat={setSelectedChat}
+            
+            <Chatsbar chatsList={chatsList} setChatsList={setChatsList} 
+              changedData={changedData} setChangedData={setChangedData} 
+              loggedUserId={loggedUserId} loggedFirstName={loggedFirstName} 
               setPageNumber={setPageNumber} drawerState={drawerState} setDrawerState={setDrawerState}
             />
 

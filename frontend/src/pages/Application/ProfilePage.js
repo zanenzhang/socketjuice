@@ -116,9 +116,7 @@ import { useRef, useState, useEffect } from 'react'
                         flex flex-col fixed w-full">
 
         <MainHeader 
-            loggedUserId={auth.userId} loggedUsername={auth.username} 
-            profilePicURL={auth.profilePicURL} roles={auth.roles}
-        />
+            loggedUserId={auth.userId} />
 
         {isLoaded ? 
 

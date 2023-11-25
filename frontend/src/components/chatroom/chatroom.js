@@ -8,7 +8,6 @@ const ChatRoom = ({loggedUserId, loggedFirstName }) => {
 
   const [pageNumber, setPageNumber] = useState(10);
   const [chatsList, setChatsList] = useState([]);
-  const [selectedChat, setSelectedChat] = useState("");  
 
   return (
 
@@ -19,7 +18,6 @@ const ChatRoom = ({loggedUserId, loggedFirstName }) => {
             <div className="flex bg-cyan-100 h-[83vh] sm:h-[82vh] md:h-[81vh] border-r-2 border-white ">
 
               <ChatSidebar loggedUserId={loggedUserId} loggedFirstName={loggedFirstName}
-                selectedChat={selectedChat} setSelectedChat={setSelectedChat}
                 chatsList={chatsList} setChatsList={setChatsList} setPageNumber={setPageNumber}/>
 
             </div>
@@ -28,7 +26,6 @@ const ChatRoom = ({loggedUserId, loggedFirstName }) => {
 
         <div className="flex flex-grow h-[83vh] sm:h-[82vh] md:h-[81vh]">        
           <Chatarea loggedUserId={loggedUserId} loggedFirstName={loggedFirstName}
-            selectedChat={selectedChat} 
             chatsList={chatsList} setChatsList={setChatsList}
             pageNumber={pageNumber} setPageNumber={setPageNumber}
             />

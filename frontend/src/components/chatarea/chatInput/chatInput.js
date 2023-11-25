@@ -5,9 +5,10 @@ import addMessage from "../../../helpers/Chats/addMessage";
 import addMessageNoti from "../../../helpers/Notifications/addMessageNoti";
 
 
-const ChatInput = ({loggedUserId, loggedFirstName, selectedChat, messages, setMessages, socket}) => {
+const ChatInput = ({loggedUserId, loggedFirstName, messages, setMessages}) => {
 
-  const {auth} = useAuth();
+  const {auth, socket, selectedChat} = useAuth();
+  
   const [messageContent, setMessageContent] = useState("");
   const [currentTyping, setCurrentTyping] = useState(false);
   const [disable, setDisable] = useState(false);
@@ -16,6 +17,8 @@ const ChatInput = ({loggedUserId, loggedFirstName, selectedChat, messages, setMe
   const [waiting, setWaiting] = useState(false);
 
   const handleSubmitMessage = async () => {
+
+    console.log(selectedChat)
 
     if(!socket || !selectedChat){
       return
@@ -29,7 +32,7 @@ const ChatInput = ({loggedUserId, loggedFirstName, selectedChat, messages, setMe
     const addedMessage = await addMessage(auth.userId, selectedChat, messageContent, auth.accessToken)
   
     if(addedMessage){
-      const addedNoti = await addMessageNoti(auth.userId, selectedChat, auth.accessToken)  
+      const addedNoti = await addMessageNoti(auth.userId, selectedChat, auth.userId, auth.accessToken)  
 
       if(addedNoti){
         setMessageContent("");
@@ -109,12 +112,12 @@ const ChatInput = ({loggedUserId, loggedFirstName, selectedChat, messages, setMe
             placeholder="Type message"
             onKeyDown={(event)=>onEnterPress(event)}
             ref={messageRef}
-            disabled={waiting || disable}
+            disabled={waiting || disable || !selectedChat}
           />
 
         <button 
           className="pl-1 pr-8" 
-          onClick={handleSubmitMessage}
+          onClick={(e)=>handleSubmitMessage(e)}
           disabled={messageContent.length < 1 || !selectedChat}
           >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" 

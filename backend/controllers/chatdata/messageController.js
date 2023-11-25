@@ -43,7 +43,7 @@ const getChatMessages = async (req, res) => {
         if(messagesByChat?.length > 0){
 
             const userData = await User.find({_id:{$in: messagesByChat.map(e => e._userId)}}).
-                select("_id username roles profilePicURL")
+                select("_id username roles profilePicURL firstName lastName")
 
             if(userData){
                 
@@ -60,7 +60,7 @@ const getChatMessages = async (req, res) => {
 
 const addMessage = async (req, res) => {
 
-    const { loggedUserId, loggedUsername, chatId, content} = req.body
+    const { loggedUserId, chatId, content} = req.body
 
     if (!loggedUserId || !chatId || !content ) return res.status(400).json({ 'message': 'Missing required fields!' });
 
@@ -129,7 +129,7 @@ const addMessage = async (req, res) => {
 
             var addMessage = new Message({
                 "_userId": loggedUserId,
-                "username": loggedUsername,
+                "firstName": foundUser.firstName,
                 "_chatId": chatId,
                 "content": content,
                 "createdAt": Date.now()
@@ -142,7 +142,7 @@ const addMessage = async (req, res) => {
                 foundChat.messages.push({_messageId: addMessage._id})
 
                 foundChat.mostRecentMessage = {_userId: loggedUserId,
-                    username: loggedUsername, content: content, 
+                    firstName: foundUser.firstName, content: content, 
                     lastUpdated: Date.now()}
 
                 foundChat.lastUpdated = Date.now()
@@ -168,6 +168,7 @@ const addMessage = async (req, res) => {
         
     } catch (err) {
 
+        console.log(err)
         return res.status(400).json({ message: err })
     }
 }
@@ -175,16 +176,16 @@ const addMessage = async (req, res) => {
 
 const removeMessage = async (req, res) => {
 
-    const { messageId, chatId, loggedUserId, loggedUsername } = req.query
+    const { messageId, chatId, loggedUserId, loggedFirstName } = req.query
 
     // Confirm data
-    if (!messageId || !chatId || !loggedUserId || !loggedUsername ) return res.status(400).json({ 'message': 'Missing required fields!' });
+    if (!messageId || !chatId || !loggedUserId || !loggedFirstName ) return res.status(400).json({ 'message': 'Missing required fields!' });
 
     try {
 
         const setDeleted = await Message.updateOne({_id: messageId},{$set: {hidden: true, content: "Message deleted"}})
         const foundChat = await Chat.updateOne({_id: chatId},{$set: {mostRecentMessage: {_userId: loggedUserId,
-            username: loggedUsername, content: "Deleted a message", lastUpdated: Date.now()}, lastUpdated: Date.now()} })
+            firstName: loggedFirstName, content: "Deleted a message", lastUpdated: Date.now()}, lastUpdated: Date.now()} })
 
         if(setDeleted && foundChat){
 

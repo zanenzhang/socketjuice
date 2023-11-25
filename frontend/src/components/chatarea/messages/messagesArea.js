@@ -6,12 +6,35 @@ import getChatMessages from "../../../helpers/Chats/getChatMessages";
 import cloneDeep from 'lodash/cloneDeep';
 
 const MessagesArea = ({loggedUserId, loggedFirstName, messages, 
-        setMessages, selectedChat, othersTyping, pageNumber, setPageNumber,
+        setMessages, othersTyping, pageNumber, setPageNumber,
         setScrollStop, scrollStop, messagesHash, setMessagesHash }) => {
   
-    const {auth} = useAuth();
+    const {auth, socket, selectedChat, setSelectedChat,
+        previousChat, setPreviousChat} = useAuth();
     const lastMessageRef = useRef(null);
-    var waiting = false
+    const [waiting, setWaiting] = useState(false)
+
+
+    useEffect( ()=> {
+
+        if(socket && Object.keys(socket) !== 0 && socket.connected && selectedChat ){
+    
+            if(previousChat !== '' || previousChat !== selectedChat){
+                socket.emit("leave", {chatId: previousChat, userId: loggedUserId})
+
+                socket.emit("join", {chatId: selectedChat, userId: loggedUserId})
+
+                setPreviousChat(selectedChat)
+          
+            } else {
+
+                socket.emit("join", {chatId: selectedChat, userId: loggedUserId})
+                setPreviousChat(selectedChat)
+            } 
+        }
+
+    }, [socket.connected, selectedChat])
+
 
       useEffect(() => {
     
@@ -26,7 +49,7 @@ const MessagesArea = ({loggedUserId, loggedFirstName, messages,
         
         if(!waiting && !scrollStop){
 
-            waiting = true;
+            setWaiting(true)
 
             let element = e.target;
             if (element.scrollTop === 0) {
@@ -84,7 +107,7 @@ const MessagesArea = ({loggedUserId, loggedFirstName, messages,
                     element.scroll(0, 300);
                 }
             }
-            waiting = false;
+            setWaiting(false)
         }
      }
 

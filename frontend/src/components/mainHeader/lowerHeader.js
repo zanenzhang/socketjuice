@@ -8,7 +8,7 @@ import useAuth from '../../hooks/useAuth';
 import editNewMessagesFill from '../../helpers/Notifications/editNewMessagesFill';
 
 
-const LowerHeader = ({loggedUserId, loggedUsername, profilePicURL, roles, socket, setSocket,
+const LowerHeader = ({loggedUserId, loggedFirstName, profilePicURL, roles, socket, setSocket,
         socketConnected, setSocketConnected} ) => {
 
     const { newMessages, setNewMessages, auth, browse } = useAuth();

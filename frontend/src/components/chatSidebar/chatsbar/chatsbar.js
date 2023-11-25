@@ -3,11 +3,11 @@ import ChatSlot from "../chatContact/chatSlot";
 import useAuth from "../../../hooks/useAuth";
 import addChat from "../../../helpers/Chats/addChat";
 
-const Chatsbar = ({chatsList, changedData, setChangedData, selectedChat, setSelectedChat, 
+const Chatsbar = ({chatsList, changedData, setChangedData,  
     setPageNumber, drawerState, setDrawerState, loggedUserId, loggedFirstName }) => {
   
-      const [previous, setPrevious] = useState("")
-      const { newIndividualChat, setNewIndividualChat, auth } = useAuth();    
+      const { newIndividualChat, setNewIndividualChat, auth, 
+        selectedChat, setSelectedChat, } = useAuth();    
 
       useEffect( ()=> {
 
@@ -15,6 +15,8 @@ const Chatsbar = ({chatsList, changedData, setChangedData, selectedChat, setSele
 
           let newChatUserId = newIndividualChat.userId
           let newChatFirstName = newIndividualChat.firstName
+
+          console.log(newChatUserId, newChatFirstName)
 
           async function checkContext(){
 
@@ -65,19 +67,15 @@ const Chatsbar = ({chatsList, changedData, setChangedData, selectedChat, setSele
 
     return (
         <div className="h-[70vh] overflow-y-auto max-h-[70vh] 
-          border-b-2 border-solid border-[#8BEDF3]/20">
+          border-y-2 border-[#00D3E0] rounded-md">
 
-          {chatsList?.userChats ? chatsList.userChats.map((item) => (
+          {chatsList?.userChats?.length > 0 ? chatsList.userChats.map((item) => (
             
             <ChatSlot
               key={item._id} 
-              selectedChat={selectedChat} 
-              setSelectedChat={setSelectedChat} 
               chatItem={item}
-              loggedUserId={loggedUserId}
-              loggedFirstName={loggedFirstName}
-              previous={previous}
-              setPrevious={setPrevious}
+              loggedUserId={auth.userId}
+              loggedFirstName={auth.firstName}
               setPageNumber={setPageNumber}
               chatsList={chatsList}
               changedData={changedData}

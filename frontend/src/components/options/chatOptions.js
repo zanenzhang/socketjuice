@@ -6,18 +6,18 @@ import Modal from '@mui/material/Modal';
 import Popover from '@mui/material/Popover';
 import debounce from 'lodash.debounce';
 import List from '@mui/material/List';
-import AddUserMenuItem from "./addUserMenuItem";
+// import AddUserMenuItem from "./addUserMenuItem";
 import { DEFAULT_IMAGE_PATH } from '../../constants/paths';
 
 import addUserToChat from '../../helpers/Chats/addUserToChat';
 import removeUserFromChat from '../../helpers/Chats/removeUserFromChat';
 
 
-export default function ChatOptions({chatId, loggedUserId, loggedUsername,
-    chatsList, changedData, setChangedData, participants, setSelectedChat,
+export default function ChatOptions({chatId, loggedUserId, loggedFirstName,
+    chatsList, changedData, setChangedData, participants, 
     drawerState, setDrawerState }) {
 
-const { auth } = useAuth();
+const { auth, setSelectedChat } = useAuth();
 const [anchorElMain, setAnchorElMain] = useState(null);
   const [anchorElPop, setAnchorElPop] = useState(null);
   const [openPopover, setOpenPopover] = useState(false);
@@ -160,7 +160,7 @@ useEffect( ()=> {
     setOpenChildLeave(false);
     setOpenMenu(false);
 
-    const leftChat = await removeUserFromChat(loggedUserId, loggedUsername, chatId, auth.accessToken)
+    const leftChat = await removeUserFromChat(loggedUserId, loggedFirstName, chatId, auth.accessToken)
 
     if(leftChat){
         waiting = false;;
@@ -197,12 +197,12 @@ useEffect( ()=> {
         <div className='flex flex-shrink-0 items-center justify-center cursor-pointer' 
         onClick={(event)=>handleOpenMenu(event)}>
 
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
-                strokeWidth="0.5" stroke="#8BEDF3" 
-                className="w-10 h-10 mr-4 hover:stroke-1">
-                <path strokeLinecap="round" strokeLinejoin="round" 
-                d="M4.5 12a7.5 7.5 0 0015 0m-15 0a7.5 7.5 0 1115 0m-15 0H3m16.5 0H21m-1.5 0H12m-8.457 3.077l1.41-.513m14.095-5.13l1.41-.513M5.106 17.785l1.15-.964m11.49-9.642l1.149-.964M7.501 19.795l.75-1.3m7.5-12.99l.75-1.3m-6.063 16.658l.26-1.477m2.605-14.772l.26-1.477m0 17.726l-.26-1.477M10.698 4.614l-.26-1.477M16.5 19.794l-.75-1.299M7.5 4.205L12 12m6.894 5.785l-1.149-.964M6.256 7.178l-1.15-.964m15.352 8.864l-1.41-.513M4.954 9.435l-1.41-.514M12.002 12l-3.75 6.495" />
-            </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
+            strokeWidth="0.5" stroke="currentColor" 
+            className="w-8 h-8 mr-4 hover:stroke-1">
+            <path strokeLinecap="round" strokeLinejoin="round" 
+            d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
             
         </div>
 
@@ -305,7 +305,7 @@ useEffect( ()=> {
 
       </Menu>
 
-        <Modal
+        {/* <Modal
             open={openChildAdd}
             onClose={handleCloseChildAdd}
             onClick={(event)=>{event.stopPropagation()}}
@@ -354,7 +354,7 @@ useEffect( ()=> {
           
           users.map( (user) => <AddUserMenuItem  
               key={user._id} followerUsername={user.username} followerUserId={user._id} 
-              loggedUserId={loggedUserId} loggedUsername={loggedUsername}
+              loggedUserId={loggedUserId} loggedFirstName={loggedFirstName}
               followerUserProfilePicURL={user.profilePicURL}
               setSelectedUser={setSelectedUser}
               selectedUser={selectedUser}
@@ -471,7 +471,7 @@ useEffect( ()=> {
             </Box>
         
         </Modal>
-        
+         */}
     </React.Fragment>
   );
 }

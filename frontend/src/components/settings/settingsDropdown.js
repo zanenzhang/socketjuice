@@ -9,7 +9,7 @@ const PaymentsMenuItem = lazy( () => import('./paymentsItem'));
 const ReportIssueMenuItem = lazy( () => import('./reportIssueMenuItem'));
 
 
-export default function SettingsDropdown({loggedUserId, loggedUsername, profilePicURL}) {
+export default function SettingsDropdown({loggedUserId, profilePicURL}) {
   
   const {auth} = useAuth();
   const [anchorEl, setAnchorEl] = useState(null);

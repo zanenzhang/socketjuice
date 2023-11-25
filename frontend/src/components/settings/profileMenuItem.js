@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
 import { DEFAULT_IMAGE_PATH } from '../../constants/paths';
 
-const ProfileMenuItem = ({loggedUsername, profilePicURL}) => {
+const ProfileMenuItem = ({loggedUserName, profilePicURL}) => {
 
   const { auth } = useAuth();
   const [userOrStore, setUserOrStore] = useState(1);
@@ -21,11 +21,6 @@ const ProfileMenuItem = ({loggedUsername, profilePicURL}) => {
     }
 
   }, [auth.roles])
-
-  const handleStoreLink = () => {
-
-    // navigate(`/profile/store/${loggedUsername}`)
-  }
 
     return (
         <>

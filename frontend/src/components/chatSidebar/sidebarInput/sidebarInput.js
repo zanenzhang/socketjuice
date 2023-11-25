@@ -13,9 +13,8 @@ import SearchMenuItem from "./searchMenuItem";
 import addChat from "../../../helpers/Chats/addChat";
 import { Divider } from "@mui/material";
 
-const SidebarInput = ({loggedUserId, loggedUsername, chatsList, 
-    setChatsList, changedData, setChangedData, setSelectedChat,
-    drawerState, setDrawerState}) => {
+const SidebarInput = ({loggedUserId, loggedFirstName, chatsList, setChatsList, 
+    changedData, setChangedData, setSelectedChat, drawerState, setDrawerState}) => {
 
   const usernameRef = useRef();  
   const usernameModalRef = useRef();
@@ -51,7 +50,7 @@ const SidebarInput = ({loggedUserId, loggedUsername, chatsList,
     setAnchorElModal(null);
     setOpenModal(false);
     setGroupDisplay([]);
-    setInvitedList([{_userId: loggedUserId, username: loggedUsername}])
+    setInvitedList([{_userId: loggedUserId, firstName: loggedFirstName}])
   }
 
   const [openPopover, setOpenPopover] = useState(false);
@@ -79,7 +78,7 @@ const SidebarInput = ({loggedUserId, loggedUsername, chatsList,
     const [users, setUsers] = useState("");
     const [usersModal, setUsersModal] = useState("");
 
-    const [invitedList, setInvitedList] = useState([{_userId: loggedUserId, username: loggedUsername}]);
+    const [invitedList, setInvitedList] = useState([{_userId: loggedUserId, firstName: loggedFirstName}]);
     const [groupDisplay, setGroupDisplay] = useState([]);
     
     const [validUsername, setValidUsername] = useState(false);
@@ -198,13 +197,13 @@ async function handleNewGroupChat(){
       setSelectedChat(currentChatModal)
       setDrawerState({ ...drawerState, ['left']: false });
       setChangedData(!changedData)
-      setInvitedList([{_userId: loggedUserId, username: loggedUsername}])
+      setInvitedList([{_userId: loggedUserId, firstName: loggedFirstName}])
       setGroupDisplay([])
       handleCloseModal()
   
   } else {
 
-      invitedList.sort((a,b) => a.username > b.username ? 1 : -1);
+      invitedList.sort((a,b) => a.firstName > b.firstName ? 1 : -1);
 
       const added = await addChat(invitedList, loggedUserId, auth.accessToken);
 
@@ -213,7 +212,7 @@ async function handleNewGroupChat(){
           setSelectedChat(added?.savedNew._id);
           setDrawerState({ ...drawerState, ['left']: false });
           setChangedData(!changedData);
-          setInvitedList([{_userId: loggedUserId, username: loggedUsername}]);
+          setInvitedList([{_userId: loggedUserId, firstName: loggedFirstName}]);
           setGroupDisplay([])
           handleCloseModal();
       }    
@@ -259,7 +258,7 @@ async function handleNewGroupChat(){
           
           users.map( (user) => <SingleInviteMenuItem  
               key={user._id} followerUsername={user.username} followerUserId={user._id} 
-              loggedUserId={loggedUserId} loggedUsername={loggedUsername}
+              loggedUserId={loggedUserId} loggedFirstName={loggedFirstName}
               followerUserProfilePicURL={user.profilePicURL}
               handleClosePopover={handleClosePopover} 
               chatsList={chatsList} setChatsList={setChatsList}
@@ -335,8 +334,7 @@ async function handleNewGroupChat(){
               
               usersModal.map( (user) => <SearchMenuItem  
                   key={user._id} followerUsername={user.username} loggedUserId={loggedUserId}
-                  loggedUsername={loggedUsername} 
-                  followerUserId={user._id} followerProfilePicURL={user.profilePicURL}
+                  loggedFirstName={loggedFirstName} followerUserId={user._id} followerProfilePicURL={user.profilePicURL}
                   invitedList={invitedList} setInvitedList={setInvitedList}
                   groupDisplay={groupDisplay} setGroupDisplay={setGroupDisplay}
                   /> )

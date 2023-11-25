@@ -114,16 +114,14 @@ export default function NotificationsDropdown() {
 
   useEffect( ()=> {
 
-    if(Object.keys(socket).length > 0){
+    if(socket && Object.keys(socket).length > 0 && !socket?.connected && auth.userId){
+
+      console.log("Connecting notifications and socket")
 
       socket.emit("setup", {userId: auth.userId});
     
       socket.on("connected", () => {
-        console.log("Connected")
-      });
-
-      socket.on("linkedNotis", () => {
-        console.log("Notification link is connected!")
+        console.log("Connected notifications")
       });
   
       socket.on("newNotification", (noti) => {        
@@ -131,7 +129,7 @@ export default function NotificationsDropdown() {
       })
     }
 
-  }, [socket])
+  }, [socket, auth.userId])
 
 
   async function handleScroll(e) {

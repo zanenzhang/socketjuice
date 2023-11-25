@@ -1,14 +1,14 @@
 import axios from "../../api/axios";
 const CHATS_URL = '/chats/leave'
 
-async function removeUserFromChat(loggedUserId, loggedUsername, chatId, accessToken) {
+async function removeUserFromChat(loggedUserId, loggedFirstName, chatId, accessToken) {
 
     try {
 
         const response = await axios.delete(CHATS_URL,
             {
                 params: {
-                    loggedUserId, loggedUsername, chatId
+                    loggedUserId, loggedFirstName, chatId
                 },
                 headers: { "Authorization": `Bearer ${accessToken} ${loggedUserId}`, 
                     'Content-Type': 'application/json'},

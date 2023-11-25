@@ -9,12 +9,10 @@ import editNewMessagesFill from "../../helpers/Notifications/editNewMessagesFill
 import cloneDeep from 'lodash/cloneDeep';
 
 
-const ChatArea = ({loggedUserId, loggedUsername, selectedChat, chatsList, setChatsList,
-      pageNumber, setPageNumber}) => {
+const ChatArea = ({loggedUserId, chatsList, setChatsList, pageNumber, setPageNumber}) => {
 
-    const {auth, socket, newMessages, setNewMessages } = useAuth();
+    const {auth, socket, newMessages, setNewMessages, selectedChat } = useAuth();
     
-    const userProfilePicURL = auth.profilePicURL;
     const [scrollStop, setScrollStop] = useState(false);
     const [othersTyping, setOthersTyping] = useState(false);
     const [messages, setMessages] = useState([]);
@@ -41,7 +39,7 @@ const ChatArea = ({loggedUserId, loggedUsername, selectedChat, chatsList, setCha
               break;
             }
             if(updatedMessage._userId === loggedUserId){
-              updatedMessage.userProfilePicURL = userProfilePicURL;
+              updatedMessage.userProfilePicURL = auth.profilePicURL;
               break;
             }
           }
@@ -210,7 +208,9 @@ const ChatArea = ({loggedUserId, loggedUsername, selectedChat, chatsList, setCha
 
     useEffect( () => {
 
-        if(Object.keys(socket).length !== 0){
+        if(socket && Object.keys(socket).length !== 0 && socket.connected){
+
+          console.log("Listening for changes")
       
           socket.on("updatedChats", (update) => {
             //Setchatslist
@@ -232,7 +232,7 @@ const ChatArea = ({loggedUserId, loggedUsername, selectedChat, chatsList, setCha
   
       }
 
-    }, [socket])
+    }, [socket?.connected])
 
 
     return (
@@ -241,8 +241,7 @@ const ChatArea = ({loggedUserId, loggedUsername, selectedChat, chatsList, setCha
         
         <MessagesArea 
           key={"messagesArea"}
-          selectedChat={selectedChat} loggedUserId={loggedUserId}
-          loggedUsername={loggedUsername}
+          loggedUserId={loggedUserId}
           messages={messages} setMessages={setMessages} 
           othersTyping={othersTyping} pageNumber={pageNumber}
           setPageNumber={setPageNumber} setScrollStop={setScrollStop}
@@ -255,8 +254,8 @@ const ChatArea = ({loggedUserId, loggedUsername, selectedChat, chatsList, setCha
         className="flex flex-col items-end justify-items-end">
 
           <ChatInput 
-            selectedChat={selectedChat} loggedUserId={loggedUserId}
-            loggedUsername={loggedUsername} messages={messages} 
+           loggedUserId={loggedUserId}
+            messages={messages} 
             setMessages={setMessages} socket={socket}
             />
         

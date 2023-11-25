@@ -6,28 +6,28 @@ import useAuth from '../../hooks/useAuth';
 import removeMessage from '../../helpers/Chats/removeMessage';
 
 
-const MessageOptions = ({loggedUserId, loggedUsername, messageUserId, messageId,
+const MessageOptions = ({loggedUserId, loggedFirstName, messageUserId, messageId,
     hiddenToggle, setHiddenToggle, userProfilePicURL, chatId, handleRecNameClick}) => {
 
-        const {auth} = useAuth();
-        const style = {
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: 350,
-            bgcolor: 'background.paper',
-            border: '2px solid #000',
-            boxShadow: 24,
-            pt: 2,
-            px: 4,
-            pb: 3,
-            borderRadius: '25px'
-        };
+    const {auth} = useAuth();
+    const style = {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: 350,
+        bgcolor: 'background.paper',
+        border: '2px solid #000',
+        boxShadow: 24,
+        pt: 2,
+        px: 4,
+        pb: 3,
+        borderRadius: '25px'
+    };
 
     const [anchorElMain, setAnchorElMain] = useState(null);
     const [openMenu, setOpenMenu] = useState(false);
-    var waiting = false;
+    const [waiting, setWaiting] = useState(false);
     const [openChildDelete, setOpenChildDelete] = useState(false);
 
     const handleOpenMenu = (event) => {
@@ -61,9 +61,9 @@ const MessageOptions = ({loggedUserId, loggedUsername, messageUserId, messageId,
         setOpenMenu(false);
         setAnchorElMain(null);
 
-        const deleted = await removeMessage(messageId, chatId, loggedUserId, loggedUsername, auth.accessToken)
+        const deleted = await removeMessage(messageId, chatId, loggedUserId, loggedFirstName, auth.accessToken)
         if(deleted){
-            waiting = false;;
+            setWaiting(false);
             setHiddenToggle(true);
             setOpenChildDelete(false);
         }

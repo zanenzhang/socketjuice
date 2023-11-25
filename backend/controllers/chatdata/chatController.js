@@ -262,9 +262,9 @@ const addUserToChat = async (req, res) => {
 
 const removeUserFromChat = async (req, res) => {
 
-    const { loggedUserId, loggedUsername, chatId } = req.query
+    const { loggedUserId, loggedFirstName, chatId } = req.query
 
-    if (!loggedUserId || !loggedUsername || !chatId ) return res.status(400).json({ 'message': 'Missing required fields!' });
+    if (!loggedUserId || !loggedFirstName || !chatId ) return res.status(400).json({ 'message': 'Missing required fields!' });
 
     try {
 
@@ -376,9 +376,9 @@ const deleteChat = async (req, res) => {
 
 const muteChat = async (req, res) => {
 
-    const { loggedUserId, loggedUsername, chatId } = req.body
+    const { loggedUserId, loggedFirstName, chatId } = req.body
 
-    if (!loggedUserId || !loggedUsername || !chatId ) return res.status(400).json({ 'message': 'Missing required fields!' });
+    if (!loggedUserId || !loggedFirstName || !chatId ) return res.status(400).json({ 'message': 'Missing required fields!' });
 
     try {
 

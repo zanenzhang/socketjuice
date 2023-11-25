@@ -5,7 +5,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 
 
 
-export default function AddUserMenuItem({loggedUserId, loggedUsername, followerUsername, followerUserId, 
+export default function AddUserMenuItem({loggedUserId, loggedFirstName, followerUsername, followerUserId, 
     followerUserProfilePicURL, setSelectedUser, selectedUser }){
     
     const [alreadySelected, setAlreadySelected] = useState(false);
