@@ -398,9 +398,9 @@ const addMessageNoti = async (req, res) => {
             }
 
             const settings = await NotificationSettings.updateMany({$and: [{_userId: {$in: foundChat?.participants?.map(e=>e._userId)}},{_userId: {$ne: sendingUserId}}]},{$set:{"newMessages": true}})
-            const newNoti = await Notification.create({_receivingUserId: receiverUserId, _sendingUserId: sendingUserId, notificationType: "Message", _relatedChat: chatId})
+            //Send limit email and sms notification for user to check app for messages
 
-            if(settings && newNoti){
+            if(settings){
                 
                 return res.status(201).json({ message: 'Success' })
             
