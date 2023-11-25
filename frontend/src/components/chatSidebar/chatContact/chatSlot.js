@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import ChatContact from "./chatContact";
 import useAuth from "../../../hooks/useAuth";
 import ChatOptions from "../../options/chatOptions";

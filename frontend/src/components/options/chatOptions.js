@@ -34,7 +34,7 @@ const [anchorElMain, setAnchorElMain] = useState(null);
   const [tempParticipants, setTempParticipants] = useState([]);
   const [usernameFocus, setUsernameFocus] = useState(false);
 
-  var waiting = false;
+  const [waiting, setWaiting] = useState(false)
 
   const USERNAME_REGEX = /^[a-zA-Z0-9\._-]{4,48}$/;
     
@@ -156,14 +156,14 @@ useEffect( ()=> {
     if(waiting){
       return
     }
-    waiting = true;;
+    setWaiting(true)
     setOpenChildLeave(false);
     setOpenMenu(false);
 
     const leftChat = await removeUserFromChat(loggedUserId, loggedFirstName, chatId, auth.accessToken)
 
     if(leftChat){
-        waiting = false;;
+        setWaiting(false);
         setSelectedChat("cleared");
         setChangedData(!changedData);
     }
@@ -436,6 +436,8 @@ useEffect( ()=> {
             </Box>
         </Modal>
 
+            */}
+
         <Modal
             open={openChildLeave}
             onClose={handleCloseChildLeave}
@@ -451,7 +453,7 @@ useEffect( ()=> {
                 <div className='flex flex-row gap-x-8 py-4'>
                     
                 <button 
-                    className={`align-center px-4 py-4 text-[#8BEDF3] 
+                    className={`align-center px-4 py-4 text-black
                     border-2 rounded-xl border-[#8BEDF3] bg-white text-base font-semibold
                     hover:bg-[#8BEDF3] hover:text-white`}
                     onClick={()=>handleLeaveChat()}
@@ -471,7 +473,7 @@ useEffect( ()=> {
             </Box>
         
         </Modal>
-         */}
+
     </React.Fragment>
   );
 }

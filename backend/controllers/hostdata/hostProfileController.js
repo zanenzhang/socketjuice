@@ -10,6 +10,8 @@ const S3 = require("aws-sdk/clients/s3");
 const fns = require('date-fns')
 const { deleteFile } = require("../media/s3Controller");
 
+// var Holidays = require('date-holidays')
+
 const wasabiPrivateBucketUSA = process.env.WASABI_PRIVATE_BUCKET_NAME_USA;
 const wasabiPublicBucketUSA = process.env.WASABI_PUBLIC_BUCKET_NAME_USA;
 
@@ -24,6 +26,8 @@ const s3 = new S3({
     accessKeyId: wasabiAccessKeyId,
     secretAccessKey: wasabiSecretAccessKey,
   })
+
+// var hd = new Holidays()
   
 const getHostProfile = async (req, res) => {
     

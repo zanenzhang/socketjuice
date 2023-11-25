@@ -590,7 +590,7 @@ export default function ChangeProfileMainUser({loggedUserId }) {
 
       <div className='py-6'>
         <button 
-        className={`align-center mb-4 px-4 py-4 text-[#8BEDF3] 
+        className={`align-center mb-4 px-4 py-4 text-black
         border-2 rounded-xl border-[#8BEDF3] bg-white text-base font-semibold
         hover:bg-[#8BEDF3] hover:text-white flex justify-center items-center gap-x-3`}
         

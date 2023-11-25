@@ -94,7 +94,10 @@ export default function NotificationsDropdown() {
           }
         }  
 
-        setNotiItems(notis?.data?.notiData)
+        console.log(notis?.data?.notiData)
+
+        const filtered = notis?.data?.notiData.filter((item) => item.notificationType !== "Message")
+        setNotiItems([...notiItems, ...filtered])
       } 
     }
 
@@ -109,7 +112,7 @@ export default function NotificationsDropdown() {
       }))
     }
     
-  }, [auth.accessToken, auth.userId])
+  }, [auth])
 
 
   useEffect( ()=> {

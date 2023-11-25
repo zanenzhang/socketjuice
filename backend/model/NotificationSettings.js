@@ -30,7 +30,25 @@ var notificationSettingsSchema = new Schema({
     newRequests: {
         type: Boolean,
         default: false
-    }
+    },
+    emailNotis: [{
+        date: { 
+            type: String, 
+        },
+        _recipientUserId: {
+            type: Schema.Types.ObjectId, 
+            ref: 'User',
+        }
+    }],
+    smsNotis: [{
+        date: { 
+            type: String, 
+        },
+        _recipientUserId: {
+            type: Schema.Types.ObjectId, 
+            ref: 'User',
+        }
+    }],
 })
 
 module.exports = mongoose.model('NotificationSettings', notificationSettingsSchema, 'notificationsettings');

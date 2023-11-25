@@ -2338,7 +2338,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                 </div>
             </div>
 
-            <div className='flex flex-col items-center md:flex-row md:justify-center w-full gap-x-6'>
+            {/* <div className='flex flex-col items-center md:flex-row md:justify-center w-full gap-x-6'>
 
                 <div className='flex flex-col px-4 md:px-0 w-full md:w-[35vh] mt-4'>
 
@@ -2423,7 +2423,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                     }
                   />
               </div>
-          </div>           
+          </div>            */}
 
           <div className='flex flex-row justify-center items-center 
             w-full md:w-[45vw] px-4 md:px-0 py-4'>
