@@ -11,6 +11,21 @@ var notificationSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'User' 
     }, 
+    _receivingFirstName: {
+        type: String
+    },
+    _sendingFirstName: {
+        type: String
+    },
+    start: {
+        type: Date
+    },
+    end: {
+        type: Date
+    },
+    address: {
+        type: String
+    },
     notificationType: {
         type: String //Approved (appointment), Requested, CancelSubmitted, Cancelled, Message, Completed, Review
     },
