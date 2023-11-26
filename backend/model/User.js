@@ -146,6 +146,17 @@ const userSchema = new Schema({
             type: Number, 
         } 
     }],
+    escrow: [{
+        currency:{
+            type: String, 
+        },
+        currencySymbol:{
+            type: String, 
+        },
+        amount:{
+            type: Number, 
+        } 
+    }],
     canReceivePayments: { 
         type: Number, 
         default: 0 //0 - No, 1 - Yes

@@ -36,7 +36,7 @@ const handleNewHost = async (req, res) => {
 
     for(let i=0; i < languageList.length; i++){
         if(textToCheck.indexOf(languageList[i]) !== -1){
-            return res.status(403).json({"message":"Inappropriate content"})  
+            return res.status(402).json({"message":"Inappropriate content"})  
         }
     }
 

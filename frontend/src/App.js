@@ -14,6 +14,7 @@ import VerifyPage from "./pages/Application/VerifyPage";
 import AdminPage from "./pages/Application/AdminPage";
 import SettingsPage from "./pages/Application/SettingsPage";
 import TestPage from "./pages/Application/TestPage";
+import PaymentsPage from './pages/Application/PaymentsPage';
 
 const ROLES = {
   'User': 2001,
@@ -77,6 +78,10 @@ function App() {
         </Route>
 
         <Route path="/admin" element={<AdminPage />}>
+
+        </Route>
+
+        <Route path="/payments" element={<PaymentsPage />}>
 
         </Route>
     

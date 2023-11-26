@@ -2,14 +2,14 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 var paymentSchema = new Schema({
-    _outgoingUserId: { 
+    _sendingUserId: { 
         type: Schema.Types.ObjectId, 
         required: true, ref: 'User',
         index: true 
     },
     _receivingUserId: { 
         type: Schema.Types.ObjectId, 
-        required: true, ref: 'User',
+        ref: 'User',
     },
     amount: {
         type: Number,
@@ -17,12 +17,15 @@ var paymentSchema = new Schema({
     },
     currency: {
         type: String,
-        default: "CAD"
     },
     paymentToken: {
         type: String
     },
     refunded: {
+        type: Boolean,
+        default: false
+    },
+    flagged: {
         type: Boolean,
         default: false
     }
