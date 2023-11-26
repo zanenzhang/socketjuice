@@ -18,6 +18,9 @@ var paymentSchema = new Schema({
     currency: {
         type: String,
     },
+    currencySymbol: {
+        type: String,
+    },
     paymentToken: {
         type: String
     },

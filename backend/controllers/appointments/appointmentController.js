@@ -260,6 +260,8 @@ const addAppointmentRequest = async (req, res) => {
         var doneEmail = false;
         var doneSms = false;
 
+        var currencySymbol = "$"
+
         if (foundDriverProfile && foundHostProfile && foundLimits && foundUser){
 
             if(foundLimits.numberOfAppointments?.length > 0){
@@ -321,10 +323,75 @@ const addAppointmentRequest = async (req, res) => {
 
             if(!checkAppointments){
 
+                // In milliseconds
+                const timediff = (requestEnd - requestStart) / 1000 / 1800
+                const chargeAmount = Math.round(foundHost.chargeRatePerHalfHour * timediff * 100) / 100
+
+                if(chargeAmount && foundUser?.credits?.length > 0){
+
+                    var checked = false
+                    for(let i=0; i<foundUser?.credits?.length; i++){
+                        if(foundUser.credits[i].amount > chargeAmount && foundUser.credits[i].currency.toLowerCase() === foundHost.currency.toLowerCase()){
+                            currencySymbol = foundUser.credits[i].currencySymbol
+                            
+                            foundUser.credits[i].amount = foundUser.credits[i].amount - chargeAmount
+                            checked = true
+                            break
+                        }
+                    }
+
+                    if(!checked){
+                        return res.status(403).json({ message: 'Operation failed' })
+                    } else {
+                        var escrow = false
+                        for(let i=0; i<foundUser?.escrow?.length; i++){
+                            if(foundUser.escrow[i].currency.toLowerCase() === foundHost.escrow.toLowerCase()){                                
+                                currencySymbol = foundUser.escrow[i].currencySymbol
+                                foundUser.escrow[i].amount = foundUser.escrow[i].amount + chargeAmount
+                                escrow = true
+                                break
+                            }
+                        }   
+                        if(!escrow){
+
+                            if(foundHost.currency.toLowerCase() === "cad"){
+                                currencySymbol = "$"
+                            } else if(foundHost.currency.toLowerCase() === "usd"){
+                                currencySymbol = "$"
+                            } else if(foundHost.currency.toLowerCase() === "eur"){
+                                currencySymbol = "€"
+                            } else if(foundHost.currency.toLowerCase() === "gbp"){
+                                currencySymbol = "£"
+                            } else if(foundHost.currency.toLowerCase() === "inr"){
+                                currencySymbol = "₹"
+                            } else if(foundHost.currency.toLowerCase() === "jpy"){
+                                currencySymbol = "¥"
+                            } else if(foundHost.currency.toLowerCase() === "cny"){
+                                currencySymbol = "¥"
+                            } else if(foundHost.currency.toLowerCase() === "aud"){
+                                currencySymbol = "$"
+                            } else if(foundHost.currency.toLowerCase() === "nzd"){
+                                currencySymbol = "$"
+                            }
+                            
+                            if(foundUser.escrow?.length > 0){
+                                foundUser.escrow.push({currency: currency.toLowerCase(), currencySymbol: currencySymbol, amount: chargeAmount})
+                            } else {
+                                foundUser.escrow = [{currency: currency.toLowerCase(), currencySymbol: currencySymbol, amount: chargeAmount}]
+                            }
+                        }
+                    }
+                
+                } else {
+
+                    return res.status(403).json({ message: 'Operation failed' })
+                }
+
                 const newAppointment = await Appointment.create({_requestUserId: userId, _hostUserId: hostUserId, passcode: newToken,
                     start: requestStart, end: requestEnd, requestDateStart: requestStartString, status: "Requested",
                     requestDateEnd: requestEndString, address: foundHostProfile.address, locationlat: foundHostProfile.location.coordinates[1], 
-                    locationlng: foundHostProfile.location.coordinates[0]})
+                    locationlng: foundHostProfile.location.coordinates[0], chargeAmount: chargeAmount, currency: foundHost.currency, 
+                    currencySymbol: currencySymbol})
     
                 if(newAppointment){
 
@@ -440,11 +507,12 @@ const addAppointmentApproval = async (req, res) => {
 
         const foundAppointment = await Appointment.findOne({_id: appointmentId})
         const foundUser = await User.findOne({_id: userId})
+        const foundHost = await User.findOne({_id: hostUserId})
 
         var doneEmail = false;
         var doneSms = false;
 
-        if(foundAppointment && foundAppointment.status === "Requested" && foundUser){
+        if(foundAppointment && foundAppointment.status === "Requested" && foundUser && foundHost){
 
             const requestStart = foundAppointment.start
             const requestEnd = foundAppointment.end
@@ -462,6 +530,52 @@ const addAppointmentApproval = async (req, res) => {
             if(!checkAppointments){
 
                 const updatedAppointment = await Appointment.updateOne({_id: appointmentId},{$set:{status: "Approved"}})
+                
+                const newPayment = await Payment.create({_sendingUserId: userId, _receivingUserId: hostUserId, amount: foundAppointment.chargeAmount,
+                    currency: foundAppointment.currency, currencySymbol: foundAppointment.currencySymbol})
+
+                if (foundUser.escrow?.length > 0){
+
+                    var escrow = false;
+                    for(let i=0; i<foundUser.escrow?.length; i++){
+                        if(foundUser.escrow[i].currency.toLowerCase() === foundAppointment?.currency.toLowerCase() 
+                            && foundUser.escrow[i].amount > foundAppointment?.chargeAmount){
+                            
+                            foundUser.escrow[i].amount = foundUser.escrow[i].amount - foundAppointment.chargeAmount
+                            escrow = true;
+                            break
+                        }
+                    }
+
+                    if(!escrow){
+                        return res.status(401).json({ message: 'Operation failed' })    
+                    } else {
+                        if(foundHost?.escrow?.length > 0){
+                            var credited = false
+                            for(let i=0; i<foundHost?.escrow?.length > 0; i++){
+                                if(foundHost.escrow[i].currency.toLowerCase() === foundAppointment.currency.toLowerCase()){
+                                    foundHost?.escrow[i].amount = foundHost?.escrow[i].amount + foundAppointment.chargeAmount
+                                    credited = true;
+                                    break
+                                }
+                            }
+                            if(!credited){
+                                foundHost.escrow.push({amount: foundAppointment.chargeAmount, currency: foundAppointment.currency, 
+                                    currencySymbol: foundAppointment.currencySymbol})
+                            }
+                        } else {
+                            foundHost.escrow = [{amount: foundAppointment.chargeAmount, currency: foundAppointment.currency, 
+                                currencySymbol: foundAppointment.currencySymbol}]
+                        }
+                    }
+
+                } else {
+
+                    return res.status(401).json({ message: 'Operation failed' })
+                }
+
+                const savedUser = await foundUser.save()
+                const savedHost = await foundHost.save()
 
                 const conflictingAppointments = await Appointment.find(
                     {$and:[
@@ -494,7 +608,17 @@ const addAppointmentApproval = async (req, res) => {
                     doneSms = true
                 }
 
-                if(updatedAppointment && newNoti && doneEmail && doneSms){
+                if(updatedAppointment && newPayment && newNoti && doneEmail && doneSms && savedUser && savedHost){
+
+                    const driverPayment = await DriverProfile.updateOne({_userId: userId}, {$push: {outgoingPayments: {
+                        _paymentId: newPayment._id, amount: foundAppointment.chargeAmount, currency: foundAppointment.currency,
+                        currencySymbol: foundAppointment.currencySymbol
+                    }}})
+    
+                    const hostPayment = await HostProfile.updateOne({_userId: hostUserId}, {$push: {incomingPayments: {
+                        _paymentId: newPayment._id, amount: foundAppointment.chargeAmount, currency: foundAppointment.currency,
+                        currencySymbol: foundAppointment.currencySymbol
+                    }}})
 
                     if(conflictingAppointments && conflictingAppointments?.length > 0){
                         
@@ -525,17 +649,24 @@ const addAppointmentApproval = async (req, res) => {
                                     {status: {$ne: "Approved"}}
                                 ]}, {$set: {status: "Cancelled"}})
         
-                            if(pullappointments){
+                            if(pullappointments && driverPayment && hostPayment){
                                 return res.status(201).json({ message: 'Success' })
                             }
                         }
 
                     } else {
-                        return res.status(201).json({ message: 'Success' })
+
+                        if(driverPayment && hostPayment){
+
+                            return res.status(201).json({ message: 'Success' })
+                        
+                        } else {
+                
+                            return res.status(400).json({ message:'Operation Failed' });
+                        }
                     }
 
                 } else {
-
                     return res.status(401).json({ message: 'Operation failed' })
                 }
 
@@ -568,17 +699,66 @@ const addAppointmentCompletion = async (req, res) => {
 
         const foundAppointment = await Appointment.findOne({_id: appointmentId})
         const foundUser = await User.findOne({_id: userId})
+        const foundHost = await User.findOne({_id: hostUserId})
 
         var doneEmail = false;
         var doneSms = false;
 
-        if(foundAppointment && foundAppointment.status === "Approved" && foundAppointment.status !== "Completed" && foundUser){
+        if(foundAppointment && foundAppointment.status === "Approved" && foundAppointment.status !== "Completed" 
+            && foundUser && foundHost){
+
+            const current = new Date()
+
+            if(current < foundAppointment?.end){
+                return res.status(401).json({ message: 'Operation failed' })
+            }
 
             const updatedAppointment = await Appointment.updateOne({_id: appointmentId},{$set:{status: "Completed"}})
 
             const newNoti = await Notification.create({_receivingUserId: userId, _sendingUserId: hostUserId, notificationType: "Completed", 
-                        _relatedAppointment: foundAppointment._id, start: foundAppointment?.start, end: foundAppointment?.end, 
-                        address: foundAppointment?.address})
+                    _relatedAppointment: foundAppointment._id, start: foundAppointment?.start, end: foundAppointment?.end, 
+                    address: foundAppointment?.address})
+
+            if(foundHost?.escrow?.length > 0){
+
+                var checked = false
+                for(let i=0; i<foundHost?.escrow?.length; i++){
+                    if(foundHost.escrow[i].amount > foundAppointment?.chargeAmount 
+                        && foundHost.escrow[i].currency.toLowerCase() === foundAppointment.currency.toLowerCase()){
+                        
+                        foundHost.escrow[i].amount = foundHost.escrow[i].amount - foundAppointment.chargeAmount
+                        checked = true
+                        break
+                    }
+                }
+
+                if(!checked){
+                    return res.status(403).json({ message: 'Operation failed' })
+                } else {
+                    if(foundHost?.credits?.length > 0){
+                        var credited = false
+                        for(let i=0; i<foundHost?.credits?.length > 0; i++){
+                            if(foundHost.credits[i].currency.toLowerCase() === foundAppointment.currency.toLowerCase()){
+                                
+                                foundHost?.credits[i].amount = foundHost?.credits[i].amount + foundAppointment.chargeAmount
+                                credited = true;
+                                break
+                            }
+                        }
+                        if(!credited){
+                            foundHost.credits.push({amount: foundAppointment.chargeAmount, currency: foundAppointment.currency, 
+                                currencySymbol: foundAppointment.currencySymbol})
+                        }
+                    } else {
+                        foundHost.credits = [{amount: foundAppointment.chargeAmount, currency: foundAppointment.currency, 
+                            currencySymbol: foundAppointment.currencySymbol}]
+                    }
+                }
+            
+            } else {
+
+                return res.status(403).json({ message: 'Operation failed' })
+            }
 
             if(foundUser.emailNotifications){
                 const success = await sendNotiEmail({firstName: foundUser.firstName, toUser:foundUser.email, notificationType: "Completed"})
@@ -680,7 +860,7 @@ const addDriverReject = async (req, res) =>{
     try {
 
         const foundUser = await User.findOne({_id: userId})
-        const foundAppointment = await Appointment.findOne({_id: appointmentId})
+        const foundAppointment = await Appointment.findOne({_id: appointmentId, status: "Requested"})
 
         var doneEmail = false;
         var doneSms = false;
@@ -692,6 +872,47 @@ const addDriverReject = async (req, res) =>{
 
             const newNoti = await Notification.create({_receivingUserId: hostUserId, _sendingUserId: userId, notificationType: "Cancelled", 
                     _relatedAppointment: foundAppointment._id, start: foundAppointment?.start, end: foundAppointment?.end, address: foundAppointment?.address})
+
+            if (foundUser.escrow?.length > 0){
+
+                var escrow = false;
+                for(let i=0; i<foundUser.escrow?.length; i++){
+                    if(foundUser.escrow[i].amount > foundAppointment.chargeAmount && foundUser.escrow[i].currency.toLowerCase() === foundAppointment?.currency.toLowerCase() ){
+                        
+                        foundUser.escrow[i].amount = foundUser.escrow[i].amount - foundAppointment.chargeAmount
+                        escrow = true;
+                        break
+                    }
+                }
+
+                if(!escrow){
+                    return res.status(401).json({ message: 'Operation failed' })    
+                
+                } else {
+
+                    if(foundUser?.credits?.length > 0){
+                        var credited = false
+                        for(let i=0; i<foundUser?.credits?.length > 0; i++){
+                            if(foundUser.credits[i].currency.toLowerCase() === foundAppointment.currency.toLowerCase()){
+                                foundUser?.credits[i].amount = foundUser?.credits[i].amount + foundAppointment.chargeAmount
+                                credited = true;
+                                break
+                            }
+                        }
+                        if(!credited){
+                            foundUser.credits.push({amount: foundAppointment.chargeAmount, currency: foundAppointment.currency, 
+                                currencySymbol: foundAppointment.currencySymbol})
+                        }
+                    } else {
+                        foundUser.credits = [{amount: foundAppointment.chargeAmount, currency: foundAppointment.currency, 
+                            currencySymbol: foundAppointment.currencySymbol}]
+                    }
+                }
+
+            } else {
+
+                return res.status(401).json({ message: 'Operation failed' })
+            }
 
             if(foundUser.emailNotifications){
                 const success = await sendNotiEmail({firstName: foundUser.firstName, toUser:foundUser.email, notificationType: "Cancelled"})
@@ -711,7 +932,10 @@ const addDriverReject = async (req, res) =>{
                 doneSms = true
             }
 
-            if(updateAppointment && updateDriverProfile && newNoti && doneEmail && doneSms){
+            const savedUser = await foundUser.save()
+
+            if(updateAppointment && updateDriverProfile && newNoti 
+                && doneEmail && doneSms && savedUser){
 
                 return res.status(201).json({ message: 'Success' })
             }
@@ -805,12 +1029,57 @@ const hostRequestCancelSubmit = async (req, res) =>{
     try {
 
         const foundUser = await User.findOne({_id: userId})
+        const foundHost = await User.findOne({_id: hostUserId})
         const foundAppointment = await Appointment.findOne({_id: appointmentId})
 
-        if(foundUser){
+        if(foundUser && foundHost && foundAppointment.status === "Approved"){
 
             const updateAppointment = await Appointment.updateOne({_id: appointmentId, _requestUserId: userId, _hostUserId: hostUserId}, {$set: {cancelRequestHostSubmit: true, status: "Cancelled"}})
             const updateHostProfile = await HostProfile.updateOne({_id: hostUserId},{$inc: {numberOfAppointmentCancellations: 1}})
+
+            const newPayment = await Payment.create({_sendingUserId: hostUserId, _receivingUserId: userId, amount: foundAppointment.chargeAmount,
+                currency: foundAppointment.currency, currencySymbol: foundAppointment.currencySymbol})
+
+            if (foundHost.escrow?.length > 0){
+
+                var balance = false;
+                for(let i=0; i<foundHost.escrow?.length; i++){
+                    
+                    if(foundHost.escrow[i].currency.toLowerCase() === foundAppointment?.currency.toLowerCase() 
+                        && foundHost.escrow[i].amount > foundAppointment?.chargeAmount){
+                        
+                        foundHost.escrow[i].amount = foundHost.escrow[i].amount - foundAppointment.chargeAmount
+                        balance = true;
+                        break
+                    }
+                }
+
+                if(!balance){
+                    return res.status(401).json({ message: 'Operation failed' })    
+                } else {
+                    if(foundUser?.credits?.length > 0){
+                        var credited = false
+                        for(let i=0; i<foundUser?.credits?.length > 0; i++){
+                            if(foundUser.credits[i].currency.toLowerCase() === foundAppointment.currency.toLowerCase()){
+                                foundUser?.credits[i].amount = foundUser?.credits[i].amount + foundAppointment.chargeAmount
+                                credited = true;
+                                break
+                            }
+                        }
+                        if(!credited){
+                            foundUser.credits.push({amount: foundAppointment.chargeAmount, currency: foundAppointment.currency, 
+                                currencySymbol: foundAppointment.currencySymbol})
+                        }
+                    } else {
+                        foundUser.credits = [{amount: foundAppointment.chargeAmount, currency: foundAppointment.currency, 
+                            currencySymbol: foundAppointment.currencySymbol}]
+                    }
+                }
+
+            } else {
+
+                return res.status(401).json({ message: 'Operation failed' })
+            }
 
             const newNoti = await Notification.create({_receivingUserId: userId, _sendingUserId: hostUserId, notificationType: "Cancelled", 
                     _relatedAppointment: foundAppointment._id, start: foundAppointment?.start, end: foundAppointment?.end, address: foundAppointment?.address})    
@@ -824,6 +1093,9 @@ const hostRequestCancelSubmit = async (req, res) =>{
                 doneEmail = true
             }
 
+            const savedUser = await foundUser.save()
+            const savedHost = await foundHost.save()
+
             if(foundUser.smsNotifications){
                 const success = await sendSmsNotification(hostUserId, "Cancelled")
                 if(success){
@@ -833,9 +1105,27 @@ const hostRequestCancelSubmit = async (req, res) =>{
                 doneSms = true
             }
 
-            if(updateAppointment && updateHostProfile && newNoti && doneEmail && doneSms){
+            if(newPayment && updateAppointment && updateHostProfile && newNoti && doneEmail 
+                && doneSms && savedUser && savedHost){
 
-                return res.status(201).json({ message: 'Success' })
+                const driverPayment = await DriverProfile.updateOne({_userId: userId}, {$push: {outgoingPayments: {
+                    _paymentId: newPayment._id, amount: foundAppointment.chargeAmount, currency: foundAppointment.currency,
+                    currencySymbol: foundAppointment.currencySymbol
+                }}})
+
+                const hostPayment = await HostProfile.updateOne({_userId: hostUserId}, {$push: {incomingPayments: {
+                    _paymentId: newPayment._id, amount: foundAppointment.chargeAmount, currency: foundAppointment.currency,
+                    currencySymbol: foundAppointment.currencySymbol
+                }}})
+
+                if(driverPayment && hostPayment){
+
+                    return res.status(201).json({ message: 'Success' })
+                
+                } else {
+        
+                    return res.status(400).json({ message:'Operation Failed' });
+                }
             }
 
         } else {
@@ -869,6 +1159,49 @@ const addHostReject = async (req, res) =>{
             const updateAppointment = await Appointment.updateOne({_id: appointmentId, _requestUserId: userId, _hostUserId: hostUserId}, {$set: {status: "Cancelled"}})
             const updateHostProfile = await HostProfile.updateOne({_id: hostUserId},{$inc: {numberOfAppointmentCancellations: 1}})
 
+            if (foundUser.escrow?.length > 0){
+
+                var escrow = false;
+                for(let i=0; i<foundUser.escrow?.length; i++){
+                    if(foundUser.escrow[i].amount > foundAppointment.chargeAmount && foundUser.escrow[i].currency.toLowerCase() === foundAppointment?.currency.toLowerCase() ){
+                        
+                        foundUser.escrow[i].amount = foundUser.escrow[i].amount - foundAppointment.chargeAmount
+                        escrow = true;
+                        break
+                    }
+                }
+
+                if(!escrow){
+                    return res.status(401).json({ message: 'Operation failed' })    
+                
+                } else {
+
+                    if(foundUser?.credits?.length > 0){
+                        var credited = false
+                        for(let i=0; i<foundUser?.credits?.length > 0; i++){
+                            if(foundUser.credits[i].currency.toLowerCase() === foundAppointment.currency.toLowerCase()){
+                                foundUser?.credits[i].amount = foundUser?.credits[i].amount + foundAppointment.chargeAmount
+                                credited = true;
+                                break
+                            }
+                        }
+                        if(!credited){
+                            foundUser.credits.push({amount: foundAppointment.chargeAmount, currency: foundAppointment.currency, 
+                                currencySymbol: foundAppointment.currencySymbol})
+                        }
+                    } else {
+                        foundUser.credits = [{amount: foundAppointment.chargeAmount, currency: foundAppointment.currency, 
+                            currencySymbol: foundAppointment.currencySymbol}]
+                    }
+                }
+
+            } else {
+
+                return res.status(401).json({ message: 'Operation failed' })
+            }
+
+            const savedUser = await foundUser.save()
+
             const newNoti = await Notification.create({_receivingUserId: userId, _sendingUserId: hostUserId, notificationType: "Cancelled", 
                     _relatedAppointment: foundAppointment._id, start: foundAppointment?.start, end: foundAppointment?.end, address: foundAppointment?.address})    
 
@@ -890,7 +1223,8 @@ const addHostReject = async (req, res) =>{
                 doneSms = true
             }
 
-            if(updateAppointment && updateHostProfile && newNoti && doneEmail && doneSms){
+            if(updateAppointment && updateHostProfile && newNoti 
+                && doneEmail && doneSms && savedUser){
 
                 return res.status(201).json({ message: 'Success' })
             }
@@ -917,18 +1251,67 @@ const hostRequestCancelApprove = async (req, res) =>{
     try {
 
         const foundUser = await User.findOne({_id: userId})
+        const foundHost = await User.findOne({_id: hostUserId})
         const foundAppointment = await Appointment.findOne({_id: appointmentId})
 
         var doneEmail = false;
         var doneSms = false;
 
-        if(foundUser && foundAppointment?.cancelRequestDriverSubmit){
+        if(foundUser && foundHost && foundAppointment?.cancelRequestDriverSubmit){
                 
+            const updatedAppointment = await Appointment.updateOne({_id: appointmentId},{$set:{status: "Cancelled"}})
             const foundDriverProfile = await DriverProfile.updateOne({_userId: userId},{$inc: {numberOfAppointmentCancellations: 1}})
             const foundHostProfile = await HostProfile.updateOne({_userId: hostUserId},{$inc: {numberOfAppointmentCancellations: 1}})
 
             const newNoti = await Notification.create({_receivingUserId: userId, _sendingUserId: hostUserId, notificationType: "Cancelled", 
                     _relatedAppointment: foundAppointment._id, start: foundAppointment?.start, end: foundAppointment?.end, address: foundAppointment?.address})
+
+            const newPayment = await Payment.create({_sendingUserId: hostUserId, _receivingUserId: userId, amount: foundAppointment.chargeAmount,
+                currency: foundAppointment.currency, currencySymbol: foundAppointment.currencySymbol})
+
+            if (foundHost.escrow?.length > 0){
+
+                var escrow = false;
+                for(let i=0; i<foundHost.escrow?.length; i++){
+                    
+                    if(foundHost.escrow[i].currency.toLowerCase() === foundAppointment?.currency.toLowerCase() 
+                        && foundHost.escrow[i].amount > foundAppointment?.chargeAmount){
+                        
+                        foundHost.escrow[i].amount = foundHost.escrow[i].amount - foundAppointment.chargeAmount
+                        escrow = true;
+                        break
+                    }
+                }
+
+                if(!escrow){
+                    return res.status(401).json({ message: 'Operation failed' })    
+                } else {
+                    if(foundUser?.credits?.length > 0){
+                        var credited = false
+                        for(let i=0; i<foundUser?.credits?.length > 0; i++){
+                            if(foundUser.credits[i].currency.toLowerCase() === foundAppointment.currency.toLowerCase()){
+                                foundUser?.credits[i].amount = foundUser?.credits[i].amount + foundAppointment.chargeAmount
+                                credited = true;
+                                break
+                            }
+                        }
+                        if(!credited){
+                            foundUser.credits.push({amount: foundAppointment.chargeAmount, currency: foundAppointment.currency, 
+                                currencySymbol: foundAppointment.currencySymbol})
+                        }
+                    } else {
+                        foundUser.credits = [{amount: foundAppointment.chargeAmount, currency: foundAppointment.currency, 
+                            currencySymbol: foundAppointment.currencySymbol}]
+                    }
+                }
+
+            } else {
+
+                return res.status(401).json({ message: 'Operation failed' })
+            }
+
+            const savedUser = await foundUser.save()
+            const savedHost = await foundHost.save()
 
             if(foundUser.emailNotifications){
                 const success = await sendNotiEmail({firstName: foundUser.firstName, toUser:foundUser.email, notificationType: "Cancelled"})
@@ -948,11 +1331,20 @@ const hostRequestCancelApprove = async (req, res) =>{
                 doneSms = true
             }
 
-            if(foundDriverProfile && foundHostProfile && newNoti && doneEmail && doneSms){
+            if(newPayment && foundDriverProfile && foundHostProfile && newNoti && doneEmail 
+                && doneSms && savedUser && savedHost && updatedAppointment){
 
-                const updatedAppointment = await Appointment.updateOne({_id: appointmentId},{$set:{status: "Cancelled"}})
+                const driverPayment = await DriverProfile.updateOne({_userId: userId}, {$push: {outgoingPayments: {
+                    _paymentId: newPayment._id, amount: foundAppointment.chargeAmount, currency: foundAppointment.currency,
+                    currencySymbol: foundAppointment.currencySymbol
+                }}})
 
-                if(updatedAppointment){
+                const hostPayment = await HostProfile.updateOne({_userId: hostUserId}, {$push: {incomingPayments: {
+                    _paymentId: newPayment._id, amount: foundAppointment.chargeAmount, currency: foundAppointment.currency,
+                    currencySymbol: foundAppointment.currencySymbol
+                }}})
+
+                if(driverPayment && hostPayment){
 
                     return res.status(201).json({ message: 'Success' })
                 

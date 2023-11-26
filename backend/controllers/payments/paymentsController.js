@@ -743,12 +743,34 @@ const addBraintreeSale = async (req, res) => {
             return res.status(401).json({ message: 'Operation failed' })
         }
 
+        var currencySymbol = "$"
+
+        if(currency.toLowerCase() === "cad"){
+            currencySymbol = "$"
+        } else if(currency.toLowerCase() === "usd"){
+            currencySymbol = "$"
+        } else if(currency.toLowerCase() === "eur"){
+            currencySymbol = "€"
+        } else if(currency.toLowerCase() === "gbp"){
+            currencySymbol = "£"
+        } else if(currency.toLowerCase() === "inr"){
+            currencySymbol = "₹"
+        } else if(currency.toLowerCase() === "jpy"){
+            currencySymbol = "¥"
+        } else if(currency.toLowerCase() === "cny"){
+            currencySymbol = "¥"
+        } else if(currency.toLowerCase() === "aud"){
+            currencySymbol = "$"
+        } else if(currency.toLowerCase() === "nzd"){
+            currencySymbol = "$"
+        }
+
         try {
 
             const newToken = crypto.randomBytes(3).toString('hex')
 
             const addedPayment = await Payment.create({_sendingUserId: userId, _receivingUserId: userId, 
-                amount: payamount, currency: currency, paymentToken: newToken})
+                amount: payamount, currency: currency, currencySymbol: currencySymbol, paymentToken: newToken})
 
             if(addedPayment){
 

@@ -316,6 +316,9 @@ var hostProfileSchema = new Schema({
             type: Number, 
             default: 0
         },
+        currencySymbol: {
+            type: String, 
+        },
         refunded: {
             type: Boolean,
             default: false

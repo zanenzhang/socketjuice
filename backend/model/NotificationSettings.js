@@ -31,6 +31,10 @@ var notificationSettingsSchema = new Schema({
         type: Boolean,
         default: false
     },
+    newBalance: {
+        type: Boolean,
+        default: false
+    },
     emailNotis: [{
         date: { 
             type: String, 

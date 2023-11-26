@@ -28,6 +28,15 @@ var appointmentSchema = new Schema({
     end: {
         type: Date,
     },
+    chargeAmount: {
+        type: Number
+    },
+    currency: {
+        type: String
+    },
+    currencySymbol: {
+        type: String
+    },
     cancelRequestHostSubmit: {
         type: Boolean,
         default: false

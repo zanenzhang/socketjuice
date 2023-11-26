@@ -875,16 +875,18 @@ const handleRegularHourChangeEnd = (event, day) => {
           setWaitingSubmit(false)
         }
 
-      } 
-      // else if (selectedEventStatus === "Approved"){
+      } else if (selectedEventStatus === "Approved"){
 
-      //   const bookingCompleted = await addAppointmentCompletion(e._userId, auth.userId, e.start, e.end, auth.accessToken)
+        const bookingCompleted = await addAppointmentCompletion(selectedDriverUserId, auth.userId, selectedEventId, auth.accessToken)
 
-      //   if(bookingCompleted){
-      //     console.log("Booking completed")
-      //     setNewrequest(!newrequest)
-      //   }
-      // }
+        if(bookingCompleted){
+          console.log("Booking finished")
+          alert("Booking finished")
+          setOpenDetailsModalHost(false)
+          setNewrequest(!newrequest)
+          setWaitingSubmit(false)
+        }
+      }
     }
 
     const handleEventActionDriver = async (e) => {
@@ -900,13 +902,25 @@ const handleRegularHourChangeEnd = (event, day) => {
         const approvedCancel = await addDriverCancelApprove(auth.userId, selectedHostUserId, selectedEventId, auth.userId, auth.accessToken)
 
         if(approvedCancel){
-          console.log("Booking completed")
-          alert("Booking completed")
+          console.log("Approved cancellation")
+          alert("Approved cancellation")
           setOpenDetailsModalDriver(false)
           setNewrequest(!newrequest)
           setWaitingSubmit(false)
         }
-      } 
+      } else if (selectedEventStatus === "Approved"){
+        
+        const markCompleted = await addAppointmentCompletion(auth.userId, selectedHostUserId, selectedEventId, auth.accessToken)
+
+        if(markCompleted){
+
+          console.log("Booking finished")
+          alert("Booking finished")
+          setOpenDetailsModalDriver(false)
+          setNewrequest(!newrequest)
+          setWaitingSubmit(false)
+        }
+      }
     }
 
 
@@ -2558,9 +2572,10 @@ const handleRegularHourChangeEnd = (event, day) => {
                     
                     <p>Start Time: {selectedEventStart}</p>
                     <p>End Time: {selectedEventEnd}</p>
-                    <p>Status: {(driverRequestedCancel && selectedEventStatus !== "Cancelled") ? "You Asked To Cancel" : ( (hostRequestedCancel && selectedEventStatus !== "Cancelled" ) ? "You Asked to Cancel" : (selectedEventStatus === "Requested" ? "Booking Requested" : (selectedEventStatus === "Approved" ? "Approved" : (selectedEventStatus === "Cancelled" ? "Cancelled" : "Completed")))) }</p>
+                    <p>Status: {(driverRequestedCancel && selectedEventStatus !== "Cancelled") ? "You Asked To Cancel" : ( (hostRequestedCancel && selectedEventStatus !== "Cancelled" ) ? "You Asked to Cancel" : (selectedEventStatus === "Requested" ? "Booking Requested" : (selectedEventStatus === "Approved" ? "Approved" : (selectedEventStatus === "Cancelled" ? "Cancelled" : (selectedEventStatus === "Completed" ? "Completed" : "Waiting") )))) }</p>
 
-                    {(selectedEventStatus !== "Requested" && selectedEventStatus !== "Approved") &&
+                    {(selectedEventStatus !== "Requested") &&
+                    
                     <button disabled={selectedEventStatus === "Approved" || selectedEventStatus === "Cancelled" || driverRequestedCancel} 
                       className={`border border-gray-300 px-3 py-2 rounded-xl gap-x-2 flex flex-row justify-center items-center
                       ${ (selectedEventStatus === "Completed" || selectedEventStatus === "Cancelled" || driverRequestedCancel) ? "bg-[#c1f2f5] cursor-not-allowed" : "bg-[#c1f2f5] hover:bg-[#00D3E0] " } `}
@@ -2576,13 +2591,12 @@ const handleRegularHourChangeEnd = (event, day) => {
                               className="fill-[#00D3E0]"
                               d="M16.9497 7.05015C14.2161 4.31648 9.78392 4.31648 7.05025 7.05015C6.65973 7.44067 6.02656 7.44067 5.63604 7.05015C5.24551 6.65962 5.24551 6.02646 5.63604 5.63593C9.15076 2.12121 14.8492 2.12121 18.364 5.63593C18.7545 6.02646 18.7545 6.65962 18.364 7.05015C17.9734 7.44067 17.3403 7.44067 16.9497 7.05015Z"></path>
                           </svg>
-                      </div>
-                      }
+                      </div>}
 
-                        {(selectedEventStatus === "Requested" && !driverRequestedCancel && !hostRequestedCancel) && <p>Approve Booking Request</p> }
                         {(selectedEventStatus === "CancelSubmitted" && driverRequestedCancel) && <p>You Asked To Cancel - Waiting For Cancellation and Refund</p> }
                         {(selectedEventStatus === "CancelSubmitted" && hostRequestedCancel) && <p>Host Asked To Cancel</p> }
                         {(selectedEventStatus === "Cancelled") && <p>Cancelled</p> }
+                        {(selectedEventStatus === "Approved") && <p>Approved - Mark as Completed</p> }
                     </button>}
 
                     {selectedEventStatus === "Requested" && 
@@ -2669,7 +2683,6 @@ const handleRegularHourChangeEnd = (event, day) => {
                     <p>End Time: {selectedEventEnd}</p>
                     <p>Status: {(driverRequestedCancel && selectedEventStatus === "CancelSubmitted") ? "Driver Requested To Cancel" : ((selectedEventStatus === "Requested" ? "Booking Requested" : (selectedEventStatus === "Approved" ? "Approved" : (selectedEventStatus === "Cancelled" ? "Cancelled" : "Completed")))) }</p>
 
-                    {(selectedEventStatus !== "Approved") &&
                     <button   
                       disabled={(selectedEventStatus === "Approved" || selectedEventStatus === "Cancelled" || hostRequestedCancel )} 
                       className={`border border-gray-300 px-3 py-2 rounded-xl 
@@ -2688,14 +2701,15 @@ const handleRegularHourChangeEnd = (event, day) => {
                               className="fill-[#00D3E0]"
                               d="M16.9497 7.05015C14.2161 4.31648 9.78392 4.31648 7.05025 7.05015C6.65973 7.44067 6.02656 7.44067 5.63604 7.05015C5.24551 6.65962 5.24551 6.02646 5.63604 5.63593C9.15076 2.12121 14.8492 2.12121 18.364 5.63593C18.7545 6.02646 18.7545 6.65962 18.364 7.05015C17.9734 7.44067 17.3403 7.44067 16.9497 7.05015Z"></path>
                           </svg>
-                      </div>
-                      }
+                      </div>}
 
                         {(selectedEventStatus === "Requested" && !driverRequestedCancel && !hostRequestedCancel) && <p>Booking Requested - Approve</p> }
                         {(selectedEventStatus === "CancelSubmitted" && driverRequestedCancel) && <p>Driver Asked To Cancel - Refund and Approve Cancellation</p> }
                         {(selectedEventStatus === "CancelSubmitted" && hostRequestedCancel) && <p>Host Asked To Cancel</p> }
                         {(selectedEventStatus === "Cancelled") && <p>Cancelled</p> }
-                    </button>}
+                        {(selectedEventStatus === "Approved") && <p>Approved - Mark as Completed</p> }
+
+                    </button>
 
                     {selectedEventStatus === "Requested" && 
                     <button 
