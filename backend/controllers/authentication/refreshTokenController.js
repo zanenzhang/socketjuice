@@ -21,7 +21,7 @@ const handleRefreshToken = async (req, res) => {
             process.env.REFRESH_TOKEN_SECRET,
 
             async (err, decoded) => {
-                if (err || foundUser.username !== decoded.username) return res.sendStatus(403);
+                if (err ) return res.sendStatus(403);
                 
                 const foundDriver = await DriverProfile.findOne({_userId: foundUser._id})
 

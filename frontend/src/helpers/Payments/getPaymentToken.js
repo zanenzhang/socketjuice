@@ -6,7 +6,8 @@ async function getPaymentToken(loggedUserId, accessToken) {
         const response = await axios.get('/payments/token', 
             {
                 headers: { "Authorization": `Bearer ${accessToken} ${loggedUserId}`},
-                params: {loggedUserId} 
+                params: {loggedUserId},
+                withCredentials: true
             });
         if(response){
             return response

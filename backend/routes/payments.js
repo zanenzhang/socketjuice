@@ -7,11 +7,12 @@ router.use(verifyJWT)
 
 router.get('/host', paymentsController.getHostIncomingPayments);
 router.get('/driver', paymentsController.getDriverOutgoingPayments);
-router.get('/token', paymentsController.getBraintreeToken);
 
 router.post('/newrefund', paymentsController.addRefund);
 router.post('/payout', paymentsController.addPayout);
-router.post('/sale', paymentsController.addBraintreeSale);
+
+router.post('/order', paymentsController.addPaypalOrder);
+router.post('/capture', paymentsController.capturePaypalOrder);
 
 
 module.exports = router;

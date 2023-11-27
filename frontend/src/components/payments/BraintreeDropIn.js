@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import DropIn from 'braintree-web-drop-in-react';
 import getPaymentToken from '../../helpers/Payments/getPaymentToken';
+import useAuth from "../../hooks/useAuth";
 
 
 const BraintreeDropIn = ({ onPaymentMethodNonce }) => {
-  const [token, setToken] = useState('');
+  
+const [token, setToken] = useState('');
+const [instance, setInstance] = useState('');
+const { auth } = useAuth();
 
   useEffect(() => {
     // Fetch a client token from your server
@@ -14,10 +18,11 @@ const BraintreeDropIn = ({ onPaymentMethodNonce }) => {
 
     async function getToken(){
 
-        const result = await getPaymentToken(auth.userId)
+        const result = await getPaymentToken(auth.userId, auth.accessToken)
 
         if(result){
             console.log(result)
+            setToken(result.data?.clientToken)
         }
     }
 
@@ -29,6 +34,12 @@ const BraintreeDropIn = ({ onPaymentMethodNonce }) => {
 
   }, [auth]);
 
+  const handleInstance = (instance) => {
+
+    console.log(instance)
+    setInstance(instance)
+  }
+
   const handlePaymentMethodNonce = (payload) => {
     // Send the payment method nonce to your server
     // Handle the payment on your server-side logic
@@ -36,11 +47,14 @@ const BraintreeDropIn = ({ onPaymentMethodNonce }) => {
   };
 
   return (
-    <DropIn
-      options={{ authorization: token, paypal: { flow: 'vault' } }}
-      onInstance={(instance) => (window.dropinInstance = instance)}
-      onPaymentMethodNonce={handlePaymentMethodNonce}
+    <div>
+    {token ? <DropIn
+      options={{ authorization: token }}
+      onInstance={(instance) => handleInstance(instance)}
+      onPaymentMethodNonce={(e)=>handlePaymentMethodNonce(e)}
     />
+    : <h1>Loading...</h1>}
+    </div> 
   );
 };
 

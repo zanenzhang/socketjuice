@@ -554,7 +554,7 @@ const addAppointmentApproval = async (req, res) => {
                             var credited = false
                             for(let i=0; i<foundHost?.escrow?.length > 0; i++){
                                 if(foundHost.escrow[i].currency.toLowerCase() === foundAppointment.currency.toLowerCase()){
-                                    foundHost?.escrow[i].amount = foundHost?.escrow[i].amount + foundAppointment.chargeAmount
+                                    foundHost.escrow[i].amount = foundHost?.escrow[i].amount + foundAppointment.chargeAmount
                                     credited = true;
                                     break
                                 }
@@ -740,7 +740,7 @@ const addAppointmentCompletion = async (req, res) => {
                         for(let i=0; i<foundHost?.credits?.length > 0; i++){
                             if(foundHost.credits[i].currency.toLowerCase() === foundAppointment.currency.toLowerCase()){
                                 
-                                foundHost?.credits[i].amount = foundHost?.credits[i].amount + foundAppointment.chargeAmount
+                                foundHost.credits[i].amount = foundHost?.credits[i].amount + foundAppointment.chargeAmount
                                 credited = true;
                                 break
                             }
@@ -894,7 +894,7 @@ const addDriverReject = async (req, res) =>{
                         var credited = false
                         for(let i=0; i<foundUser?.credits?.length > 0; i++){
                             if(foundUser.credits[i].currency.toLowerCase() === foundAppointment.currency.toLowerCase()){
-                                foundUser?.credits[i].amount = foundUser?.credits[i].amount + foundAppointment.chargeAmount
+                                foundUser.credits[i].amount = foundUser?.credits[i].amount + foundAppointment.chargeAmount
                                 credited = true;
                                 break
                             }
@@ -1061,7 +1061,7 @@ const hostRequestCancelSubmit = async (req, res) =>{
                         var credited = false
                         for(let i=0; i<foundUser?.credits?.length > 0; i++){
                             if(foundUser.credits[i].currency.toLowerCase() === foundAppointment.currency.toLowerCase()){
-                                foundUser?.credits[i].amount = foundUser?.credits[i].amount + foundAppointment.chargeAmount
+                                foundUser.credits[i].amount = foundUser?.credits[i].amount + foundAppointment.chargeAmount
                                 credited = true;
                                 break
                             }
@@ -1180,7 +1180,7 @@ const addHostReject = async (req, res) =>{
                         var credited = false
                         for(let i=0; i<foundUser?.credits?.length > 0; i++){
                             if(foundUser.credits[i].currency.toLowerCase() === foundAppointment.currency.toLowerCase()){
-                                foundUser?.credits[i].amount = foundUser?.credits[i].amount + foundAppointment.chargeAmount
+                                foundUser.credits[i].amount = foundUser?.credits[i].amount + foundAppointment.chargeAmount
                                 credited = true;
                                 break
                             }
@@ -1290,7 +1290,7 @@ const hostRequestCancelApprove = async (req, res) =>{
                         var credited = false
                         for(let i=0; i<foundUser?.credits?.length > 0; i++){
                             if(foundUser.credits[i].currency.toLowerCase() === foundAppointment.currency.toLowerCase()){
-                                foundUser?.credits[i].amount = foundUser?.credits[i].amount + foundAppointment.chargeAmount
+                                foundUser.credits[i].amount = foundUser?.credits[i].amount + foundAppointment.chargeAmount
                                 credited = true;
                                 break
                             }

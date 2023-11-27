@@ -386,7 +386,7 @@ const editSettingsHostProfile = async (req, res) => {
             process.env.REFRESH_TOKEN_SECRET,
             (err, decoded) => {
 
-                if (err || foundUser.username !== decoded.username || !foundUser._id.toString() === ((decoded.userId)) ) return res.sendStatus(403);
+                if (err  || !foundUser._id.toString() === ((decoded.userId)) ) return res.sendStatus(403);
             }
         )
 
@@ -488,7 +488,7 @@ const editSettingsHostGeneral = async (req, res) => {
         refreshToken,
         process.env.REFRESH_TOKEN_SECRET,
         (err, decoded) => {
-            if (err || foundUser.username !== decoded.username ) return res.sendStatus(403);
+            if (err  ) return res.sendStatus(403);
         }
     )
 

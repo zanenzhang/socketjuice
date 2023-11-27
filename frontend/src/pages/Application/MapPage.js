@@ -208,6 +208,7 @@ useEffect( ()=> {
       const filtered = preHostLocations.filter(e => typesarray.includes(e.connectionType) || typesarray.includes(e.secondaryConnectionType) )
       console.log(filtered)
       setHostLocations(filtered)
+      
   } else {
     setHostLocations([])
   }

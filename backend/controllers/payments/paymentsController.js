@@ -1,4 +1,5 @@
 require('dotenv').config()
+const axios = require('axios');
 const User = require('../../model/User');
 const DriverProfile = require('../../model/DriverProfile');
 const HostProfile = require('../../model/HostProfile');
@@ -17,14 +18,7 @@ const fns = require('date-fns');
 var _= require('lodash');
 const copyFile = require('../media/s3Controller');
 
-const braintree = require('braintree');
-
-const gateway = new braintree.BraintreeGateway({
-    environment: braintree.Environment.Sandbox,
-    merchantId: process.env.BRAINTREE_MERCHANT_ID,
-    publicKey: process.env.BRAINTREE_PUBLIC_KEY,
-    privateKey: process.env.BRAINTREE_SECREY_KEY,
-  });
+const base = "https://api-m.sandbox.paypal.com";
 
 const wasabiPrivateBucketUSA = process.env.WASABI_PRIVATE_BUCKET_NAME_USA;
 const wasabiPublicBucketUSA = process.env.WASABI_PUBLIC_BUCKET_NAME_USA;
@@ -41,6 +35,101 @@ const s3 = new S3({
     secretAccessKey: wasabiSecretAccessKey,
   })
 
+
+  const generateAccessToken = async () => {
+    try {
+      if (!process.env.PAYPAL_CLIENT_KEY || !process.env.PAYPAL_SECRET_KEY) {
+        throw new Error("MISSING_API_CREDENTIALS");
+      }
+      const auth = Buffer.from(
+        process.env.PAYPAL_CLIENT_KEY + ":" + process.env.PAYPAL_SECRET_KEY,
+      ).toString("base64");
+      const response = await axios.post(`${base}/v1/oauth2/token`, 
+        "grant_type=client_credentials",
+        { headers: {
+          Authorization: `Basic ${auth}`,
+        },
+      });
+  
+      if(response){
+        return response.data.access_token;
+      }
+      
+    } catch (error) {
+      console.error("Failed to generate Access Token:", error);
+    }
+  };
+
+  const createOrder = async (cart) => {
+    // use the cart information passed from the front-end to calculate the purchase unit details
+    console.log(
+      "shopping cart information passed from the frontend createOrder() callback:",
+      cart,
+    );
+
+    //include currency, amount here
+  
+    const accessToken = await generateAccessToken();
+    const url = `${base}/v2/checkout/orders`;
+    const payload = {
+      intent: "CAPTURE",
+      purchase_units: [
+        {
+          amount: {
+            currency_code: "USD",
+            value: "100.00",
+          },
+        },
+      ],
+      application_context: {
+            shipping_preference: "NO_SHIPPING"
+        }
+    };
+
+    if(accessToken){
+        const response = await axios.post(url, JSON.stringify(payload), 
+            {
+                headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${accessToken}`,
+                // Uncomment one of these to force an error for negative testing (in sandbox mode only). Documentation:
+                // https://developer.paypal.com/tools/sandbox/negative-testing/request-headers/
+                // "PayPal-Mock-Response": '{"mock_application_codes": "MISSING_REQUIRED_PARAMETER"}'
+                // "PayPal-Mock-Response": '{"mock_application_codes": "PERMISSION_DENIED"}'
+                // "PayPal-Mock-Response": '{"mock_application_codes": "INTERNAL_SERVER_ERROR"}'
+                },
+            });   
+        
+        if(response){
+            return response
+        }
+        };
+    }
+
+
+    const captureOrder = async (orderID) => {
+        const accessToken = await generateAccessToken();
+        const url = `${base}/v2/checkout/orders/${orderID}/capture`;
+      
+        if(accessToken){
+            const response = await axios.post(url, {
+                headers: {
+                "Authorization": `Bearer ${accessToken}`,
+                  "Content-Type": "application/json",
+                  // Uncomment one of these to force an error for negative testing (in sandbox mode only). Documentation:
+                  // https://developer.paypal.com/tools/sandbox/negative-testing/request-headers/
+                  // "PayPal-Mock-Response": '{"mock_application_codes": "INSTRUMENT_DECLINED"}'
+                  // "PayPal-Mock-Response": '{"mock_application_codes": "TRANSACTION_REFUSED"}'
+                  // "PayPal-Mock-Response": '{"mock_application_codes": "INTERNAL_SERVER_ERROR"}'
+                },
+              });
+      
+              if(response){
+                  console.log(response)
+                  return res.status(200).json(response)
+              }
+        }
+      };
 
 const getHostIncomingPayments = async (req, res) => {
     
@@ -79,11 +168,13 @@ const getBraintreeToken = async (req, res) => {
             process.env.REFRESH_TOKEN_SECRET,
             (err, decoded) => {
 
-                if (err || foundUser.username !== decoded.username || !foundUser._id.toString() === ((decoded.userId)) ) return res.sendStatus(403);
+                if (err || !foundUser._id.toString() === ((decoded.userId)) ) return res.sendStatus(403);
             }
         )    
         
-        const { loggedUserId } = req.body
+        const { loggedUserId } = req.query
+
+        console.log("Getting payments token")
     
         if(!loggedUserId || !foundUser._id.toString() === ((loggedUserId)) ) {
             return res.status(400).json({ 'message': 'Missing required fields!' });
@@ -156,7 +247,7 @@ const addPayment = async (req, res) => {
             process.env.REFRESH_TOKEN_SECRET,
             (err, decoded) => {
 
-                if (err || foundUser.username !== decoded.username || !foundUser._id.toString() === ((decoded.userId)) ) return res.sendStatus(403);
+                if (err  || !foundUser._id.toString() === ((decoded.userId)) ) return res.sendStatus(403);
             }
         )        
 
@@ -220,7 +311,7 @@ const addPayout = async (req, res) => {
             process.env.REFRESH_TOKEN_SECRET,
             (err, decoded) => {
 
-                if (err || foundUser.username !== decoded.username || !foundUser._id.toString() === ((decoded.userId)) ) return res.sendStatus(403);
+                if (err  || !foundUser._id.toString() === ((decoded.userId)) ) return res.sendStatus(403);
             }
         )        
 
@@ -285,7 +376,7 @@ const addRefund = async (req, res) => {
             process.env.REFRESH_TOKEN_SECRET,
             (err, decoded) => {
 
-                if (err || foundUser.username !== decoded.username || !foundUser._id.toString() === ((decoded.userId)) ) return res.sendStatus(403);
+                if (err  || !foundUser._id.toString() === ((decoded.userId)) ) return res.sendStatus(403);
             }
         )        
 
@@ -434,7 +525,7 @@ const addPaymentFlag = async (req, res) => {
             process.env.REFRESH_TOKEN_SECRET,
             (err, decoded) => {
 
-                if (err || foundUser.username !== decoded.username || !foundUser._id.toString() === ((decoded.userId)) ) return res.sendStatus(403);
+                if (err  || !foundUser._id.toString() === ((decoded.userId)) ) return res.sendStatus(403);
             }
         )        
 
@@ -582,7 +673,7 @@ const removePaymentFlag = async (req, res) => {
             process.env.REFRESH_TOKEN_SECRET,
             (err, decoded) => {
 
-                if (err || foundUser.username !== decoded.username || !foundUser._id.toString() === ((decoded.userId)) ) return res.sendStatus(403);
+                if (err  || !foundUser._id.toString() === ((decoded.userId)) ) return res.sendStatus(403);
             }
         )        
 
@@ -729,7 +820,7 @@ const addBraintreeSale = async (req, res) => {
             process.env.REFRESH_TOKEN_SECRET,
             (err, decoded) => {
 
-                if (err || foundUser.username !== decoded.username || !foundUser._id.toString() === ((decoded.userId)) ) return res.sendStatus(403);
+                if (err  || !foundUser._id.toString() === ((decoded.userId)) ) return res.sendStatus(403);
             }
         )        
 
@@ -772,7 +863,39 @@ const addBraintreeSale = async (req, res) => {
             const addedPayment = await Payment.create({_sendingUserId: userId, _receivingUserId: userId, 
                 amount: payamount, currency: currency, currencySymbol: currencySymbol, paymentToken: newToken})
 
-            if(addedPayment){
+            var doneId = false;
+            var customerId = ""
+
+            if(!foundUser.braintreeId){
+
+                const result = await gateway.customer.create({
+                    firstName: foundUser.firstName,
+                    lastName: foundUser.lastName,
+                    email: foundUser.email
+                  })
+
+                  if(result && result.success){
+                    console.log(result)
+
+                    customerId = result?.customer?.id
+                    const updateuser = await User.updateOne({_id: foundUser._id},{$set:{braintreeId: result?.customer?.id}})
+
+                    if(updateuser){
+                        doneId = true
+                    }
+
+                  } else {
+                    console.log("Failed customer creation")
+                    doneId = true    
+                  }
+                
+            } else {
+                
+                customerId = foundUser.braintreeId
+                doneId = true
+            }
+
+            if(addedPayment && doneId){
 
                 const updatedProfile = await DriverProfile.updateOne({_userId: userId},{$push: {outgoingPayments: 
                         {_paymentId: addedPayment._id, amount: payamount, currency: currency }}})
@@ -786,12 +909,7 @@ const addBraintreeSale = async (req, res) => {
                         options: {
                             submitForSettlement: true,
                         },
-                        customerId: foundUser._id,
-                        customer: {
-                            email: foundUser.email,
-                            phoneNumber: foundUser.phonePrimary,
-                            id: foundUser._id
-                        },
+                        customerId: customerId,
                         options: {
                             storeInVaultOnSuccess: true
                         }
@@ -814,5 +932,90 @@ const addBraintreeSale = async (req, res) => {
     })
 }
 
-module.exports = { getHostIncomingPayments, getDriverOutgoingPayments, addPayment, addRefund, 
-    addPayout, getBraintreeToken, addBraintreeSale }
+
+const addPaypalOrder = async (req, res) => {
+
+    const cookies = req.cookies;
+
+    if (!cookies?.socketjuicejwt) return res.sendStatus(401);
+    const refreshToken = cookies.socketjuicejwt;
+
+    User.findOne({ refreshToken }, async function(err, foundUser){
+
+        if (err || !foundUser) return res.sendStatus(403); 
+    
+        jwt.verify(
+            refreshToken,
+            process.env.REFRESH_TOKEN_SECRET,
+            (err, decoded) => {
+
+                if (err  || !foundUser._id.toString() === ((decoded.userId)) ) return res.sendStatus(403);
+            }
+        )        
+
+        console.log("Creating order for paypal")
+
+        try {
+            // use the cart information passed from the front-end to calculate the order amount detals
+            const { cart } = req.body;
+
+            console.log(cart)
+
+            const response = await createOrder(cart);
+            if(response){
+                console.log("RESPONSE HERE 1", response.data)
+                res.status(response.status).json(response.data);
+            }
+            
+          } catch (error) {
+            console.error("Failed to create order:", error);
+            res.status(500).json({ error: "Failed to create order." });
+          }
+    })
+}
+
+
+const capturePaypalOrder = async (req, res) => {
+
+    const cookies = req.cookies;
+
+    if (!cookies?.socketjuicejwt) return res.sendStatus(401);
+    const refreshToken = cookies.socketjuicejwt;
+
+    User.findOne({ refreshToken }, async function(err, foundUser){
+
+        if (err || !foundUser) return res.sendStatus(403); 
+    
+        jwt.verify(
+            refreshToken,
+            process.env.REFRESH_TOKEN_SECRET,
+            (err, decoded) => {
+
+                if (err  || !foundUser._id.toString() === ((decoded.userId)) ) return res.sendStatus(403);
+            }
+        )        
+
+        try {
+            const { orderID } = req.params;
+
+            console.log("Capturing order here")
+            console.log(orderID)
+
+            const response = await captureOrder(orderID);
+            if(response){
+                console.log("RESPONSE 2 here", response.data)
+                res.status(response.status).json(response.data);
+            }
+            
+          } catch (error) {
+            console.error("Failed to create order:", error);
+            res.status(500).json({ error: "Failed to capture order." });
+          }
+    })
+}
+
+
+module.exports = { getHostIncomingPayments, getDriverOutgoingPayments, 
+    addPayment, addRefund, addPayout, 
+    getBraintreeToken, addBraintreeSale,
+    addPaypalOrder, capturePaypalOrder }

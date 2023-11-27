@@ -67,7 +67,7 @@ const approveHostProfile = async (req, res) => {
             process.env.REFRESH_TOKEN_SECRET,
             (err, decoded) => {
 
-                if (err || foundUser.username !== decoded.username || !foundUser._id.toString() === ((decoded.userId)) ) return res.sendStatus(403);
+                if (err  || !foundUser._id.toString() === ((decoded.userId)) ) return res.sendStatus(403);
             }
         )
 
@@ -117,7 +117,7 @@ const approveUserIdPhotos = async (req, res) => {
             process.env.REFRESH_TOKEN_SECRET,
             (err, decoded) => {
 
-                if (err || foundUser.username !== decoded.username || !foundUser._id.toString() === ((decoded.userId)) ) return res.sendStatus(403);
+                if (err  || !foundUser._id.toString() === ((decoded.userId)) ) return res.sendStatus(403);
             }
         )
 
@@ -162,7 +162,7 @@ const rejectUserUploads = async (req, res) => {
             process.env.REFRESH_TOKEN_SECRET,
             (err, decoded) => {
 
-                if (err || foundUser.username !== decoded.username || !foundUser._id.toString() === ((decoded.userId)) || !(Object.values(foundUser.roles).includes(5150)) ) {
+                if (err  || !foundUser._id.toString() === ((decoded.userId)) || !(Object.values(foundUser.roles).includes(5150)) ) {
                     return res.sendStatus(403);
                 }
             }
@@ -228,7 +228,7 @@ const getUserStatusPhotos = async (req, res) => {
             process.env.REFRESH_TOKEN_SECRET,
             (err, decoded) => {
 
-                if (err || foundUser.username !== decoded.username || !foundUser._id.toString() === ((decoded.userId)) ) return res.sendStatus(403);
+                if (err  || !foundUser._id.toString() === ((decoded.userId)) ) return res.sendStatus(403);
             }
         )
 
@@ -564,7 +564,7 @@ const getHostsToCheck = async (req, res) => {
             process.env.REFRESH_TOKEN_SECRET,
             (err, decoded) => {
 
-                if (err || foundUser.username !== decoded.username || !foundUser._id.toString() === ((decoded.userId)) ) return res.sendStatus(403);
+                if (err  || !foundUser._id.toString() === ((decoded.userId)) ) return res.sendStatus(403);
             }
         )
 
@@ -723,7 +723,7 @@ const rejectHostProfile = async (req, res) => {
             process.env.REFRESH_TOKEN_SECRET,
             (err, decoded) => {
 
-                if (err || foundUser.username !== decoded.username || !foundUser._id.toString() === ((decoded.userId)) || !(Object.values(foundUser.roles).includes(5150)) ) {
+                if (err  || !foundUser._id.toString() === ((decoded.userId)) || !(Object.values(foundUser.roles).includes(5150)) ) {
                     return res.sendStatus(403);
                 }
             }

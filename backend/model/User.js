@@ -181,12 +181,9 @@ const userSchema = new Schema({
     backMediaURL: {
         type: String
     },
-    connectorObjectIds: [{ 
+    braintreeId: {
         type: String
-    }],
-    connectorMediaURL: [{
-        type: String
-    }],
+    },
     lessMotion: { 
         type: Boolean, 
         default: false 
