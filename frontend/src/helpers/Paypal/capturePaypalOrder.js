@@ -1,14 +1,14 @@
 import axios from "../../api/axios";
 const ORDER_URL = '/payments/capture'
 
-async function capturePaypalOrder (orderId, userId, accessToken) {
+async function capturePaypalOrder (orderID, userId, accessToken) {
 
-    console.log(orderId, userId, accessToken)
+    console.log(orderID, userId, accessToken)
 
     try {
         
         const response = await axios.post(ORDER_URL, 
-            JSON.stringify({orderId, userId}),
+            JSON.stringify({orderID, userId}),
             {
                 headers: { "Authorization": `Bearer ${accessToken} ${userId}`, 
                     'Content-Type': 'application/json'},
@@ -16,7 +16,7 @@ async function capturePaypalOrder (orderId, userId, accessToken) {
             }
         );
         if(response){
-            return response.data
+            return response
         }
 
     } catch (err) {

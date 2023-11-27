@@ -60,10 +60,10 @@ const s3 = new S3({
     }
   };
 
-  const createOrder = async (cart) => {
+  const createOrder = async (cart, userId) => {
     // use the cart information passed from the front-end to calculate the purchase unit details
     console.log(
-      "shopping cart information passed from the frontend createOrder() callback:",
+      "shopping cart information passed from the frontend:",
       cart,
     );
 
@@ -79,6 +79,7 @@ const s3 = new S3({
             currency_code: "USD",
             value: "100.00",
           },
+          custom_id: userId
         },
       ],
       application_context: {
@@ -108,26 +109,30 @@ const s3 = new S3({
 
 
     const captureOrder = async (orderID) => {
+
         const accessToken = await generateAccessToken();
+
         const url = `${base}/v2/checkout/orders/${orderID}/capture`;
       
         if(accessToken){
-            const response = await axios.post(url, {
+
+            const response = await axios.post(url, null, {
                 headers: {
                 "Authorization": `Bearer ${accessToken}`,
                   "Content-Type": "application/json",
                   // Uncomment one of these to force an error for negative testing (in sandbox mode only). Documentation:
                   // https://developer.paypal.com/tools/sandbox/negative-testing/request-headers/
-                  // "PayPal-Mock-Response": '{"mock_application_codes": "INSTRUMENT_DECLINED"}'
+                //   "PayPal-Mock-Response": '{"mock_application_codes": "INSTRUMENT_DECLINED"}'
                   // "PayPal-Mock-Response": '{"mock_application_codes": "TRANSACTION_REFUSED"}'
                   // "PayPal-Mock-Response": '{"mock_application_codes": "INTERNAL_SERVER_ERROR"}'
                 },
-              });
-      
-              if(response){
-                  console.log(response)
-                  return res.status(200).json(response)
-              }
+            });
+    
+            if(response){
+                console.log("Original capture response", response)
+
+                return response
+            }
         }
       };
 
@@ -953,23 +958,21 @@ const addPaypalOrder = async (req, res) => {
             }
         )        
 
-        console.log("Creating order for paypal")
-
         try {
             // use the cart information passed from the front-end to calculate the order amount detals
             const { cart } = req.body;
 
             console.log(cart)
 
-            const response = await createOrder(cart);
+            const response = await createOrder(cart, foundUser._id);
             if(response){
                 console.log("RESPONSE HERE 1", response.data)
-                res.status(response.status).json(response.data);
+                return res.status(response.status).json(response.data);
             }
             
           } catch (error) {
             console.error("Failed to create order:", error);
-            res.status(500).json({ error: "Failed to create order." });
+            return res.status(500).json({ error: "Failed to create order." });
           }
     })
 }
@@ -996,20 +999,59 @@ const capturePaypalOrder = async (req, res) => {
         )        
 
         try {
-            const { orderID } = req.params;
+
+            const { orderID } = req.body;
 
             console.log("Capturing order here")
             console.log(orderID)
 
+            if(!orderID){
+               return res.status(500).json({ error: "Failed to capture order." });
+            }
+
             const response = await captureOrder(orderID);
             if(response){
-                console.log("RESPONSE 2 here", response.data)
-                res.status(response.status).json(response.data);
+                console.log("CAPTURE RESPONSE")
+                console.log(response.status)
+
+                if(response.status === 201){
+
+                    var dataurl = `${base}/v2/checkout/orders/${orderID}/`
+                    const accessToken = await generateAccessToken();
+
+                    if(accessToken){
+
+                        const orderData = await axios.get(dataurl, {
+                            headers: {
+                            "Authorization": `Bearer ${accessToken}`,
+                              "Content-Type": "application/json",
+                            },
+                        });
+                
+                        if(orderData){
+                            console.log("ORDER DATA HERE")
+                            console.log(orderData.data) 
+                            console.log(orderData.data.purchase_units) 
+                            console.log(orderData.data.purchase_units.payments) 
+
+                            if(orderData.data.status === "COMPLETED"){
+
+
+                            }
+                            //Add to user and payments here
+                            //Add payer_id to User, orderID to User
+
+                            return res.status(response.status).json({orderData: orderData?.data});
+                        }
+                    }
+                } else {
+                    return res.status(response.status).json(response);
+                }
             }
             
           } catch (error) {
             console.error("Failed to create order:", error);
-            res.status(500).json({ error: "Failed to capture order." });
+            return res.status(500).json({ error: "Failed to capture order." });
           }
     })
 }

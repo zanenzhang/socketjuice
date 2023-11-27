@@ -128,6 +128,9 @@ var driverProfileSchema = new Schema({
         refunded: {
             type: Boolean,
             default: false
+        },
+        paypalOrderId: {
+            type: String
         }
     }],
     phoneContacts: [{

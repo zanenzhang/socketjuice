@@ -62,6 +62,7 @@
     "mongodb": "^6.1.0",
     "mongoose": "^5.13.20",
     "multer": "^1.4.5-lts.1",
+    "node-fetch": "^3.3.2",
     "nodemailer": "^6.8.0",
     "nsfwjs": "^2.4.2",
     "paypal-rest-sdk": "^1.8.1",

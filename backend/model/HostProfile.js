@@ -322,6 +322,9 @@ var hostProfileSchema = new Schema({
         refunded: {
             type: Boolean,
             default: false
+        },
+        paypalOrderId: {
+            type: String
         }
     }],
     receivedReviews: [{

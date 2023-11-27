@@ -9,10 +9,6 @@ import addPaypalOrder from "../../helpers/Paypal/addPaypalOrder";
 import capturePaypalOrder from "../../helpers/Paypal/capturePaypalOrder";
 
 
-function Message({ content }) {
-    return <p>{content}</p>;
-  }
-
 const PaymentsPage = () => {
 
       const { auth } = useAuth();
@@ -24,8 +20,13 @@ const PaymentsPage = () => {
       };
     
       const [message, setMessage] = useState(""); 
-      const [isLoaded, setIsLoaded] = useState(false) 
-      const [selectedAmount, setSelectedAmount] = useState(0)
+      const [isLoaded, setIsLoaded] = useState(false);
+      
+      const [selectedAmount, setSelectedAmount] = useState(20);
+      const [selectedOption, setSelectedOption] = useState("A");
+      const [currencySymbol, setCurrencySymbol] = useState("$")
+
+      const [waiting, setWaiting] = useState(false)
       
       useEffect( ()=> {
 
@@ -34,13 +35,45 @@ const PaymentsPage = () => {
 
       }, [auth])
 
+      const handleSelectAmount = (e, value) => {
+
+        setSelectedAmount(value)
+      }
+
     return (
         
         <div className="flex flex-col justify-center items-center w-full">
             
             <img className="w-[200px]" src={socketjuice_full_logo} />
 
-            <p></p>
+            <p>{currencySymbol}{selectedAmount}</p>
+
+            <div className="flex flex-row gap-x-4">
+
+                <button className="px-4 py-2 rounded-xl" 
+                    onClick={(e)=>handleSelectAmount(e, 20, "A")}>
+                    $20
+                </button>
+
+                <button className="px-4 py-2 rounded-xl"
+                    onClick={(e)=>handleSelectAmount(e, 30, "B")}>
+                    $30
+                </button>
+
+                <button className="px-4 py-2 rounded-xl"
+                    onClick={(e)=>handleSelectAmount(e, 50, "C")}>
+                    $50
+                </button>
+
+            </div>
+
+            {waiting && <div className="flex flex-row gap-x-2">
+
+                <p>Spinning</p>    
+                <p>Loading</p>
+                <p>{message}</p>
+
+            </div>}
 
             {(isLoaded && auth.userId) ? 
             
@@ -55,11 +88,13 @@ const PaymentsPage = () => {
             }}
             createOrder={async () => {
                 
+                setWaiting(true);
+
                 var cart = [
                     {
-                        id: "TEST_ID",
+                        id: "PAYPAL_RELOAD",
                         quantity: "1",
-                        option: "A"
+                        option: `${selectedOption}`
                     },
                 ]
 
@@ -67,16 +102,23 @@ const PaymentsPage = () => {
 
                 if(orderData){
 
-                    console.log(orderData)
-
                     try{
 
                         var orderDataId = orderData.id
 
                         if (orderDataId) {
-                            console.log(orderDataId)
+                            
+                            setWaiting(false)
                             return orderDataId;
-                        } 
+
+                        } else {
+                            const errorDetail = orderData?.details?.[0];
+                            const errorMessage = errorDetail
+                            ? `${errorDetail.issue} ${errorDetail.description} (${orderData.debug_id})`
+                            : JSON.stringify(orderData);
+
+                            throw new Error(errorMessage);
+                        }
 
                     } catch (error) {
                         console.error(error);
@@ -85,46 +127,40 @@ const PaymentsPage = () => {
                 }
             }}
             onApprove={async (data, actions) => {
+                
                 try {
+
+                    console.log(data.orderID)
                     
-                const response = capturePaypalOrder(data.orderID, auth.userId, auth.accessToken)
+                    const captureData = await capturePaypalOrder(data.orderID, auth.userId, auth.accessToken)
 
-                if(response){
+                    if(captureData){
 
-                    console.log(response.data)
-                    var orderData = response.data
-                }
+                        console.log(captureData)
 
-                // Three cases to handle:
-                //   (1) Recoverable INSTRUMENT_DECLINED -> call actions.restart()
-                //   (2) Other non-recoverable errors -> Show a failure message
-                //   (3) Successful transaction -> Show confirmation or thank you message
+                        const errorDetail = captureData?.details?.[0];
 
-                        // const errorDetail = orderData?.details?.[0];
+                        // Three cases to handle:
+                    //   (1) Recoverable INSTRUMENT_DECLINED -> call actions.restart()
+                    //   (2) Other non-recoverable errors -> Show a failure message
+                    //   (3) Successful transaction -> Show confirmation or thank you message
 
-                        // if (errorDetail?.issue === "INSTRUMENT_DECLINED") {
-                        //     // (1) Recoverable INSTRUMENT_DECLINED -> call actions.restart()
-                        //     // recoverable state, per https://developer.paypal.com/docs/checkout/standard/customize/handle-funding-failures/
-                        //     return actions.restart();
-                        // } else if (errorDetail) {
-                        //     // (2) Other non-recoverable errors -> Show a failure message
-                        //     throw new Error(
-                        //     `${errorDetail.description} (${orderData.debug_id})`,
-                        //     );
-                        // } else {
-                        //     // (3) Successful transaction -> Show confirmation or thank you message
-                        //     // Or go to another URL:  actions.redirect('thank_you.html');
-                        //     const transaction =
-                        //     orderData.purchase_units[0].payments.captures[0];
-                        //     setMessage(
-                        //          `Transaction ${transaction.status}: ${transaction.id}. See console for all available details`,
-                        //     );
-                        //     console.log(
-                                    // "Capture result",
-                                    // orderData,
-                                    // JSON.stringify(orderData, null, 2),
-                        //     );
-                        // }
+                        if (errorDetail?.issue === "INSTRUMENT_DECLINED") {
+                            // (1) Recoverable INSTRUMENT_DECLINED -> call actions.restart()
+                            // recoverable state, per https://developer.paypal.com/docs/checkout/standard/customize/handle-funding-failures/
+                            return actions.restart();
+                        } else if (errorDetail) {
+                            // (2) Other non-recoverable errors -> Show a failure message
+                            throw new Error(
+                            `${errorDetail.description} (${captureData.debug_id})`,
+                            );
+                        } else if (captureData?.status === 201) {
+                            // (3) Successful transaction -> Show confirmation or thank you message
+                            // Or go to another URL:  actions.redirect('thank_you.html');
+                            alert("Success, payment has been received!")
+                        }
+                        
+                    }   
 
                 } catch (error) {
                     console.error(error);
@@ -138,7 +174,7 @@ const PaymentsPage = () => {
 
         </div> : null}
 
-        <Message content={message} />    
+        
 
         </div>
     );

@@ -31,6 +31,9 @@ var paymentSchema = new Schema({
     flagged: {
         type: Boolean,
         default: false
+    },
+    paypalOrderId: {
+        type: String
     }
 });
 
