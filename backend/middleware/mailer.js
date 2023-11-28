@@ -309,7 +309,7 @@ exports.sendVerifiedEmail = function({toUser, firstName}) {
   }
 
 
-  exports.sendReportEmail = function({submittedUser, content}) {
+  exports.sendReportEmail = function({submittedUser, submittedUserId, content}) {
 
     const regex = /(<([^>]+)>)/gi;
     const checkedContent = content.replace(regex, "");
@@ -320,8 +320,9 @@ exports.sendVerifiedEmail = function({toUser, firstName}) {
       to: process.env.EMAIL_SUPPORT,
       subject: 'SocketJuice - Feedback',
       html: `
-        From: ${submittedUser}
-        Feedback: ${checkedContent}
+        <p> From: ${submittedUser} </p>
+        <p> UserId: ${submittedUserId} </p>
+        <p> Feedback: ${checkedContent} </p>
       `
     }
   

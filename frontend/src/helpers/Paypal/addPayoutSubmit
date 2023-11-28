@@ -1,0 +1,26 @@
+import axios from "../../api/axios";
+const PAYOUT_URL = '/payments/payout'
+
+async function addPayoutSubmit (userId, accessToken) {
+
+    try {
+        
+        const response = await axios.post(PAYOUT_URL, 
+            JSON.stringify({userId}),
+            {
+                headers: { "Authorization": `Bearer ${accessToken} ${userId}`, 
+                    'Content-Type': 'application/json'},
+                withCredentials: true
+            }
+        );
+        if(response){
+            return response.data
+        }
+
+    } catch (err) {
+        console.error(err);
+    }
+
+}
+
+export default addPayoutSubmit

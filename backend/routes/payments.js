@@ -8,8 +8,9 @@ router.use(verifyJWT)
 router.get('/host', paymentsController.getHostIncomingPayments);
 router.get('/driver', paymentsController.getDriverOutgoingPayments);
 
-router.post('/newrefund', paymentsController.addRefund);
+// router.post('/newrefund', paymentsController.addRefund);
 router.post('/payout', paymentsController.addPayout);
+router.post('/request', paymentsController.requestPayout);
 
 router.post('/order', paymentsController.addPaypalOrder);
 router.post('/capture', paymentsController.capturePaypalOrder);

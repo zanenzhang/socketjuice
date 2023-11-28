@@ -73,6 +73,16 @@ const userSchema = new Schema({
         type: Boolean, //Missed password attempts
         default: false
     },
+    requestedPayout: {
+        type: Boolean, 
+        default: false
+    },
+    requestedPayoutCurrency: {
+        type: String, 
+    },
+    requestedPayoutOption: {
+        type: String, 
+    },
     loginAttempts: {
         type: Number,
         default: 0

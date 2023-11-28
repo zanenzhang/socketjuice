@@ -9,7 +9,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 
-const ReportIssueMenuItem = ({loggedUserId, setOpenMenu}) => {
+const ReportIssueMenuItem = ({setOpenMenu}) => {
 
   const { auth } = useAuth();
   const logout = useLogout();
@@ -67,7 +67,7 @@ const ReportIssueMenuItem = ({loggedUserId, setOpenMenu}) => {
 
     waiting = true;
 
-    const submitted = await addEmailReport(loggedUserId, message, auth.accessToken)
+    const submitted = await addEmailReport(auth.userId, message, auth.accessToken)
   
     if(submitted){
     
@@ -173,9 +173,9 @@ const ReportIssueMenuItem = ({loggedUserId, setOpenMenu}) => {
                 <div className='flex flex-row gap-x-8 py-4'>
                   
               <button 
-                  className={`${!validMessage  || sentInvite || waiting
-                      ? "bg-gray-100 text-gray-400" : "bg-[#8BEDF3] text-white"}  
-                      w-full rounded-xl py-3 font-bold border-solid border-2 flex justify-center 
+                  className={`${ (!validMessage  || sentInvite || waiting)
+                      ? "bg-gray-100 text-gray-400 " : "bg-[#8BEDF3] text-black"}  
+                      hover:bg-[#FFE142] w-full rounded-xl py-3 font-bold border-solid border-2 flex justify-center 
                       items-center gap-x-3`}
                   disabled={ (!validMessage  || sentInvite || waiting ) 
                       ? true : false}

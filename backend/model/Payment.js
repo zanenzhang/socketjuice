@@ -28,6 +28,14 @@ var paymentSchema = new Schema({
         type: Boolean,
         default: false
     },
+    payin: {
+        type: Boolean,
+        default: false
+    },
+    payout: {
+        type: Boolean,
+        default: false
+    },
     flagged: {
         type: Boolean,
         default: false

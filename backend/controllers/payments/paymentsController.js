@@ -19,6 +19,7 @@ var _= require('lodash');
 const copyFile = require('../media/s3Controller');
 
 const base = "https://api-m.sandbox.paypal.com";
+var paypal = require('paypal-rest-sdk');
 
 const wasabiPrivateBucketUSA = process.env.WASABI_PRIVATE_BUCKET_NAME_USA;
 const wasabiPublicBucketUSA = process.env.WASABI_PUBLIC_BUCKET_NAME_USA;
@@ -34,6 +35,12 @@ const s3 = new S3({
     accessKeyId: wasabiAccessKeyId,
     secretAccessKey: wasabiSecretAccessKey,
   })
+
+  paypal.configure({
+    'mode': 'sandbox', //sandbox or live
+    'client_id': process.env.PAYPAL_CLIENT_KEY_CAD,
+    'client_secret': process.env.PAYPAL_SECRET_KEY_CAD
+  });
 
 
   const generateAccessTokenCAD = async () => {
@@ -61,13 +68,6 @@ const s3 = new S3({
   };
 
   const createOrder = async (cart, userId) => {
-    // use the cart information passed from the front-end to calculate the purchase unit details
-    console.log(
-      "shopping cart information passed from the frontend:",
-      cart,
-    );
-
-    //include currency, amount here
 
     var amount = "21.50"
     var currency = "USD"
@@ -156,8 +156,6 @@ const s3 = new S3({
             });
     
             if(response){
-                console.log("Original capture response", response)
-
                 return response
             }
         }
@@ -205,8 +203,6 @@ const getBraintreeToken = async (req, res) => {
         )    
         
         const { loggedUserId } = req.query
-
-        console.log("Getting payments token")
     
         if(!loggedUserId || !foundUser._id.toString() === ((loggedUserId)) ) {
             return res.status(400).json({ 'message': 'Missing required fields!' });
@@ -343,44 +339,144 @@ const addPayout = async (req, res) => {
             process.env.REFRESH_TOKEN_SECRET,
             (err, decoded) => {
 
-                if (err  || !foundUser._id.toString() === ((decoded.userId)) ) return res.sendStatus(403);
+                if (err  || !foundUser._id.toString() === ((decoded.userId)) || !(Object.values(foundUser.roles).includes(5150)) ) return res.sendStatus(403);
             }
         )        
 
-        const { userId, hostUserId, currency, paymentAmount } = req.body
+        const { userId } = req.body
 
-        if (!userId || !hostUserId || !currency || !paymentAmount ) return res.status(400).json({ 'message': 'Missing required fields!' });
-
-        //Get transaction list from PayPal, verify before further processing
+        if (!userId ) return res.status(400).json({ 'message': 'Missing required fields!' });
 
         try {
 
-            const foundHostProfile = await HostProfile.findOne({_userId: hostUserId})
-            const foundDriverProfile = await DriverProfile.findOne({_userId: userId})
+            const checkUser = await User.findOne({_id: userId, requestedPayout: true, flagged: false})
 
-            if(foundHostProfile && foundDriverProfile){
+            if(!checkUser){
+            
+                return res.status(400).json({ 'message': 'Failed operation!' });
+            
+            } else {
 
-                const newPayment = await Payment.create({_outgoingUserId: userId, _receivingUserId: hostUserId, amount: paymentAmount, currency: currency})
+                const foundDriverProfile = await DriverProfile.findOne({_userId: userId})
 
-                if(newPayment){
+                if(foundDriverProfile){
 
-                    if(foundHostProfile.incomingPayments?.length > 0){
-                        foundHostProfile.incomingPayments.push({_paymentId: newPayment._id, amount: paymentAmount, currency: currency})
-                    } else{
-                        foundHostProfile.incomingPayments = [{_paymentId: newPayment._id, amount: paymentAmount, currency: currency}]
+                    var paymentAmount = 0
+                    var currency = checkUser.requestedPayoutCurrency.toLowerCase()
+
+                    if(currency === 'cad'){
+                        
+                        if(checkUser.requestedPayoutOption === "A"){
+
+                            paymentAmount = 20
+    
+                        } else if(checkUser.requestedPayoutOption === "B"){
+    
+                            paymentAmount = 40
+    
+                        } else if(checkUser.requestedPayoutOption === "C"){
+    
+                            paymentAmount = 50
+                        }
+                    
+                    } else if(currency === 'usd'){
+                        
+                        if(checkUser.requestedPayoutOption === "A"){
+
+                            paymentAmount = 20
+    
+                        } else if(checkUser.requestedPayoutOption === "B"){
+    
+                            paymentAmount = 40
+    
+                        } else if(checkUser.requestedPayoutOption === "C"){
+    
+                            paymentAmount = 50
+                        }
                     }
 
-                    if(foundDriverProfile.outgoingPayments?.length > 0){
-                        foundDriverProfile.outgoingPayments.push({_paymentId: newPayment._id, amount: paymentAmount, currency: currency})
-                    } else{
-                        foundDriverProfile.outgoingPayments = [{_paymentId: newPayment._id, amount: paymentAmount, currency: currency}]
-                    }
+                    var checkAmount = false;
+                    if(checkUser.credits?.length > 0){
 
-                    const savedHost = await foundHostProfile.save()
-                    const savedDriver = await foundDriverProfile.save()
+                        for(let i=0; i<checkUser.credits?.length; i++){
+                            if(checkUser.credits[i].currency.toLowerCase() === currency){
+                                if(checkUser.credits[i].amount >= paymentAmount){
+                                    checkUser.credits[i].amount = checkUser.credits[i].amount - paymentAmount
+                                    checkAmount = true
+                                    break
+                                }
+                            }
+                        }
 
-                    if(savedHost && savedDriver){
-                        return res.status(201).json({ message: 'Success' })
+                        if(!checkAmount){
+
+                            const updatedUser = await User.updateOne({_id: userId},{$set: {requestedPayout: false, requestedPayoutOption: "None"}})
+
+                            if(updatedUser){
+                                return res.status(400).json({ 'message': 'Failed operation!' });
+                            }
+                        } else {
+
+                            const newPayment = await Payment.create({_outgoingUserId: userId, _receivingUserId: userId, 
+                                amount: paymentAmount, currency: currency, payout: true})
+
+                            const saveUser = await checkUser.save()
+    
+                            if(newPayment && saveUser){
+
+                                var sender_batch_id = Math.random().toString(36).substring(9);
+
+                                var create_payout_json = {
+                                    "sender_batch_header": {
+                                        "sender_batch_id": sender_batch_id,
+                                        "email_subject": "SocketJuice - You have received a payment!"
+                                    },
+                                    "items": [
+                                        {
+                                            "recipient_type": "EMAIL",
+                                            "amount": {
+                                                "value": paymentAmount,
+                                                "currency": currency.toUpperCase()
+                                            },
+                                            "receiver": checkUser.email,
+                                            "note": "Thank you.",
+                                            "sender_item_id": newPayment._id.toString()
+                                        }
+                                    ]
+                                };
+
+                                var sync_mode = 'true';
+
+                                paypal.payout.create(create_payout_json, sync_mode, async function (error, payout) {
+                                    if (error) {
+                                        console.log(error.response);
+                                        throw error;
+                                    } else {
+                                        console.log("Create Single Payout Response");
+                                        console.log(payout);
+
+                                        if(foundDriverProfile.outgoingPayments?.length > 0){
+                                            foundDriverProfile.outgoingPayments.push({_paymentId: newPayment._id, amount: paymentAmount, 
+                                                currency: currency, payout: true})
+                                        } else{
+                                            foundDriverProfile.outgoingPayments = [{_paymentId: newPayment._id, amount: paymentAmount, 
+                                                currency: currency, payout: true}]
+                                        }
+                
+                                        const savedDriver = await foundDriverProfile.save()
+                
+                                        if(savedDriver){
+                                            return res.status(201).json({ message: 'Success' })
+                                        }
+                                    }
+                                });
+    
+                            }
+                        }
+
+                    } else {
+                        
+                        return res.status(400).json({ 'message': 'Failed operation!' });
                     }
                 }
             }
@@ -391,6 +487,7 @@ const addPayout = async (req, res) => {
         }
     })
 }
+
 
 const addRefund = async (req, res) => {
 
@@ -907,7 +1004,6 @@ const addBraintreeSale = async (req, res) => {
                   })
 
                   if(result && result.success){
-                    console.log(result)
 
                     customerId = result?.customer?.id
                     const updateuser = await User.updateOne({_id: foundUser._id},{$set:{braintreeId: result?.customer?.id}})
@@ -995,7 +1091,6 @@ const addPaypalOrder = async (req, res) => {
 
             const response = await createOrder(cart, foundUser._id);
             if(response){
-                console.log("RESPONSE HERE 1", response.data)
                 return res.status(response.status).json(response.data);
             }
             
@@ -1031,17 +1126,12 @@ const capturePaypalOrder = async (req, res) => {
 
             const { orderID } = req.body;
 
-            console.log("Capturing order here")
-            console.log(orderID)
-
             if(!orderID){
                return res.status(500).json({ error: "Failed to capture order." });
             }
 
             const response = await captureOrder(orderID);
             if(response){
-                console.log("CAPTURE RESPONSE")
-                console.log(response.status)
 
                 if(response.status === 201){
 
@@ -1066,9 +1156,9 @@ const capturePaypalOrder = async (req, res) => {
                                 const option = orderData.data.purchase_units[0]?.reference_id
                                 const currency = orderData.data.purchase_units[0]?.payments.captures[0].amount.currency_code.toLowerCase()
                                 
-                                const grossAmount = orderData.data.purchase_units[0]?.payments.captures[0].seller_receivable_breakdown.gross_amount
-                                const netAmount = orderData.data.purchase_units[0]?.payments.captures[0].seller_receivable_breakdown.net_amount
-                                const receivableAmount = orderData.data.purchase_units[0]?.payments.captures[0].seller_receivable_breakdown.receivable_amount
+                                const grossAmount = orderData.data.purchase_units[0]?.payments?.captures[0].seller_receivable_breakdown.gross_amount
+                                const netAmount = orderData.data.purchase_units[0]?.payments?.captures[0].seller_receivable_breakdown.net_amount
+                                const receivableAmount = orderData.data.purchase_units[0]?.payments?.captures[0].seller_receivable_breakdown.receivable_amount
 
 
                                 var currencySymbol = "$"
@@ -1157,12 +1247,13 @@ const capturePaypalOrder = async (req, res) => {
 
                                     const addedPayment = await Payment.create({_sendingUserId: userId, _receivingUserId: userId, paypalOrderId: orderId,
                                         amount: payamount, currency: currency, currencySymbol: currencySymbol, paymentToken: newToken,
-                                        gross_amount: grossAmount, net_amount: netAmount, receiveable_amount: receivableAmount})
+                                        gross_amount: grossAmount, net_amount: netAmount, receiveable_amount: receivableAmount,
+                                        payin: true})
 
                                     if(addedPayment){
 
                                         const updatedProfile = await DriverProfile.updateOne({_userId: userId},{$push: {outgoingPayments: 
-                                                {_paymentId: addedPayment._id, amount: payamount, currency: currency, paypalOrderId: orderId }}})
+                                                {_paymentId: addedPayment._id, amount: payamount, currency: currency, paypalOrderId: orderId, payin: true }}})
 
                                         var addedCredits = false
                                         if(foundUser.credits?.length > 0){
@@ -1183,7 +1274,7 @@ const capturePaypalOrder = async (req, res) => {
                                         const updatedUser = await foundUser.save()
 
                                         if(updatedProfile && updatedUser){
-                                            return res.status(response.status).json({orderData: orderData?.data});
+                                            return res.status(response.status).json({orderData: orderData?.data?.purchase_units[0]?.payments?.captures[0].amount});
                                         } else {
                                             return res.status(401).json({"message": "Failed operation"})
                                         }
@@ -1196,7 +1287,11 @@ const capturePaypalOrder = async (req, res) => {
                                 
                                 return res.status(response.status).json({orderData: orderData?.data});
                             }
+                        } else {
+                            return res.status(response.status).json(response);
                         }
+                    } else {
+                        return res.status(response.status).json(response);
                     }
                 } else {
                     return res.status(response.status).json(response);
@@ -1211,7 +1306,110 @@ const capturePaypalOrder = async (req, res) => {
 }
 
 
+const requestPayout = async (req, res) => {
+
+    const cookies = req.cookies;
+
+    if (!cookies?.socketjuicejwt) return res.sendStatus(401);
+    const refreshToken = cookies.socketjuicejwt;
+
+    User.findOne({ refreshToken }, async function(err, foundUser){
+
+        if (err || !foundUser) return res.sendStatus(403); 
+    
+        jwt.verify(
+            refreshToken,
+            process.env.REFRESH_TOKEN_SECRET,
+            (err, decoded) => {
+
+                if (err  || !foundUser._id.toString() === ((decoded.userId))  ) return res.sendStatus(403);
+            }
+        )        
+
+        const { userId, currency, option } = req.body
+
+        if (!userId || !currency || !option){
+            return res.status(400).json({ 'message': 'Missing required fields!' });
+        } 
+
+        try {
+
+            var paymentAmount = 0
+
+            if(currency === 'cad'){
+                
+                if(option === "A"){
+
+                    paymentAmount = 20
+
+                } else if(option === "B"){
+
+                    paymentAmount = 40
+
+                } else if(option === "C"){
+
+                    paymentAmount = 50
+                }
+            
+            } else if(currency === 'usd'){
+                
+                if(option === "A"){
+
+                    paymentAmount = 20
+
+                } else if(option === "B"){
+
+                    paymentAmount = 40
+
+                } else if(option === "C"){
+
+                    paymentAmount = 50
+                }
+            }
+
+            var checkAmount = false;
+            if(checkUser.credits?.length > 0){
+
+                for(let i=0; i<checkUser.credits?.length; i++){
+                    if(checkUser.credits[i].currency.toLowerCase() === currency){
+                        if(checkUser.credits[i].amount >= paymentAmount){
+                            checkAmount = true
+                            break
+                        }
+                    }
+                }
+
+                if(!checkAmount){
+
+                    res.status(400).json({ message: 'Missing required information' })
+
+                } else {
+
+                    const updateUser = await User.updateOne({_id: userId}, {$set: {requestedPayout: true, 
+                        requestedPayoutCurrency: currency.toLowerCase(), requestedPayoutOption: option}})
+
+                    if(updateUser){
+
+                        res.status(201).json({ message: 'Success, requested payout for user' })
+                    }
+                }
+
+            } else {
+
+                res.status(401).json({ message: 'Operation failed' })
+            }
+
+        } catch(err){
+
+            console.log(err)
+            return res.status(401).json({ message: 'Operation failed' })
+        }
+    })
+}
+
+
 module.exports = { getHostIncomingPayments, getDriverOutgoingPayments, 
     addPayment, addRefund, addPayout, 
     getBraintreeToken, addBraintreeSale,
-    addPaypalOrder, capturePaypalOrder }
+    addPaypalOrder, capturePaypalOrder,
+    requestPayout }

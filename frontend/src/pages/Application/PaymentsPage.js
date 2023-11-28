@@ -16,7 +16,7 @@ const PaymentsPage = () => {
       const initialOptions = {
         "client-id": process.env.REACT_APP_PAYPAL_PUBLIC_ID,
         "enable-funding": "venmo",
-        "currency": "CAD"
+        "currency": "USD"
       };
     
       const [message, setMessage] = useState(""); 
@@ -27,7 +27,7 @@ const PaymentsPage = () => {
       const [selectedTotal, setSelectedTotal] = useState(21.50);
 
       const [selectedOption, setSelectedOption] = useState("A");
-      const [currency, setCurrency] = useState("CAD")
+      const [currency, setCurrency] = useState("USD")
       const [currencySymbol, setCurrencySymbol] = useState("$")
 
       const [waiting, setWaiting] = useState(false)
@@ -36,7 +36,6 @@ const PaymentsPage = () => {
       
       useEffect( ()=> {
 
-        console.log(auth)
         setIsLoaded(true)
 
       }, [auth])
@@ -139,11 +138,9 @@ const PaymentsPage = () => {
                 //color:'blue' change the default color of the buttons
                 layout: "vertical", //default value. Can be changed to horizontal
             }}
-            createOrder={async () => {
+            createOrder={async (data, actions) => {
                 
                 setWaiting(true);
-
-                console.log(selectedAmount, selectedOption)
 
                 const orderData = await addPaypalOrder(currency, selectedOption, auth?.userId, auth?.accessToken)
 
@@ -172,13 +169,16 @@ const PaymentsPage = () => {
                         console.error(error);
                         setMessage(`Could not initiate PayPal Checkout...${error}`);
                     }
+                } else {
+                    setWaiting(false)
+                    setSuccess(true)
+                    setMessage(`Could not initiate PayPal Checkout...Sorry, please refresh and try again`);
+                    return 
                 }
             }}
             onApprove={async (data, actions) => {
                 
                 try {
-
-                    console.log(data.orderID)
                     
                     const captureData = await capturePaypalOrder(data.orderID, auth.userId, auth.accessToken)
 
@@ -206,7 +206,7 @@ const PaymentsPage = () => {
                             // (3) Successful transaction -> Show confirmation or thank you message
                             // Or go to another URL:  actions.redirect('thank_you.html');
                             setSuccess(true)
-                            alert("Success, payment has been received!")
+                            alert(`Success, your payment of ${captureData?.data?.orderData?.currency_code} ${captureData?.data?.orderData?.value} has been received!`)
                         }
                     }   
 

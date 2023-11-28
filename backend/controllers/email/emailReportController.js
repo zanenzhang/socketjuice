@@ -114,7 +114,7 @@ const addEmailReport = async (req, res) => {
             }
 
             if(doneOperation){
-                const success = await sendReportEmail( {submittedUser: foundUser.email, content: message })
+                const success = await sendReportEmail( {submittedUser: foundUser.email, submittedUserId: foundUser._id, content: message })
                 if(success){
                     return res.status(201).json({ 'Success': `Sent email invitation! ` });
                 }

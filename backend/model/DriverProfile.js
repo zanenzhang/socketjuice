@@ -131,7 +131,15 @@ var driverProfileSchema = new Schema({
         },
         paypalOrderId: {
             type: String
-        }
+        },
+        payin: {
+            type: Boolean,
+            default: false
+        },
+        payout: {
+            type: Boolean,
+            default: false
+        },
     }],
     phoneContacts: [{
         contactName: {
