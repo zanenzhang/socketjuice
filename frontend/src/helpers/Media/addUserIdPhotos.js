@@ -1,13 +1,13 @@
 import axios from "../../api/axios";
 const UPLOAD_URL = '/auth/useridphotos';
 
-async function addUserIdPhotos(userId, identificationFrontObjectId, identificationBackObjectId,
+async function addUserIdPhotos(userId, identificationdriverObjectId, identificationplateObjectId,
     hostPreviewMediaObjectId, hostMediaObjectIds, hostVideoObjectIds, hostObjectTypes, hostPreviewObjectType, hostCoverIndex, accessToken) {
 
     try {
 
         const response = await axios.post(UPLOAD_URL, 
-            JSON.stringify({userId, identificationFrontObjectId, identificationBackObjectId,
+            JSON.stringify({userId, identificationdriverObjectId, identificationplateObjectId,
                 hostPreviewMediaObjectId, hostMediaObjectIds, hostVideoObjectIds, hostObjectTypes, hostPreviewObjectType, hostCoverIndex}),
             {
                 headers: { "Authorization": `Bearer ${accessToken} ${userId}`, 

@@ -15,6 +15,7 @@ import AdminPage from "./pages/Application/AdminPage";
 import SettingsPage from "./pages/Application/SettingsPage";
 import TestPage from "./pages/Application/TestPage";
 import PaymentsPage from './pages/Application/PaymentsPage';
+import PayoutsPage from './pages/Application/PayoutsPage';
 
 const ROLES = {
   'User': 2001,
@@ -82,6 +83,10 @@ function App() {
         </Route>
 
         <Route path="/payments" element={<PaymentsPage />}>
+
+        </Route>
+
+        <Route path="/payouts" element={<PayoutsPage />}>
 
         </Route>
     

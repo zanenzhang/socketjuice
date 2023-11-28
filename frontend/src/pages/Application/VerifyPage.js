@@ -622,13 +622,13 @@ const VerifyPage = () => {
 
             if(finalImageObjArray?.length === mediaLength){
 
-                const frontObjectId = finalImageObjArray[0]
-                const backObjectId = finalImageObjArray[1]
+                const driverObjectId = finalImageObjArray[0]
+                const plateObjectId = finalImageObjArray[1]
         
                 try {
 
                     const uploadedUserPhotos = await axios.post('/profile/userphotos', 
-                        JSON.stringify({userId, frontObjectId, backObjectId}),
+                        JSON.stringify({userId, driverObjectId, plateObjectId}),
                         {
                             headers: { "Authorization": `Hash ${hash} ${userId}`, 
                                 'Content-Type': 'application/json'},
@@ -897,10 +897,7 @@ const VerifyPage = () => {
 
                         <div className='flex flex-col justify-center items-center pt-6'>
                             <p className='text-base md:text-lg font-medium text-center'>
-                                b) Upload photos of driver's license (Front and back) </p>
-                            
-                            <p className='text-sm flex flex-col w-[350px] items-center pb-4'>
-                            Note: Driver's license will not be shared publicly</p>
+                                b) Upload 1 photo of driver's license (front) and 1 photo of license plate for verification </p>
                             
                         </div>
                         

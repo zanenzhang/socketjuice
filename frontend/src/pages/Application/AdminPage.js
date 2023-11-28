@@ -210,8 +210,8 @@ const AdminPage = () => {
 
                             <div className='flex flex-row'>
 
-                                <img className='w-[250px]' src={user.frontMediaURL} />
-                                <img className='w-[250px]' src={user.backMediaURL} />
+                                <img className='w-[250px]' src={user.driverMediaURL} />
+                                <img className='w-[250px]' src={user.plateMediaURL} />
 
                             </div>
 

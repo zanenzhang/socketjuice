@@ -362,7 +362,7 @@ const addPayout = async (req, res) => {
                 if(foundDriverProfile){
 
                     var paymentAmount = 0
-                    var currency = checkUser.requestedPayoutCurrency.toLowerCase()
+                    var currency = checkUser?.requestedPayoutCurrency.toLowerCase()
 
                     if(currency === 'cad'){
                         
@@ -417,12 +417,14 @@ const addPayout = async (req, res) => {
                             }
                         } else {
 
-                            const newPayment = await Payment.create({_outgoingUserId: userId, _receivingUserId: userId, 
+                            const newPayment = await Payment.create({ _sendingUserId: userId, _receivingUserId: userId, 
                                 amount: paymentAmount, currency: currency, payout: true})
 
                             const saveUser = await checkUser.save()
     
                             if(newPayment && saveUser){
+
+                                console.log("Reached here new payout 0")
 
                                 var sender_batch_id = Math.random().toString(36).substring(9);
 
@@ -445,7 +447,7 @@ const addPayout = async (req, res) => {
                                     ]
                                 };
 
-                                var sync_mode = 'true';
+                                var sync_mode = 'false';
 
                                 paypal.payout.create(create_payout_json, sync_mode, async function (error, payout) {
                                     if (error) {
@@ -466,7 +468,31 @@ const addPayout = async (req, res) => {
                                         const savedDriver = await foundDriverProfile.save()
                 
                                         if(savedDriver){
-                                            return res.status(201).json({ message: 'Success' })
+
+                                            var batchId = payout.batch_header.payout_batch_id
+                                            var detailsurl = `${base}/v1/payments/payouts/${batchId}/`
+                                            const accessToken = await generateAccessTokenCAD();
+
+                                            if(accessToken){
+                                                const payoutDetails = await axios.get(detailsurl, {
+                                                    headers: {
+                                                    "Authorization": `Bearer ${accessToken}`,
+                                                      "Content-Type": "application/json",
+                                                    },
+                                                });
+    
+                                                if(payoutDetails){
+                                                    console.log(payoutDetails.data)
+                                                    console.log(payoutDetails.data.batch_header)
+                                                    console.log(payoutDetails.data.batch_header.amount)
+                                                    console.log(payoutDetails.data.batch_header.fees)
+                                                    console.log(payoutDetails.data.batch_header.currency_conversion)
+                                                    console.log("Completed")
+                                                    return res.status(201).json({ message: 'Success' })
+                                                }
+                                            }
+
+                                            
                                         }
                                     }
                                 });
@@ -483,6 +509,7 @@ const addPayout = async (req, res) => {
 
         } catch(err){
 
+            console.log(err)
             return res.status(401).json({ message: 'Operation failed' })
         }
     })
@@ -989,7 +1016,7 @@ const addBraintreeSale = async (req, res) => {
 
             const newToken = crypto.randomBytes(3).toString('hex')
 
-            const addedPayment = await Payment.create({_sendingUserId: userId, _receivingUserId: userId, 
+            const addedPayment = await Payment.create({ _sendingUserId: userId, _receivingUserId: userId, 
                 amount: payamount, currency: currency, currencySymbol: currencySymbol, paymentToken: newToken})
 
             var doneId = false;
@@ -1245,7 +1272,7 @@ const capturePaypalOrder = async (req, res) => {
 
                                     const newToken = crypto.randomBytes(3).toString('hex')
 
-                                    const addedPayment = await Payment.create({_sendingUserId: userId, _receivingUserId: userId, paypalOrderId: orderId,
+                                    const addedPayment = await Payment.create( {_sendingUserId: userId, _receivingUserId: userId, paypalOrderId: orderId,
                                         amount: payamount, currency: currency, currencySymbol: currencySymbol, paymentToken: newToken,
                                         gross_amount: grossAmount, net_amount: netAmount, receiveable_amount: receivableAmount,
                                         payin: true})
@@ -1326,11 +1353,13 @@ const requestPayout = async (req, res) => {
             }
         )        
 
-        const { userId, currency, option } = req.body
+        var { userId, currency, option } = req.body
 
         if (!userId || !currency || !option){
             return res.status(400).json({ 'message': 'Missing required fields!' });
         } 
+
+        currency = currency.toLowerCase()
 
         try {
 
@@ -1368,11 +1397,11 @@ const requestPayout = async (req, res) => {
             }
 
             var checkAmount = false;
-            if(checkUser.credits?.length > 0){
+            if(foundUser.credits?.length > 0){
 
-                for(let i=0; i<checkUser.credits?.length; i++){
-                    if(checkUser.credits[i].currency.toLowerCase() === currency){
-                        if(checkUser.credits[i].amount >= paymentAmount){
+                for(let i=0; i<foundUser.credits?.length; i++){
+                    if(foundUser.credits[i].currency.toLowerCase() === currency){
+                        if(foundUser.credits[i].amount >= paymentAmount){
                             checkAmount = true
                             break
                         }

@@ -1,11 +1,11 @@
 import axios from "../../api/axios";
-const PAYOUT_URL = '/payments/request'
+const REQUEST_URL = '/payments/request'
 
 async function addPayoutRequest (userId, currency, option, accessToken) {
 
     try {
         
-        const response = await axios.post(PAYOUT_URL, 
+        const response = await axios.post(REQUEST_URL, 
             JSON.stringify({userId, currency, option}),
             {
                 headers: { "Authorization": `Bearer ${accessToken} ${userId}`, 

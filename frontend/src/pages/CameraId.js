@@ -716,7 +716,7 @@ const handleSelfieCamera = () => {
           { (croppedImageURL?.length >= 2 && croppedImageURL[coverIndex] !== undefined && mediaTypes[coverIndex] !== 'video') &&
             <div className="flex flex-col pt-2">
               <div className="flex flex-col justify-center pt-2">
-                <p className="text-md">Driver's License Back:</p>
+                <p className="text-md">License Plate:</p>
                 <img key={'licenseBack'} src={croppedImageURL[1] || DEFAULT_IMAGE_PATH} width="284" 
                 className="rounded-xl border" />
               </div>

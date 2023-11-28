@@ -752,7 +752,7 @@ const getUserData = async (req, res) => {
 
     try {
 
-        const foundUser = await User.findOne({_id: userId}).select("_id checkedMobile receivedIdApproval currency currencySymbol")
+        const foundUser = await User.findOne({_id: userId}).select("_id checkedMobile receivedIdApproval currency currencySymbol requestedPayout requestedPayoutCurrency credits")
         const foundHost = await HostProfile.findOne({_userId: userId}).select("_id verifiedHostCharging submittedChargingForReview deactivated currency currencySymbol")
 
         if(foundUser && foundHost){
@@ -1120,9 +1120,9 @@ const editUserReceivePayments = async (req, res) => {
 
 const uploadUserPhotos = async (req, res) => {
 
-    var { userId, frontObjectId, backObjectId } = req.body
+    var { userId, driverObjectId, plateObjectId } = req.body
 
-    if (!userId || !frontObjectId || !backObjectId ) {
+    if (!userId || !driverObjectId || !plateObjectId ) {
 
         return res.status(400).json({ message: 'User ID Required' })
     }
@@ -1138,30 +1138,30 @@ const uploadUserPhotos = async (req, res) => {
         
         } else {
 
-            foundUser.frontObjectId = frontObjectId
-            foundUser.backObjectId = backObjectId
+            foundUser.driverObjectId = driverObjectId
+            foundUser.plateObjectId = plateObjectId
 
             try{
 
-                var signParamsFront = {
+                var signParamsDriver = {
                     Bucket: wasabiPrivateBucketUSA, 
-                    Key: frontObjectId, 
+                    Key: driverObjectId, 
                     Expires: 7200
                 };
     
-                var signedURLFrontPhoto = s3.getSignedUrl('getObject', signParamsFront);
+                var signedURLFrontPhoto = s3.getSignedUrl('getObject', signParamsDriver);
     
 
-                var signParamsBack = {
+                var signParamsPlate = {
                     Bucket: wasabiPrivateBucketUSA, 
-                    Key: backObjectId, 
+                    Key: plateObjectId, 
                     Expires: 7200
                 };
     
-                var signedURLBackPhoto = s3.getSignedUrl('getObject', signParamsBack);
+                var signedURLBackPhoto = s3.getSignedUrl('getObject', signParamsPlate);
 
-                foundUser.frontMediaURL = signedURLFrontPhoto
-                foundUser.backMediaURL = signedURLBackPhoto
+                foundUser.driverMediaURL = signedURLFrontPhoto
+                foundUser.plateMediaURL = signedURLBackPhoto
                 foundUser.currentStage = 3
 
                 const userId = foundUser._id;

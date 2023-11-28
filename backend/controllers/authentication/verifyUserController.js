@@ -185,10 +185,10 @@ const rejectUserUploads = async (req, res) => {
 
         if(checkUser && actToken){
 
-            checkUser.frontObjectId = ""
-            checkUser.frontMediaURL = ""
-            checkUser.backObjectId = ""
-            checkUser.backMediaURL = ""
+            checkUser.driverObjectId = ""
+            checkUser.driverMediaURL = ""
+            checkUser.plateObjectId = ""
+            checkUser.plateMediaURL = ""
             checkUser.profilePicKey = ""
             checkUser.profilePicURL = ""
 
@@ -242,26 +242,26 @@ const getUserStatusPhotos = async (req, res) => {
             
             usersToCheck?.forEach(function(item, index){
 
-                if(item.frontObjectId && item.backObjectId){
+                if(item.driverObjectId && item.plateObjectId){
     
-                    var signParamsFront = {
+                    var signParamsDriver = {
                         Bucket: wasabiPrivateBucketUSA, 
-                        Key: item.frontObjectId,
+                        Key: item.driverObjectId,
                         Expires: 7200
                     };
         
-                    var frontUrl = s3.getSignedUrl('getObject', signParamsFront);
+                    var driverUrl = s3.getSignedUrl('getObject', signParamsDriver);
 
-                    var signParamsBack = {
+                    var signParamsPlate = {
                         Bucket: wasabiPrivateBucketUSA, 
-                        Key: item.backObjectId,
+                        Key: item.plateObjectId,
                         Expires: 7200
                     };
         
-                    var backUrl = s3.getSignedUrl('getObject', signParamsBack);
+                    var plateUrl = s3.getSignedUrl('getObject', signParamsPlate);
                 
-                    item.frontMediaURL = frontUrl
-                    item.backMediaURL = backUrl
+                    item.driverMediaURL = driverUrl
+                    item.plateMediaURL = plateUrl
     
                     item.update()
     

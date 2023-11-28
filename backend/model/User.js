@@ -179,16 +179,16 @@ const userSchema = new Schema({
         default: new Date("1/1/23"),
         index: true
     },
-    frontObjectId: { 
+    driverObjectId: { 
         type: String
     },
-    frontMediaURL: {
+    driverMediaURL: {
         type: String
     },
-    backObjectId: { 
+    plateObjectId: { 
         type: String
     },
-    backMediaURL: {
+    plateMediaURL: {
         type: String
     },
     braintreeId: {

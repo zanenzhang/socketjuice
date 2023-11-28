@@ -1,8 +1,6 @@
-import { useRef, useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
 import socketjuice_full_logo from "../../images/SocketJuice.png";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
-import axios from "../../api/axios";
 import useAuth from "../../hooks/useAuth";
 
 import addPaypalOrder from "../../helpers/Paypal/addPaypalOrder";

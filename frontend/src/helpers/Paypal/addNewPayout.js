@@ -1,11 +1,11 @@
 import axios from "../../api/axios";
-const PAYOUT_URL = '/payments/payout'
+const SUBMIT_URL = '/payments/newpayout'
 
-async function addPayoutSubmit (userId, accessToken) {
+async function addNewPayout (userId, accessToken) {
 
     try {
         
-        const response = await axios.post(PAYOUT_URL, 
+        const response = await axios.post(SUBMIT_URL, 
             JSON.stringify({userId}),
             {
                 headers: { "Authorization": `Bearer ${accessToken} ${userId}`, 
@@ -23,4 +23,4 @@ async function addPayoutSubmit (userId, accessToken) {
 
 }
 
-export default addPayoutSubmit
+export default addNewPayout
