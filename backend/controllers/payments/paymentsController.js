@@ -36,13 +36,13 @@ const s3 = new S3({
   })
 
 
-  const generateAccessToken = async () => {
+  const generateAccessTokenCAD = async () => {
     try {
-      if (!process.env.PAYPAL_CLIENT_KEY || !process.env.PAYPAL_SECRET_KEY) {
+      if (!process.env.PAYPAL_CLIENT_KEY_CAD || !process.env.PAYPAL_SECRET_KEY_CAD ) {
         throw new Error("MISSING_API_CREDENTIALS");
       }
       const auth = Buffer.from(
-        process.env.PAYPAL_CLIENT_KEY + ":" + process.env.PAYPAL_SECRET_KEY,
+        process.env.PAYPAL_CLIENT_KEY_CAD + ":" + process.env.PAYPAL_SECRET_KEY_CAD,
       ).toString("base64");
       const response = await axios.post(`${base}/v1/oauth2/token`, 
         "grant_type=client_credentials",
@@ -68,18 +68,35 @@ const s3 = new S3({
     );
 
     //include currency, amount here
+
+    var amount = "21.50"
+    var currency = "USD"
+
+    if(cart[0].currency && cart[0].currency === "USD"){
+
+        currency = cart[0].currency.toUpperCase()
+
+        if(cart[0].option === "A"){
+            amount = "21.50"
+        } else if (cart[0].option === "B"){
+            amount = "42.00"
+        } else if (cart[0].option === "C"){
+            amount = "52.50"
+        }
+    } 
   
-    const accessToken = await generateAccessToken();
+    const accessToken = await generateAccessTokenCAD();
     const url = `${base}/v2/checkout/orders`;
     const payload = {
       intent: "CAPTURE",
       purchase_units: [
         {
           amount: {
-            currency_code: "USD",
-            value: "100.00",
+            currency_code: currency,
+            value: amount,
           },
-          custom_id: userId
+          custom_id: userId,
+          reference_id: cart[0].option
         },
       ],
       application_context: {
@@ -110,7 +127,7 @@ const s3 = new S3({
 
     const captureOrder = async (orderID) => {
 
-        const accessToken = await generateAccessToken();
+        const accessToken = await generateAccessTokenCAD();
 
         const url = `${base}/v2/checkout/orders/${orderID}/capture`;
       
@@ -962,7 +979,9 @@ const addPaypalOrder = async (req, res) => {
             // use the cart information passed from the front-end to calculate the order amount detals
             const { cart } = req.body;
 
-            console.log(cart)
+            if(!cart || cart?.length < 1){
+                return res.status(500).json({ error: "Failed to create order." });
+            }
 
             const response = await createOrder(cart, foundUser._id);
             if(response){
@@ -1017,7 +1036,7 @@ const capturePaypalOrder = async (req, res) => {
                 if(response.status === 201){
 
                     var dataurl = `${base}/v2/checkout/orders/${orderID}/`
-                    const accessToken = await generateAccessToken();
+                    const accessToken = await generateAccessTokenCAD();
 
                     if(accessToken){
 
@@ -1032,16 +1051,128 @@ const capturePaypalOrder = async (req, res) => {
                             console.log("ORDER DATA HERE")
                             console.log(orderData.data) 
                             console.log(orderData.data.purchase_units) 
-                            console.log(orderData.data.purchase_units.payments) 
+                            console.log("PAYMENTS DATA HERE")
+                            console.log(orderData.data.purchase_units[0]?.payments) 
 
-                            if(orderData.data.status === "COMPLETED"){
+                            if(orderData.status === "COMPLETED" && orderData.data.purchase_units[0]?.payments.captures[0].status === "COMPLETED"){
+
+                                const orderId = orderData._id
+                                const userId = orderData.data.purchase_units[0]?.payments.captures[0].custom_id
+                                const option = orderData.data.purchase_units[0]?.payments.captures[0].reference_id
+                                const currency = orderData.data.purchase_units[0]?.payments.captures[0].amount.currency_code
+                                
+                                const grossAmount = orderData.data.purchase_units[0]?.payments.captures[0].seller_receivable_breakdown.gross_amount
+                                const netAmount = orderData.data.purchase_units[0]?.payments.captures[0].seller_receivable_breakdown.net_amount
+                                const receivableAmount = orderData.data.purchase_units[0]?.payments.captures[0].seller_receivable_breakdown.receivable_amount
 
 
+                                var currencySymbol = "$"
+
+                                if(currency.toLowerCase() === "cad"){
+                                    currencySymbol = "$"
+                                } else if(currency.toLowerCase() === "usd"){
+                                    currencySymbol = "$"
+                                } else if(currency.toLowerCase() === "eur"){
+                                    currencySymbol = "€"
+                                } else if(currency.toLowerCase() === "gbp"){
+                                    currencySymbol = "£"
+                                } else if(currency.toLowerCase() === "inr"){
+                                    currencySymbol = "₹"
+                                } else if(currency.toLowerCase() === "jpy"){
+                                    currencySymbol = "¥"
+                                } else if(currency.toLowerCase() === "cny"){
+                                    currencySymbol = "¥"
+                                } else if(currency.toLowerCase() === "aud"){
+                                    currencySymbol = "$"
+                                } else if(currency.toLowerCase() === "nzd"){
+                                    currencySymbol = "$"
+                                }
+
+                                var checkedAmount = false
+                                var payamount = 0
+
+                                if(currency.toLowerCase() === "usd"){
+                                    
+                                    if(option === "A"){
+
+                                        if(Number(netAmount?.value) > 20){
+
+                                            checkedAmount = true
+                                            payamount = 20
+                                        }
+
+                                    } else if(option === "B"){
+
+                                        if(Number(netAmount?.value) > 40){
+
+                                            checkedAmount = true
+                                            payamount = 40
+                                        }
+
+                                    } else if (option === "C"){
+
+                                        if(Number(netAmount?.value) > 50){
+
+                                            checkedAmount = true
+                                            payamount = 50
+                                        }
+                                    }
+
+                                } else if(currency.toLowerCase() === "cad"){
+                                    
+                                    if(option === "A"){
+
+                                        if(Number(netAmount?.value) > 20){
+
+                                            checkedAmount = true
+                                            payamount = 20
+                                        }
+
+                                    } else if(option === "B"){
+
+                                        if(Number(netAmount?.value) > 40){
+
+                                            checkedAmount = true
+                                            payamount = 40
+                                        }
+
+                                    } else if (option === "C"){
+
+                                        if(Number(netAmount?.value) > 50){
+
+                                            checkedAmount = true
+                                            payamount = 50
+                                        }
+                                    }
+                                } 
+
+                                if(checkedAmount){
+
+                                    const newToken = crypto.randomBytes(3).toString('hex')
+
+                                    const addedPayment = await Payment.create({_sendingUserId: userId, _receivingUserId: userId, paypalOrderId: orderId,
+                                        amount: payamount, currency: currency, currencySymbol: currencySymbol, paymentToken: newToken,
+                                        gross_amount: grossAmount, net_amount: netAmount, receiveable_amount: receivableAmount})
+
+                                    if(addedPayment){
+
+                                        const updatedProfile = await DriverProfile.updateOne({_userId: userId},{$push: {outgoingPayments: 
+                                                {_paymentId: addedPayment._id, amount: payamount, currency: currency, paypalOrderId: orderId }}})
+
+                                        if(updatedProfile){
+                                            return res.status(response.status).json({orderData: orderData?.data});
+                                        } else {
+                                            return res.status(401).json({"message": "Failed operation"})
+                                        }
+                                    } else {
+                                        return res.status(401).json({"message": "Failed operation"})
+                                    }
+                                }
+                            
+                            } else {
+                                
+                                return res.status(response.status).json({orderData: orderData?.data});
                             }
-                            //Add to user and payments here
-                            //Add payer_id to User, orderID to User
-
-                            return res.status(response.status).json({orderData: orderData?.data});
                         }
                     }
                 } else {

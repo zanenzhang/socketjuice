@@ -34,7 +34,31 @@ var paymentSchema = new Schema({
     },
     paypalOrderId: {
         type: String
-    }
+    },
+    gross_amount: {
+        currency_code: {
+            type: String
+        },
+        value: {
+            type: String
+        },
+    },
+    net_amount: {
+        currency_code: {
+            type: String
+        },
+        value: {
+            type: String
+        },
+    },
+    receivable_amount: {
+        currency_code: {
+            type: String
+        },
+        value: {
+            type: String
+        },
+    },
 });
 
 module.exports = mongoose.model('Payment', paymentSchema, 'payments');

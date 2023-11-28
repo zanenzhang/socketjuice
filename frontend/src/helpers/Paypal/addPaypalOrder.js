@@ -1,9 +1,18 @@
 import axios from "../../api/axios";
 const ORDER_URL = '/payments/order'
 
-async function addPaypalOrder (cart, userId, accessToken) {
+async function addPaypalOrder (currency, selectedOption, userId, accessToken) {
 
-    console.log(cart, userId, accessToken)
+    console.log(selectedOption)
+    
+    var cart = [
+        {
+            id: "PAYPAL_RELOAD",
+            quantity: "1",
+            currency: currency,
+            option: `${selectedOption}`
+        },
+    ]
 
     try {
         
