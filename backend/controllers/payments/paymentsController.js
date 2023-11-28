@@ -74,7 +74,17 @@ const s3 = new S3({
 
     if(cart[0].currency && cart[0].currency === "USD"){
 
-        currency = cart[0].currency.toUpperCase()
+        if(cart[0].option === "A"){
+            amount = "21.50"
+        } else if (cart[0].option === "B"){
+            amount = "42.00"
+        } else if (cart[0].option === "C"){
+            amount = "52.50"
+        }
+
+    } else if(cart[0].currency && cart[0].currency === "CAD"){
+
+        currency = "CAD"
 
         if(cart[0].option === "A"){
             amount = "21.50"
@@ -1048,18 +1058,13 @@ const capturePaypalOrder = async (req, res) => {
                         });
                 
                         if(orderData){
-                            console.log("ORDER DATA HERE")
-                            console.log(orderData.data) 
-                            console.log(orderData.data.purchase_units) 
-                            console.log("PAYMENTS DATA HERE")
-                            console.log(orderData.data.purchase_units[0]?.payments) 
 
-                            if(orderData.status === "COMPLETED" && orderData.data.purchase_units[0]?.payments.captures[0].status === "COMPLETED"){
+                            if(orderData.data.status === "COMPLETED" && orderData.data.purchase_units[0]?.payments.captures[0].status === "COMPLETED"){
 
-                                const orderId = orderData._id
-                                const userId = orderData.data.purchase_units[0]?.payments.captures[0].custom_id
-                                const option = orderData.data.purchase_units[0]?.payments.captures[0].reference_id
-                                const currency = orderData.data.purchase_units[0]?.payments.captures[0].amount.currency_code
+                                const orderId = orderData.data.id
+                                const userId = orderData.data.purchase_units[0]?.custom_id
+                                const option = orderData.data.purchase_units[0]?.reference_id
+                                const currency = orderData.data.purchase_units[0]?.payments.captures[0].amount.currency_code.toLowerCase()
                                 
                                 const grossAmount = orderData.data.purchase_units[0]?.payments.captures[0].seller_receivable_breakdown.gross_amount
                                 const netAmount = orderData.data.purchase_units[0]?.payments.captures[0].seller_receivable_breakdown.net_amount
@@ -1068,30 +1073,30 @@ const capturePaypalOrder = async (req, res) => {
 
                                 var currencySymbol = "$"
 
-                                if(currency.toLowerCase() === "cad"){
+                                if(currency === "cad"){
                                     currencySymbol = "$"
-                                } else if(currency.toLowerCase() === "usd"){
+                                } else if(currency === "usd"){
                                     currencySymbol = "$"
-                                } else if(currency.toLowerCase() === "eur"){
+                                } else if(currency === "eur"){
                                     currencySymbol = "€"
-                                } else if(currency.toLowerCase() === "gbp"){
+                                } else if(currency === "gbp"){
                                     currencySymbol = "£"
-                                } else if(currency.toLowerCase() === "inr"){
+                                } else if(currency === "inr"){
                                     currencySymbol = "₹"
-                                } else if(currency.toLowerCase() === "jpy"){
+                                } else if(currency === "jpy"){
                                     currencySymbol = "¥"
-                                } else if(currency.toLowerCase() === "cny"){
+                                } else if(currency === "cny"){
                                     currencySymbol = "¥"
-                                } else if(currency.toLowerCase() === "aud"){
+                                } else if(currency === "aud"){
                                     currencySymbol = "$"
-                                } else if(currency.toLowerCase() === "nzd"){
+                                } else if(currency === "nzd"){
                                     currencySymbol = "$"
                                 }
 
                                 var checkedAmount = false
                                 var payamount = 0
 
-                                if(currency.toLowerCase() === "usd"){
+                                if(currency === "usd"){
                                     
                                     if(option === "A"){
 
@@ -1118,7 +1123,7 @@ const capturePaypalOrder = async (req, res) => {
                                         }
                                     }
 
-                                } else if(currency.toLowerCase() === "cad"){
+                                } else if(currency === "cad"){
                                     
                                     if(option === "A"){
 
@@ -1159,7 +1164,25 @@ const capturePaypalOrder = async (req, res) => {
                                         const updatedProfile = await DriverProfile.updateOne({_userId: userId},{$push: {outgoingPayments: 
                                                 {_paymentId: addedPayment._id, amount: payamount, currency: currency, paypalOrderId: orderId }}})
 
-                                        if(updatedProfile){
+                                        var addedCredits = false
+                                        if(foundUser.credits?.length > 0){
+                                            for(let i=0; i<foundUser.credits?.length; i++){
+                                                if(foundUser.credits[i].currency === currency){
+                                                    foundUser.credits[i].amount = foundUser.credits[i].amount + payamount
+                                                    addedCredits = true
+                                                    break
+                                                }
+                                            }
+                                            if(!addedCredits){
+                                                foundUser.credits.push({currency: currency, currencySymbol: currencySymbol, amount: payamount})
+                                            }
+                                        } else {
+                                            foundUser.credits = [{currency: currency, currencySymbol: currencySymbol, amount: payamount}]
+                                        }
+
+                                        const updatedUser = await foundUser.save()
+
+                                        if(updatedProfile && updatedUser){
                                             return res.status(response.status).json({orderData: orderData?.data});
                                         } else {
                                             return res.status(401).json({"message": "Failed operation"})

@@ -16,7 +16,7 @@ const PaymentsPage = () => {
       const initialOptions = {
         "client-id": process.env.REACT_APP_PAYPAL_PUBLIC_ID,
         "enable-funding": "venmo",
-        "data-sdk-integration-source": "integrationbuilder_sc",
+        "currency": "CAD"
       };
     
       const [message, setMessage] = useState(""); 
@@ -27,7 +27,7 @@ const PaymentsPage = () => {
       const [selectedTotal, setSelectedTotal] = useState(21.50);
 
       const [selectedOption, setSelectedOption] = useState("A");
-      const [currency, setCurrency] = useState("USD")
+      const [currency, setCurrency] = useState("CAD")
       const [currencySymbol, setCurrencySymbol] = useState("$")
 
       const [waiting, setWaiting] = useState(false)
