@@ -427,6 +427,11 @@ useEffect( () => {
   const [driverRequestedCancel, setDriverRequestedCancel] = useState(false)
   const [hostRequestedCancel, setHostRequestedCancel] = useState(false)
   
+  const [selectedCurrency, setSelectedCurrency] = useState("")
+  const [selectedCurrencySymbol, setSelectedCurrencySymbol] = useState("")
+  const [selectedChargeRate, setSelectedChargeRate] = useState(0)
+  const [selectedTotalCharge, setSelectedTotalCharge] = useState(0)
+
   const [selectedLat, setSelectedLat] = useState("")
   const [selectedLng, setSelectedLng] = useState("")
 
@@ -473,6 +478,13 @@ useEffect( () => {
 
     setSelectedLat(hostevent.location[0])
     setSelectedLng(hostevent.location[1])
+
+    setSelectedCurrency(hostevent.currency)
+    setSelectedCurrencySymbol(hostevent.currencySymbol)
+
+    var charge = ((hostevent.end - hostevent.end) / 1000 / 1800) * hostevent.chargeRatePerHalfHour
+    setSelectedChargeRate(hostevent.chargeRate)
+    setSelectedTotalCharge(charge)
     
     setOpenDetailsModalHost(true)
   }
@@ -499,6 +511,13 @@ useEffect( () => {
 
     setSelectedLat(driverevent.location[0])
     setSelectedLng(driverevent.location[1])
+
+    setSelectedCurrency(driverevent.currency)
+    setSelectedCurrencySymbol(driverevent.currencySymbol)
+
+    var charge = ((driverevent.end - driverevent.end) / 1000 / 1800) * driverevent.chargeRatePerHalfHour
+    setSelectedChargeRate(driverevent.chargeRate)
+    setSelectedTotalCharge(charge)
     
     setOpenDetailsModalDriver(true)
 
@@ -1263,6 +1282,10 @@ const handleRegularHourChangeEnd = (event, day) => {
               hostresults.hostAppointments[i].address = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.address
               hostresults.hostAppointments[i].locationlat = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.location?.coordinates[1]
               hostresults.hostAppointments[i].locationlng = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.location?.coordinates[0]
+              hostresults.hostAppointments[i].chargeRatePerHalfHour = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.chargeRatePerHalfHour
+              hostresults.hostAppointments[i].chargeRatePerHalfHourFee = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.chargeRatePerHalfHourFee
+              hostresults.hostAppointments[i].currency = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.currency
+              hostresults.hostAppointments[i].currencySymbol = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.currencySymbol
             }
 
             if(hostuserdata[hostresults.hostAppointments[i]._hostUserId] !== undefined){
@@ -1298,6 +1321,10 @@ const handleRegularHourChangeEnd = (event, day) => {
               driverProfilePicURL: hostresults.hostAppointments[i].driverProfilePicURL,
               driverFirstName: hostresults.hostAppointments[i].driverFirstName,
               driverLastName: hostresults.hostAppointments[i].driverLastName,
+
+              chargeRatePerHalfHour:  hostresults.hostAppointments[i].chargeRatePerHalfHour,
+              currency:  hostresults.hostAppointments[i].currency,
+              currencySymbol:  hostresults.hostAppointments[i].currencySymbol,
 
               isDraggable: true
             }
@@ -1368,6 +1395,9 @@ const handleRegularHourChangeEnd = (event, day) => {
               driverresults.userAppointments[i].address = hostprofiledata[driverresults.userAppointments[i]._hostUserId]?.address
               driverresults.userAppointments[i].locationlat = hostprofiledata[driverresults.userAppointments[i]._hostUserId]?.location?.coordinates[1]
               driverresults.userAppointments[i].locationlng = hostprofiledata[driverresults.userAppointments[i]._hostUserId]?.location?.coordinates[0]
+              driverresults.userAppointments[i].chargeRatePerHalfHour = hostprofiledata[driverresults.userAppointments[i]._hostUserId]?.chargeRatePerHalfHour
+              driverresults.userAppointments[i].currency = hostprofiledata[driverresults.userAppointments[i]._hostUserId]?.currency
+              driverresults.userAppointments[i].currencySymbol = hostprofiledata[driverresults.userAppointments[i]._hostUserId]?.currencySymbol
             }
 
             if(hostuserdata[driverresults.userAppointments[i]._hostUserId]){
@@ -1403,6 +1433,10 @@ const handleRegularHourChangeEnd = (event, day) => {
               driverProfilePicURL: driverresults.userAppointments[i].driverProfilePicURL,
               driverFirstName: driverresults.userAppointments[i].driverFirstName,
               driverLastName: driverresults.userAppointments[i].driverLastName,
+
+              chargeRatePerHalfHour:  driverresults.userAppointments[i].chargeRatePerHalfHour,
+              currency:  driverresults.userAppointments[i].currency,
+              currencySymbol:  driverresults.userAppointments[i].currencySymbol,
 
               isDraggable: true
             }
@@ -2573,6 +2607,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                     <p>Start Time: {selectedEventStart}</p>
                     <p>End Time: {selectedEventEnd}</p>
                     <p>Status: {(driverRequestedCancel && selectedEventStatus !== "Cancelled") ? "You Asked To Cancel" : ( (hostRequestedCancel && selectedEventStatus !== "Cancelled" ) ? "You Asked to Cancel" : (selectedEventStatus === "Requested" ? "Booking Requested" : (selectedEventStatus === "Approved" ? "Approved" : (selectedEventStatus === "Cancelled" ? "Cancelled" : (selectedEventStatus === "Completed" ? "Completed" : "Waiting") )))) }</p>
+                    <p className='text-xl font-semibold'>Total: {selectedCurrency?.toUpperCase()}{selectedCurrencySymbol}{Number(selectedTotalCharge).toFixed(2)}</p>
 
                     {(selectedEventStatus !== "Requested") &&
                     
@@ -2682,6 +2717,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                     <p>Start Time: {selectedEventStart}</p>
                     <p>End Time: {selectedEventEnd}</p>
                     <p>Status: {(driverRequestedCancel && selectedEventStatus === "CancelSubmitted") ? "Driver Requested To Cancel" : ((selectedEventStatus === "Requested" ? "Booking Requested" : (selectedEventStatus === "Approved" ? "Approved" : (selectedEventStatus === "Cancelled" ? "Cancelled" : "Completed")))) }</p>
+                    <p className='text-xl font-semibold'>Total: {selectedCurrency?.toUpperCase()}{selectedCurrencySymbol}{Number(selectedTotalCharge).toFixed(2)}</p>
 
                     <button   
                       disabled={(selectedEventStatus === "Approved" || selectedEventStatus === "Cancelled" || hostRequestedCancel )} 
@@ -2691,7 +2727,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                         gap-x-2 flex flex-row justify-center items-center`}
                       onClick={(e)=>handleEventActionHost(e)}>
 
-                    {waitingSubmit && 
+                      {waitingSubmit && 
                       <div aria-label="Loading..." role="status">
                           <svg className="h-4 w-4 animate-spin" viewBox="3 3 18 18">
                           <path
@@ -2727,8 +2763,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                               className="fill-[#00D3E0]"
                               d="M16.9497 7.05015C14.2161 4.31648 9.78392 4.31648 7.05025 7.05015C6.65973 7.44067 6.02656 7.44067 5.63604 7.05015C5.24551 6.65962 5.24551 6.02646 5.63604 5.63593C9.15076 2.12121 14.8492 2.12121 18.364 5.63593C18.7545 6.02646 18.7545 6.65962 18.364 7.05015C17.9734 7.44067 17.3403 7.44067 16.9497 7.05015Z"></path>
                           </svg>
-                      </div>
-                      }
+                      </div>}
 
                         Cancel Booking Request
                     </button>}

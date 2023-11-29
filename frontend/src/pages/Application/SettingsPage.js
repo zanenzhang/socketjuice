@@ -56,7 +56,7 @@ export default function SettingsDropdown({}) {
     <div className="flex flex-grow">
     <Box
         sx={{
-            bgcolor: "#fff7fc",
+            bgcolor: "#8BEDF3",
             display: "flex",
             alignItems: 'center',
             height: '100%',

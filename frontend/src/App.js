@@ -11,10 +11,14 @@ import ProfilePage from './pages/Application/ProfilePage';
 import ResetPass from './pages/Application/ResetPass';
 import InputNewPassword from './pages/Application/InputNewPass';
 import VerifyPage from "./pages/Application/VerifyPage";
-import AdminPage from "./pages/Application/AdminPage";
+
+import AdminPageDriver from "./pages/Application/AdminPageDriver";
+import AdminPageHost from "./pages/Application/AdminPageHost";
+
 import SettingsPage from "./pages/Application/SettingsPage";
 import TestPage from "./pages/Application/TestPage";
 import PaymentsPage from './pages/Application/PaymentsPage';
+import PaypalPage from './pages/Application/PaypalPage';
 import PayoutsPage from './pages/Application/PayoutsPage';
 
 const ROLES = {
@@ -78,7 +82,11 @@ function App() {
 
         </Route>
 
-        <Route path="/admin" element={<AdminPage />}>
+        <Route path="/admindriver" element={<AdminPageDriver />}>
+
+        </Route>
+
+        <Route path="/adminhost" element={<AdminPageHost />}>
 
         </Route>
 
@@ -87,6 +95,10 @@ function App() {
         </Route>
 
         <Route path="/payouts" element={<PayoutsPage />}>
+
+        </Route>
+
+        <Route path="/paypal" element={<PaypalPage />}>
 
         </Route>
     

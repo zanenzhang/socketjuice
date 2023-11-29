@@ -119,10 +119,6 @@ const userSchema = new Schema({
         default: "English",
         maxLength: 50
     },
-    isHost: {
-        type: Boolean,
-        default: false,
-    },
     primaryGeoData: {
         type: Object,
     },

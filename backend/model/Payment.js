@@ -15,6 +15,10 @@ var paymentSchema = new Schema({
         type: Number,
         default: 0
     },
+    fee: {
+        type: Number,
+        default: 0
+    },
     currency: {
         type: String,
     },

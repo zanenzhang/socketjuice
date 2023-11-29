@@ -1179,6 +1179,10 @@ const uploadUserPhotos = async (req, res) => {
                 const emailNotifications = foundUser.emailNotifications;
                 const userTheme = foundUser.userTheme;
 
+                const requestedPayout = foundUser.requestedPayout;
+                const requestedPayoutCurrency = foundUser.requestedPayoutCurrency;
+                const requestedPayoutOption = foundUser.requestedPayoutOption;
+
                 const j1772ACChecked = foundDriver?.j1772ACChecked
                 const ccs1DCChecked = foundDriver?.ccs1DCChecked
                 const mennekesACChecked = foundDriver?.mennekesACChecked
@@ -1236,7 +1240,8 @@ const uploadUserPhotos = async (req, res) => {
                         res.status(200).json({ firstName, lastName, userId, roles, accessToken, phoneNumber, profilePicURL, 
                             currency, currencySymbol, lessMotion, pushNotifications, smsNotifications, emailNotifications, 
                             userTheme, FXRates, credits, j1772ACChecked, ccs1DCChecked, mennekesACChecked, ccs2DCChecked, 
-                            chademoDCChecked, gbtACChecked, gbtDCChecked, teslaChecked })
+                            chademoDCChecked, gbtACChecked, gbtDCChecked, teslaChecked, requestedPayout, 
+                            requestedPayoutCurrency, requestedPayoutOption})
                     }
                 }
 

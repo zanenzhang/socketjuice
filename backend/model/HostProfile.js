@@ -271,6 +271,10 @@ var hostProfileSchema = new Schema({
         type: Number,
         default: 3.00
     },
+    chargeRatePerHalfHourFee: {
+        type: Number,
+        default: 3.50
+    },
     numberOfChargersAtLocation:{
         type: Number,
         default: 1

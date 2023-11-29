@@ -42,6 +42,10 @@ const handleRefreshToken = async (req, res) => {
                     const smsNotifications = foundUser?.smsNotifications;
                     const emailNotifications = foundUser?.emailNotifications;
 
+                    const requestedPayout = foundUser.requestedPayout;
+                    const requestedPayoutCurrency = foundUser.requestedPayoutCurrency;
+                    const requestedPayoutOption = foundUser.requestedPayoutOption;
+
                     const j1772ACChecked = foundDriver?.j1772ACChecked
                     const ccs1DCChecked = foundDriver?.ccs1DCChecked
                     const mennekesACChecked = foundDriver?.mennekesACChecked
@@ -85,7 +89,7 @@ const handleRefreshToken = async (req, res) => {
                             res.status(200).json({ firstName, lastName, userId, roles, accessToken, profilePicURL, phoneNumber,
                                 currency, currencySymbol, pushNotifications, smsNotifications, emailNotifications, credits,
                                 j1772ACChecked, ccs1DCChecked, mennekesACChecked, ccs2DCChecked, chademoDCChecked, gbtACChecked, 
-                                gbtDCChecked, teslaChecked })
+                                gbtDCChecked, teslaChecked, requestedPayout, requestedPayoutCurrency, requestedPayoutOption })
 
                         } else {
                             res.status(401)
