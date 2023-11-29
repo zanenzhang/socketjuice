@@ -5,8 +5,8 @@ const verifyJWT = require('../middleware/verifyJWT')
 
 router.use(verifyJWT)
 
-router.get('/host', paymentsController.getHostIncomingPayments);
-router.get('/driver', paymentsController.getDriverOutgoingPayments);
+router.get('/incoming', paymentsController.getHostIncomingPayments);
+router.get('/outgoing', paymentsController.getDriverOutgoingPayments);
 
 router.post('/newpayout', paymentsController.addPayout);
 router.post('/request', paymentsController.requestPayout);

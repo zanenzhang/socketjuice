@@ -36,8 +36,9 @@ var messageSchema = new Schema({
         type: String
     },
     createdAt: { 
-        type: Date
-    }
+        type: Date, 
+        default: Date.now
+    },
 });
 
 module.exports = mongoose.model('Message', messageSchema, 'messages');

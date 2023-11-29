@@ -1,0 +1,24 @@
+import axios from "../../api/axios";
+
+async function getOutgoingPayments (userId, pageNumber, dateStart, dateEnd, accessToken, authUserId) {
+
+    try {
+        const response = await axios.get('/payments/outgoing/', 
+        {
+            headers: { "Authorization": `Bearer ${accessToken} ${authUserId}`},
+            params: {
+                userId, pageNumber, dateStart, dateEnd
+              }
+        });
+        
+        if(response){
+            return response.data
+        }
+
+    } catch (err) {
+        console.error(err);
+    }
+
+}
+
+export default getOutgoingPayments

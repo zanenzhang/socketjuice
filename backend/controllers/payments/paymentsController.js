@@ -162,23 +162,68 @@ const s3 = new S3({
       };
 
 const getHostIncomingPayments = async (req, res) => {
+
+    const cookies = req.cookies;
+
+    if (!cookies?.socketjuicejwt) return res.sendStatus(401);
+    const refreshToken = cookies.socketjuicejwt;
+
+    User.findOne({ refreshToken }, async function(err, foundUser){
+
+        if (err || !foundUser) return res.sendStatus(403); 
     
-    var { userId } = req.query
+        jwt.verify(
+            refreshToken,
+            process.env.REFRESH_TOKEN_SECRET,
+            (err, decoded) => {
 
-    if (!userId ) {
-        return res.status(400).json({ message: 'Missing required information' })
-    }
+                if (err || !foundUser._id.toString() === ((decoded.userId)) ) return res.sendStatus(403);
+            }
+        )   
 
-    const foundHostProfile = await HostProfile.findOne({_userId: userId})
+        var { userId, pageNumber, dateStart, dateEnd } = req.query
 
-    if(foundHostProfile){
+        if (!userId ) {
+            return res.status(400).json({ message: 'Missing required information' })
+        }
 
-        return(res.status(200).json({payments: foundHostProfile.incomingPayments}))
+        console.log(userId, pageNumber, dateStart, dateEnd)
 
-    } else {
+        if(!pageNumber){
+            pageNumber = 0
+        }
 
-        return res.status(401).json({ message: 'Operation failed' })
-    }
+        if(dateStart && dateEnd){
+            dateStart = new Date(dateStart)
+            dateEnd = new Date(dateEnd)
+        }
+
+        const foundHostProfile = await HostProfile.findOne({_userId: userId})
+
+        if(foundHostProfile){
+
+            var searchobj = {_id: {$in: foundHostProfile?.incomingPayments.map(e =>e._paymentId)}}
+
+            if(dateStart && dateEnd){
+                searchobj["createdAt"] = {"gte": dateStart, "lte": dateEnd}
+            }
+
+            const foundPayments = await Payment.find(searchobj).skip(pageNumber).limit(100)
+
+            if(foundPayments){
+
+                return(res.status(200).json({foundPayments: foundPayments, stop: 0}))
+
+            } else {
+
+                return res.status(201).json({ stop: 1})    
+            }
+
+        } else {
+
+            return res.status(201).json({ stop: 1})    
+        }
+    })
 }   
 
 
@@ -240,22 +285,67 @@ const getPaypalTransactions = async (req, res) => {
 
 const getDriverOutgoingPayments = async (req, res) => {
     
-    var { userId } = req.query
+    const cookies = req.cookies;
 
-    if (!userId ) {
-        return res.status(400).json({ message: 'Missing required information' })
-    }
+    if (!cookies?.socketjuicejwt) return res.sendStatus(401);
+    const refreshToken = cookies.socketjuicejwt;
 
-    const foundDriverProfile = await DriverProfile.findOne({_userId: userId})
+    User.findOne({ refreshToken }, async function(err, foundUser){
 
-    if(foundDriverProfile){
+        if (err || !foundUser) return res.sendStatus(403); 
+    
+        jwt.verify(
+            refreshToken,
+            process.env.REFRESH_TOKEN_SECRET,
+            (err, decoded) => {
 
-        return(res.status(200).json({payments: foundDriverProfile.outgoingPayments}))
+                if (err || !foundUser._id.toString() === ((decoded.userId)) ) return res.sendStatus(403);
+            }
+        )   
 
-    } else {
+        var { userId, pageNumber, dateStart, dateEnd } = req.query
+        
+        console.log(userId, pageNumber, dateStart, dateEnd)
 
-        return res.status(401).json({ message: 'Operation failed' })
-    }
+        if (!userId ) {
+            return res.status(400).json({ message: 'Missing required information' })
+        }
+
+        if(!pageNumber){
+            pageNumber = 0
+        }
+
+        if(dateStart && dateEnd){
+            dateStart = new Date(dateStart)
+            dateEnd = new Date(dateEnd)
+        }
+
+        const foundDriverProfile = await DriverProfile.findOne({_userId: userId})
+
+        if(foundDriverProfile){
+
+            var searchobj = {_id: {$in: foundDriverProfile?.outgoingPayments.map(e =>e._paymentId)}}
+
+            if(dateStart && dateEnd){
+                searchobj["createdAt"] = {"gte": dateStart, "lte": dateEnd}
+            }
+
+            const foundPayments = await Payment.find(searchobj).skip(pageNumber).limit(100)
+
+            if(foundPayments){
+
+                return(res.status(200).json({foundPayments: foundPayments, stop: 0}))
+
+            } else {
+
+                return res.status(201).json({ stop: 1})    
+            }
+
+        } else {
+
+            return res.status(201).json({ stop: 1})    
+        }
+    })
 }   
 
 

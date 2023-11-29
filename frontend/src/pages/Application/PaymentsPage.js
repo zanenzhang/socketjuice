@@ -1,9 +1,14 @@
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useRef} from "react";
 import Tabs from "@material-ui/core/Tabs";
 import MainHeader from "../../components/mainHeader/mainHeader";
 import useAuth from "../../hooks/useAuth";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import socketjuice_full_logo from "../../images/SocketJuice.png";
+
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import dayjs from 'dayjs';
 
 import SwipeableDrawer from '@mui/material/SwipeableDrawer';
 import TabContext from "@material-ui/lab/TabContext";
@@ -13,12 +18,22 @@ import Box from "@material-ui/core/Box";
 import addPayoutRequest from "../../helpers/Paypal/addPayoutRequest";
 import addPaypalOrder from "../../helpers/Paypal/addPaypalOrder";
 import capturePaypalOrder from "../../helpers/Paypal/capturePaypalOrder";
-// get user, add payment/user flag, get incoming payments, get outgoing payments
+import getIncomingPayments from "../../helpers/Payments/getIncomingPayments";
+import getOutgoingPayments from "../../helpers/Payments/getOutgoingPayments";
+import getUserData from "../../helpers/Userdata/getUserData";
+// add payment/user flag
 
 
 export default function PaymentsPage() {
 
     const { auth, setAuth } = useAuth();
+
+    const incomingRef = useRef(null);
+    const outgoingRef = useRef(null);
+    const [changed, setChanged] = useState(false)
+    const [userCurrencies, setUserCurrencies] = useState([])
+    const [accountBalance, setAccountBalance] = useState("")
+    const [escrowBalance, setEscrowBalance] = useState("")
 
     const [payoutCurrency, setPayoutCurrency] = useState("USD")
     const [paymentCurrency, setPaymentCurrency] = useState("USD")
@@ -35,7 +50,10 @@ export default function PaymentsPage() {
       const [submittedPayout, setSubmittedPayout] = useState(false)
       const [payoutSuccess, setPayoutSuccess] = useState(false)
 
-      const [changed, setChanged] = useState(false)
+      const [tabValue, setTabValue] = useState("0");
+    const [drawerState, setDrawerState] = useState({
+        left: true
+    })
 
       const initialOptions = {
         "client-id": process.env.REACT_APP_PAYPAL_PUBLIC_ID,
@@ -51,9 +69,73 @@ export default function PaymentsPage() {
       const [waitingPayment, setWaitingPayment] = useState(false)
       const [paymentSubmitted, setPaymentSubmitted] = useState(false)
       const [paymentSuccess, setPaymentSuccess] = useState(false)
-      
 
-      const handleSelectPaymentAmount = (e, value) => {
+      const [incomingPayments, setIncomingPayments] = useState([])
+      const [waitingIncoming, setWaitingIncoming] = useState(false)
+      const [scrollStopIncoming, setScrollStopIncoming] = useState(false)
+      const [pageNumberIncoming, setPageNumberIncoming] = useState(0)
+      const [pickerDateIncomingStart, setPickerDateIncomingStart] = useState(new Date())
+      const [pickerDateIncomingEnd, setPickerDateIncomingEnd] = useState(new Date())
+
+      const [outgoingPayments, setOutgoingPayments] = useState([])
+      const [waitingOutgoing, setWaitingOutgoing] = useState(false)
+      const [scrollStopOutgoing, setScrollStopOutgoing] = useState(false)
+      const [pageNumberOutgoing, setPageNumberOutgoing] = useState(0)
+      const [pickerDateOutgoingStart, setPickerDateOutgoingStart] = useState(new Date())
+      const [pickerDateOutgoingEnd, setPickerDateOutgoingEnd] = useState(new Date())
+
+
+    const scrollCallbackIncoming = (entries) => {
+    
+        if (entries[0].isIntersecting) {
+            if(!waitingIncoming && !scrollStopIncoming){
+                setPageNumberIncoming((prev)=> prev+100) 
+            } 
+        }
+    };
+      
+    useEffect(() => {
+        
+        if(incomingRef.current){
+            const { current } = incomingRef;
+            const observer = new IntersectionObserver(scrollCallbackIncoming, {
+                root: null,
+                threshold: 0.1,
+            });
+            observer.observe(current);
+            return () => {
+                observer.disconnect(current); 
+            }
+        } 
+    }, [incomingRef.current]); 
+
+
+    const scrollCallbackOutgoing = (entries) => {
+        
+        if (entries[0].isIntersecting) {
+            if(!waitingOutgoing && !scrollStopOutgoing){
+                setPageNumberOutgoing((prev)=> prev+100) 
+            } 
+        }
+    };
+  
+    useEffect(() => {
+    
+        if(outgoingRef.current){
+            const { current } = outgoingRef;
+            const observer = new IntersectionObserver(scrollCallbackOutgoing, {
+                root: null,
+                threshold: 0.1,
+            });
+            observer.observe(current);
+            return () => {
+                observer.disconnect(current); 
+            }
+        } 
+    }, [outgoingRef.current]); 
+
+
+    const handleSelectPaymentAmount = (e, value) => {
 
         e.preventDefault()
 
@@ -78,21 +160,85 @@ export default function PaymentsPage() {
             setSelectedServiceFee(2.50)
             setSelectedPaymentTotal(52.50)
         }
-        
-      }
+    }
       
       useEffect( ()=> {
 
-        //set credits, auth currency options,
-        setPaymentCurrency("USD")
+        async function getIncoming(){
 
-      }, [auth])
+            if(waitingIncoming){
+                return
+            }
 
-      useEffect( ()=> {
+            setWaitingIncoming(true)
 
-        //get user data, set auth 
+            const incoming = await getIncomingPayments(auth.userId, pageNumberIncoming, pickerDateOutgoingStart, pickerDateOutgoingEnd, auth.accessToken)
 
-      }, [changed])
+            if(incoming && !incoming.stop){
+                console.log(incoming)
+                setIncomingPayments(incoming?.paymentsFound)
+                setWaitingIncoming(false)
+            } else {
+                setScrollStopIncoming(true)
+                setWaitingIncoming(false)
+            }
+        }
+
+        async function getOutgoing(){
+
+            if(waitingOutgoing){
+                return
+            }
+
+            setWaitingOutgoing(true)
+
+            const outgoing = await getOutgoingPayments(auth.userId, pageNumberOutgoing, pickerDateOutgoingStart, pickerDateOutgoingEnd, auth.accessToken)
+
+            if(outgoing && !outgoing.stop){
+                console.log(outgoing)
+                setOutgoingPayments(outgoing?.paymentsFound)
+                setWaitingOutgoing(false)
+            } else {
+                setScrollStopOutgoing(true)
+                setWaitingOutgoing(false)
+            }
+        }
+
+        async function updateUserData(){
+
+            const userdata = getUserData(auth.accessToken, auth.userId)
+
+            if(userdata){
+                console.log(userdata)
+                //Update auth here
+            }
+        }
+
+        if(auth && tabValue){
+
+            console.log(tabValue)
+
+            var currencies = []
+            if(auth.credits?.length){
+                for(let i=0; i<auth.credits?.length; i++){
+                    currencies.push({currency: auth.credits[i].currency, currencySymbol: auth.credits[i].currencySymbol})
+                }
+                setUserCurrencies(currencies)
+            }
+    
+            if(auth.userId){
+                updateUserData()
+            }
+            
+            if(tabValue === "0"){
+                getIncoming()
+            } else if(tabValue === "1"){
+                getOutgoing()
+            }
+        }
+
+      }, [auth, tabValue, changed])
+
 
 
       const handleSelectPayoutAmount = (e, value) => {
@@ -135,13 +281,9 @@ export default function PaymentsPage() {
 
         if(requested){
             console.log(requested)
+            setChanged(!changed)
         }
     }
-
-    const [value, setValue] = useState("0");
-    const [drawerState, setDrawerState] = useState({
-      left: true
-    })
 
 
   const handleDrawerOpen = (event) => {
@@ -164,7 +306,7 @@ const toggleDrawer = (anchor, open) => (event) => {
   };
 
 const handleChange = (event, newValue) => {
-  setValue(newValue);
+  setTabValue(newValue);
 };
 
 
@@ -184,7 +326,7 @@ const list = (anchor) => (
         <Tabs
             orientation="vertical"
             variant="scrollable"
-            value={value}
+            value={tabValue}
             onChange={handleChange}
             aria-label="Payments Tabs"
             sx={{ 
@@ -195,11 +337,11 @@ const list = (anchor) => (
             TabIndicatorProps={{style: {background:'#8BEDF3'}}}
         >
             <button
-                className={`${value === '0' ? 'bg-[#8BEDF3] border-2 border-black' : 
+                className={`${tabValue === '0' ? 'bg-[#8BEDF3] border-2 border-black' : 
                 'bg-[#c1f2f5] border-2 border-gray-300'} 
                 px-4 py-6 text-base font-semibold font-['system-ui'] rounded-r-lg
                     flex flex-row items-center`}
-                value="0" onClick={(event) => {handleChange(event, "0")}}> 
+                onClick={(event) => {handleChange(event, "0")}}> 
                 <div className="pr-2 pl-4">
 
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" 
@@ -214,11 +356,11 @@ const list = (anchor) => (
                 </div>
             </button>
             <button
-                className={`${value === '1' ? 'bg-[#8BEDF3] border-2 border-black' : 
+                className={`${tabValue === '1' ? 'bg-[#8BEDF3] border-2 border-black' : 
                 'bg-[#c1f2f5] border-2 border-gray-300'} 
                 px-4 py-6 text-base font-semibold font-['system-ui'] rounded-r-lg
                 flex flex-row items-center`}
-                value="1" onClick={(event) => {handleChange(event, "1")}}> 
+                onClick={(event) => {handleChange(event, "1")}}> 
                 <div className="pr-2 pl-4">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
                     strokeWidth="1.5" stroke="black" 
@@ -232,11 +374,11 @@ const list = (anchor) => (
                 </div>
             </button>
             <button
-                className={`${value === '2' ? 'bg-[#8BEDF3] border-2 border-black' : 
+                className={`${tabValue === '2' ? 'bg-[#8BEDF3] border-2 border-black' : 
                 'bg-[#c1f2f5] border-2 border-gray-300'} 
                 px-4 py-6 text-base font-semibold font-['system-ui'] rounded-r-lg
                 flex flex-row items-center`}
-                value="2" onClick={(event) => {handleChange(event, "2")}}> 
+                onClick={(event) => {handleChange(event, "2")}}> 
                 <div className="pr-2 pl-4">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" 
                     viewBox="0 0 24 24" strokeWidth="1.5" stroke="black" className="w-8 h-8">
@@ -249,11 +391,11 @@ const list = (anchor) => (
                 </div>
             </button>
             <button
-                className={`${value === '3' ? 'bg-[#8BEDF3] border-2 border-black' : 
+                className={`${tabValue === '3' ? 'bg-[#8BEDF3] border-2 border-black' : 
                 'bg-[#c1f2f5] border-2 border-gray-300'} 
                 px-4 py-6 text-base font-semibold font-['system-ui'] rounded-r-lg
                 flex flex-row items-center`}
-                value="3" onClick={(event) => {handleChange(event, "3")}}> 
+                onClick={(event) => {handleChange(event, "3")}}> 
                 <div className="pr-2 pl-4">
                 <svg
                     fill="black"
@@ -321,7 +463,7 @@ const list = (anchor) => (
                     height: "100vh"
                     }}}>
 
-                    <TabContext value={value}>  
+                    <TabContext value={tabValue}>  
 
                         <Box style={{display: "flex",
                             flexDirection: "column",
@@ -330,13 +472,172 @@ const list = (anchor) => (
 
                         <TabPanel value="0" style={{width: '100%'}}>
                             
+                            <div className="flex flex-col items-center gap-y-1 sm:gap-y-2" >
 
+                                <div className="flex flex-row justify-center items-center gap-x-2">
+
+                                    <label className="flex justify-center items-center pr-2 font-semibold">Currency:</label>
+
+                                    <select onChange={(event)=>setPaymentCurrency(event.target.value)}
+                                    value={paymentCurrency}
+                                    className={`pl-6 w-30 md:w-40 h-9 border border-gray-primary justify-center items-center`}>
+
+                                        {userCurrencies?.length>0 && userCurrencies.map( (e) =>
+                                        
+                                            <option value={`${e.currency.toLowerCase()}`}>{e.currencySymbol}{e.currency.toUpperCase()}</option>
+                                        )}
+
+                                    </select> 
+
+                                    </div>
+
+                                <p className="text-3xl py-4">Account Balance </p>
+
+                                <p>In Wallet: {paymentCurrencySymbol}{paymentCurrency}{accountBalance}</p>
+                                <p>On Hold: {paymentCurrencySymbol}{paymentCurrency}{escrowBalance}</p>
+
+                                <p className="text-3xl pt-6">Outgoing Payments</p>
+
+
+                            <div className="flex flex-row py-4 gap-x-2">
+
+                                <div className="flex flex-col items-center justify-center">
+                                    <p className='text-base text-center font-semibold pt-4 pb-2'> Start Date: </p>
+
+                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+
+                                        <DatePicker
+                                        sx={{
+                                            '& .MuiOutlinedInput-root': {
+                                              '& fieldset': {
+                                                borderColor: '#8BEDF3',
+                                              },
+                                              '&:hover fieldset': {
+                                                borderColor: '#8BEDF3',
+                                              },
+                                              '&.Mui-focused fieldset': {
+                                                borderColor: '#8BEDF3',
+                                              },
+                                            },
+                                          }}
+                                        value={dayjs(pickerDateIncomingStart)}
+                                        onChange={(date) => setPickerDateIncomingStart(dayjs(new Date(date)))}
+                                        />
+
+                                    </LocalizationProvider>
+                                </div>
+
+                                <div className="flex flex-col items-center justify-center">
+                                <p className='text-base text-center font-semibold pt-4 pb-2'> End Date: </p>
+                                    <LocalizationProvider sx={{borderColor: "#8BEDF3", outlineColor: "#8BEDF3"}} dateAdapter={AdapterDayjs}>
+
+                                        <DatePicker
+                                        sx={{
+                                            '& .MuiOutlinedInput-root': {
+                                              '& fieldset': {
+                                                borderColor: '#8BEDF3',
+                                              },
+                                              '&:hover fieldset': {
+                                                borderColor: '#8BEDF3',
+                                              },
+                                              '&.Mui-focused fieldset': {
+                                                borderColor: '#8BEDF3',
+                                              },
+                                            },
+                                          }}
+                                        value={dayjs(pickerDateIncomingEnd)}
+                                        onChange={(date) => setPickerDateIncomingEnd(dayjs(new Date(date)))}
+                                        />
+
+                                    </LocalizationProvider>
+                                </div>
+
+                            </div>
+
+                            {incomingPayments?.length > 0 && 
+
+                                incomingPayments?.map( (payment) =>
+                                    
+                                    <div key={payment._id} className="flex flex-row">
+
+                                        <p>{payment.currencySymbol}{payment.currency}{payment.amount}</p>
+
+                                    </div>
+                                )
+                            }   
+                            
+                            {incomingPayments?.length > 0 && 
+
+                                <div className='flex flex-row py-2 sm:py-3 md:py-4 z-10 my-1'>
+                                        <span key={"lastIncoming"} ref={incomingRef} className="my-2 py-2" />
+                                </div>}
+
+                            </div>
 
                         </TabPanel>
 
                         <TabPanel value="1" style={{width: '100%'}}>
                             
+                            <div className="flex flex-col items-center gap-y-1 sm:gap-y-2" >
 
+                                <div className="flex flex-row justify-center items-center gap-x-2">
+
+                                    <label className="flex justify-center items-center pr-2 font-semibold">Currency:</label>
+
+                                    <select onChange={(event)=>setPayoutCurrency(event.target.value)}
+                                    value={payoutCurrency}
+                                    className={`pl-6 w-30 md:w-40 h-9 border border-gray-primary justify-center items-center`}>
+
+                                    {userCurrencies?.length>0 && userCurrencies.map( (e) =>
+                                        
+                                        <option value={`${e.currency.toLowerCase()}`}>{e.currencySymbol}{e.currency}</option>
+                                    )}
+
+                                    </select> 
+
+                                </div>
+
+                                <div className="flex flex-row py-4">
+
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+
+                                    <DatePicker
+                                    value={dayjs(pickerDateOutgoingStart)}
+                                    onChange={(date) => setPickerDateOutgoingStart(dayjs(new Date(date)))}
+                                    />
+
+                                </LocalizationProvider>
+
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+
+                                    <DatePicker
+                                    value={dayjs(pickerDateOutgoingEnd)}
+                                    onChange={(date) => setPickerDateOutgoingEnd(dayjs(new Date(date)))}
+                                    />
+
+                                </LocalizationProvider>
+
+                                </div>
+
+                                {outgoingPayments?.length > 0 && 
+
+                                    outgoingPayments?.map( (payment) =>
+                                        
+                                        <div key={payment._id} className="flex flex-row">
+
+                                            <p>{payment.currencySymbol}{payment.currency}{payment.amount}</p>
+
+                                        </div>
+                                    )
+                                }   
+
+                                {outgoingPayments?.length > 0 && 
+
+                                    <div className='flex flex-row py-2 sm:py-3 md:py-4 z-10 my-1'>
+                                            <span key={"lastOutgoing"} ref={outgoingRef} className="my-2 py-2" />
+                                    </div>}
+
+                                </div>
 
                         </TabPanel>
 
@@ -484,92 +785,93 @@ const list = (anchor) => (
                                 <PayPalScriptProvider options={initialOptions}>
 
                                 <PayPalButtons
-                                forceReRender={[paymentCurrency, selectedPaymentOption, paymentSuccess]}
-                                disabled={paymentSuccess}
-                                style={{
-                                    shape: "rect",
-                                    //color:'blue' change the default color of the buttons
-                                    layout: "vertical", //default value. Can be changed to horizontal
-                                }}
-                                createOrder={async (data, actions) => {
-                                    
-                                    setWaitingPayment(true);
+                                    forceReRender={[paymentCurrency, selectedPaymentOption, paymentSuccess]}
+                                    disabled={paymentSuccess}
+                                    style={{
+                                        shape: "rect",
+                                        //color:'blue' change the default color of the buttons
+                                        layout: "vertical", //default value. Can be changed to horizontal
+                                    }}
+                                    createOrder={async (data, actions) => {
+                                        
+                                        setWaitingPayment(true);
 
-                                    const orderData = await addPaypalOrder(paymentCurrency, selectedPaymentOption, auth?.userId, auth?.accessToken)
+                                        const orderData = await addPaypalOrder(paymentCurrency, selectedPaymentOption, auth?.userId, auth?.accessToken)
 
-                                    if(orderData){
+                                        if(orderData){
 
-                                        try{
+                                            try{
 
-                                            var orderDataId = orderData.id
+                                                var orderDataId = orderData.id
 
-                                            if (orderDataId) {
-                                                
-                                                setWaitingPayment(false)
-                                                setPaymentSubmitted(true)
-                                                return orderDataId;
+                                                if (orderDataId) {
+                                                    
+                                                    setWaitingPayment(false)
+                                                    setPaymentSubmitted(true)
+                                                    return orderDataId;
 
-                                            } else {
-                                                const errorDetail = orderData?.details?.[0];
-                                                const errorMessage = errorDetail
-                                                ? `${errorDetail.issue} ${errorDetail.description} (${orderData.debug_id})`
-                                                : JSON.stringify(orderData);
+                                                } else {
+                                                    const errorDetail = orderData?.details?.[0];
+                                                    const errorMessage = errorDetail
+                                                    ? `${errorDetail.issue} ${errorDetail.description} (${orderData.debug_id})`
+                                                    : JSON.stringify(orderData);
 
-                                                throw new Error(errorMessage);
+                                                    throw new Error(errorMessage);
+                                                }
+
+                                            } catch (error) {
+                                                console.error(error);
+                                                setPaymentMessage(`Could not initiate PayPal Checkout...${error}`);
                                             }
+                                        } else {
+                                            setWaitingPayment(false)
+                                            setPaymentSuccess(true)
+                                            setPaymentMessage(`Could not initiate PayPal Checkout...Sorry, please refresh and try again`);
+                                            return 
+                                        }
+                                    }}
+                                    onApprove={async (data, actions) => {
+                                        
+                                        try {
+                                            
+                                            const captureData = await capturePaypalOrder(data.orderID, auth.userId, auth.accessToken)
+
+                                            if(captureData){
+
+                                                console.log(captureData)
+
+                                                const errorDetail = captureData?.details?.[0];
+
+                                                // Three cases to handle:
+                                                //   (1) Recoverable INSTRUMENT_DECLINED -> call actions.restart()
+                                                //   (2) Other non-recoverable errors -> Show a failure message
+                                                //   (3) Successful transaction -> Show confirmation or thank you message
+
+                                                if (errorDetail?.issue === "INSTRUMENT_DECLINED") {
+                                                    // (1) Recoverable INSTRUMENT_DECLINED -> call actions.restart()
+                                                    // recoverable state, per https://developer.paypal.com/docs/checkout/standard/customize/handle-funding-failures/
+                                                    return actions.restart();
+                                                } else if (errorDetail) {
+                                                    // (2) Other non-recoverable errors -> Show a failure message
+                                                    throw new Error(
+                                                    `${errorDetail.description} (${captureData.debug_id})`,
+                                                    );
+                                                } else if (captureData?.status === 201) {
+                                                    // (3) Successful transaction -> Show confirmation or thank you message
+                                                    // Or go to another URL:  actions.redirect('thank_you.html');
+                                                    setChanged(!changed)
+                                                    setPaymentSuccess(true)
+                                                    alert(`Success, your payment of ${captureData?.data?.orderData?.currency_code} ${captureData?.data?.orderData?.value} has been received!`)
+                                                }
+                                            }   
 
                                         } catch (error) {
                                             console.error(error);
-                                            setPaymentMessage(`Could not initiate PayPal Checkout...${error}`);
+                                            setPaymentMessage(
+                                                `Sorry, your transaction could not be processed...${error}`,
+                                            );
                                         }
-                                    } else {
-                                        setWaitingPayment(false)
-                                        setPaymentSuccess(true)
-                                        setPaymentMessage(`Could not initiate PayPal Checkout...Sorry, please refresh and try again`);
-                                        return 
-                                    }
-                                }}
-                                onApprove={async (data, actions) => {
-                                    
-                                    try {
-                                        
-                                        const captureData = await capturePaypalOrder(data.orderID, auth.userId, auth.accessToken)
-
-                                        if(captureData){
-
-                                            console.log(captureData)
-
-                                            const errorDetail = captureData?.details?.[0];
-
-                                            // Three cases to handle:
-                                            //   (1) Recoverable INSTRUMENT_DECLINED -> call actions.restart()
-                                            //   (2) Other non-recoverable errors -> Show a failure message
-                                            //   (3) Successful transaction -> Show confirmation or thank you message
-
-                                            if (errorDetail?.issue === "INSTRUMENT_DECLINED") {
-                                                // (1) Recoverable INSTRUMENT_DECLINED -> call actions.restart()
-                                                // recoverable state, per https://developer.paypal.com/docs/checkout/standard/customize/handle-funding-failures/
-                                                return actions.restart();
-                                            } else if (errorDetail) {
-                                                // (2) Other non-recoverable errors -> Show a failure message
-                                                throw new Error(
-                                                `${errorDetail.description} (${captureData.debug_id})`,
-                                                );
-                                            } else if (captureData?.status === 201) {
-                                                // (3) Successful transaction -> Show confirmation or thank you message
-                                                // Or go to another URL:  actions.redirect('thank_you.html');
-                                                setPaymentSuccess(true)
-                                                alert(`Success, your payment of ${captureData?.data?.orderData?.currency_code} ${captureData?.data?.orderData?.value} has been received!`)
-                                            }
-                                        }   
-
-                                    } catch (error) {
-                                        console.error(error);
-                                        setPaymentMessage(
-                                            `Sorry, your transaction could not be processed...${error}`,
-                                        );
-                                    }
-                                }}
+                                    }}
                                 />
                             </PayPalScriptProvider>
 
@@ -585,7 +887,7 @@ const list = (anchor) => (
                 </Box>
             </div>
 
-            </div>
+        </div>
 
     </div>
 

@@ -1668,9 +1668,10 @@ const {scrollToTime} = useMemo(
 
                 <div className='pt-1 pb-4 flex flex-col gap-y-3'>
 
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <LocalizationProvider sx={{borderColor: "#8BEDF3"}} dateAdapter={AdapterDayjs}>
             
                       <DateTimePicker
+                        sx={{borderColor: "#8BEDF3", outlineColor: "#8BEDF3"}}
                         value={dayjs(bookingStart)}
                         onChange={(newValue) => setBookingStart(dayjs(new Date(newValue)))}
                       />
