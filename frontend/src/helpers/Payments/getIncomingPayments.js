@@ -8,7 +8,8 @@ async function getIncomingPayments (userId, pageNumber, dateStart, dateEnd, acce
             headers: { "Authorization": `Bearer ${accessToken} ${authUserId}`},
             params: {
                 userId, pageNumber, dateStart, dateEnd
-              }
+              },
+            withCredentials: true
         });
         
         if(response){

@@ -42,9 +42,9 @@ const handleRefreshToken = async (req, res) => {
                     const smsNotifications = foundUser?.smsNotifications;
                     const emailNotifications = foundUser?.emailNotifications;
 
-                    const requestedPayout = foundUser.requestedPayout;
-                    const requestedPayoutCurrency = foundUser.requestedPayoutCurrency;
-                    const requestedPayoutOption = foundUser.requestedPayoutOption;
+                    const requestedPayout = foundUser?.requestedPayout;
+                    const requestedPayoutCurrency = foundUser?.requestedPayoutCurrency;
+                    const requestedPayoutOption = foundUser?.requestedPayoutOption;
 
                     const j1772ACChecked = foundDriver?.j1772ACChecked
                     const ccs1DCChecked = foundDriver?.ccs1DCChecked

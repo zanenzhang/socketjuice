@@ -187,10 +187,10 @@ const getHostIncomingPayments = async (req, res) => {
             return res.status(400).json({ message: 'Missing required information' })
         }
 
-        console.log(userId, pageNumber, dateStart, dateEnd)
-
         if(!pageNumber){
             pageNumber = 0
+        } else {
+            pageNumber = Number(pageNumber)
         }
 
         if(dateStart && dateEnd){
@@ -205,12 +205,12 @@ const getHostIncomingPayments = async (req, res) => {
             var searchobj = {_id: {$in: foundHostProfile?.incomingPayments.map(e =>e._paymentId)}}
 
             if(dateStart && dateEnd){
-                searchobj["createdAt"] = {"gte": dateStart, "lte": dateEnd}
+                searchobj["createdAt"] = {"$gte": dateStart, "$lte": dateEnd}
             }
 
             const foundPayments = await Payment.find(searchobj).skip(pageNumber).limit(100)
 
-            if(foundPayments){
+            if(foundPayments && foundPayments?.length > 0){
 
                 return(res.status(200).json({foundPayments: foundPayments, stop: 0}))
 
@@ -304,7 +304,8 @@ const getDriverOutgoingPayments = async (req, res) => {
         )   
 
         var { userId, pageNumber, dateStart, dateEnd } = req.query
-        
+
+        console.log("Getting outgoing payments")
         console.log(userId, pageNumber, dateStart, dateEnd)
 
         if (!userId ) {
@@ -313,6 +314,8 @@ const getDriverOutgoingPayments = async (req, res) => {
 
         if(!pageNumber){
             pageNumber = 0
+        } else {
+            pageNumber = Number(pageNumber)
         }
 
         if(dateStart && dateEnd){
@@ -327,12 +330,12 @@ const getDriverOutgoingPayments = async (req, res) => {
             var searchobj = {_id: {$in: foundDriverProfile?.outgoingPayments.map(e =>e._paymentId)}}
 
             if(dateStart && dateEnd){
-                searchobj["createdAt"] = {"gte": dateStart, "lte": dateEnd}
+                searchobj["createdAt"] = {"$gte": dateStart, "$lte": dateEnd}
             }
 
             const foundPayments = await Payment.find(searchobj).skip(pageNumber).limit(100)
 
-            if(foundPayments){
+            if(foundPayments && foundPayments?.length > 0){
 
                 return(res.status(200).json({foundPayments: foundPayments, stop: 0}))
 
@@ -1528,7 +1531,5 @@ const requestPayout = async (req, res) => {
 
 
 module.exports = { getHostIncomingPayments, getDriverOutgoingPayments, 
-    addPayment, addRefund, addPayout, 
-    getBraintreeToken, addBraintreeSale,
-    addPaypalOrder, capturePaypalOrder,
-    requestPayout }
+    addPayment, addRefund, addPayout, getBraintreeToken, addBraintreeSale,
+    addPaypalOrder, capturePaypalOrder, requestPayout }

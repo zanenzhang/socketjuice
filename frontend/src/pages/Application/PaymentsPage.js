@@ -32,11 +32,11 @@ export default function PaymentsPage() {
     const outgoingRef = useRef(null);
     const [changed, setChanged] = useState(false)
     const [userCurrencies, setUserCurrencies] = useState([])
-    const [accountBalance, setAccountBalance] = useState("")
-    const [escrowBalance, setEscrowBalance] = useState("")
+    const [accountBalance, setAccountBalance] = useState(0)
+    const [escrowBalance, setEscrowBalance] = useState(0)
 
-    const [payoutCurrency, setPayoutCurrency] = useState("USD")
-    const [paymentCurrency, setPaymentCurrency] = useState("USD")
+    const [payoutCurrency, setPayoutCurrency] = useState("usd")
+    const [paymentCurrency, setPaymentCurrency] = useState("usd")
 
     const [payoutCurrencySymbol, setPayoutCurrencySymbol] = useState("$")
     const [paymentCurrencySymbol, setPaymentCurrencySymbol] = useState("$")
@@ -70,18 +70,22 @@ export default function PaymentsPage() {
       const [paymentSubmitted, setPaymentSubmitted] = useState(false)
       const [paymentSuccess, setPaymentSuccess] = useState(false)
 
+      var today = new Date();
+      const oneWeekAgo = new Date(today.getFullYear(), today.getMonth(), today.getDate()-7);
+
       const [incomingPayments, setIncomingPayments] = useState([])
       const [waitingIncoming, setWaitingIncoming] = useState(false)
       const [scrollStopIncoming, setScrollStopIncoming] = useState(false)
       const [pageNumberIncoming, setPageNumberIncoming] = useState(0)
-      const [pickerDateIncomingStart, setPickerDateIncomingStart] = useState(new Date())
+      const [pickerDateIncomingStart, setPickerDateIncomingStart] = useState(oneWeekAgo)
       const [pickerDateIncomingEnd, setPickerDateIncomingEnd] = useState(new Date())
 
+      const [requestedPayout, setRequestedPayout] = useState(false)
       const [outgoingPayments, setOutgoingPayments] = useState([])
       const [waitingOutgoing, setWaitingOutgoing] = useState(false)
       const [scrollStopOutgoing, setScrollStopOutgoing] = useState(false)
       const [pageNumberOutgoing, setPageNumberOutgoing] = useState(0)
-      const [pickerDateOutgoingStart, setPickerDateOutgoingStart] = useState(new Date())
+      const [pickerDateOutgoingStart, setPickerDateOutgoingStart] = useState(oneWeekAgo)
       const [pickerDateOutgoingEnd, setPickerDateOutgoingEnd] = useState(new Date())
 
 
@@ -172,15 +176,30 @@ export default function PaymentsPage() {
 
             setWaitingIncoming(true)
 
-            const incoming = await getIncomingPayments(auth.userId, pageNumberIncoming, pickerDateOutgoingStart, pickerDateOutgoingEnd, auth.accessToken)
+            const incoming = await getIncomingPayments(auth.userId, pageNumberIncoming, pickerDateOutgoingStart, pickerDateOutgoingEnd, auth.accessToken, auth.userId)
 
             if(incoming && !incoming.stop){
                 console.log(incoming)
                 setIncomingPayments(incoming?.paymentsFound)
                 setWaitingIncoming(false)
-            } else {
+
+            } else if (incoming) {
                 setScrollStopIncoming(true)
                 setWaitingIncoming(false)
+            }
+
+            if(auth.credits?.length){
+                for(let i=0; i<auth.credits?.length; i++){
+                    if(auth.credits[i].currency.toLowerCase() === paymentCurrency){
+                        setPaymentCurrencySymbol(auth.credits[i].currencySymbol)
+                        setAccountBalance(auth.credits[i].amount)
+                    }
+                }
+                for(let i=0; i<auth.escrow?.length; i++){
+                    if(auth.escrow[i].currency.toLowerCase() === paymentCurrency){
+                        setEscrowBalance(auth.escrow[i].amount)
+                    }
+                }
             }
         }
 
@@ -192,52 +211,89 @@ export default function PaymentsPage() {
 
             setWaitingOutgoing(true)
 
-            const outgoing = await getOutgoingPayments(auth.userId, pageNumberOutgoing, pickerDateOutgoingStart, pickerDateOutgoingEnd, auth.accessToken)
+            const outgoing = await getOutgoingPayments(auth.userId, pageNumberOutgoing, pickerDateOutgoingStart, pickerDateOutgoingEnd, auth.accessToken, auth.userId)
 
             if(outgoing && !outgoing.stop){
                 console.log(outgoing)
                 setOutgoingPayments(outgoing?.paymentsFound)
                 setWaitingOutgoing(false)
-            } else {
+            } else if(outgoing) {
+                console.log(outgoing)
                 setScrollStopOutgoing(true)
                 setWaitingOutgoing(false)
             }
+
+            if(auth.credits?.length){
+                for(let i=0; i<auth.credits?.length; i++){
+                    if(auth.credits[i].currency.toLowerCase() === payoutCurrency){
+                        setPayoutCurrencySymbol(auth.credits[i].currencySymbol)
+                        setAccountBalance(auth.credits[i].amount)
+                    }
+                }
+                for(let i=0; i<auth.escrow?.length; i++){
+                    if(auth.escrow[i].currency.toLowerCase() === payoutCurrency){
+                        setEscrowBalance(auth.escrow[i].amount)
+                    }
+                }
+            }
         }
+
+        if(auth && tabValue !== undefined && (paymentCurrency || payoutCurrency)){
+            
+            console.log(tabValue)
+
+            if(tabValue === "0"){
+                
+                getOutgoing()
+
+            } else if(tabValue === "1"){
+                
+                getIncoming()
+            }
+        }
+
+      }, [auth, tabValue, paymentCurrency, payoutCurrency])
+
+      useEffect( ()=> {
 
         async function updateUserData(){
 
-            const userdata = getUserData(auth.accessToken, auth.userId)
+            const userdata = await getUserData(auth.accessToken, auth.userId)
 
             if(userdata){
                 console.log(userdata)
                 //Update auth here
-            }
-        }
-
-        if(auth && tabValue){
-
-            console.log(tabValue)
-
-            var currencies = []
-            if(auth.credits?.length){
-                for(let i=0; i<auth.credits?.length; i++){
-                    currencies.push({currency: auth.credits[i].currency, currencySymbol: auth.credits[i].currencySymbol})
-                }
-                setUserCurrencies(currencies)
-            }
-    
-            if(auth.userId){
-                updateUserData()
-            }
+                // setAuth(prev => {
             
-            if(tabValue === "0"){
-                getIncoming()
-            } else if(tabValue === "1"){
-                getOutgoing()
+                //     return {
+                //         ...prev,
+                //         username: response.data.username,
+                //     }
+                // });
             }
         }
 
-      }, [auth, tabValue, changed])
+        if(auth.userId){
+            updateUserData()
+        }
+
+      }, [changed])
+
+
+      useEffect( () => {
+
+        var currencies = []
+        if(auth.credits?.length){
+            for(let i=0; i<auth.credits?.length; i++){
+                currencies.push({currency: auth.credits[i].currency, currencySymbol: auth.credits[i].currencySymbol})
+                
+            }
+            setUserCurrencies(currencies)
+            setPayoutCurrency(currencies[0].currency.toLowerCase())
+            setPaymentCurrency(currencies[0].currency.toLowerCase())
+        }
+
+      }, [auth])
 
 
 
@@ -341,6 +397,7 @@ const list = (anchor) => (
                 'bg-[#c1f2f5] border-2 border-gray-300'} 
                 px-4 py-6 text-base font-semibold font-['system-ui'] rounded-r-lg
                     flex flex-row items-center`}
+                value={"0"}
                 onClick={(event) => {handleChange(event, "0")}}> 
                 <div className="pr-2 pl-4">
 
@@ -360,6 +417,7 @@ const list = (anchor) => (
                 'bg-[#c1f2f5] border-2 border-gray-300'} 
                 px-4 py-6 text-base font-semibold font-['system-ui'] rounded-r-lg
                 flex flex-row items-center`}
+                value={"1"}
                 onClick={(event) => {handleChange(event, "1")}}> 
                 <div className="pr-2 pl-4">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
@@ -378,6 +436,7 @@ const list = (anchor) => (
                 'bg-[#c1f2f5] border-2 border-gray-300'} 
                 px-4 py-6 text-base font-semibold font-['system-ui'] rounded-r-lg
                 flex flex-row items-center`}
+                value={"2"}
                 onClick={(event) => {handleChange(event, "2")}}> 
                 <div className="pr-2 pl-4">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" 
@@ -395,6 +454,7 @@ const list = (anchor) => (
                 'bg-[#c1f2f5] border-2 border-gray-300'} 
                 px-4 py-6 text-base font-semibold font-['system-ui'] rounded-r-lg
                 flex flex-row items-center`}
+                value={"3"}
                 onClick={(event) => {handleChange(event, "3")}}> 
                 <div className="pr-2 pl-4">
                 <svg
@@ -484,7 +544,7 @@ const list = (anchor) => (
 
                                         {userCurrencies?.length>0 && userCurrencies.map( (e) =>
                                         
-                                            <option value={`${e.currency.toLowerCase()}`}>{e.currencySymbol}{e.currency.toUpperCase()}</option>
+                                            <option key={e.currency} value={`${e.currency.toLowerCase()}`}>{e.currencySymbol}{e.currency.toUpperCase()}</option>
                                         )}
 
                                     </select> 
@@ -493,8 +553,8 @@ const list = (anchor) => (
 
                                 <p className="text-3xl py-4">Account Balance </p>
 
-                                <p>In Wallet: {paymentCurrencySymbol}{paymentCurrency}{accountBalance}</p>
-                                <p>On Hold: {paymentCurrencySymbol}{paymentCurrency}{escrowBalance}</p>
+                                <p className="text-lg">In Wallet: {paymentCurrency.toUpperCase()} {paymentCurrencySymbol}{accountBalance.toFixed(2)}</p>
+                                <p className="text-lg">On Hold: {paymentCurrency.toUpperCase()} {paymentCurrencySymbol}{escrowBalance.toFixed(2)}</p>
 
                                 <p className="text-3xl pt-6">Outgoing Payments</p>
 
@@ -590,7 +650,7 @@ const list = (anchor) => (
 
                                     {userCurrencies?.length>0 && userCurrencies.map( (e) =>
                                         
-                                        <option value={`${e.currency.toLowerCase()}`}>{e.currencySymbol}{e.currency}</option>
+                                        <option key={e.currency} value={`${e.currency.toLowerCase()}`}>{e.currencySymbol}{e.currency}</option>
                                     )}
 
                                     </select> 

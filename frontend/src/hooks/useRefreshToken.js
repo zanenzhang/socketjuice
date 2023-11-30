@@ -30,6 +30,10 @@ const useRefreshToken = () => {
                     userTheme: response?.data?.userTheme,
                     credits: response?.data?.credits,
 
+                    requestedPayout: response?.data?.requestedPayout,
+                    requestedPayoutCurrency: response?.data?.requestedPayoutCurrency,
+                    requestedPayoutOption: response?.data?.requestedPayoutOption,
+
                     j1772ACChecked: response?.data?.j1772ACChecked,
                     ccs1DCChecked: response?.data?.ccs1DCChecked,
                     mennekesACChecked: response?.data?.mennekesACChecked,

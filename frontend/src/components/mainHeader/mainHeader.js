@@ -510,6 +510,10 @@ const MainHeader = ({loggedUserId} ) => {
                 const smsNotifications = response?.data?.smsNotifications
 
                 const credits = response?.data?.credits
+                
+                const requestedPayout = response?.data?.requestedPayout;
+                const requestedPayoutCurrency = response?.data?.requestedPayoutCurrency;
+                const requestedPayoutOption = response?.data?.requestedPayoutOption;
 
                 const j1772ACChecked = response?.data?.j1772ACChecked
                 const ccs1DCChecked = response?.data?.ccs1DCChecked
@@ -523,7 +527,7 @@ const MainHeader = ({loggedUserId} ) => {
                 setAuth({ firstName, lastName, userId, roles, accessToken, profilePicURL, phoneNumber,
                     currency, currencySymbol, credits, smsNotifications, pushNotifications, emailNotifications,
                     j1772ACChecked, ccs1DCChecked, mennekesACChecked, ccs2DCChecked, chademoDCChecked, gbtACChecked, 
-                    gbtDCChecked, teslaChecked });
+                    gbtDCChecked, teslaChecked, requestedPayout, requestedPayoutCurrency, requestedPayoutOption });
 
                 localStorage.setItem("socketjuice-persist", persist)
 

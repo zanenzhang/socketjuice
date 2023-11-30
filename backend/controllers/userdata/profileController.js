@@ -748,7 +748,6 @@ const getUserData = async (req, res) => {
     }
 
     console.log("Getting user data")
-    console.log(userId)
 
     try {
 
