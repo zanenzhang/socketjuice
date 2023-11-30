@@ -8,7 +8,7 @@ const Flags = require('../../model/Flags');
 const UsageLimit = require('../../model/UsageLimit');
 const BannedUser = require("../../model/BannedUser");
 const  {deleteFile} = require("../../controllers/media/s3Controller");
-const { sendNotiEmail } = require("../../middleware/mailer")
+const { sendNotiEmail, sendReceiptOutgoing, sendReceiptIncoming } = require("../../middleware/mailer")
 const { sendSmsNotification } = require("../../controllers/authentication/twilioController")
 
 
@@ -769,6 +769,12 @@ const addAppointmentCompletion = async (req, res) => {
                 doneEmail = true
             }
 
+            const sentOutReceipt = await sendReceiptOutgoing({toUser: foundHost.email, firstName: foundHost.firstName, amount: foundAppointment.chargeAmount, 
+                currency: foundAppointment.currency, currencySymbol: foundAppointment.currencySymbol })
+
+            const sentInReceipt = await sendReceiptIncoming({toUser: foundUser.email, firstName: foundUser.firstName, amount: foundAppointment.chargeAmount, 
+                currency: foundAppointment.currency, currencySymbol: foundAppointment.currencySymbol })
+
             if(foundUser.smsNotifications){
                 const success = await sendSmsNotification(hostUserId, "Completed")
                 if(success){
@@ -778,7 +784,7 @@ const addAppointmentCompletion = async (req, res) => {
                 doneSms = true
             }
 
-            if(updatedAppointment && newNoti && doneEmail && doneSms){
+            if(updatedAppointment && newNoti && doneEmail && doneSms && sentOutReceipt && sentInReceipt){
                 
                 return res.status(201).json({ message: 'Success' })
 

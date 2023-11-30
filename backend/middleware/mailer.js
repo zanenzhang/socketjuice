@@ -287,6 +287,64 @@ exports.sendVerifiedEmail = function({toUser, firstName}) {
     return sendEmail(message);
   }
 
+
+  exports.sendReceiptOutgoing = function({toUser, firstName, amount, currency, currencySymbol, time}) {
+    const message = {
+      from: process.env.EMAIL_SUPPORT,
+      // to: toUser.email // in production uncomment this
+      to: toUser,
+      subject: 'SocketJuice - Outgoing Payment Receipt',
+      html: `
+        <img src = "cid:myImg" style="width:200px;"/>
+        <h3> Hello ${firstName}! </h3>
+        <p>This is a receipt for your outgoing payment </p>
+        <p>Details: </p>
+        <p>Amount: ${currency.toUpperCase()} ${currencySymbol} ${amount.toFixed(2)} </p>
+        <p>Time: ${new Date(time).toLocaleDateString} ${new Date(time).toLocaleTimeString} </p>
+        <p></p>
+        <p>Cheers,</p>
+        <p>The ${process.env.MAIL_FROM_NAME} team</p>
+      `,
+      attachments: [{
+        filename: 'SocketJuiceLogo.png',
+        path: __dirname + '/SocketJuice.png',
+        cid: 'myImg'
+      }]    
+    }
+  
+    return sendEmail(message);
+  }
+
+
+  exports.sendReceiptIncoming = function({toUser, firstName, amount, currency, currencySymbol, time}) {
+    const message = {
+      from: process.env.EMAIL_SUPPORT,
+      // to: toUser.email // in production uncomment this
+      to: toUser,
+      subject: 'SocketJuice - Incoming Payment Receipt',
+      html: `
+        <img src = "cid:myImg" style="width:200px;"/>
+        <h3> Hello ${firstName}! </h3>
+        <p>Nice! You have received a new payment in your account! </p>
+        <p>Details: </p>
+        <p>Amount: ${currency.toUpperCase()} ${currencySymbol} ${amount.toFixed(2)} </p>
+        <p>Time: ${new Date(time).toLocaleDateString} ${new Date(time).toLocaleTimeString} </p>
+        <p></p>
+        <p>Cheers,</p>
+        <p>The ${process.env.MAIL_FROM_NAME} team</p>
+      `,
+      attachments: [{
+        filename: 'SocketJuiceLogo.png',
+        path: __dirname + '/SocketJuice.png',
+        cid: 'myImg'
+      }]    
+    }
+  
+    return sendEmail(message);
+  }
+
+
+
   exports.sendInvitationEmail = function({toUser, friendname, type, username}) {
 
     const regex = /(<([^>]+)>)/gi;

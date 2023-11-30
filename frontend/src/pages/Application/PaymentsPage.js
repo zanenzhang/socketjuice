@@ -30,7 +30,7 @@ export default function PaymentsPage() {
 
     const incomingRef = useRef(null);
     const outgoingRef = useRef(null);
-    const [changed, setChanged] = useState(false)
+    const [changed, setChanged] = useState(0)
     const [userCurrencies, setUserCurrencies] = useState([])
     const [accountBalance, setAccountBalance] = useState(0)
     const [escrowBalance, setEscrowBalance] = useState(0)
@@ -90,13 +90,34 @@ export default function PaymentsPage() {
 
 
       async function updateIncoming(pageNumber){
+
+        var number = 0
+        if(pageNumber){
+            number = pageNumberIncoming + 100
+            setPageNumberIncoming(pageNumberIncoming + 100)
+        }
             
-        const incoming = await getIncomingPayments(auth.userId, pageNumberIncoming, pickerDateIncomingStart, pickerDateIncomingEnd, auth.accessToken, auth.userId)
+        const incoming = await getIncomingPayments(auth.userId, number, pickerDateIncomingStart, pickerDateIncomingEnd, auth.accessToken, auth.userId)
 
         if(incoming && !incoming.stop){
             console.log(incoming)
-            setIncomingPayments([...incomingPayments, ...incoming.paymentsFound])
+            
+            var userHash = {}
+            for(let i=0; i<incoming?.userData?.length; i++){
+                if(userHash[incoming?.userData[i]._id] === undefined ){
+                    userHash[incoming.userData[i]._id] = incoming.userData[i]
+                }
+            }
+
+            for(let i=0; i<incoming?.foundPayments?.length; i++){
+                if(userHash[incoming?.foundPayments[i]._sendingUserId] !== undefined ){
+                    incoming.foundPayments[i].userData = userHash[incoming?.foundPayments[i]._sendingUserId]
+                }
+            }
+            
+            setIncomingPayments([...incomingPayments, ...incoming?.foundPayments])
             setWaitingIncoming(false)
+
         } else if(incoming) {
             console.log(incoming)
             setScrollStopIncoming(true)
@@ -116,8 +137,23 @@ export default function PaymentsPage() {
 
         if(outgoing && !outgoing.stop){
             console.log(outgoing)
+
+            var userHash = {}
+            for(let i=0; i<outgoing?.userData?.length; i++){
+                if(userHash[outgoing?.userData[i]._id] === undefined ){
+                    userHash[outgoing.userData[i]._id] = outgoing.userData[i]
+                }
+            }
+
+            for(let i=0; i<outgoing?.foundPayments?.length; i++){
+                if(userHash[outgoing?.foundPayments[i]._receivingUserId] !== undefined ){
+                    outgoing.foundPayments[i].userData = userHash[outgoing?.foundPayments[i]._receivingUserId]
+                }
+            }
+
             setOutgoingPayments([...outgoingPayments, ...outgoing?.foundPayments])
             setWaitingOutgoing(false)
+
         } else if(outgoing) {
             console.log(outgoing)
             setScrollStopOutgoing(true)
@@ -191,6 +227,20 @@ export default function PaymentsPage() {
 
             if(incoming && !incoming.stop){
                 console.log(incoming)
+
+                var userHash = {}
+                for(let i=0; i<incoming?.userData?.length; i++){
+                    if(userHash[incoming?.userData[i]._id] === undefined ){
+                        userHash[incoming.userData[i]._id] = incoming.userData[i]
+                    }
+                }
+
+                for(let i=0; i<incoming?.foundPayments?.length; i++){
+                    if(userHash[incoming?.foundPayments[i]._sendingUserId] !== undefined ){
+                        incoming.foundPayments[i].userData = userHash[incoming?.foundPayments[i]._sendingUserId]
+                    }
+                }
+
                 setIncomingPayments([...incomingPayments, ...incoming.paymentsFound])
                 setWaitingIncoming(false)
 
@@ -226,6 +276,24 @@ export default function PaymentsPage() {
 
             if(outgoing && !outgoing.stop){
                 console.log(outgoing)
+
+                var userHash = {}
+                for(let i=0; i<outgoing?.userData?.length; i++){
+                    if(userHash[outgoing?.userData[i]._id] === undefined ){
+                        userHash[outgoing.userData[i]._id] = outgoing.userData[i]
+                    }
+                }
+
+                console.log(userHash)
+
+                for(let i=0; i<outgoing?.foundPayments?.length; i++){
+                    if(userHash[outgoing?.foundPayments[i]._receivingUserId] !== undefined ){
+                        outgoing.foundPayments[i].userData = userHash[outgoing?.foundPayments[i]._receivingUserId]
+                    }
+                }
+                
+                console.log(outgoing?.foundPayments)
+
                 setOutgoingPayments([...outgoingPayments, ...outgoing?.foundPayments])
                 setWaitingOutgoing(false)
             } else if(outgoing) {
@@ -288,7 +356,7 @@ export default function PaymentsPage() {
             }
         }
 
-        if(auth.userId){
+        if(auth.userId && changed > 0){
             updateUserData()
         }
 
@@ -352,7 +420,7 @@ export default function PaymentsPage() {
 
         if(requested){
             console.log(requested)
-            setChanged(!changed)
+            setChanged(changed + 1)
         }
     }
 
@@ -651,8 +719,12 @@ const list = (anchor) => (
                                     incomingPayments?.map( (payment) =>
                                         
                                         <div key={`${payment._id}_incoming`} className="flex flex-row gap-x-2 py-3 px-4
-                                            border border-gray-500">
-
+                                            border-y border-gray-300 items-center justify-center">
+                                            
+                                            <p>From: {payment?.userData?.firstName}</p>
+                                            <div className="flex flex-col w-[50px]">
+                                                <img className="flex flex-col w-[50px] rounded-full" src={payment?.userData?.profilePicURL} />
+                                            </div>
                                             <p>{new Date(payment?.createdAt).toLocaleDateString()} {new Date(payment?.createdAt).toLocaleTimeString()}</p>
                                             <p>{payment.currency.toUpperCase()} {payment.currencySymbol}{payment?.amount.toFixed(2)}</p>
 
@@ -770,7 +842,7 @@ const list = (anchor) => (
 
                                             <svg xmlns="http://www.w3.org/2000/svg" 
                                                 viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
-                                                <path fill-rule="evenodd" d="M15.312 11.424a5.5 5.5 0 01-9.201 2.466l-.312-.311h2.433a.75.75 0 000-1.5H3.989a.75.75 0 00-.75.75v4.242a.75.75 0 001.5 0v-2.43l.31.31a7 7 0 0011.712-3.138.75.75 0 00-1.449-.39zm1.23-3.723a.75.75 0 00.219-.53V2.929a.75.75 0 00-1.5 0V5.36l-.31-.31A7 7 0 003.239 8.188a.75.75 0 101.448.389A5.5 5.5 0 0113.89 6.11l.311.31h-2.432a.75.75 0 000 1.5h4.243a.75.75 0 00.53-.219z" clip-rule="evenodd" />
+                                                <path fillRule="evenodd" d="M15.312 11.424a5.5 5.5 0 01-9.201 2.466l-.312-.311h2.433a.75.75 0 000-1.5H3.989a.75.75 0 00-.75.75v4.242a.75.75 0 001.5 0v-2.43l.31.31a7 7 0 0011.712-3.138.75.75 0 00-1.449-.39zm1.23-3.723a.75.75 0 00.219-.53V2.929a.75.75 0 00-1.5 0V5.36l-.31-.31A7 7 0 003.239 8.188a.75.75 0 101.448.389A5.5 5.5 0 0113.89 6.11l.311.31h-2.432a.75.75 0 000 1.5h4.243a.75.75 0 00.53-.219z" clipRule="evenodd" />
                                             </svg>
 
                                             Refresh
@@ -784,8 +856,12 @@ const list = (anchor) => (
                                     outgoingPayments?.map( (payment) =>
                                         
                                         <div key={`${payment._id}_outgoing`} className="flex flex-row gap-x-2 py-3 px-4
-                                            border border-gray-500">
+                                            border-y border-gray-300 items-center justify-center">
 
+                                            <p>To: {payment?.userData?.firstName}</p>
+                                            <div className="flex flex-col w-[50px]">
+                                                <img className="flex flex-col w-[50px] rounded-full" src={payment?.userData?.profilePicURL} />
+                                            </div>
                                             <p>{new Date(payment?.createdAt).toLocaleDateString()} {new Date(payment?.createdAt).toLocaleTimeString()}</p>
                                             <p>{payment.currency.toUpperCase()} {payment.currencySymbol}{payment?.amount.toFixed(2)}</p>
 
@@ -1057,7 +1133,7 @@ const list = (anchor) => (
                                                     // Or go to another URL:  actions.redirect('thank_you.html');
                                                     setPaymentSuccess(true)
                                                     alert(`Success, your payment of ${captureData?.data?.orderData?.currency_code} ${captureData?.data?.orderData?.value} has been received!`)
-                                                    setChanged(!changed)
+                                                    setChanged(changed + 1)
                                                 }
                                             }   
 

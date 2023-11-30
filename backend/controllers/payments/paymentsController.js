@@ -17,6 +17,7 @@ const S3 = require("aws-sdk/clients/s3");
 const fns = require('date-fns');
 var _= require('lodash');
 const copyFile = require('../media/s3Controller');
+const {sendReceiptIncoming, sendReceiptOutgoing} = require("../../middleware/mailer");
 
 const base = "https://api-m.sandbox.paypal.com";
 var paypal = require('paypal-rest-sdk');
@@ -212,7 +213,16 @@ const getHostIncomingPayments = async (req, res) => {
 
             if(foundPayments && foundPayments?.length > 0){
 
-                return(res.status(200).json({foundPayments: foundPayments, stop: 0}))
+                const userData = await User.find({_id: {$in: foundPayments.map(e=>e._sendingUserId)}}).select(" _id profilePicURL firstName flagged ")
+
+                if(userData){
+                    
+                    return(res.status(200).json({foundPayments: foundPayments, userData: userData, stop: 0}))
+                
+                } else {
+
+                    return res.status(201).json({ stop: 1})    
+                }
 
             } else {
 
@@ -337,7 +347,9 @@ const getDriverOutgoingPayments = async (req, res) => {
 
             if(foundPayments && foundPayments?.length > 0){
 
-                return(res.status(200).json({foundPayments: foundPayments, stop: 0}))
+                const userData = await User.find({_id: {$in: foundPayments.map(e=>e._receivingUserId)}}).select(" _id profilePicURL firstName flagged ")
+
+                return(res.status(200).json({foundPayments: foundPayments, userData: userData, stop: 0}))
 
             } else {
 
@@ -575,13 +587,14 @@ const addPayout = async (req, res) => {
                                                 });
     
                                                 if(payoutDetails){
-                                                    console.log(payoutDetails.data)
-                                                    console.log(payoutDetails.data.batch_header)
-                                                    console.log(payoutDetails.data.batch_header.amount)
-                                                    console.log(payoutDetails.data.batch_header.fees)
-                                                    console.log(payoutDetails.data.batch_header.currency_conversion)
-                                                    console.log("Completed")
-                                                    return res.status(201).json({ message: 'Success' })
+                                                    
+                                                    const sentOutReceipt = await sendReceiptOutgoing({toUser: userId, firstName: checkUser.firstName, amount: paymentAmount,
+                                                       currency: currency, currencySymbol: currencySymbol, time: new Date() })
+
+                                                    if(sentOutReceipt){
+                                                        return res.status(201).json({ message: 'Success' })
+                                                    }
+                                                    
                                                 }
                                             }
 
@@ -1400,7 +1413,10 @@ const capturePaypalOrder = async (req, res) => {
 
                                         const updatedUser = await foundUser.save()
 
-                                        if(updatedProfile && updatedUser){
+                                        const sentReceipt = await sendReceiptIncoming({toUser: userId, firstName: foundUser.firstName, amount: payamount, 
+                                            currency: currency, currencySymbol: currencySymbol, time: new Date() })
+
+                                        if(updatedProfile && updatedUser && sentReceipt){
                                             console.log("Captured Paypal Order")
                                             return res.status(response.status).json({orderData: orderData?.data?.purchase_units[0]?.payments?.captures[0].amount});
                                         } else {
