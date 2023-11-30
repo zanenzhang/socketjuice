@@ -1,4 +1,5 @@
 const User = require('../../model/User');
+const Appointment = require('../../model/Appointment');
 const Flags = require('../../model/Flags');
 const UsageLimit = require('../../model/UsageLimit');
 const ObjectId  = require('mongodb').ObjectId;
@@ -203,7 +204,7 @@ const removeUserFlag = async (req, res) => {
 
         if(foundUserFlags){
 
-            if(foundUserFlags.userFlags?.some(e=>e._userId.toString() === ((profileUserId)))){
+            if(foundUserFlags.userFlags?.some(e=>e._userId.toString() === profileUserId )){
 
                 foundUserFlags.userFlags.pull({_userId: profileUserId})
             
@@ -213,7 +214,7 @@ const removeUserFlag = async (req, res) => {
 
                 if(foundUser){
 
-                    if(foundUser.flaggedBy?.some(e=>e._userId.toString() === ((loggedUserId)))){
+                    if(foundUser.flaggedBy?.some(e=>e._userId.toString() === loggedUserId)){
                             
                         foundUser.flaggedBy?.pull({_userId: loggedUserId})
                     
@@ -234,7 +235,6 @@ const removeUserFlag = async (req, res) => {
                     if(savedUserFlag && savedFlags){
 
                         return res.status(200).json({ message:'Success, removed comment flag' });
-
                     }
 
                 } else {
@@ -257,6 +257,199 @@ const removeUserFlag = async (req, res) => {
         return res.status(401).json({ message: 'Failed' })
     }
 }
+
+
+const removeAppointmentFlag = async (req, res) => {
+
+    const { loggedUserId, appointmentId } = req.query
+
+    if (!loggedUserId || !appointmentId ) return res.status(400).json({ 'message': 'Missing required fields!' });
+
+    try {
+
+        const foundFlags = await Appointment.findOne({_id: appointmentId})
+
+        if(foundFlags){
+
+            if(foundFlags.flaggedBy?.some(e=>e._userId.toString() === loggedUserId)){
+
+                foundFlags.flaggedBy.pull({_userId: loggedUserId})
+                foundFlags.flagsCount = Math.max(foundFlags.flagsCount - 1, 0)
+                foundFlags.flagged = false
+
+                const userFlags = await Flags.findOne({_userId: loggedUserId})
+
+                if(userFlags){
+
+                    if(userFlags.appointmentFlags?.some(e=>e._appointmentId.toString() === appointmentId ) ){
+
+                        userFlags.appointmentFlags.pull({_appointmentId: appointmentId})
+                    
+                    } else {
+
+                        return res.status(400).json({ message:'Operation Failed' });
+                    }
+                } else {
+
+                    return res.status(400).json({ message:'Operation Failed' });
+                }
+            
+                const savedFlags = await foundFlags.save()
+                const savedUser = await userFlags.save()
+
+                if( savedFlags && savedUser){
+
+                    return res.status(200).json({ message:'Success, removed comment flag' });
+
+                } else {
+
+                    return res.status(400).json({ message:'Operation Failed' });
+                }
+            
+            } else {
+
+                return res.status(400).json({ message:'Operation Failed' });
+            }
+
+        } else {
+
+            return res.status(400).json({ message: 'Failed' })
+        }
+
+    } catch (err) {
+
+        return res.status(401).json({ message: 'Failed' })
+    }
+}
+
+
+const addAppointmentFlag = async (req, res) => {
+
+    const { loggedUserId, appointmentId } = req.body
+
+    if (!loggedUserId || !appointmentId ) return res.status(400).json({ 'message': 'Missing required fields!' });
+
+    try {
+
+        const userFlags = await Flags.findOne({_userId: loggedUserId})
+        const foundLimits = await UsageLimit.findOne({_userId: loggedUserId})
+
+        var todaysDate = new Date().toLocaleDateString()
+        var doneOperation = false;
+
+        if(foundLimits.numberOfFlagsGiven?.length > 0){
+
+            if(foundLimits.numberOfFlagsGiven.some(e=>e.date === todaysDate)){
+
+                for(let i=0; i< foundLimits.numberOfFlagsGiven.length; i++){
+
+                    if(foundLimits.numberOfFlagsGiven[i].date === todaysDate){
+    
+                        if(foundLimits.numberOfFlagsGiven[i].flagsNumber >= 10){
+                            
+                            return res.status(401).json({ message: 'Reached flag limit for today' })
+                        
+                        } else {
+    
+                            foundLimits.numberOfFlagsGiven[i].flagsNumber = foundLimits.numberOfFlagsGiven[i].flagsNumber + 1
+                            const savedLimits = await foundLimits.save()
+    
+                            if(savedLimits){
+                                doneOperation = true;
+                            }
+                            
+                            break;
+                        }
+                    }
+                }
+            
+            } else {
+
+                foundLimits.numberOfFlagsGiven.push({date: todaysDate, flagsNumber: 1 })
+                const savedLimits = await foundLimits.save()
+                if(savedLimits){
+                    doneOperation = true;
+                }
+            }
+
+        } else {
+
+            foundLimits.numberOfFlagsGiven = [{date: todaysDate, flagsNumber: 1}]
+            const savedLimits = await foundLimits.save()
+            if(savedLimits){
+                doneOperation = true;
+            }
+        }
+
+        if(doneOperation){
+        
+            if (userFlags){
+
+                if(userFlags.appointmentFlags?.some(e=>e._appointmentId.toString() === appointmentId ) ){
+    
+                    return res.status(403).json({ message: 'Already flagged this comment' })
+                
+                } else {
+    
+                    if(userFlags.appointmentFlags?.length > 0){
+    
+                        userFlags.appointmentFlags?.push({_appointmentId: appointmentId})
+    
+                    } else {
+    
+                        userFlags.appointmentFlags = [{_appointmentId: appointmentId}]
+                    }
+    
+                    const savedUserFlags = await userFlags.save()
+    
+                    const foundAppointment = await Appointment.findOne({_id: appointmentId})
+                    
+                    if(foundAppointment){
+    
+                        if(foundAppointment.flaggedBy?.length > 0){
+    
+                            if(foundAppointment.flaggedBy?.some(e=>e._userId.toString() === loggedUserId)){
+                                
+                                return res.status(403).json({ message: 'Already flagged this comment' })
+                            
+                            } else {
+    
+                                foundAppointment.flaggedBy?.push({_userId: loggedUserId})
+                            }
+                        } else {
+    
+                            foundAppointment.flaggedBy = [{_userId: loggedUserId}]
+    
+                        }
+    
+                        foundAppointment.flagged = true;
+                        foundAppointment.flagsCount = foundAppointment.flagsCount + 1
+    
+                        const savedFlag = await foundAppointment.save()
+    
+                        if(savedFlag && savedUserFlags){
+    
+                            return res.status(201).json({ message: 'Added comment flag' })    
+                        }
+                    
+                    } else {
+    
+                        return res.status(401).json({ message: 'Operation failed' })
+                    }
+                }
+                   
+            } else {
+    
+                return res.status(401).json({ message: 'Operation failed' })
+            }
+        }
+        
+    } catch (err) {
+
+        return res.status(400).json({ message: 'Failed' })
+    }
+}
+
 
 const clearUserFlags = async (req, res) => {
 
@@ -302,4 +495,5 @@ const clearUserFlags = async (req, res) => {
     }
 }
 
-module.exports = { getAllFlags, addUserFlag, removeUserFlag, clearUserFlags }
+module.exports = { getAllFlags, addUserFlag, removeUserFlag, clearUserFlags, 
+    addAppointmentFlag, removeAppointmentFlag }

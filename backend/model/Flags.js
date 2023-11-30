@@ -16,6 +16,16 @@ var flagSchema = new Schema({
             type: Date, 
             default: Date.now
         }
+    }],
+    appointmentFlags: [{
+        _appointmentId: {
+            type: Schema.Types.ObjectId, 
+            ref: 'Appointment'
+        },
+        createdAt: { 
+            type: Date, 
+            default: Date.now
+        }
     }]
 })
 

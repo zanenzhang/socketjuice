@@ -850,12 +850,10 @@ const addUserBan = async (req, res) => {
                     foundHost.deactivated = true;
                     foundHost.verifiedHost = false;
 
-                    const updateBan = await BannedUser.updateOne({admin: "admin"}, {$push: {ipAddresses: {userIP: foundUser.primaryGeoData.IPv4}}} )
-
                     const savedUpdate = await foundUser.save()
                     const savedHost = await foundHost.save()
 
-                    if(savedUpdate && updateBan){
+                    if(savedUpdate && savedHost){
                         return res.status(200).json({'message': 'Added new ban'})
                     }
 
@@ -900,11 +898,10 @@ const removeUserBan = async (req, res) => {
                 foundHost.deactivated = false;
                 foundHost.verifiedHost = true;
 
-                const updateBan = await BannedUser.updateOne({admin: "admin"},{$pull: {ipAddresses: {"userIP": foundUser.primaryGeoData.IPv4}}})
                 const savedUpdate = await foundUser.save()
                 const savedHost = await foundHost.save()
 
-                if(savedUpdate && updateBan && savedHost){
+                if(savedUpdate && savedHost){
                     return res.status(200).json({'message': 'Added new ban'})
                 }
             }

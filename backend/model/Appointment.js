@@ -57,6 +57,20 @@ var appointmentSchema = new Schema({
         type: Boolean,
         default: false
     },
+    flagged: {
+        type: Boolean,
+        default: false
+    },
+    flaggedBy: [{
+        _userId: { 
+            type: Schema.Types.ObjectId, 
+            ref: 'User' 
+        }
+    }],
+    flagsCount: {
+        type: Number,
+        default: 0
+    },
     requestDateStart: {
         type: String,
     },
