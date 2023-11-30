@@ -72,7 +72,7 @@ const s3 = new S3({
     var amount = "21.50"
     var currency = "USD"
 
-    if(cart[0].currency && cart[0].currency === "USD"){
+    if(cart[0].currency && cart[0].currency.toLowerCase() === "usd"){
 
         if(cart[0].option === "A"){
             amount = "21.50"
@@ -82,7 +82,7 @@ const s3 = new S3({
             amount = "52.50"
         }
 
-    } else if(cart[0].currency && cart[0].currency === "CAD"){
+    } else if(cart[0].currency && cart[0].currency.toLowerCase() === "cad"){
 
         currency = "CAD"
 
@@ -1251,6 +1251,7 @@ const capturePaypalOrder = async (req, res) => {
             }
 
             const response = await captureOrder(orderID);
+            
             if(response){
 
                 if(response.status === 201){
@@ -1269,6 +1270,9 @@ const capturePaypalOrder = async (req, res) => {
                 
                         if(orderData){
 
+                            console.log("Order data here")
+                            console.log(orderData.data)
+
                             if(orderData.data.status === "COMPLETED" && orderData.data.purchase_units[0]?.payments.captures[0].status === "COMPLETED"){
 
                                 const orderId = orderData.data.id
@@ -1280,6 +1284,9 @@ const capturePaypalOrder = async (req, res) => {
                                 const netAmount = orderData.data.purchase_units[0]?.payments?.captures[0].seller_receivable_breakdown.net_amount
                                 const receivableAmount = orderData.data.purchase_units[0]?.payments?.captures[0].seller_receivable_breakdown.receivable_amount
 
+                                console.log(currency)
+                                console.log(option)
+                                console.log(netAmount)
 
                                 var currencySymbol = "$"
 
@@ -1394,6 +1401,7 @@ const capturePaypalOrder = async (req, res) => {
                                         const updatedUser = await foundUser.save()
 
                                         if(updatedProfile && updatedUser){
+                                            console.log("Captured Paypal Order")
                                             return res.status(response.status).json({orderData: orderData?.data?.purchase_units[0]?.payments?.captures[0].amount});
                                         } else {
                                             return res.status(401).json({"message": "Failed operation"})
@@ -1404,7 +1412,6 @@ const capturePaypalOrder = async (req, res) => {
                                 }
                             
                             } else {
-                                
                                 return res.status(response.status).json({orderData: orderData?.data});
                             }
                         } else {

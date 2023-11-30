@@ -1,5 +1,5 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client';
+import ReactDOM from "react-dom/client";
 import './input.css';
 import { disableReactDevTools } from '@fvilers/disable-react-devtools';
 import App from './App';
@@ -10,7 +10,7 @@ if (process.env.REACT_APP_NODE_ENV === 'production') {
   disableReactDevTools();
 }
 
-const root = createRoot(document.getElementById('root'));
+const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
   <React.StrictMode>

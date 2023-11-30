@@ -94,14 +94,12 @@ export default function NotificationsDropdown() {
           }
         }  
 
-        console.log(notis?.data?.notiData)
-
         const filtered = notis?.data?.notiData.filter((item) => item.notificationType !== "Message")
         setNotiItems([...notiItems, ...filtered])
       } 
     }
 
-    if(auth?.userId && auth.accessToken){
+    if(auth?.userId){
       getNotiData();
     }
     

@@ -51,8 +51,8 @@ const BookingsPage = () => {
   const localizer = dayjsLocalizer(dayjs);
   const DnDCalendar = withDragAndDrop(Calendar);
 
-  const { auth, setActiveTab, socket, setSocket, setNewMessages, 
-    setNewRequests, setNewIndividualChat } = useAuth();
+  const { auth, setActiveTab, socket, setSocket, 
+      setNewMessages, setNewIndividualChat } = useAuth();
 
   const navigate = useNavigate();
 
@@ -74,7 +74,7 @@ const BookingsPage = () => {
 
   const [hostAppointments, setHostAppointments] = useState([])
   const [driverAppointments, setDriverAppointments] = useState([])
-  const [newrequest, setNewrequest] = useState(false);
+  const [newrequest, setNewrequest] = useState(0);
 
   const [hostEvents, setHostEvents] = useState([])
   const [driverEvents, setDriverEvents] = useState([])
@@ -770,8 +770,6 @@ const handleRegularHourChangeEnd = (event, day) => {
     useEffect( ()=> {
 
       async function getUser() {
-        
-        console.log(auth.accessToken, auth.userId)
 
         const userdata = await getUserData(auth.accessToken, auth.userId)
 
@@ -809,7 +807,7 @@ const handleRegularHourChangeEnd = (event, day) => {
         console.log("Cancel submitted")
         alert("Submitted cancel request")
         setOpenDetailsModalHost(false)
-        setNewrequest(!newrequest)
+        setNewrequest(newrequest + 1)
         setWaitingCancel(false)
       }
     }
@@ -823,7 +821,7 @@ const handleRegularHourChangeEnd = (event, day) => {
       if(submitted){
         console.log("Cancel submitted")
         alert("Asked driver to cancel")
-        setNewrequest(!newrequest)
+        setNewrequest(newrequest + 1)
         setWaitingCancel(false)
         setOpenDetailsModalHost(false)
       }
@@ -841,7 +839,7 @@ const handleRegularHourChangeEnd = (event, day) => {
         alert("Asked to cancel")
         setOpenDetailsModalDriver(false)
         setWaitingCancel(false)
-        setNewrequest(!newrequest)
+        setNewrequest(newrequest + 1)
       }
     }
 
@@ -856,7 +854,7 @@ const handleRegularHourChangeEnd = (event, day) => {
         alert("Asked to cancel")
         setOpenDetailsModalDriver(false)
         setWaitingCancel(false)
-        setNewrequest(!newrequest)
+        setNewrequest(newrequest + 1)
       }
     }
     
@@ -878,7 +876,7 @@ const handleRegularHourChangeEnd = (event, day) => {
           console.log("Cancelled booking")
           alert("Cancelled booking")
           setOpenDetailsModalHost(false)
-          setNewrequest(!newrequest)
+          setNewrequest(newrequest + 1)
           setWaitingSubmit(false)
         }
 
@@ -890,7 +888,7 @@ const handleRegularHourChangeEnd = (event, day) => {
           console.log("Booking approved")
           alert("Booking approved")
           setOpenDetailsModalHost(false)
-          setNewrequest(!newrequest)
+          setNewrequest(newrequest + 1)
           setWaitingSubmit(false)
         }
 
@@ -902,7 +900,7 @@ const handleRegularHourChangeEnd = (event, day) => {
           console.log("Booking finished")
           alert("Booking finished")
           setOpenDetailsModalHost(false)
-          setNewrequest(!newrequest)
+          setNewrequest(newrequest + 1)
           setWaitingSubmit(false)
         }
       }
@@ -924,7 +922,7 @@ const handleRegularHourChangeEnd = (event, day) => {
           console.log("Approved cancellation")
           alert("Approved cancellation")
           setOpenDetailsModalDriver(false)
-          setNewrequest(!newrequest)
+          setNewrequest(newrequest + 1)
           setWaitingSubmit(false)
         }
       } else if (selectedEventStatus === "Approved"){
@@ -936,7 +934,7 @@ const handleRegularHourChangeEnd = (event, day) => {
           console.log("Booking finished")
           alert("Booking finished")
           setOpenDetailsModalDriver(false)
-          setNewrequest(!newrequest)
+          setNewrequest(newrequest + 1)
           setWaitingSubmit(false)
         }
       }
@@ -1247,18 +1245,12 @@ const handleRegularHourChangeEnd = (event, day) => {
 
 
     useEffect( ()=> {
-
-      if(auth){
-        console.log("User is logged in")
-      }
   
       async function hostAppointments() {
   
         const hostresults = await getHostAppointments(auth.userId, currentDateHost, auth.accessToken, auth.userId)
   
         if(hostresults){
-  
-          console.log(hostresults)
   
           var newevents = [];
           var hostprofiledata = {};
@@ -1340,7 +1332,7 @@ const handleRegularHourChangeEnd = (event, day) => {
         }
       }
   
-      if(currentDateHost && auth.userId && value === "0"){
+      if(currentDateHost && auth.userId && value === "0" && newrequest > 0){
         hostAppointments()
       }
   
@@ -1360,10 +1352,6 @@ const handleRegularHourChangeEnd = (event, day) => {
     )
 
     useEffect( () => {
-
-      if(auth){
-        console.log("User is logged in")
-      }
   
       async function driverAppointments() {
   
@@ -1451,7 +1439,7 @@ const handleRegularHourChangeEnd = (event, day) => {
         }
       }
   
-      if(currentDateDriver && auth.userId && value === "1"){
+      if(currentDateDriver && auth.userId && value === "1" && newrequest > 0){
         driverAppointments()
       }
   

@@ -220,5 +220,53 @@ const PaymentsPage = () => {
 
 
 
+// const scrollCallbackIncoming = (entries) => {
+    
+//     if (entries[0].isIntersecting) {
+//         if(!waitingIncoming && !scrollStopIncoming){
+//             setPageNumberIncoming((prev)=> prev+100) 
+//         } 
+//     }
+// };
+  
+// useEffect(() => {
+    
+//     if(incomingRef.current){
+//         const { current } = incomingRef;
+//         const observer = new IntersectionObserver(scrollCallbackIncoming, {
+//             root: null,
+//             threshold: 0.1,
+//         });
+//         observer.observe(current);
+//         return () => {
+//             observer.disconnect(current); 
+//         }
+//     } 
+// }, [incomingRef.current]); 
+
+
+// const scrollCallbackOutgoing = (entries) => {
+    
+//     if (entries[0].isIntersecting) {
+//         if(!waitingOutgoing && !scrollStopOutgoing){
+//             setPageNumberOutgoing((prev)=> prev+100) 
+//         } 
+//     }
+// };
+
+// useEffect(() => {
+
+//     if(outgoingRef.current){
+//         const { current } = outgoingRef;
+//         const observer = new IntersectionObserver(scrollCallbackOutgoing, {
+//             root: null,
+//             threshold: 0.1,
+//         });
+//         observer.observe(current);
+//         return () => {
+//             observer.disconnect(current); 
+//         }
+//     } 
+// }, [outgoingRef.current]); 
 
 export default PaymentsPage

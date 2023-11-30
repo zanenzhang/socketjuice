@@ -16,9 +16,7 @@ import AdminPageDriver from "./pages/Application/AdminPageDriver";
 import AdminPageHost from "./pages/Application/AdminPageHost";
 
 import SettingsPage from "./pages/Application/SettingsPage";
-import TestPage from "./pages/Application/TestPage";
 import PaymentsPage from './pages/Application/PaymentsPage';
-import PaypalPage from './pages/Application/PaypalPage';
 import PayoutsPage from './pages/Application/PayoutsPage';
 
 const ROLES = {
@@ -26,7 +24,6 @@ const ROLES = {
   'Manager': 3780,
   'Admin': 5150
 }
-
 
 function App() {
 
@@ -51,10 +48,6 @@ function App() {
         </Route>
 
         <Route path="/bookings" element={<BookingsPage />}>
-
-        </Route>
-
-        <Route path="/test" element={<TestPage />}>
 
         </Route>
 
@@ -95,10 +88,6 @@ function App() {
         </Route>
 
         <Route path="/payouts" element={<PayoutsPage />}>
-
-        </Route>
-
-        <Route path="/paypal" element={<PaypalPage />}>
 
         </Route>
     

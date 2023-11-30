@@ -5,8 +5,6 @@ const ActivateToken = require('../model/ActivateToken');
 const verifyJWT = async (req, res, next) => {
 
     const authHeader = req.headers.authorization || req.headers.Authorization;
-
-    console.log(authHeader)
     
     if (!authHeader?.startsWith('Bearer ')) {
 
@@ -64,16 +62,12 @@ const verifyJWT = async (req, res, next) => {
         const splitArr = authHeader.split(' ')
         const token = splitArr[1];
         const userId = splitArr[2];
-
-        console.log("Verifying")
         
         jwt.verify(
             token,
             process.env.ACCESS_TOKEN_SECRET,
             (err, decoded) => {
                 if (err) return res.sendStatus(403);
-
-                console.log(decoded)
                     
                 User.findOne({_id: decoded.UserInfo.userId}, function(err, foundUser){
                     if(foundUser && foundUser._id.toString() === userId){

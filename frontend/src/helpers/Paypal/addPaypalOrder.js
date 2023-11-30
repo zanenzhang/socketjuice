@@ -3,6 +3,8 @@ const ORDER_URL = '/payments/order'
 
 async function addPaypalOrder (currency, selectedOption, userId, accessToken) {
 
+    console.log(currency, selectedOption)
+
     var cart = [
         {
             id: "PAYPAL_RELOAD",

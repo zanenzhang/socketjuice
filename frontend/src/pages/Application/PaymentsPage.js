@@ -35,8 +35,8 @@ export default function PaymentsPage() {
     const [accountBalance, setAccountBalance] = useState(0)
     const [escrowBalance, setEscrowBalance] = useState(0)
 
-    const [payoutCurrency, setPayoutCurrency] = useState("usd")
-    const [paymentCurrency, setPaymentCurrency] = useState("usd")
+    const [payoutCurrency, setPayoutCurrency] = useState("")
+    const [paymentCurrency, setPaymentCurrency] = useState("")
 
     const [payoutCurrencySymbol, setPayoutCurrencySymbol] = useState("$")
     const [paymentCurrencySymbol, setPaymentCurrencySymbol] = useState("$")
@@ -89,54 +89,65 @@ export default function PaymentsPage() {
       const [pickerDateOutgoingEnd, setPickerDateOutgoingEnd] = useState(new Date())
 
 
-    const scrollCallbackIncoming = (entries) => {
-    
-        if (entries[0].isIntersecting) {
-            if(!waitingIncoming && !scrollStopIncoming){
-                setPageNumberIncoming((prev)=> prev+100) 
-            } 
-        }
-    };
-      
-    useEffect(() => {
-        
-        if(incomingRef.current){
-            const { current } = incomingRef;
-            const observer = new IntersectionObserver(scrollCallbackIncoming, {
-                root: null,
-                threshold: 0.1,
-            });
-            observer.observe(current);
-            return () => {
-                observer.disconnect(current); 
-            }
-        } 
-    }, [incomingRef.current]); 
+      async function updateIncoming(pageNumber){
+            
+        const incoming = await getIncomingPayments(auth.userId, pageNumberIncoming, pickerDateIncomingStart, pickerDateIncomingEnd, auth.accessToken, auth.userId)
 
-
-    const scrollCallbackOutgoing = (entries) => {
-        
-        if (entries[0].isIntersecting) {
-            if(!waitingOutgoing && !scrollStopOutgoing){
-                setPageNumberOutgoing((prev)=> prev+100) 
-            } 
+        if(incoming && !incoming.stop){
+            console.log(incoming)
+            setIncomingPayments([...incomingPayments, ...incoming.paymentsFound])
+            setWaitingIncoming(false)
+        } else if(incoming) {
+            console.log(incoming)
+            setScrollStopIncoming(true)
+            setWaitingIncoming(false)
         }
-    };
-  
-    useEffect(() => {
-    
-        if(outgoingRef.current){
-            const { current } = outgoingRef;
-            const observer = new IntersectionObserver(scrollCallbackOutgoing, {
-                root: null,
-                threshold: 0.1,
-            });
-            observer.observe(current);
-            return () => {
-                observer.disconnect(current); 
-            }
-        } 
-    }, [outgoingRef.current]); 
+    }
+
+    async function updateOutgoing(pageNumber){
+
+        var number = 0
+        if(pageNumber){
+            number = pageNumberOutgoing + 100
+            setPageNumberOutgoing(pageNumberOutgoing + 100)
+        }
+            
+        const outgoing = await getOutgoingPayments(auth.userId, number, pickerDateOutgoingStart, pickerDateOutgoingEnd, auth.accessToken, auth.userId)
+
+        if(outgoing && !outgoing.stop){
+            console.log(outgoing)
+            setOutgoingPayments([...outgoingPayments, ...outgoing?.foundPayments])
+            setWaitingOutgoing(false)
+        } else if(outgoing) {
+            console.log(outgoing)
+            setScrollStopOutgoing(true)
+            setWaitingOutgoing(false)
+        }
+    }
+
+      const handleUpdateIncoming = (e, pageNumber) => {
+
+        e.preventDefault()
+
+        if(waitingIncoming){
+            return
+        }
+
+        setWaitingIncoming(true)
+        updateIncoming(pageNumber)   
+      }
+
+      const handleUpdateOutgoing = (e, pageNumber) => {
+
+        e.preventDefault()
+
+        if(waitingOutgoing){
+            return
+        }
+
+        setWaitingOutgoing(true)
+        updateOutgoing(pageNumber)        
+      }
 
 
     const handleSelectPaymentAmount = (e, value) => {
@@ -180,7 +191,7 @@ export default function PaymentsPage() {
 
             if(incoming && !incoming.stop){
                 console.log(incoming)
-                setIncomingPayments(incoming?.paymentsFound)
+                setIncomingPayments([...incomingPayments, ...incoming.paymentsFound])
                 setWaitingIncoming(false)
 
             } else if (incoming) {
@@ -215,7 +226,7 @@ export default function PaymentsPage() {
 
             if(outgoing && !outgoing.stop){
                 console.log(outgoing)
-                setOutgoingPayments(outgoing?.paymentsFound)
+                setOutgoingPayments([...outgoingPayments, ...outgoing?.foundPayments])
                 setWaitingOutgoing(false)
             } else if(outgoing) {
                 console.log(outgoing)
@@ -254,6 +265,7 @@ export default function PaymentsPage() {
 
       }, [auth, tabValue, paymentCurrency, payoutCurrency])
 
+
       useEffect( ()=> {
 
         async function updateUserData(){
@@ -262,14 +274,17 @@ export default function PaymentsPage() {
 
             if(userdata){
                 console.log(userdata)
-                //Update auth here
-                // setAuth(prev => {
+                
+                setAuth(prev => {
             
-                //     return {
-                //         ...prev,
-                //         username: response.data.username,
-                //     }
-                // });
+                    return {
+                        ...prev,
+                        credits: userdata.foundUser?.credits,
+                        requestedPayout: userdata.foundUser?.requestedPayout,
+                        requestedPayoutCurrency: userdata.foundUser?.requestedPayoutCurrency,
+                        requestedPayoutOption: userdata.foundUser?.requestedPayoutOption,
+                    }
+                });
             }
         }
 
@@ -363,6 +378,9 @@ const toggleDrawer = (anchor, open) => (event) => {
 
 const handleChange = (event, newValue) => {
   setTabValue(newValue);
+  if(newValue === "3"){
+    setSelectedPaymentOption("A")
+  }
 };
 
 
@@ -396,9 +414,28 @@ const list = (anchor) => (
                 className={`${tabValue === '0' ? 'bg-[#8BEDF3] border-2 border-black' : 
                 'bg-[#c1f2f5] border-2 border-gray-300'} 
                 px-4 py-6 text-base font-semibold font-['system-ui'] rounded-r-lg
-                    flex flex-row items-center`}
+                flex flex-row items-center`}
                 value={"0"}
                 onClick={(event) => {handleChange(event, "0")}}> 
+                <div className="pr-2 pl-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
+                    strokeWidth="1.5" stroke="black" 
+                    className="w-8 h-8">
+                    <path strokeLinecap="round" strokeLinejoin="round" 
+                    d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" />
+                    </svg>
+                </div>
+                <div className="">
+                    <p>Incoming Payments</p>
+                </div>
+            </button>
+            <button
+                className={`${tabValue === '1' ? 'bg-[#8BEDF3] border-2 border-black' : 
+                'bg-[#c1f2f5] border-2 border-gray-300'} 
+                px-4 py-6 text-base font-semibold font-['system-ui'] rounded-r-lg
+                    flex flex-row items-center`}
+                value={"1"}
+                onClick={(event) => {handleChange(event, "1")}}> 
                 <div className="pr-2 pl-4">
 
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" 
@@ -410,25 +447,6 @@ const list = (anchor) => (
                 </div>
                 <div className="">
                     <p>Outgoing Payments</p>
-                </div>
-            </button>
-            <button
-                className={`${tabValue === '1' ? 'bg-[#8BEDF3] border-2 border-black' : 
-                'bg-[#c1f2f5] border-2 border-gray-300'} 
-                px-4 py-6 text-base font-semibold font-['system-ui'] rounded-r-lg
-                flex flex-row items-center`}
-                value={"1"}
-                onClick={(event) => {handleChange(event, "1")}}> 
-                <div className="pr-2 pl-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
-                    strokeWidth="1.5" stroke="black" 
-                    className="w-8 h-8">
-                    <path strokeLinecap="round" strokeLinejoin="round" 
-                    d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" />
-                    </svg>
-                </div>
-                <div className="">
-                    <p>Incoming Payments</p>
                 </div>
             </button>
             <button
@@ -544,92 +562,119 @@ const list = (anchor) => (
 
                                         {userCurrencies?.length>0 && userCurrencies.map( (e) =>
                                         
-                                            <option key={e.currency} value={`${e.currency.toLowerCase()}`}>{e.currencySymbol}{e.currency.toUpperCase()}</option>
+                                            <option key={`${e.currency}_incoming`} value={`${e.currency.toLowerCase()}`}>{e.currencySymbol}{e.currency.toUpperCase()}</option>
                                         )}
 
                                     </select> 
 
-                                    </div>
+                                </div>
 
                                 <p className="text-3xl py-4">Account Balance </p>
 
                                 <p className="text-lg">In Wallet: {paymentCurrency.toUpperCase()} {paymentCurrencySymbol}{accountBalance.toFixed(2)}</p>
                                 <p className="text-lg">On Hold: {paymentCurrency.toUpperCase()} {paymentCurrencySymbol}{escrowBalance.toFixed(2)}</p>
 
-                                <p className="text-3xl pt-6">Outgoing Payments</p>
+                                <p className="text-3xl pt-6">Incoming Payments</p>
 
 
-                            <div className="flex flex-row py-4 gap-x-2">
+                                <div className="flex flex-row py-4 gap-x-2">
 
-                                <div className="flex flex-col items-center justify-center">
-                                    <p className='text-base text-center font-semibold pt-4 pb-2'> Start Date: </p>
+                                    <div className="flex flex-col items-center justify-center">
+                                        <p className='text-base text-center font-semibold pt-4 pb-2'> Start Date: </p>
 
-                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                        <LocalizationProvider dateAdapter={AdapterDayjs}>
 
-                                        <DatePicker
-                                        sx={{
-                                            '& .MuiOutlinedInput-root': {
-                                              '& fieldset': {
-                                                borderColor: '#8BEDF3',
-                                              },
-                                              '&:hover fieldset': {
-                                                borderColor: '#8BEDF3',
-                                              },
-                                              '&.Mui-focused fieldset': {
-                                                borderColor: '#8BEDF3',
-                                              },
-                                            },
-                                          }}
-                                        value={dayjs(pickerDateIncomingStart)}
-                                        onChange={(date) => setPickerDateIncomingStart(dayjs(new Date(date)))}
-                                        />
+                                            <DatePicker
+                                            sx={{
+                                                '& .MuiOutlinedInput-root': {
+                                                '& fieldset': {
+                                                    borderColor: '#8BEDF3',
+                                                },
+                                                '&:hover fieldset': {
+                                                    borderColor: '#8BEDF3',
+                                                },
+                                                '&.Mui-focused fieldset': {
+                                                    borderColor: '#8BEDF3',
+                                                },
+                                                },
+                                            }}
+                                            value={dayjs(pickerDateIncomingStart)}
+                                            onChange={(date) => setPickerDateIncomingStart(dayjs(new Date(date)))}
+                                            />
 
-                                    </LocalizationProvider>
-                                </div>
-
-                                <div className="flex flex-col items-center justify-center">
-                                <p className='text-base text-center font-semibold pt-4 pb-2'> End Date: </p>
-                                    <LocalizationProvider sx={{borderColor: "#8BEDF3", outlineColor: "#8BEDF3"}} dateAdapter={AdapterDayjs}>
-
-                                        <DatePicker
-                                        sx={{
-                                            '& .MuiOutlinedInput-root': {
-                                              '& fieldset': {
-                                                borderColor: '#8BEDF3',
-                                              },
-                                              '&:hover fieldset': {
-                                                borderColor: '#8BEDF3',
-                                              },
-                                              '&.Mui-focused fieldset': {
-                                                borderColor: '#8BEDF3',
-                                              },
-                                            },
-                                          }}
-                                        value={dayjs(pickerDateIncomingEnd)}
-                                        onChange={(date) => setPickerDateIncomingEnd(dayjs(new Date(date)))}
-                                        />
-
-                                    </LocalizationProvider>
-                                </div>
-
-                            </div>
-
-                            {incomingPayments?.length > 0 && 
-
-                                incomingPayments?.map( (payment) =>
-                                    
-                                    <div key={payment._id} className="flex flex-row">
-
-                                        <p>{payment.currencySymbol}{payment.currency}{payment.amount}</p>
-
+                                        </LocalizationProvider>
                                     </div>
-                                )
-                            }   
-                            
-                            {incomingPayments?.length > 0 && 
 
-                                <div className='flex flex-row py-2 sm:py-3 md:py-4 z-10 my-1'>
-                                        <span key={"lastIncoming"} ref={incomingRef} className="my-2 py-2" />
+                                    <div className="flex flex-col items-center justify-center">
+                                        <p className='text-base text-center font-semibold pt-4 pb-2'> End Date: </p>
+                                        <LocalizationProvider sx={{borderColor: "#8BEDF3", outlineColor: "#8BEDF3"}} dateAdapter={AdapterDayjs}>
+
+                                            <DatePicker
+                                            sx={{
+                                                '& .MuiOutlinedInput-root': {
+                                                '& fieldset': {
+                                                    borderColor: '#8BEDF3',
+                                                },
+                                                '&:hover fieldset': {
+                                                    borderColor: '#8BEDF3',
+                                                },
+                                                '&.Mui-focused fieldset': {
+                                                    borderColor: '#8BEDF3',
+                                                },
+                                                },
+                                            }}
+                                            value={dayjs(pickerDateIncomingEnd)}
+                                            onChange={(date) => setPickerDateIncomingEnd(dayjs(new Date(date)))}
+                                            />
+
+                                        </LocalizationProvider>
+                                    </div>
+
+                                    <div className="flex flex-col items-center justify-center pt-10 pl-4">
+                                        <button className="border border-[#00D3E0] hover:bg-[#00D3E0] text-black px-4 py-2 rounded-xl 
+                                        flex flex-row gap-x-2"
+                                        onClick={(e)=>handleUpdateIncoming(e, 0)}>
+
+                                            <svg xmlns="http://www.w3.org/2000/svg" 
+                                                viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
+                                                <path fillRule="evenodd" d="M15.312 11.424a5.5 5.5 0 01-9.201 2.466l-.312-.311h2.433a.75.75 0 000-1.5H3.989a.75.75 0 00-.75.75v4.242a.75.75 0 001.5 0v-2.43l.31.31a7 7 0 0011.712-3.138.75.75 0 00-1.449-.39zm1.23-3.723a.75.75 0 00.219-.53V2.929a.75.75 0 00-1.5 0V5.36l-.31-.31A7 7 0 003.239 8.188a.75.75 0 101.448.389A5.5 5.5 0 0113.89 6.11l.311.31h-2.432a.75.75 0 000 1.5h4.243a.75.75 0 00.53-.219z" clipRule="evenodd" />
+                                            </svg>
+
+                                            Refresh
+                                        </button>
+                                    </div>
+
+                                </div>
+
+                                {incomingPayments?.length > 0 && 
+
+                                    incomingPayments?.map( (payment) =>
+                                        
+                                        <div key={`${payment._id}_incoming`} className="flex flex-row gap-x-2 py-3 px-4
+                                            border border-gray-500">
+
+                                            <p>{new Date(payment?.createdAt).toLocaleDateString()} {new Date(payment?.createdAt).toLocaleTimeString()}</p>
+                                            <p>{payment.currency.toUpperCase()} {payment.currencySymbol}{payment?.amount.toFixed(2)}</p>
+
+                                        </div>
+                                    )
+                                }   
+                                
+                                {incomingPayments?.length > 0 && 
+
+                                <div className="flex flex-col items-center justify-center pt-10 pl-4">
+                                    <button className="border border-[#00D3E0] hover:bg-[#00D3E0] text-black 
+                                        px-4 py-2 rounded-xl flex flex-row gap-x-2"
+                                    disabled={waitingIncoming} onClick={(e)=>handleUpdateIncoming(e, 1)}>
+
+                                        <svg xmlns="http://www.w3.org/2000/svg" 
+                                            viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
+                                            <path d="M10.75 2.75a.75.75 0 00-1.5 0v8.614L6.295 8.235a.75.75 0 10-1.09 1.03l4.25 4.5a.75.75 0 001.09 0l4.25-4.5a.75.75 0 00-1.09-1.03l-2.955 3.129V2.75z" />
+                                            <path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z" />
+                                        </svg>
+
+                                        Load More
+                                    </button>
                                 </div>}
 
                             </div>
@@ -648,34 +693,89 @@ const list = (anchor) => (
                                     value={payoutCurrency}
                                     className={`pl-6 w-30 md:w-40 h-9 border border-gray-primary justify-center items-center`}>
 
-                                    {userCurrencies?.length>0 && userCurrencies.map( (e) =>
+                                        {userCurrencies?.length>0 && userCurrencies.map( (e) =>
                                         
-                                        <option key={e.currency} value={`${e.currency.toLowerCase()}`}>{e.currencySymbol}{e.currency}</option>
-                                    )}
+                                            <option key={e.currency} value={`${e.currency.toLowerCase()}`}>{e.currencySymbol}{e.currency.toUpperCase()}</option>
+                                        )}
 
                                     </select> 
 
                                 </div>
 
-                                <div className="flex flex-row py-4">
+                                <p className="text-3xl py-4">Account Balance </p>
 
-                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <p className="text-lg">In Wallet: {paymentCurrency.toUpperCase()} {paymentCurrencySymbol}{accountBalance.toFixed(2)}</p>
+                                <p className="text-lg">On Hold: {paymentCurrency.toUpperCase()} {paymentCurrencySymbol}{escrowBalance.toFixed(2)}</p>
 
-                                    <DatePicker
-                                    value={dayjs(pickerDateOutgoingStart)}
-                                    onChange={(date) => setPickerDateOutgoingStart(dayjs(new Date(date)))}
-                                    />
+                                <p className="text-3xl pt-6">Outgoing Payments</p>
 
-                                </LocalizationProvider>
 
-                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <div className="flex flex-row py-4 gap-x-2">
 
-                                    <DatePicker
-                                    value={dayjs(pickerDateOutgoingEnd)}
-                                    onChange={(date) => setPickerDateOutgoingEnd(dayjs(new Date(date)))}
-                                    />
+                                    <div className="flex flex-col items-center justify-center">
+                                        <p className='text-base text-center font-semibold pt-4 pb-2'> Start Date: </p>
 
-                                </LocalizationProvider>
+                                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+
+                                            <DatePicker
+                                            sx={{
+                                                '& .MuiOutlinedInput-root': {
+                                                '& fieldset': {
+                                                    borderColor: '#8BEDF3',
+                                                },
+                                                '&:hover fieldset': {
+                                                    borderColor: '#8BEDF3',
+                                                },
+                                                '&.Mui-focused fieldset': {
+                                                    borderColor: '#8BEDF3',
+                                                },
+                                                },
+                                            }}
+                                            value={dayjs(pickerDateOutgoingStart)}
+                                            onChange={(date) => setPickerDateOutgoingStart(dayjs(new Date(date)))}
+                                            />
+
+                                        </LocalizationProvider>
+                                    </div>
+
+                                    <div className="flex flex-col items-center justify-center">
+                                        <p className='text-base text-center font-semibold pt-4 pb-2'> End Date: </p>
+                                        <LocalizationProvider sx={{borderColor: "#8BEDF3", outlineColor: "#8BEDF3"}} dateAdapter={AdapterDayjs}>
+
+                                            <DatePicker
+                                            sx={{
+                                                '& .MuiOutlinedInput-root': {
+                                                '& fieldset': {
+                                                    borderColor: '#8BEDF3',
+                                                },
+                                                '&:hover fieldset': {
+                                                    borderColor: '#8BEDF3',
+                                                },
+                                                '&.Mui-focused fieldset': {
+                                                    borderColor: '#8BEDF3',
+                                                },
+                                                },
+                                            }}
+                                            value={dayjs(pickerDateOutgoingEnd)}
+                                            onChange={(date) => setPickerDateOutgoingEnd(dayjs(new Date(date)))}
+                                            />
+
+                                        </LocalizationProvider>
+                                    </div>
+
+                                    <div className="flex flex-col items-center justify-center pt-10 pl-4">
+                                        <button className="border border-[#00D3E0] hover:bg-[#00D3E0] text-black 
+                                            px-4 py-2 rounded-xl flex flex-row gap-x-2"
+                                            onClick={(e)=>handleUpdateOutgoing(e, 0)}>
+
+                                            <svg xmlns="http://www.w3.org/2000/svg" 
+                                                viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
+                                                <path fill-rule="evenodd" d="M15.312 11.424a5.5 5.5 0 01-9.201 2.466l-.312-.311h2.433a.75.75 0 000-1.5H3.989a.75.75 0 00-.75.75v4.242a.75.75 0 001.5 0v-2.43l.31.31a7 7 0 0011.712-3.138.75.75 0 00-1.449-.39zm1.23-3.723a.75.75 0 00.219-.53V2.929a.75.75 0 00-1.5 0V5.36l-.31-.31A7 7 0 003.239 8.188a.75.75 0 101.448.389A5.5 5.5 0 0113.89 6.11l.311.31h-2.432a.75.75 0 000 1.5h4.243a.75.75 0 00.53-.219z" clip-rule="evenodd" />
+                                            </svg>
+
+                                            Refresh
+                                        </button>
+                                    </div>
 
                                 </div>
 
@@ -683,9 +783,11 @@ const list = (anchor) => (
 
                                     outgoingPayments?.map( (payment) =>
                                         
-                                        <div key={payment._id} className="flex flex-row">
+                                        <div key={`${payment._id}_outgoing`} className="flex flex-row gap-x-2 py-3 px-4
+                                            border border-gray-500">
 
-                                            <p>{payment.currencySymbol}{payment.currency}{payment.amount}</p>
+                                            <p>{new Date(payment?.createdAt).toLocaleDateString()} {new Date(payment?.createdAt).toLocaleTimeString()}</p>
+                                            <p>{payment.currency.toUpperCase()} {payment.currencySymbol}{payment?.amount.toFixed(2)}</p>
 
                                         </div>
                                     )
@@ -693,17 +795,38 @@ const list = (anchor) => (
 
                                 {outgoingPayments?.length > 0 && 
 
-                                    <div className='flex flex-row py-2 sm:py-3 md:py-4 z-10 my-1'>
-                                            <span key={"lastOutgoing"} ref={outgoingRef} className="my-2 py-2" />
-                                    </div>}
+                                <div className="flex flex-col items-center justify-center pt-10 pl-4">
+                                    <button className="border border-[#00D3E0] hover:bg-[#00D3E0] text-black 
+                                        px-4 py-2 rounded-xl flex flex-row gap-x-2"
+                                    disabled={waitingOutgoing} onClick={(e)=>handleUpdateOutgoing(e, 1)}>
 
-                                </div>
+                                        <svg xmlns="http://www.w3.org/2000/svg" 
+                                            viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
+                                            <path d="M10.75 2.75a.75.75 0 00-1.5 0v8.614L6.295 8.235a.75.75 0 10-1.09 1.03l4.25 4.5a.75.75 0 001.09 0l4.25-4.5a.75.75 0 00-1.09-1.03l-2.955 3.129V2.75z" />
+                                            <path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z" />
+                                        </svg>
+
+                                        Load More
+                                    </button>
+                                </div>}
+
+                            </div>
 
                         </TabPanel>
 
                         <TabPanel value="2" style={{width: '100%'}}>
                             
+                            {auth.requestedPayout ? 
+                            
                             <div className="flex flex-col justify-center items-center w-full">
+
+                                <img className="w-[200px]" src={socketjuice_full_logo} />
+
+                                <p className="text-2xl pt-4">Your payout request was submitted and will be reviewed!</p>
+
+                            </div>
+                            
+                            : <div className="flex flex-col justify-center items-center w-full">
                 
                                 <img className="w-[200px]" src={socketjuice_full_logo} />
 
@@ -732,8 +855,6 @@ const list = (anchor) => (
                                 </div>}
 
                                 <div className="py-4 flex flex-col justify-center items-center">
-
-                                    <p className="text-4xl font-bold pt-8 pb-4">Current Balance: </p>
 
                                     <p className="text-3xl font-bold">{payoutCurrencySymbol}{selectedPayoutAmount.toFixed(2)}</p>
                                     
@@ -778,7 +899,7 @@ const list = (anchor) => (
                                 
                                 : null }
 
-                            </div>
+                            </div>}
 
                         </TabPanel>
 
@@ -787,6 +908,23 @@ const list = (anchor) => (
                             <div className="flex flex-col justify-center items-center w-full">
                 
                                 <img className="w-[200px]" src={socketjuice_full_logo} />
+
+                                <div className="flex flex-row justify-center items-center gap-x-2 py-4">
+
+                                    <label className="flex justify-center items-center pr-2 font-semibold">Currency:</label>
+
+                                    <select onChange={(event)=>setPaymentCurrency(event.target.value)}
+                                    value={paymentCurrency}
+                                    className={`pl-6 w-30 md:w-40 h-9 border border-gray-primary justify-center items-center`}>
+
+                                        {userCurrencies?.length>0 && userCurrencies.map( (e) =>
+                                        
+                                            <option key={`${e.currency}_outgoing`} value={`${e.currency.toLowerCase()}`}>{e.currencySymbol}{e.currency.toUpperCase()}</option>
+                                        )}
+
+                                    </select> 
+
+                                </div>
 
                                 <p className="text-2xl">Reload Amount:</p>
 
@@ -898,8 +1036,6 @@ const list = (anchor) => (
 
                                             if(captureData){
 
-                                                console.log(captureData)
-
                                                 const errorDetail = captureData?.details?.[0];
 
                                                 // Three cases to handle:
@@ -919,9 +1055,9 @@ const list = (anchor) => (
                                                 } else if (captureData?.status === 201) {
                                                     // (3) Successful transaction -> Show confirmation or thank you message
                                                     // Or go to another URL:  actions.redirect('thank_you.html');
-                                                    setChanged(!changed)
                                                     setPaymentSuccess(true)
                                                     alert(`Success, your payment of ${captureData?.data?.orderData?.currency_code} ${captureData?.data?.orderData?.value} has been received!`)
+                                                    setChanged(!changed)
                                                 }
                                             }   
 

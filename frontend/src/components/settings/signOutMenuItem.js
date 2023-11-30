@@ -16,7 +16,6 @@ const SignOutMenuItem = () => {
         const response = await logout();
 
         if(response){
-            navigate('/map');
             navigate(0)
         }
     }

@@ -6,9 +6,7 @@ export const AuthProvider = ({ children }) => {
     
     const [auth, setAuth] = useState("");
     const [persist, setPersist] = useState(JSON.parse(localStorage.getItem("socketjuice-persist")) || true);
-    const [browse, setBrowse] = useState(localStorage.getItem("socketjuice-browse") || 'yes');
     const [publicFX, setPublicFX] = useState("CAD");
-    const [open, setOpen] = useState(false);
 
     const [publicRates, setPublicRates] = useState({CAD:{
         USDperCAD: {
@@ -62,7 +60,7 @@ export const AuthProvider = ({ children }) => {
             socket, setSocket, newMessages, setNewMessages, newIndividualChat, 
             setNewIndividualChat, refresh, setRefresh,
             newRequests, setNewRequests, selectedChat, setSelectedChat, 
-            browse, setBrowse, publicFX, setPublicFX, previousChat, setPreviousChat,
+            publicFX, setPublicFX, previousChat, setPreviousChat,
             publicRates, setPublicRates, 
             geoData, setGeoData, activeTab, setActiveTab }}>
             {children}
