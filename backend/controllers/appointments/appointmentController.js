@@ -326,15 +326,16 @@ const addAppointmentRequest = async (req, res) => {
                 // In milliseconds
                 const timediff = (requestEnd - requestStart) / 1000 / 1800
                 const chargeAmount = Math.round(foundHost.chargeRatePerHalfHour * timediff * 100) / 100
+                const chargeAmountFee = Math.round(foundHost.chargeRatePerHalfHourFee * timediff * 100) / 100
 
                 if(chargeAmount && foundUser?.credits?.length > 0){
 
                     var checked = false
                     for(let i=0; i<foundUser?.credits?.length; i++){
-                        if(foundUser.credits[i].amount > chargeAmount && foundUser.credits[i].currency.toLowerCase() === foundHost.currency.toLowerCase()){
+                        if(foundUser.credits[i].amount > chargeAmountFee && foundUser.credits[i].currency.toLowerCase() === foundHost.currency.toLowerCase()){
                             currencySymbol = foundUser.credits[i].currencySymbol
                             
-                            foundUser.credits[i].amount = foundUser.credits[i].amount - chargeAmount
+                            foundUser.credits[i].amount = foundUser.credits[i].amount - chargeAmountFee
                             checked = true
                             break
                         }
@@ -347,7 +348,7 @@ const addAppointmentRequest = async (req, res) => {
                         for(let i=0; i<foundUser?.escrow?.length; i++){
                             if(foundUser.escrow[i].currency.toLowerCase() === foundHost.escrow.toLowerCase()){                                
                                 currencySymbol = foundUser.escrow[i].currencySymbol
-                                foundUser.escrow[i].amount = foundUser.escrow[i].amount + chargeAmount
+                                foundUser.escrow[i].amount = foundUser.escrow[i].amount + chargeAmountFee
                                 escrow = true
                                 break
                             }
@@ -375,9 +376,9 @@ const addAppointmentRequest = async (req, res) => {
                             }
                             
                             if(foundUser.escrow?.length > 0){
-                                foundUser.escrow.push({currency: currency.toLowerCase(), currencySymbol: currencySymbol, amount: chargeAmount})
+                                foundUser.escrow.push({currency: currency.toLowerCase(), currencySymbol: currencySymbol, amount: chargeAmountFee})
                             } else {
-                                foundUser.escrow = [{currency: currency.toLowerCase(), currencySymbol: currencySymbol, amount: chargeAmount}]
+                                foundUser.escrow = [{currency: currency.toLowerCase(), currencySymbol: currencySymbol, amount: chargeAmountFee}]
                             }
                         }
                     }
@@ -390,7 +391,7 @@ const addAppointmentRequest = async (req, res) => {
                 const newAppointment = await Appointment.create({_requestUserId: userId, _hostUserId: hostUserId, passcode: newToken,
                     start: requestStart, end: requestEnd, requestDateStart: requestStartString, status: "Requested",
                     requestDateEnd: requestEndString, address: foundHostProfile.address, locationlat: foundHostProfile.location.coordinates[1], 
-                    locationlng: foundHostProfile.location.coordinates[0], chargeAmount: chargeAmount, currency: foundHost.currency, 
+                    locationlng: foundHostProfile.location.coordinates[0], chargeAmount: chargeAmount, chargeAmountFee: chargeAmountFee, currency: foundHost.currency, 
                     currencySymbol: currencySymbol})
     
                 if(newAppointment){
@@ -531,7 +532,7 @@ const addAppointmentApproval = async (req, res) => {
 
                 const updatedAppointment = await Appointment.updateOne({_id: appointmentId},{$set:{status: "Approved"}})
                 
-                const newPayment = await Payment.create({_sendingUserId: userId, _receivingUserId: hostUserId, amount: foundAppointment.chargeAmount,
+                const newPayment = await Payment.create({_sendingUserId: userId, _receivingUserId: hostUserId, amount: foundAppointment.chargeAmountFee,
                     currency: foundAppointment.currency, currencySymbol: foundAppointment.currencySymbol})
 
                 if (foundUser.escrow?.length > 0){
@@ -539,9 +540,9 @@ const addAppointmentApproval = async (req, res) => {
                     var escrow = false;
                     for(let i=0; i<foundUser.escrow?.length; i++){
                         if(foundUser.escrow[i].currency.toLowerCase() === foundAppointment?.currency.toLowerCase() 
-                            && foundUser.escrow[i].amount > foundAppointment?.chargeAmount){
+                            && foundUser.escrow[i].amount > foundAppointment?.chargeAmountFee){
                             
-                            foundUser.escrow[i].amount = foundUser.escrow[i].amount - foundAppointment.chargeAmount
+                            foundUser.escrow[i].amount = foundUser.escrow[i].amount - foundAppointment.chargeAmountFee
                             escrow = true;
                             break
                         }
@@ -611,13 +612,13 @@ const addAppointmentApproval = async (req, res) => {
                 if(updatedAppointment && newPayment && newNoti && doneEmail && doneSms && savedUser && savedHost){
 
                     const driverPayment = await DriverProfile.updateOne({_userId: userId}, {$push: {outgoingPayments: {
-                        _paymentId: newPayment._id, amount: foundAppointment.chargeAmount, currency: foundAppointment.currency,
-                        currencySymbol: foundAppointment.currencySymbol
+                        _paymentId: newPayment._id, amount: foundAppointment.chargeAmount, amountFee: foundAppointment.chargeAmountFee, 
+                        currency: foundAppointment.currency, currencySymbol: foundAppointment.currencySymbol
                     }}})
     
                     const hostPayment = await HostProfile.updateOne({_userId: hostUserId}, {$push: {incomingPayments: {
-                        _paymentId: newPayment._id, amount: foundAppointment.chargeAmount, currency: foundAppointment.currency,
-                        currencySymbol: foundAppointment.currencySymbol
+                        _paymentId: newPayment._id, amount: foundAppointment.chargeAmount, amountFee: foundAppointment.chargeAmountFee, 
+                        currency: foundAppointment.currency, currencySymbol: foundAppointment.currencySymbol
                     }}})
 
                     if(conflictingAppointments && conflictingAppointments?.length > 0){
@@ -746,12 +747,12 @@ const addAppointmentCompletion = async (req, res) => {
                             }
                         }
                         if(!credited){
-                            foundHost.credits.push({amount: foundAppointment.chargeAmount, currency: foundAppointment.currency, 
-                                currencySymbol: foundAppointment.currencySymbol})
+                            foundHost.credits.push({amount: foundAppointment.chargeAmount, 
+                                currency: foundAppointment.currency, currencySymbol: foundAppointment.currencySymbol})
                         }
                     } else {
-                        foundHost.credits = [{amount: foundAppointment.chargeAmount, currency: foundAppointment.currency, 
-                            currencySymbol: foundAppointment.currencySymbol}]
+                        foundHost.credits = [{amount: foundAppointment.chargeAmount, 
+                            currency: foundAppointment.currency, currencySymbol: foundAppointment.currencySymbol}]
                     }
                 }
             
@@ -769,7 +770,7 @@ const addAppointmentCompletion = async (req, res) => {
                 doneEmail = true
             }
 
-            const sentOutReceipt = await sendReceiptOutgoing({toUser: foundHost.email, firstName: foundHost.firstName, amount: foundAppointment.chargeAmount, 
+            const sentOutReceipt = await sendReceiptOutgoing({toUser: foundHost.email, firstName: foundHost.firstName, amount: foundAppointment.chargeAmountFee, 
                 currency: foundAppointment.currency, currencySymbol: foundAppointment.currencySymbol })
 
             const sentInReceipt = await sendReceiptIncoming({toUser: foundUser.email, firstName: foundUser.firstName, amount: foundAppointment.chargeAmount, 
@@ -883,9 +884,10 @@ const addDriverReject = async (req, res) =>{
 
                 var escrow = false;
                 for(let i=0; i<foundUser.escrow?.length; i++){
-                    if(foundUser.escrow[i].amount > foundAppointment.chargeAmount && foundUser.escrow[i].currency.toLowerCase() === foundAppointment?.currency.toLowerCase() ){
+                    if(foundUser.escrow[i].amount > foundAppointment.chargeAmountFee && 
+                        foundUser.escrow[i].currency.toLowerCase() === foundAppointment?.currency.toLowerCase() ){
                         
-                        foundUser.escrow[i].amount = foundUser.escrow[i].amount - foundAppointment.chargeAmount
+                        foundUser.escrow[i].amount = foundUser.escrow[i].amount - foundAppointment.chargeAmountFee
                         escrow = true;
                         break
                     }
@@ -900,17 +902,17 @@ const addDriverReject = async (req, res) =>{
                         var credited = false
                         for(let i=0; i<foundUser?.credits?.length > 0; i++){
                             if(foundUser.credits[i].currency.toLowerCase() === foundAppointment.currency.toLowerCase()){
-                                foundUser.credits[i].amount = foundUser?.credits[i].amount + foundAppointment.chargeAmount
+                                foundUser.credits[i].amount = foundUser?.credits[i].amount + foundAppointment.chargeAmountFee
                                 credited = true;
                                 break
                             }
                         }
                         if(!credited){
-                            foundUser.credits.push({amount: foundAppointment.chargeAmount, currency: foundAppointment.currency, 
+                            foundUser.credits.push({amount: foundAppointment.chargeAmountFee, currency: foundAppointment.currency, 
                                 currencySymbol: foundAppointment.currencySymbol})
                         }
                     } else {
-                        foundUser.credits = [{amount: foundAppointment.chargeAmount, currency: foundAppointment.currency, 
+                        foundUser.credits = [{amount: foundAppointment.chargeAmountFee, currency: foundAppointment.currency, 
                             currencySymbol: foundAppointment.currencySymbol}]
                     }
                 }
@@ -1043,7 +1045,7 @@ const hostRequestCancelSubmit = async (req, res) =>{
             const updateAppointment = await Appointment.updateOne({_id: appointmentId, _requestUserId: userId, _hostUserId: hostUserId}, {$set: {cancelRequestHostSubmit: true, status: "Cancelled"}})
             const updateHostProfile = await HostProfile.updateOne({_id: hostUserId},{$inc: {numberOfAppointmentCancellations: 1}})
 
-            const newPayment = await Payment.create({_sendingUserId: hostUserId, _receivingUserId: userId, amount: foundAppointment.chargeAmount,
+            const newPayment = await Payment.create({_sendingUserId: hostUserId, _receivingUserId: userId, amount: foundAppointment.chargeAmountFee,
                 currency: foundAppointment.currency, currencySymbol: foundAppointment.currencySymbol})
 
             if (foundHost.escrow?.length > 0){
@@ -1067,17 +1069,17 @@ const hostRequestCancelSubmit = async (req, res) =>{
                         var credited = false
                         for(let i=0; i<foundUser?.credits?.length > 0; i++){
                             if(foundUser.credits[i].currency.toLowerCase() === foundAppointment.currency.toLowerCase()){
-                                foundUser.credits[i].amount = foundUser?.credits[i].amount + foundAppointment.chargeAmount
+                                foundUser.credits[i].amount = foundUser?.credits[i].amount + foundAppointment.chargeAmountFee
                                 credited = true;
                                 break
                             }
                         }
                         if(!credited){
-                            foundUser.credits.push({amount: foundAppointment.chargeAmount, currency: foundAppointment.currency, 
+                            foundUser.credits.push({amount: foundAppointment.chargeAmountFee, currency: foundAppointment.currency, 
                                 currencySymbol: foundAppointment.currencySymbol})
                         }
                     } else {
-                        foundUser.credits = [{amount: foundAppointment.chargeAmount, currency: foundAppointment.currency, 
+                        foundUser.credits = [{amount: foundAppointment.chargeAmountFee, currency: foundAppointment.currency, 
                             currencySymbol: foundAppointment.currencySymbol}]
                     }
                 }
@@ -1115,13 +1117,13 @@ const hostRequestCancelSubmit = async (req, res) =>{
                 && doneSms && savedUser && savedHost){
 
                 const driverPayment = await DriverProfile.updateOne({_userId: userId}, {$push: {outgoingPayments: {
-                    _paymentId: newPayment._id, amount: foundAppointment.chargeAmount, currency: foundAppointment.currency,
-                    currencySymbol: foundAppointment.currencySymbol
+                    _paymentId: newPayment._id, amount: foundAppointment.chargeAmount, amountFee: foundAppointment.chargeAmountFee, 
+                    currency: foundAppointment.currency, currencySymbol: foundAppointment.currencySymbol
                 }}})
 
                 const hostPayment = await HostProfile.updateOne({_userId: hostUserId}, {$push: {incomingPayments: {
-                    _paymentId: newPayment._id, amount: foundAppointment.chargeAmount, currency: foundAppointment.currency,
-                    currencySymbol: foundAppointment.currencySymbol
+                    _paymentId: newPayment._id, amount: foundAppointment.chargeAmount, amountFee: foundAppointment.chargeAmountFee, 
+                    currency: foundAppointment.currency, currencySymbol: foundAppointment.currencySymbol
                 }}})
 
                 if(driverPayment && hostPayment){
@@ -1169,9 +1171,10 @@ const addHostReject = async (req, res) =>{
 
                 var escrow = false;
                 for(let i=0; i<foundUser.escrow?.length; i++){
-                    if(foundUser.escrow[i].amount > foundAppointment.chargeAmount && foundUser.escrow[i].currency.toLowerCase() === foundAppointment?.currency.toLowerCase() ){
+                    if(foundUser.escrow[i].amount > foundAppointment.chargeAmountFee 
+                        && foundUser.escrow[i].currency.toLowerCase() === foundAppointment?.currency.toLowerCase() ){
                         
-                        foundUser.escrow[i].amount = foundUser.escrow[i].amount - foundAppointment.chargeAmount
+                        foundUser.escrow[i].amount = foundUser.escrow[i].amount - foundAppointment.chargeAmountFee
                         escrow = true;
                         break
                     }
@@ -1186,17 +1189,17 @@ const addHostReject = async (req, res) =>{
                         var credited = false
                         for(let i=0; i<foundUser?.credits?.length > 0; i++){
                             if(foundUser.credits[i].currency.toLowerCase() === foundAppointment.currency.toLowerCase()){
-                                foundUser.credits[i].amount = foundUser?.credits[i].amount + foundAppointment.chargeAmount
+                                foundUser.credits[i].amount = foundUser?.credits[i].amount + foundAppointment.chargeAmountFee
                                 credited = true;
                                 break
                             }
                         }
                         if(!credited){
-                            foundUser.credits.push({amount: foundAppointment.chargeAmount, currency: foundAppointment.currency, 
+                            foundUser.credits.push({amount: foundAppointment.chargeAmountFee, currency: foundAppointment.currency, 
                                 currencySymbol: foundAppointment.currencySymbol})
                         }
                     } else {
-                        foundUser.credits = [{amount: foundAppointment.chargeAmount, currency: foundAppointment.currency, 
+                        foundUser.credits = [{amount: foundAppointment.chargeAmountFee, currency: foundAppointment.currency, 
                             currencySymbol: foundAppointment.currencySymbol}]
                     }
                 }
@@ -1296,17 +1299,17 @@ const hostRequestCancelApprove = async (req, res) =>{
                         var credited = false
                         for(let i=0; i<foundUser?.credits?.length > 0; i++){
                             if(foundUser.credits[i].currency.toLowerCase() === foundAppointment.currency.toLowerCase()){
-                                foundUser.credits[i].amount = foundUser?.credits[i].amount + foundAppointment.chargeAmount
+                                foundUser.credits[i].amount = foundUser?.credits[i].amount + foundAppointment.chargeAmountFee
                                 credited = true;
                                 break
                             }
                         }
                         if(!credited){
-                            foundUser.credits.push({amount: foundAppointment.chargeAmount, currency: foundAppointment.currency, 
+                            foundUser.credits.push({amount: foundAppointment.chargeAmountFee, currency: foundAppointment.currency, 
                                 currencySymbol: foundAppointment.currencySymbol})
                         }
                     } else {
-                        foundUser.credits = [{amount: foundAppointment.chargeAmount, currency: foundAppointment.currency, 
+                        foundUser.credits = [{amount: foundAppointment.chargeAmountFee, currency: foundAppointment.currency, 
                             currencySymbol: foundAppointment.currencySymbol}]
                     }
                 }
@@ -1341,13 +1344,13 @@ const hostRequestCancelApprove = async (req, res) =>{
                 && doneSms && savedUser && savedHost && updatedAppointment){
 
                 const driverPayment = await DriverProfile.updateOne({_userId: userId}, {$push: {outgoingPayments: {
-                    _paymentId: newPayment._id, amount: foundAppointment.chargeAmount, currency: foundAppointment.currency,
-                    currencySymbol: foundAppointment.currencySymbol
+                    _paymentId: newPayment._id, amount: foundAppointment.chargeAmount, amountFee: foundAppointment.chargeAmountFee, 
+                    currency: foundAppointment.currency, currencySymbol: foundAppointment.currencySymbol
                 }}})
 
                 const hostPayment = await HostProfile.updateOne({_userId: hostUserId}, {$push: {incomingPayments: {
-                    _paymentId: newPayment._id, amount: foundAppointment.chargeAmount, currency: foundAppointment.currency,
-                    currencySymbol: foundAppointment.currencySymbol
+                    _paymentId: newPayment._id, amount: foundAppointment.chargeAmount, amountFee: foundAppointment.chargeAmountFee, 
+                    currency: foundAppointment.currency, currencySymbol: foundAppointment.currencySymbol
                 }}})
 
                 if(driverPayment && hostPayment){

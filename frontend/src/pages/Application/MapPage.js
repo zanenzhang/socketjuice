@@ -395,7 +395,7 @@ const handleSelectEvent = (e) => {
     setDriverRequestedCancel(e.driverRequestedCancel)
     setHostRequestedCancel(e.hostRequestedCancel)
 
-    setSelectedChargeRate(e.chargeRatePerHalfHour)
+    setSelectedChargeRate(e.chargeRatePerHalfHourFee)
     setSelectedCurrency(e.currency)
     setSelectedCurrencySymbol(e.currencySymbol)
 
@@ -773,6 +773,7 @@ const {scrollToTime} = useMemo(
                 hostresults.hostAppointments[i].currency = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.currency
                 hostresults.hostAppointments[i].currencySymbol = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.currencySymbol
                 hostresults.hostAppointments[i].chargeRatePerHalfHour = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.chargeRatePerHalfHour
+                hostresults.hostAppointments[i].chargeRatePerHalfHourFee = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.chargeRatePerHalfHourFee
 
                 hostresults.hostAppointments[i].locationlat = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.location?.coordinates[1]
                 hostresults.hostAppointments[i].locationlng = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.location?.coordinates[0]
@@ -794,6 +795,7 @@ const {scrollToTime} = useMemo(
                 connectionType: hostresults.hostAppointments[i].connectionType,
                 secondaryConnectionType: hostresults.hostAppointments[i].secondaryConnectionType,
                 chargeRatePerHalfHour: hostresults.hostAppointments[i].chargeRatePerHalfHour,
+                chargeRatePerHalfHourFee: hostresults.hostAppointments[i].chargeRatePerHalfHourFee,
                 currency: hostresults.hostAppointments[i].currency,
                 currencySymbol: hostresults.hostAppointments[i].currencySymbol,
                 durationText: hostresults.hostAppointments[i].durationText,
@@ -832,7 +834,7 @@ const {scrollToTime} = useMemo(
     setSelectedConnection(host.connectionType)
     setSecondaryConnection(host.secondaryConnectionType)
 
-    setSelectedChargeRate(host.chargeRatePerHalfHour)
+    setSelectedChargeRate(host.chargeRatePerHalfHourFee)
     setSelectedCurrency(host.currency)
     setSelectedCurrencySymbol(host.currencySymbol)
 
@@ -1461,7 +1463,7 @@ const {scrollToTime} = useMemo(
                       
                       <div className='flex flex-col w-full'>
                         <p>Distance: {host.distanceText} / {host.durationText}</p>
-                        <p>30 Min Rate: {host.currencySymbol}{Number(host.chargeRatePerHalfHour).toFixed(2)}</p>
+                        <p>30 Min Rate: {host.currencySymbol}{Number(host.chargeRatePerHalfHourFee).toFixed(2)}</p>
                       </div>
                     
                       <div className='flex flex-row'>
@@ -1644,7 +1646,7 @@ const {scrollToTime} = useMemo(
 
                     <div className='flex flex-col w-full'>
                         <p>Distance: {host.distanceText} / {host.durationText}</p>
-                        <p>30 Min Rate: {host.currencySymbol}{Number(host.chargeRatePerHalfHour).toFixed(2)}</p>
+                        <p>30 Min Rate: {host.currencySymbol}{Number(host.chargeRatePerHalfHourFee).toFixed(2)}</p>
                       </div>
                     
                       <div className='flex flex-row'>

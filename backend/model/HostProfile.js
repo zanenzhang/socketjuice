@@ -316,6 +316,10 @@ var hostProfileSchema = new Schema({
             type: Number, 
             default: 0
         },
+        amountFee: {
+            type: Number, 
+            default: 0
+        },
         currency: {
             type: Number, 
             default: 0

@@ -31,6 +31,9 @@ var appointmentSchema = new Schema({
     chargeAmount: {
         type: Number
     },
+    chargeAmountFee: {
+        type: Number
+    },
     currency: {
         type: String
     },

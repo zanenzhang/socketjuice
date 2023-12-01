@@ -118,6 +118,10 @@ var driverProfileSchema = new Schema({
             type: Number, 
             default: 0
         },
+        amountFee: {
+            type: Number, 
+            default: 0
+        },
         currency: {
             type: String,
             default: "cad"

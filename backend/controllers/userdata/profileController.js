@@ -1473,7 +1473,7 @@ const updateDriverProfile = async (req, res) => {
 const addHostProfile = async (req, res) => {
 
     var { userId, hostPreviewMediaObjectId, hostMediaObjectIds, hostVideoObjectIds, hostObjectTypes, 
-        hostPreviewObjectType, hostCoverIndex, chargeRate, currency, connectorType, secondaryConnectorType, chargingLevel,
+        hostPreviewObjectType, hostCoverIndex, chargeRate, chargeRateFee, currency, connectorType, secondaryConnectorType, chargingLevel,
         hoursMondayStart, hoursMondayFinish, hoursTuesdayStart, hoursTuesdayFinish, hoursWednesdayStart, hoursWednesdayFinish, hoursThursdayStart, hoursThursdayFinish,
         hoursFridayStart, hoursFridayFinish, hoursSaturdayStart, hoursSaturdayFinish, hoursSundayStart, hoursSundayFinish,
         holidayHoursStart, holidayHoursFinish, 
@@ -1497,6 +1497,7 @@ const addHostProfile = async (req, res) => {
         currency = currency.toLowerCase()
 
         chargeRate = Number(chargeRate)
+        chargeRateFee = Number(chargeRateFee)
 
         var currencySymbol = "$"
 
@@ -1551,6 +1552,7 @@ const addHostProfile = async (req, res) => {
         }    
 
         foundHost.chargeRatePerHalfHour = chargeRate
+        foundHost.chargeRatePerHalfHourFee = chargeRateFee
         foundHost.currency = currency
         foundHost.currencySymbol = currencySymbol
 

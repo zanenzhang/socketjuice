@@ -395,7 +395,7 @@ const editSettingsHostProfile = async (req, res) => {
             holidayHoursStart, holidayHoursFinish, 
             closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays,
             allDayMonday, allDayTuesday, allDayWednesday, allDayThursday, allDayFriday, allDaySaturday, allDaySunday, allDayHolidays,
-            chargeRate, hostComments, offeringCharging } = req.body
+            chargeRate, chargeRateFee, hostComments, offeringCharging } = req.body
         
         if ( !loggedUserId ) {    
             return res.status(400).json({ message: 'Missing required fields!' })
@@ -430,6 +430,7 @@ const editSettingsHostProfile = async (req, res) => {
             holidayHoursFinish ? foundHostProfile.holidayHoursFinish = holidayHoursFinish : foundHostProfile.holidayHoursFinish = "";
             
             chargeRate ? foundHostProfile.chargeRatePerHalfHour = chargeRate : foundHostProfile.chargeRatePerHalfHour = "";
+            chargeRateFee ? foundHostProfile.chargeRatePerHalfHourFee = chargeRateFee : foundHostProfile.chargeRatePerHalfHourFee = "";
             
             closedOnMonday ?  foundHostProfile.closedOnMonday = closedOnMonday : foundHostProfile.closedOnMonday = false;
             closedOnTuesday ?  foundHostProfile.closedOnTuesday = closedOnTuesday : foundHostProfile.closedOnTuesday = false;

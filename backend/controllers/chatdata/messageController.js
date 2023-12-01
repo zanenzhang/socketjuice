@@ -2,6 +2,8 @@ const User = require('../../model/User');
 const Chat = require('../../model/Chat');
 const Message = require('../../model/Message');
 const UsageLimit = require('../../model/UsageLimit');
+const { sendMessageUpdate } = require("../../middleware/mailer")
+const { sendChatMessageSMS } = require("../../controllers/authentication/twilioController")
 
 const ObjectId  = require('mongodb').ObjectId;
 
@@ -71,6 +73,9 @@ const addMessage = async (req, res) => {
 
         var todaysDate = new Date().toLocaleDateString()
         var doneOperation = null;
+        var doneEmail = null;
+        var doneSMS = null;
+        var toUpdate = null;
 
         if(foundLimits && foundUser){
 
@@ -121,9 +126,103 @@ const addMessage = async (req, res) => {
                     doneOperation = true;
                 }
             }
+
+            if(foundLimits.numberOfMessageEmails?.length > 0){
+
+                if(foundLimits.numberOfMessageEmails?.some(e=>e.date === todaysDate)){
+
+                    for(let i=0; i< foundLimits.numberOfMessageEmails.length; i++){
+    
+                        if(foundLimits.numberOfMessageEmails[i].date === todaysDate){
+    
+                            if(foundLimits.numberOfMessageEmails[i].emailsNumber >= 1){
+                                
+                                doneEmail = true;
+                            
+                            } else {
+    
+                                foundLimits.numberOfMessageEmails[i].emailsNumber = foundLimits.numberOfMessageEmails[i].emailsNumber + 1
+                                const savedLimits = await foundLimits.save()
+    
+                                if(savedLimits){
+                                    toUpdate = true;
+                                    doneEmail = true;
+                                }
+    
+                                break;
+                            }
+                        }
+                    }
+    
+                } else {
+    
+                    foundLimits.numberOfMessageEmails.push({date: todaysDate, emailsNumber: 1 })
+                    const savedLimits = await foundLimits.save()
+                    if(savedLimits){
+                        toUpdate = true;
+                        doneEmail = true;
+                    }
+                }
+
+            } else {
+
+                foundLimits.numberOfMessageEmails = [{date: todaysDate, emailsNumber: 1 }]
+                const savedLimits = await foundLimits.save()
+                if(savedLimits){
+                    toUpdate = true;
+                    doneEmail = true;
+                }
+            }
+
+            if(foundLimits.numberOfMessageTexts?.length > 0){
+
+                if(foundLimits.numberOfMessageTexts?.some(e=>e.date === todaysDate)){
+
+                    for(let i=0; i< foundLimits.numberOfMessageTexts.length; i++){
+    
+                        if(foundLimits.numberOfMessageTexts[i].date === todaysDate){
+    
+                            if(foundLimits.numberOfMessageTexts[i].textsNumber >= 1){
+                                
+                                doneSMS = true;
+                            
+                            } else {
+    
+                                foundLimits.numberOfMessageTexts[i].textsNumber = foundLimits.numberOfMessageTexts[i].textsNumber + 1
+                                const savedLimits = await foundLimits.save()
+    
+                                if(savedLimits){
+                                    doneSMS = true;
+                                    toUpdate = true;
+                                }
+    
+                                break;
+                            }
+                        }
+                    }
+    
+                } else {
+    
+                    foundLimits.numberOfMessageTexts.push({date: todaysDate, textsNumber: 1 })
+                    const savedLimits = await foundLimits.save()
+                    if(savedLimits){
+                        doneSMS = true;
+                        toUpdate = true;
+                    }
+                }
+
+            } else {
+
+                foundLimits.numberOfMessageTexts = [{date: todaysDate, textsNumber: 1 }]
+                const savedLimits = await foundLimits.save()
+                if(savedLimits){
+                    doneSMS = true;
+                    toUpdate = true;
+                }
+            }
         } 
 
-        if(doneOperation){
+        if(doneOperation && doneEmail && doneSMS){
 
             let foundChat = await Chat.findOne({"_id":chatId})
 
@@ -139,6 +238,8 @@ const addMessage = async (req, res) => {
 
             if(addMessage && foundChat){
 
+                var recipient = ""
+
                 foundChat.messages.push({_messageId: addMessage._id})
 
                 foundChat.mostRecentMessage = {_userId: loggedUserId,
@@ -146,6 +247,12 @@ const addMessage = async (req, res) => {
                     lastUpdated: Date.now()}
 
                 foundChat.lastUpdated = Date.now()
+
+                for(let i=0; i<foundChat?.participants?.length; i++){
+                    if(foundChat.participants[i]._userId !== loggedUserId){
+                        recipient = foundChat.participants[i]._userId
+                    }
+                }
 
                 const done = await foundChat.save()
 
@@ -158,7 +265,26 @@ const addMessage = async (req, res) => {
 
             if (savedNew && savedMessage){
 
-                return res.status(201).json({ 'Message': "Success" });
+                if(toUpdate){
+                
+                    const recipientUser = await User.findOne({_id: recipient})
+
+                    if(recipientUser){
+
+                        const sentEmail = await sendMessageUpdate(recipientUser.email, recipientUser.firstName, foundUser.firstName )
+                        const sentSms = await sendChatMessageSMS(recipientUser._id, foundUser.firstName)
+
+                        if(sentEmail && sentSms){
+                            return res.status(201).json({ 'Message': "Success" });
+                        } else {
+                            return res.status(401).json({ 'Message': "Failed operation" });
+                        }
+                    }
+                
+                } else {
+
+                    return res.status(201).json({ 'Message': "Success" });
+                }
             
             } else {
 

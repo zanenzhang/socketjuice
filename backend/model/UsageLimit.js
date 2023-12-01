@@ -74,6 +74,22 @@ var usageLimitSchema = new Schema({
             type: Number
         }
     }],
+    numberOfMessageEmails: [{
+        date: { 
+            type: String, 
+        },
+        emailsNumber: {
+            type: Number
+        }
+    }],
+    numberOfMessageTexts: [{
+        date: { 
+            type: String, 
+        },
+        textsNumber: {
+            type: Number
+        }
+    }],
     numberOfFlagsGiven: [{
         date: { 
             type: String, 

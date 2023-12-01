@@ -237,4 +237,49 @@ async function sendSmsNotification (receivingUserId, notificationType) {
 }
 
 
-module.exports = { sendVerification, checkVerification, sendSmsNotification }
+async function sendChatMessageSMS (receivingUserId, sendingUserFirstName) {
+
+    if (!receivingUserId || !sendingUserFirstName ) {
+        return res.status(400).json({ message: 'Missing required info' })
+    }
+
+    console.log("Starting chat message sms notification")
+
+    const foundReceiver = await User.findOne({_id: receivingUserId})
+
+    if(foundReceiver && foundReceiver.checkedMobile ){
+
+        try {
+
+            var message = `Hi ${foundReceiver.firstName}, you have received a message from ${sendingUserFirstName}. This will be the only text update for this conversation. Please open the app at www.socketjuice.com to see the message.`
+
+            const sent = await client.messages
+            .create({
+               body: `${message}`,
+               from: `${process.env.TWILIO_PHONE_NUM}`,
+               to: `${foundReceiver.phonePrimary}`
+             })
+
+            if(sent && sent.status === 'sent'){
+                
+                console.log("Success")
+                return ({result: sent.status})
+                
+            } else {
+                return ({result: "Not sent"})
+            }
+
+        } catch(err){
+
+            console.log(err)
+            return ({result: "Operation failed"})
+        }
+
+    } else {
+
+        return ({ result: "Operation failed", message: 'Mobile number was not verified' })
+    } 
+}
+
+
+module.exports = { sendVerification, checkVerification, sendSmsNotification, sendChatMessageSMS }

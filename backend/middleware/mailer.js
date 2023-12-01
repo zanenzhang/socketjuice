@@ -176,6 +176,33 @@ exports.sendVerifiedEmail = function({toUser, firstName}) {
     return sendEmail(message);
   }
 
+
+  exports.sendMessageUpdate = function({toUser, firstName, fromUserFirstName}) {
+    const message = {
+      from: process.env.EMAIL_SUPPORT,
+      // to: toUser.email // in production uncomment this
+      to: toUser,
+      subject: 'SocketJuice - You have received a chat message',
+      html: `
+        <img src = "cid:myImg" style="width:200px;"/>
+        <h3> Hello ${firstName}! </h3>
+        <p> You have received a chat message from ${fromUserFirstName}! </p>
+        <p> This will be the only notification we send for the conversation.</p>
+        <p> Please log into the application to see the message.</p>
+        <p>Cheers,</p>
+        <p>The ${process.env.MAIL_FROM_NAME} team</p>
+      `,
+      attachments: [{
+        filename: 'SocketJuiceLogo.png',
+        path: __dirname + '/SocketJuice.png',
+        cid: 'myImg'
+      }]    
+    }
+  
+    return sendEmail(message);
+  }
+
+
   exports.sendHostProfileConfirm = function({toUser, firstName}) {
     const message = {
       from: process.env.EMAIL_SUPPORT,

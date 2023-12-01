@@ -84,6 +84,7 @@ const BookingsPage = () => {
   const [deactivated, setDeactivated] = useState(false)
 
   const [chargeRate, setChargeRate] = useState(3.0);
+  const [chargeRateFee, setChargeRateFee] = useState(3.5);
   const [currency, setCurrency] = useState("cad");
   const [currencySymbol, setCurrencySymbol] = useState("$");
   const [connectorType, setConnectorType] = useState("AC-J1772-Type1");
@@ -285,30 +286,39 @@ const BookingsPage = () => {
     if(currency === "cad"){
       setCurrencySymbol("$")
       setChargeRate(3)
+      setChargeRateFee(3.5)
     } else if(currency === "usd"){
       setCurrencySymbol("$")
       setChargeRate(3)
+      setChargeRateFee(3.5)
     } else if(currency === "eur"){
       setCurrencySymbol("€")
       setChargeRate(3)
+      setChargeRateFee(3.5)
     } else if(currency === "gbp"){
       setCurrencySymbol("£")
       setChargeRate(3)
+      setChargeRateFee(3.5)
     } else if(currency === "inr"){
       setCurrencySymbol("₹")
       setChargeRate(300)
+      setChargeRateFee(350)
     } else if(currency === "jpy"){
       setCurrencySymbol("¥")
       setChargeRate(300)
+      setChargeRateFee(350)
     } else if(currency === "cny"){
       setCurrencySymbol("¥")
       setChargeRate(9)
+      setChargeRateFee(11)
     } else if(currency === "aud"){
       setCurrencySymbol("$")
       setChargeRate(3)
+      setChargeRateFee(3.5)
     } else if(currency === "nzd"){
       setCurrencySymbol("$")
       setChargeRate(3)
+      setChargeRateFee(3.5)
     }
   }, [currency])
 
@@ -435,6 +445,31 @@ useEffect( () => {
   const [selectedLat, setSelectedLat] = useState("")
   const [selectedLng, setSelectedLng] = useState("")
 
+  const handleChargeRate = (e) => {
+
+    setChargeRate(e.target.value)
+
+    if(currency === "cad"){
+      setChargeRateFee(e.target.value + 0.50)
+    } else if(currency === "usd"){
+      setChargeRateFee(e.target.value + 0.50)
+    } else if(currency === "eur"){
+      setChargeRateFee(e.target.value + 0.50)
+    } else if(currency === "gbp"){
+      setChargeRateFee(e.target.value + 0.50)
+    } else if(currency === "inr"){
+      setChargeRateFee(e.target.value + 50)
+    } else if(currency === "jpy"){
+      setChargeRateFee(e.target.value + 50)
+    } else if(currency === "cny"){
+      setChargeRateFee(e.target.value + 2)
+    } else if(currency === "aud"){
+      setChargeRateFee(e.target.value + 0.50)
+    } else if(currency === "nzd"){
+      setChargeRateFee(e.target.value + 0.50)
+    }
+
+  }
 
   const handleMessageDriver = async () => {
 
@@ -482,7 +517,7 @@ useEffect( () => {
     setSelectedCurrency(hostevent.currency)
     setSelectedCurrencySymbol(hostevent.currencySymbol)
 
-    var charge = ((hostevent.end - hostevent.end) / 1000 / 1800) * hostevent.chargeRatePerHalfHour
+    var charge = ((hostevent.end - hostevent.end) / 1000 / 1800) * hostevent.chargeRatePerHalfHourFee
     setSelectedChargeRate(hostevent.chargeRate)
     setSelectedTotalCharge(charge)
     
@@ -515,7 +550,7 @@ useEffect( () => {
     setSelectedCurrency(driverevent.currency)
     setSelectedCurrencySymbol(driverevent.currencySymbol)
 
-    var charge = ((driverevent.end - driverevent.end) / 1000 / 1800) * driverevent.chargeRatePerHalfHour
+    var charge = ((driverevent.end - driverevent.end) / 1000 / 1800) * driverevent.chargeRatePerHalfHourFee
     setSelectedChargeRate(driverevent.chargeRate)
     setSelectedTotalCharge(charge)
     
@@ -1159,7 +1194,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                 const uploadedHostPhotos = await addHostProfile(
                   auth?.userId, previewMediaObjectId, finalImageObjArray, finalVideoObjArray,
                   mediaTypes, previewMediaType, coverIndex, 
-                  chargeRate, currency, connectorType, secondaryConnectorType, chargingLevel,
+                  chargeRate, chargeRateFee, currency, connectorType, secondaryConnectorType, chargingLevel,
                   hoursMondayStart, hoursMondayFinish, hoursTuesdayStart, hoursTuesdayFinish, hoursWednesdayStart, hoursWednesdayFinish, hoursThursdayStart, hoursThursdayFinish,
                   hoursFridayStart, hoursFridayFinish, hoursSaturdayStart, hoursSaturdayFinish, hoursSundayStart, hoursSundayFinish,
                   holidayHoursStart, holidayHoursFinish, 
@@ -1314,6 +1349,7 @@ const handleRegularHourChangeEnd = (event, day) => {
               driverLastName: hostresults.hostAppointments[i].driverLastName,
 
               chargeRatePerHalfHour:  hostresults.hostAppointments[i].chargeRatePerHalfHour,
+              chargeRatePerHalfHourFee:  hostresults.hostAppointments[i].chargeRatePerHalfHourFee,
               currency:  hostresults.hostAppointments[i].currency,
               currencySymbol:  hostresults.hostAppointments[i].currencySymbol,
 
@@ -1383,6 +1419,7 @@ const handleRegularHourChangeEnd = (event, day) => {
               driverresults.userAppointments[i].locationlat = hostprofiledata[driverresults.userAppointments[i]._hostUserId]?.location?.coordinates[1]
               driverresults.userAppointments[i].locationlng = hostprofiledata[driverresults.userAppointments[i]._hostUserId]?.location?.coordinates[0]
               driverresults.userAppointments[i].chargeRatePerHalfHour = hostprofiledata[driverresults.userAppointments[i]._hostUserId]?.chargeRatePerHalfHour
+              driverresults.userAppointments[i].chargeRatePerHalfHourFee = hostprofiledata[driverresults.userAppointments[i]._hostUserId]?.chargeRatePerHalfHourFee
               driverresults.userAppointments[i].currency = hostprofiledata[driverresults.userAppointments[i]._hostUserId]?.currency
               driverresults.userAppointments[i].currencySymbol = hostprofiledata[driverresults.userAppointments[i]._hostUserId]?.currencySymbol
             }
@@ -1422,6 +1459,7 @@ const handleRegularHourChangeEnd = (event, day) => {
               driverLastName: driverresults.userAppointments[i].driverLastName,
 
               chargeRatePerHalfHour:  driverresults.userAppointments[i].chargeRatePerHalfHour,
+              chargeRatePerHalfHourFee:  driverresults.userAppointments[i].chargeRatePerHalfHourFee,
               currency:  driverresults.userAppointments[i].currency,
               currencySymbol:  driverresults.userAppointments[i].currencySymbol,
 
@@ -1641,7 +1679,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                       <select className="pl-6 w-30 md:w-40 h-9 border border-gray-primary justify-center items-center" 
                       value={chargeRate}
                       onChange={(event) => {
-                          setChargeRate(event.target.value);
+                          handleChargeRate(event);
                       }}>
 
                       {currency === "usd" && usdvalues.map((rate) => (

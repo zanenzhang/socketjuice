@@ -2,7 +2,7 @@ import axios from "../../api/axios";
 const UPLOAD_URL = '/profile/host';
 
 async function addHostProfile(userId, hostPreviewMediaObjectId, hostMediaObjectIds, hostVideoObjectIds, 
-    hostObjectTypes, hostPreviewObjectType, hostCoverIndex, chargeRate, currency, connectorType, secondaryConnectorType, chargingLevel,
+    hostObjectTypes, hostPreviewObjectType, hostCoverIndex, chargeRate, chargeRateFee, currency, connectorType, secondaryConnectorType, chargingLevel,
     hoursMondayStart, hoursMondayFinish, hoursTuesdayStart, hoursTuesdayFinish, hoursWednesdayStart, hoursWednesdayFinish, hoursThursdayStart, hoursThursdayFinish,
     hoursFridayStart, hoursFridayFinish, hoursSaturdayStart, hoursSaturdayFinish, hoursSundayStart, hoursSundayFinish,
     holidayHoursStart, holidayHoursFinish, 
@@ -15,7 +15,7 @@ async function addHostProfile(userId, hostPreviewMediaObjectId, hostMediaObjectI
 
         const response = await axios.post(UPLOAD_URL, 
             JSON.stringify({userId, hostPreviewMediaObjectId, hostMediaObjectIds, hostVideoObjectIds, 
-                hostObjectTypes, hostPreviewObjectType, hostCoverIndex, chargeRate, currency, connectorType, secondaryConnectorType, chargingLevel,
+                hostObjectTypes, hostPreviewObjectType, hostCoverIndex, chargeRate, chargeRateFee, currency, connectorType, secondaryConnectorType, chargingLevel,
                 hoursMondayStart, hoursMondayFinish, hoursTuesdayStart, hoursTuesdayFinish, hoursWednesdayStart, hoursWednesdayFinish, hoursThursdayStart, hoursThursdayFinish,
                 hoursFridayStart, hoursFridayFinish, hoursSaturdayStart, hoursSaturdayFinish, hoursSundayStart, hoursSundayFinish,
                 holidayHoursStart, holidayHoursFinish, 

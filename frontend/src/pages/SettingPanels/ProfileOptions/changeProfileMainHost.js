@@ -78,6 +78,7 @@ export default function ChangeProfileMainHost({loggedUserId}) {
   const [currency, setCurrency] = useState("cad");
   const [currencySymbol, setCurrencySymbol] = useState("$");
   const [chargeRate, setChargeRate] = useState(3);
+   const [chargeRateFee, setChargeRateFee] = useState(3.50);
   const [offeringCharging, setOfferingCharging] = useState(false);
 
   const [hoursMondayStart, setHoursMondayStart] = useState('09:00');
@@ -384,6 +385,7 @@ useEffect( () => {
             setCurrency(response.foundHostProfile.currency)
             setCurrencySymbol(response.foundHostProfile.currencySymbol)
             setChargeRate(response.foundHostProfile.chargeRatePerHalfHour)
+            setChargeRateFee(response.foundHostProfile.chargeRatePerHalfHourFee)
             setOfferingCharging(!response.foundHostProfile.deactivated)
             
           }
@@ -396,6 +398,32 @@ useEffect( () => {
       }, [auth.userId])
 
     
+      const handleChargeRate = (e) => {
+
+        setChargeRate(e.target.value)
+    
+        if(currency === "cad"){
+          setChargeRateFee(e.target.value + 0.50)
+        } else if(currency === "usd"){
+          setChargeRateFee(e.target.value + 0.50)
+        } else if(currency === "eur"){
+          setChargeRateFee(e.target.value + 0.50)
+        } else if(currency === "gbp"){
+          setChargeRateFee(e.target.value + 0.50)
+        } else if(currency === "inr"){
+          setChargeRateFee(e.target.value + 50)
+        } else if(currency === "jpy"){
+          setChargeRateFee(e.target.value + 50)
+        } else if(currency === "cny"){
+          setChargeRateFee(e.target.value + 2)
+        } else if(currency === "aud"){
+          setChargeRateFee(e.target.value + 0.50)
+        } else if(currency === "nzd"){
+          setChargeRateFee(e.target.value + 0.50)
+        }
+    
+    }
+
     const handleOfferingCharging = (e) => {
         setOfferingCharging(e.target.checked)
     }
@@ -408,30 +436,39 @@ useEffect( () => {
         if(e.target.value === "cad"){
             setCurrencySymbol("$")
             setChargeRate(3)
+            setChargeRateFee(3.5)
         } else if(e.target.value === "usd"){
             setCurrencySymbol("$")
             setChargeRate(3)
+            setChargeRateFee(3.5)
         } else if(e.target.value === "eur"){
             setCurrencySymbol("€")
             setChargeRate(3)
+            setChargeRateFee(3.5)
         } else if(e.target.value === "gbp"){
             setCurrencySymbol("£")
             setChargeRate(3)
+            setChargeRateFee(3.5)
         } else if(e.target.value === "inr"){
             setCurrencySymbol("₹")
             setChargeRate(300)
+            setChargeRateFee(350)
         } else if(e.target.value === "jpy"){
             setCurrencySymbol("¥")
             setChargeRate(300)
+            setChargeRateFee(350)
         } else if(e.target.value === "cny"){
             setCurrencySymbol("¥")
             setChargeRate(9)
+            setChargeRateFee(11)
         } else if(e.target.value === "aud"){
             setCurrencySymbol("$")
             setChargeRate(3)
+            setChargeRateFee(3.5)
         } else if(e.target.value === "nzd"){
             setCurrencySymbol("$")
             setChargeRate(3)
+            setChargeRateFee(3.5)
         }
     }
 
@@ -676,7 +713,7 @@ useEffect( () => {
         holidayHoursStart, holidayHoursFinish, 
         closedOnMonday, closedOnTuesday, closedOnWednesday, closedOnThursday, closedOnFriday, closedOnSaturday, closedOnSunday, closedOnHolidays,
         allDayMonday, allDayTuesday, allDayWednesday, allDayThursday, allDayFriday, allDaySaturday, allDaySunday, allDayHolidays,
-        chargeRate, hostComments, offeringCharging,
+        chargeRate, chargeRateFee, hostComments, offeringCharging,
         auth.accessToken)
 
     if(editedSettings){
@@ -737,7 +774,7 @@ useEffect( () => {
                     <select className="pl-6 w-30 md:w-40 h-9 border border-gray-primary justify-center items-center" 
                     value={chargeRate}
                     onChange={(event) => {
-                        setChargeRate(event.target.value);
+                        handleChargeRate(event.target.value);
                     }}>
                     
                     {currency === "usd" && usdvalues.map((rate) => (

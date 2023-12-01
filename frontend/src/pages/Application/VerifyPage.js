@@ -65,6 +65,7 @@ const VerifyPage = () => {
     const [errorMessage, setErrorMessage] = useState("");
 
     const [chargeRate, setChargeRate] = useState(3.0);
+    const [chargeRateFee, setChargeRateFee] = useState(3.5);
     const [currency, setCurrency] = useState("cad");
     const [connectorType, setConnectorType] = useState("AC-J1772-Type1");
     const [chargingLevel, setChargingLevel] = useState("Level 1")
