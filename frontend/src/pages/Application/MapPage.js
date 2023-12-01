@@ -41,6 +41,8 @@ import getHostAppointments from '../../helpers/Appointments/getHostAppointments'
 import addDriverReject from '../../helpers/Appointments/addDriverReject';
 import addPaypalOrder from '../../helpers/Paypal/addPaypalOrder';
 import capturePaypalOrder from '../../helpers/Paypal/capturePaypalOrder';
+import getUserData from '../../helpers/Userdata/getUserData';
+
 const libraries = ['places'];
 
 
@@ -51,20 +53,19 @@ const MapPage = () => {
   const localizer = dayjsLocalizer(dayjs);
   const DnDCalendar = withDragAndDrop(Calendar);
 
-  const { auth, setActiveTab, socket, setSocket, setNewMessages, 
-    setNewRequests, setNewIndividualChat } = useAuth();
+  const { auth, setActiveTab, setAuth, setNewIndividualChat } = useAuth();
   
   const navigate = useNavigate();
 
   const [center, setCenter] = useState({ lat: 48.8584, lng: 2.2945 })
 
-  const [map, setMap] = useState(null)
-  const [date, setDate] = useState(new Date())
-  const [directionsResponse, setDirectionsResponse] = useState(null)
-  const [distance, setDistance] = useState('')
-  const [duration, setDuration] = useState('')
-  const [mediaURLs, setMediaURLs] = useState([])
-  const [hostComments, setHostComments] = useState([])
+  const [map, setMap] = useState(null);
+  const [date, setDate] = useState(new Date());
+  const [directionsResponse, setDirectionsResponse] = useState(null);
+  const [distance, setDistance] = useState('');
+  const [duration, setDuration] = useState('');
+  const [mediaURLs, setMediaURLs] = useState([]);
+  const [hostComments, setHostComments] = useState([]);
 
   const sliderRefPre = useRef(null);
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -132,7 +133,14 @@ const MapPage = () => {
   };
 
   const [paymentMessage, setPaymentMessage] = useState(""); 
-  
+
+  const [changed, setChanged] = useState(0)
+  const [paymentCurrency, setPaymentCurrency] = useState("")
+  const [paymentCurrencySymbol, setPaymentCurrencySymbol] = useState("$")
+  const [userCurrencies, setUserCurrencies] = useState([])
+  const [accountBalance, setAccountBalance] = useState(0)
+  const [escrowBalance, setEscrowBalance] = useState(0)
+
   const [selectedAmount, setSelectedAmount] = useState(20);
   const [selectedServiceFee, setSelectedServiceFee] = useState(1.50);
   const [selectedTotal, setSelectedTotal] = useState(21.50);
@@ -986,6 +994,68 @@ const {scrollToTime} = useMemo(
       () => debounce(handleCenterChanged, 800)
   , [auth]);
 
+  useEffect( () => {
+
+    var currencies = []
+    if(auth.credits?.length){
+        for(let i=0; i<auth.credits?.length; i++){
+            currencies.push({currency: auth.credits[i].currency, currencySymbol: auth.credits[i].currencySymbol})
+            
+        }
+        setUserCurrencies(currencies)
+        setPaymentCurrency(currencies[0].currency.toLowerCase())
+    }
+
+  }, [auth])
+
+
+  useEffect( ()=> {
+
+    if((auth.credits?.length || changed > 0) && paymentCurrency){
+      for(let i=0; i<auth.credits?.length; i++){
+          if(auth.credits[i].currency.toLowerCase() === paymentCurrency){
+              setPaymentCurrencySymbol(auth.credits[i].currencySymbol)
+              setAccountBalance(auth.credits[i].amount)
+          }
+      }
+      for(let i=0; i<auth.escrow?.length; i++){
+          if(auth.escrow[i].currency.toLowerCase() === paymentCurrency){
+              setEscrowBalance(auth.escrow[i].amount)
+          }
+      }
+    }
+
+  }, [paymentCurrency])
+
+
+  useEffect( ()=> {
+
+    async function updateUserData(){
+
+        const userdata = await getUserData(auth.accessToken, auth.userId)
+
+        if(userdata){
+            console.log(userdata)
+            
+            setAuth(prev => {
+        
+                return {
+                    ...prev,
+                    credits: userdata.foundUser?.credits,
+                    requestedPayout: userdata.foundUser?.requestedPayout,
+                    requestedPayoutCurrency: userdata.foundUser?.requestedPayoutCurrency,
+                    requestedPayoutOption: userdata.foundUser?.requestedPayoutOption,
+                }
+            });
+        }
+    }
+
+    if(auth?.userId && changed > 0){
+        updateUserData()
+    }
+
+  }, [changed])
+
 
   const handleMessage = async () => {
 
@@ -1613,6 +1683,30 @@ const {scrollToTime} = useMemo(
 
           <div className='flex flex-col w-full overflow-y-scroll'>
 
+            <div className="flex flex-row justify-center items-center gap-x-2">
+
+              <label className="flex justify-center items-center pr-2 font-semibold">Currency:</label>
+
+              <select onChange={(event)=>setPaymentCurrency(event.target.value)}
+              value={paymentCurrency}
+              className={`pl-6 w-30 md:w-40 h-9 border border-gray-primary justify-center items-center`}>
+
+                  {userCurrencies?.length>0 && userCurrencies.map( (e) =>
+                  
+                      <option key={`${e.currency}_incoming`} value={`${e.currency.toLowerCase()}`}>{e.currencySymbol}{e.currency.toUpperCase()}</option>
+                  )}
+
+              </select> 
+
+              </div>
+
+            <div className='text-3xl'>
+              Account Balance
+            </div>
+
+            <p className="text-lg">In Wallet: {paymentCurrency.toUpperCase()} {paymentCurrencySymbol}{accountBalance.toFixed(2)}</p>
+            <p className="text-lg">On Hold: {paymentCurrency.toUpperCase()} {paymentCurrencySymbol}{escrowBalance.toFixed(2)}</p>
+
           <div className='py-2'>
           <p className='text-lg text-center font-semibold pb-2 text-black'> Host Information: </p>
             {/* <p className='text-center'><b>Address:</b> {selectedAddress.slice(0, selectedAddress.lastIndexOf(',', selectedAddress.lastIndexOf(',')-1))}</p> */}
@@ -2009,6 +2103,7 @@ const {scrollToTime} = useMemo(
                                       // Or go to another URL:  actions.redirect('thank_you.html');
                                       setWaitingPayment(false);
                                       setPaymentSuccess(true)
+                                      setChanged(changed + 1)
                                       alert(`Success, your payment of ${captureData?.data?.orderData?.currency_code} ${captureData?.data?.orderData?.value} has been received!`)
                                   }
                               }   

@@ -848,7 +848,7 @@ const addUserBan = async (req, res) => {
                     foundUser.refreshToken = "";
                     
                     foundHost.deactivated = true;
-                    foundHost.verifiedHost = false;
+                    foundHost.verifiedHostCharging = false;
 
                     const savedUpdate = await foundUser.save()
                     const savedHost = await foundHost.save()
@@ -896,13 +896,15 @@ const removeUserBan = async (req, res) => {
                 foundUser.active = true;
 
                 foundHost.deactivated = false;
-                foundHost.verifiedHost = true;
+                foundHost.verifiedHostCharging = true;
 
                 const savedUpdate = await foundUser.save()
                 const savedHost = await foundHost.save()
 
                 if(savedUpdate && savedHost){
                     return res.status(200).json({'message': 'Added new ban'})
+                } else {
+                    return res.status(401).json({'message': 'Failed operation'})
                 }
             }
         }
@@ -1677,8 +1679,52 @@ const checkStage = async (req, res) => {
 }
 
 
+const searchUsers = async (req, res) => {
+    
+    const { firstName, lastName, userId } = req.query
+
+    if (!userId || (!firstName && !lastName) || (firstName?.length > 8) || (lastName?.length > 8) ) {
+        return res.status(400).json({ message: 'Missing required info' })
+    }
+
+    var searchObj = {}
+
+    if(firstName?.length > 0 && lastName?.length > 0){
+
+        searchObj = {firstName: {$regex: `^${lastName}`, $options: "i"}, lastName: {$regex: `^${lastName}`, $options: "i"}}
+
+    } else if(firstName){
+        
+        searchObj = {firstName: {$regex: `^${firstName}`, $options: "i"}}
+
+    } else if (lastName){
+        
+        searchObj = {lastName: {$regex: `^${lastName}`, $options: "i"}}
+    }
+
+    try {
+
+        console.log(searchObj)
+
+        const foundUsers = await User.find(searchObj).select("_id profilePicURL firstName lastName flagged deactivated")
+
+        if(foundUsers){
+            console.log("Found users", foundUsers)
+            return res.status(200).json({foundUsers})
+        } else {
+            return res.status(401).json({"Message": "Failed operation"})
+        }
+
+    } catch(err){
+
+        console.log(err)
+        return res.status(401).json({"Message": "Failed operation"})
+    }
+}
+
+
 module.exports = { getDriverProfile, editSettingsUserProfile, editSettingsUserPass, editSettingsUserGeneral, 
     editProfilePic, getUserIdByUsername, getProfilePicByUserId, checkUser, getProfileData, 
     deleteOldProfilePic, addUserBan, removeUserBan, makePrivate, makePublic, checkStage, getUserData,
     editUserReceivePayments, uploadUserPhotos, updateDriverProfile, 
-    addHostProfile }
+    addHostProfile, searchUsers }

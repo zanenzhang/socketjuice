@@ -51,9 +51,3 @@ export default function SearchMenuItem({followerUsername, followerUserId,
         </ListItem>
     )
 }
-
-
-
-
-
-

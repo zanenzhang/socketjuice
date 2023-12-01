@@ -1,23 +1,28 @@
 import {React, lazy, Suspense} from 'react';
 import { Navigate, Route, Routes, useNavigate} from 'react-router-dom';
+import { ErrorBoundary } from 'react-error-boundary';
 
 import Layout from "./pages/Layout";
 import PersistLogin from './components/userAuth/persistLogin';
+import MapPage from './pages/Application/MapPage';
+import RequireAuth from "./components/userAuth/requireAuth";
+import SkeletonFullPage from './pages/Skeleton/SkeletonFullPage';
+import "react-loading-skeleton/dist/skeleton.css";
 
-import MapPage from './pages/Application/MapPage'; 
-import BookingsPage from './pages/Application/BookingsPage';
-import MessagesPage from './pages/Application/MessagesPage';
-import ProfilePage from './pages/Application/ProfilePage';
-import ResetPass from './pages/Application/ResetPass';
-import InputNewPassword from './pages/Application/InputNewPass';
-import VerifyPage from "./pages/Application/VerifyPage";
+const BookingsPage = lazy( () => import('./pages/Application/BookingsPage'));
+const MessagesPage = lazy( () => import('./pages/Application/MessagesPage'));
+const ResetPass = lazy( () => import('./pages/Application/ResetPass'));
+const InputNewPassword = lazy( () => import('./pages/Application/InputNewPass'));
+const VerifyPage = lazy( () => import("./pages/Application/VerifyPage"));
 
-import AdminPageDriver from "./pages/Application/AdminPageDriver";
-import AdminPageHost from "./pages/Application/AdminPageHost";
+const SettingsPage = lazy( () => import("./pages/Application/SettingsPage"));
+const UnauthorizedPage = lazy( () => import("./pages/Application/UnauthorizedPage"));
+const Missing = lazy( () => import('./components/errorHandler/Missing'));
+const ErrorFallback = lazy( () => import('./components/errorHandler/ErrorFallback'));
 
-import SettingsPage from "./pages/Application/SettingsPage";
-import PaymentsPage from './pages/Application/PaymentsPage';
-import PayoutsPage from './pages/Application/PayoutsPage';
+const AdminPageDriver = lazy( () => import("./pages/Application/AdminPageDriver"));
+const AdminPageHost = lazy( () => import("./pages/Application/AdminPageHost"));
+const AdminPageControl = lazy( () => import('./pages/Application/AdminPageControl'));
 
 const ROLES = {
   'User': 2001,
@@ -27,6 +32,8 @@ const ROLES = {
 
 function App() {
 
+  const navigate = useNavigate()
+
   return (
     
     <Routes>
@@ -35,61 +42,109 @@ function App() {
 
       <Route element={<PersistLogin />}> 
       
-        <Route path="" element={<Navigate to='/map' />}>
-
-        </Route>
+          <Route path="" element={<Navigate to='/map' />}></Route>
         
-        <Route path="/map" 
-        
-        element={
-          <MapPage />
-        }>
+          <Route path="/map" element={<MapPage />}></Route>
+
+          <Route element={<RequireAuth allowedRoles={[ROLES.User, ROLES.Manager, ROLES.Admin]} />}>  
+
+          <Route path="/bookings" element={<ErrorBoundary
+              FallbackComponent={ErrorFallback}
+              onReset={() => navigate('/')}
+            >
+              <Suspense fallback={<SkeletonFullPage />}>
+              <BookingsPage />
+              </Suspense>
+          </ErrorBoundary>} />
+
+          <Route path="/messages" element={<ErrorBoundary
+              FallbackComponent={ErrorFallback}
+              onReset={() => navigate('/')}
+            >
+              <Suspense fallback={<SkeletonFullPage />}>
+              <MessagesPage />
+              </Suspense>
+          </ErrorBoundary>} />
+
+          <Route path="/verify" element={<ErrorBoundary
+              FallbackComponent={ErrorFallback}
+              onReset={() => navigate('/')}
+            >
+              <Suspense fallback={<SkeletonFullPage />}>
+              <VerifyPage />
+              </Suspense>
+          </ErrorBoundary>} />
+
+          <Route path="/resetpassword" element={<ErrorBoundary
+              FallbackComponent={ErrorFallback}
+              onReset={() => navigate('/')}
+            >
+              <Suspense fallback={<SkeletonFullPage />}>
+              <ResetPass />
+              </Suspense>
+          </ErrorBoundary>} />
+
+          <Route path="/settings" element={<ErrorBoundary
+              FallbackComponent={ErrorFallback}
+              onReset={() => navigate('/')}
+            >
+              <Suspense fallback={<SkeletonFullPage />}>
+              <SettingsPage />
+              </Suspense>
+          </ErrorBoundary>} />
+
+          <Route path="/inputnewpassword" element={<ErrorBoundary
+              FallbackComponent={ErrorFallback}
+              onReset={() => navigate('/')}
+            >
+              <Suspense fallback={<SkeletonFullPage />}>
+              <InputNewPassword />
+              </Suspense>
+          </ErrorBoundary>} />
+
+          <Route path="/unauthorized" element={<ErrorBoundary
+              FallbackComponent={ErrorFallback}
+              onReset={() => navigate('/')}
+            >
+              <Suspense fallback={<SkeletonFullPage />}>
+              <UnauthorizedPage />
+              </Suspense>
+          </ErrorBoundary>} />
 
         </Route>
 
-        <Route path="/bookings" element={<BookingsPage />}>
+        <Route element={<RequireAuth allowedRoles={[ROLES.Admin]} />}>  
+
+            <Route path="/admindriver" element={<ErrorBoundary
+                FallbackComponent={ErrorFallback}
+                onReset={() => navigate('/')}
+              >
+                <Suspense fallback={<SkeletonFullPage />}>
+                  <AdminPageDriver />
+                </Suspense>
+            </ErrorBoundary>} />
+
+            <Route path="/adminhost" element={<ErrorBoundary
+                FallbackComponent={ErrorFallback}
+                onReset={() => navigate('/')}
+              >
+                <Suspense fallback={<SkeletonFullPage />}>
+                  <AdminPageHost />
+                </Suspense>
+            </ErrorBoundary>} />
+
+            <Route path="/admincontrol" element={<ErrorBoundary
+                FallbackComponent={ErrorFallback}
+                onReset={() => navigate('/')}
+              >
+                <Suspense fallback={<SkeletonFullPage />}>
+                  <AdminPageControl />
+                </Suspense>
+            </ErrorBoundary>} />
 
         </Route>
 
-        <Route path="/messages" element={<MessagesPage />}>
-
-        </Route>
-
-        <Route path="/profile" element={<ProfilePage />}>
-
-        </Route>
-
-        <Route path="/verify" element={<VerifyPage />}>
-
-        </Route>
-
-        <Route path="/resetpassword" element={<ResetPass />}>
-
-        </Route>
-
-        <Route path="/settings" element={<SettingsPage />}>
-
-        </Route>
-
-        <Route path="/inputnewpassword" element={<InputNewPassword />}>
-
-        </Route>
-
-        <Route path="/admindriver" element={<AdminPageDriver />}>
-
-        </Route>
-
-        <Route path="/adminhost" element={<AdminPageHost />}>
-
-        </Route>
-
-        <Route path="/payments" element={<PaymentsPage />}>
-
-        </Route>
-
-        <Route path="/payouts" element={<PayoutsPage />}>
-
-        </Route>
+        <Route path="*" element={<Missing />} />
     
       </Route>
 

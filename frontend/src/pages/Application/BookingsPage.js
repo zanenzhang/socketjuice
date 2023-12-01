@@ -789,10 +789,9 @@ const handleRegularHourChangeEnd = (event, day) => {
 
         getUser()
 
-      } else {
-        
-        setActiveTab("bookings")
       }
+
+      setActiveTab("bookings")
 
     }, [auth])
 

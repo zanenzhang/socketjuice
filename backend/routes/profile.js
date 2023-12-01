@@ -12,6 +12,7 @@ router.get('/host', hostProfileController.getHostProfile);
 router.get('/hostcoord', hostProfileController.getHostProfilesCoord);
 router.get('/stage', profileController.checkStage);
 router.get('/userdata', profileController.getUserData);
+router.get('/searchusers', profileController.searchUsers);
 
 router.post('/host', profileController.addHostProfile);
 router.post('/userphotos', profileController.uploadUserPhotos);
