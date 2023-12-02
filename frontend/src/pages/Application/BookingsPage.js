@@ -984,6 +984,7 @@ const handleRegularHourChangeEnd = (event, day) => {
           setNewrequest(newrequest + 1)
           setWaitingSubmit(false)
         }
+        
       } else if (selectedEventStatus === "Approved"){
         
         const markCompleted = await addAppointmentCompletion(auth.userId, selectedHostUserId, selectedEventId, auth.accessToken)

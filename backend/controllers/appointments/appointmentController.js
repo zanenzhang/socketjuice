@@ -741,6 +741,7 @@ const addAppointmentCompletion = async (req, res) => {
                 if(!checked){
                     return res.status(403).json({ message: 'Operation failed' })
                 } else {
+                    
                     if(foundHost?.credits?.length > 0){
                         var credited = false
                         for(let i=0; i<foundHost?.credits?.length > 0; i++){
