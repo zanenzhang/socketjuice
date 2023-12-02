@@ -1118,9 +1118,9 @@ const editUserReceivePayments = async (req, res) => {
 
 const uploadUserPhotos = async (req, res) => {
 
-    var { userId, driverObjectId, plateObjectId } = req.body
+    var { userId, plateObjectId } = req.body
 
-    if (!userId || !driverObjectId || !plateObjectId ) {
+    if (!userId || !plateObjectId ) {
 
         return res.status(400).json({ message: 'User ID Required' })
     }
@@ -1136,19 +1136,9 @@ const uploadUserPhotos = async (req, res) => {
         
         } else {
 
-            foundUser.driverObjectId = driverObjectId
             foundUser.plateObjectId = plateObjectId
 
             try{
-
-                var signParamsDriver = {
-                    Bucket: wasabiPrivateBucketUSA, 
-                    Key: driverObjectId, 
-                    Expires: 7200
-                };
-    
-                var signedURLFrontPhoto = s3.getSignedUrl('getObject', signParamsDriver);
-    
 
                 var signParamsPlate = {
                     Bucket: wasabiPrivateBucketUSA, 
@@ -1158,7 +1148,6 @@ const uploadUserPhotos = async (req, res) => {
     
                 var signedURLBackPhoto = s3.getSignedUrl('getObject', signParamsPlate);
 
-                foundUser.driverMediaURL = signedURLFrontPhoto
                 foundUser.plateMediaURL = signedURLBackPhoto
                 foundUser.currentStage = 3
 

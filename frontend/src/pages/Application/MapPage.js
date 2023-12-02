@@ -88,6 +88,7 @@ const MapPage = () => {
   const [currentIcon, setCurrentIcon] = useState("")
   const [scrollRefs, setScrollRefs] = useState([])
 
+  const [selectedHostProfile, setSelectedHostProfile] = useState("")
   const [selectedHostUserId, setSelectedHostUserId] = useState("")
   const [selectedEventId, setSelectedEventId] = useState("")
   const [selectedAddress, setSelectedAddress] = useState("")
@@ -123,14 +124,45 @@ const MapPage = () => {
   const [openDetailsModal, setOpenDetailsModal] = useState(false);
   const [openPaymentsModal, setOpenPaymentModal] = useState(false);
 
+  const [openModalPrivacy, setOpenModalPrivacy] = useState(false);
+  const [openModalTerms, setOpenModalTerms] = useState(false);
+  const [termschecked, setTermschecked] = useState(false);
+
   const [iconLarge, setIconLarge] = useState({})
   const [iconRegular, setIconRegular] = useState({})
+
+  const handleCloseModalTerms = (event) => {
+
+    setOpenModalTerms(false);
+  }
+
+  const handleOpenModalTerms = (event) => {
+
+    setOpenModalTerms(true);
+  }
 
   const initialOptions = {
     "client-id": process.env.REACT_APP_PAYPAL_PUBLIC_ID,
     "enable-funding": "venmo",
     "currency": "USD"
   };
+
+  const boxStyle = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 350,
+    height: 500,
+    overflow: 'auto',
+    bgcolor: 'background.paper',
+    border: '2px solid #995372',
+    boxShadow: 24,
+    pt: 2,
+    px: 4,
+    pb: 3,
+    borderRadius: '10px',
+  }; 
 
   const [paymentMessage, setPaymentMessage] = useState(""); 
 
@@ -231,6 +263,7 @@ const [newrequest, setNewrequest] = useState(false);
 const [events, setEvents] = useState([])
 const [hostEvents, setHostEvents] = useState([])
 const [proposedEvents, setProposedEvents] = useState([])
+const [availability, setAvailability] = useState([])
 
 const {isLoaded} = useJsApiLoader({
   googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
@@ -269,7 +302,6 @@ useEffect( ()=> {
   if(preHostLocations?.length > 0){
     
       const filtered = preHostLocations.filter(e => typesarray.includes(e.connectionType) || typesarray.includes(e.secondaryConnectionType) )
-      console.log(filtered)
       setHostLocations(filtered)
 
   } else {
@@ -283,7 +315,6 @@ useEffect( ()=> {
 useEffect( ()=> {
 
   if(currentDuration !== null){
-    console.log(currentDuration)
 
     var hours = Math.floor(currentDuration / 3600)
     var min = (Math.floor(currentDuration % 3600) / 60) + 3
@@ -292,8 +323,6 @@ useEffect( ()=> {
     const timePlusDuration = new Date(today.getFullYear(), today.getMonth(), today.getDate(), today.getHours()+hours, today.getMinutes()+min);
     const endOfThirty = new Date(timePlusDuration.getFullYear(), timePlusDuration.getMonth(), timePlusDuration.getDate(), timePlusDuration.getHours(), timePlusDuration.getMinutes()+30);
 
-    console.log(timePlusDuration)
-    console.log(endOfThirty)
     setBookingStart(dayjs(timePlusDuration))
     setBookingEnd(dayjs(endOfThirty))
   }
@@ -317,9 +346,6 @@ useEffect( () => {
       setBookingLengthValue(timeMin)
       setBookingLengthText(`${Math.round(timeMin)} Min`)
 
-      console.log("events here 0", bookingStart["$d"])
-      console.log("events here 1", bookingEnd["$d"])
-
       var updatedCurrent = {
         id: `proposed_${auth.userId}`,
         title: "Proposed Booking Time",
@@ -341,8 +367,6 @@ useEffect( () => {
 
 
 const handleSelectSlot = (e) => {
-
-  console.log(e)
 
   var today = new Date()
   var newproposedstart = new Date(e.start)
@@ -374,11 +398,7 @@ const handleSelectSlot = (e) => {
 
 const handleSelectEvent = (e) => {
 
-  console.log(e)
-  console.log("Details here")
-  console.log(auth.userId)
-
-  if(e.requesterId === auth.userId){
+  if(e?.title !== "Available" && e?.requesterId === auth?.userId){
   
     setOpenDetailsModal(true)
 
@@ -440,6 +460,10 @@ const handleNavigate = (e) => {
   setDate(dayjs(new Date(e)))
 }
 
+const toggleTerms = () => {
+  setTermschecked(prev => !prev);
+}
+
 const handleEventMove = (e) => {
 
   console.log(e)
@@ -486,8 +510,6 @@ const {scrollToTime} = useMemo(
 
     if(isLoaded && google){
 
-      console.log("Map has been loaded")
-
       const svg = {
         path: "M45.699 24.145l-7.89-13.293c-.314-.584-1.072-.852-1.721-.852h-7.088v-6c0-1.1-.9-2-2-2h-5c-1.1 0-2 .9-2 2v6h-5.96c-.65 0-1.44.268-1.754.852l-7.921 13.398c-1.301 0-2.365.987-2.365 2.322v12.139c0 1.335 1.064 2.289 2.365 2.289h2.635v3.78c0 2.004 1.328 3.22 3.279 3.22h1.183c1.951 0 3.538-1.216 3.538-3.22v-3.78h20v3.78c0 2.004 1.714 3.22 3.665 3.22h1.184c1.951 0 3.151-1.216 3.151-3.22v-3.78h2.763c1.3 0 2.237-.954 2.237-2.289v-12.139c0-1.335-1-2.427-2.301-2.427zm-37.194 9.71c-1.633 0-2.958-1.358-2.958-3.034 0-1.677 1.324-3.035 2.958-3.035s2.957 1.358 2.957 3.035c0 1.676-1.323 3.034-2.957 3.034zm1.774-9.855l5.384-9.377c.292-.598 1.063-.623 1.713-.623h15.376c.65 0 1.421.025 1.712.623l5.385 9.377h-29.57zm31.343 9.855c-1.632 0-2.957-1.358-2.957-3.034 0-1.677 1.325-3.035 2.957-3.035 1.633 0 2.958 1.358 2.958 3.035 0 1.676-1.325 3.034-2.958 3.034z",
         fillColor: "cyan",
@@ -502,7 +524,7 @@ const {scrollToTime} = useMemo(
     }
 
     if(auth){
-      console.log(auth)
+
       if(auth?.j1772ACChecked){
         setj1772ACChecked(true)
       }
@@ -534,7 +556,7 @@ const {scrollToTime} = useMemo(
 
   useEffect( ()=> {
 
-    if(hostLocations){
+    if(hostLocations?.length > 0){
       
       const refs = hostLocations.reduce((acc, value) => {
         acc[value._id] = createRef();
@@ -570,7 +592,6 @@ const {scrollToTime} = useMemo(
       originString = encodeURIComponent(originString)
     } 
 
-    console.log(originString, destinationString)
     const matrix = await getGoogleMatrix(originString, destinationString, auth.userId, auth.accessToken)
 
     if(matrix){
@@ -593,7 +614,6 @@ const {scrollToTime} = useMemo(
       const approved = await addDriverCancelApprove(auth.userId, selectedHostUserId, selectedEventId, auth.userId, auth.accessToken)
 
       if(approved){
-        console.log("Cancellation approved")
         setNewrequest(!newrequest)
       }
     
@@ -602,7 +622,6 @@ const {scrollToTime} = useMemo(
       const submitted = await addDriverCancelSubmit(auth.userId, selectedHostUserId, selectedEventId, auth.userId, auth.accessToken)
 
       if(submitted){
-        console.log("Cancel submitted")
         setNewrequest(!newrequest)
       }
     }
@@ -617,7 +636,6 @@ const {scrollToTime} = useMemo(
     const submitted = await addDriverReject(auth.userId, selectedHostUserId, selectedEventId, auth.userId, auth.accessToken)
 
     if(submitted){
-      console.log("Cancel submitted")
       
       setOpenDetailsModal(false)
       setNewrequest(!newrequest)
@@ -634,7 +652,6 @@ const {scrollToTime} = useMemo(
     const submitted = await addDriverCancelSubmit(auth.userId, selectedHostUserId, selectedEventId, auth.userId, auth.accessToken)
 
     if(submitted){
-      console.log("Cancel submitted")
       setNewrequest(!newrequest)
     }
   }
@@ -677,12 +694,16 @@ const {scrollToTime} = useMemo(
 
       const added = await addAppointmentRequest(auth.userId, hostUserId, bookingStart, bookingEnd, auth.accessToken)
 
-      if(added){
+      if(added && added.status === 201){
         alert("Submitted booking request")
         setNewrequest(!newrequest)
         setOpenReserveModal(false);
         setWaitingSubmit(false)
+      } else if (added.status === 403) {
+        alert("Please try again, conflicting appointment")
+        setWaitingSubmit(false);
       } else {
+        alert("Sorry, please try another time!")
         setWaitingSubmit(false);
       }
     }
@@ -706,9 +727,6 @@ const {scrollToTime} = useMemo(
         originString = encodeURIComponent(userAddress)
       }
 
-      console.log("data", userLat, userLng, userAddress)
-      console.log("origin", originString)
-
       var destinationString = encodeURIComponent(destination)
 
       var finalAddressEncoding = `https://www.google.com/maps/dir/?api=1&origin=${originString}&destination=${destinationString}&travelmode=driving`
@@ -724,14 +742,11 @@ const {scrollToTime} = useMemo(
       debouncedChangeHandleCenter()
     }
 
-    async function hostAppointments() {
+    async function hostAppointments(){
 
       const hostresults = await getHostAppointments(hostUserId, currentDate, auth.accessToken, auth.userId)
 
       if(hostresults){
-
-        console.log(hostresults)
-        console.log(hostUserId)
 
         var newevents = [];
         var hostprofiledata = {};
@@ -808,10 +823,108 @@ const {scrollToTime} = useMemo(
           }
         }
 
-        console.log("host events", newevents)
+        var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+        const dateCheck = new Date(currentDate)
+        const yesterday = new Date(dateCheck.getDate() -1)
+        const dayofweek = days[dateCheck.getDay()]
+        const lastdayofweek = days[yesterday.getDay()]
+
+        const todayAvailableStart = selectedHostProfile[`hours${dayofweek}Start`]
+        const todayAvailableEnd = selectedHostProfile[`hours${dayofweek}End`]
+        const yesterdayAvailableStart = selectedHostProfile[`hours${lastdayofweek}Start`]
+        const yesterdayAvailableEnd = selectedHostProfile[`hours${lastdayofweek}End`]
+
+        var availabilities = [];
+
+        if(yesterdayAvailableEnd < yesterdayAvailableStart && yesterdayAvailableEnd < todayAvailableStart){
+
+          var newstarttime = dateCheck.setHours(0)
+          newstarttime.setMinutes(0)
+          newstarttime.setSeconds(0)
+
+          var newendtime = dateCheck.setHours(selectedHostProfile[yesterdayAvailableEnd].slice(0, 2))
+          newendtime.setMinutes(selectedHostProfile[yesterdayAvailableEnd].slice(3, 5))
+          newendtime.setSeconds(0)
+          
+          var availabilityEarly = {
+            id: `today_availability_early`,
+            title: "Available",
+            start: new Date(newstarttime),
+            end: new Date(newendtime),
+            isDraggable: true,
+            disabled: true
+          }
+
+          availabilities.push(availabilityEarly)
+        
+        } else if(yesterdayAvailableEnd < yesterdayAvailableStart && yesterdayAvailableEnd > todayAvailableStart) {
+
+          var newstarttime = dateCheck.setHours(0)
+          newstarttime.setMinutes(0)
+          newstarttime.setSeconds(0)
+
+          var newendtime = dateCheck.setHours(selectedHostProfile[todayAvailableStart].slice(0, 2))
+          newendtime.setMinutes(selectedHostProfile[todayAvailableStart].slice(3, 5))
+          newendtime.setSeconds(0)
+          
+          var availabilityEarly = {
+            id: `today_availability_early`,
+            title: "Available",
+            start: new Date(newstarttime),
+            end: new Date(newendtime),
+            isDraggable: true,
+            disabled: true
+          }
+
+          availabilities.push(availabilityEarly)
+        }
+        
+
+        if(todayAvailableStart > todayAvailableEnd){
+
+          var newstarttime = dateCheck.setHours(selectedHostProfile[todayAvailableStart].slice(0, 2))
+          newstarttime.setMinutes(selectedHostProfile[todayAvailableStart].slice(3, 5))
+          newstarttime.setSeconds(0)
+
+          var newendtime = dateCheck.setHours(24)
+          newendtime.setMinutes(0)
+          newendtime.setSeconds(0)
+          
+          var availabilityLate = {
+            id: `today_availability_late`,
+            title: "Available",
+            start: new Date(newstarttime),
+            end: new Date(newendtime),
+            isDraggable: true,
+            disabled: true
+          }
+
+          availabilities.push(availabilityLate)
+        
+        } else if(todayAvailableStart < todayAvailableEnd) {
+
+          var newstarttime = dateCheck.setHours(selectedHostProfile[todayAvailableStart].slice(0, 2))
+          newstarttime.setMinutes(selectedHostProfile[todayAvailableStart].slice(3, 5))
+          newstarttime.setSeconds(0)
+
+          var newendtime = dateCheck.setHours(selectedHostProfile[todayAvailableEnd].slice(0, 2))
+          newendtime.setMinutes(selectedHostProfile[todayAvailableEnd].slice(3, 5))
+          newendtime.setSeconds(0)
+          
+          var availabilityLate = {
+            id: `today_availability_late`,
+            title: "Available",
+            start: new Date(newstarttime),
+            end: new Date(newendtime),
+            isDraggable: true,
+            disabled: true
+          }
+
+          availabilities.push(availabilityLate)
+        }
 
         setHostEvents([...newevents])
-        setEvents([...proposedEvents, ...newevents])
+        setEvents([...proposedEvents, ...availabilities, ...newevents])
       }
     }
 
@@ -831,6 +944,8 @@ const {scrollToTime} = useMemo(
     setMediaURLs(host.mediaCarouselURLs)
     setHostComments(host.hostComments)
     setHostUserId(host._userId)
+    
+    setSelectedHostProfile(host)
     setSelectedConnection(host.connectionType)
     setSecondaryConnection(host.secondaryConnectionType)
 
@@ -896,9 +1011,6 @@ const {scrollToTime} = useMemo(
     } 
       const newPos = mapRef.current.getCenter().toJSON();
 
-      console.log(newPos)
-      console.log(auth.userId)
-
       if(newPos && auth.userId){
 
         var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
@@ -913,8 +1025,6 @@ const {scrollToTime} = useMemo(
            auth.userId, auth.accessToken)
 
         if(locations){
-
-          console.log(locations)
 
           var destinations = []
           var hostIndexHash = {}
@@ -931,15 +1041,11 @@ const {scrollToTime} = useMemo(
               hostIndexHash[locations.foundHostProfiles[i].address] = i
             }
           }
-
-          console.log(destinations, newPos.lat, newPos.lng)
           
           if(locations?.foundHostProfiles?.length > 0){
             const {matrix} = await getDistanceDurationsMatrix(destinations, newPos.lat, newPos.lng)
 
             if(matrix){
-
-              console.log(matrix)
 
               for(let i=0; i<matrix?.rows[0]?.elements?.length; i++){
                 
@@ -1037,7 +1143,6 @@ const {scrollToTime} = useMemo(
         const userdata = await getUserData(auth.accessToken, auth.userId)
 
         if(userdata){
-            console.log(userdata)
             
             setAuth(prev => {
         
@@ -1299,7 +1404,7 @@ const {scrollToTime} = useMemo(
 
       </div>}
 
-      { windowSize.x > 600 &&
+      { (windowSize.x > 600 && auth.userId ) &&
         
         <div className='flex w-full justify-start items-start '>
             
@@ -1466,14 +1571,14 @@ const {scrollToTime} = useMemo(
                         <p>30 Min Rate: {host.currencySymbol}{Number(host.chargeRatePerHalfHourFee).toFixed(2)}</p>
                       </div>
                     
-                      <div className='flex flex-row'>
-                      
-                      <button 
-                        className='px-3 py-2 bg-[#FFE142] hover:bg-[orange] rounded-lg'
-                        onClick={(e)=>handleOpenReserveModal(e, host)}
-                        >
-                          Reserve
-                      </button>
+                      <div className='flex flex-col'>
+                          <button 
+                            className='px-3 py-2 bg-[#FFE142] hover:bg-[orange] rounded-lg'
+                            onClick={(e)=>handleOpenReserveModal(e, host)}
+                            >
+                              Reserve
+                          </button>
+                          {host.availableNow && <p>Available Now!</p>}
                       </div>
                     </div>
 
@@ -1482,7 +1587,7 @@ const {scrollToTime} = useMemo(
             </div>
         </div>}
        
-       {windowSize.x <= 600 && 
+       { (windowSize.x <= 600 && auth.userId ) && 
        
        <div className='flex flex-grow justify-end items-end'>
             
@@ -1788,7 +1893,7 @@ const {scrollToTime} = useMemo(
                       hover:bg-[#00D3E0] flex flex-row gap-x-2 justify-center items-center'
                       onClick={(e)=>handleAddAppointment(e)}>
 
-                    {waitingSubmit && 
+                      {waitingSubmit && 
                       <div aria-label="Loading..." role="status">
                           <svg className="h-4 w-4 animate-spin" viewBox="3 3 18 18">
                           <path
@@ -1804,11 +1909,24 @@ const {scrollToTime} = useMemo(
                       Submit Request
                     </button>
 
+                    <div className='flex flex-row ml-2'>
+                        <input  
+                            type="checkbox" 
+                            id='termsagree'
+                            onChange={toggleTerms}
+                            checked={termschecked}
+                        />
+                        <label className='ml-2 text-sm font-medium md:text-base' htmlFor="termsagree">{`I agree to the `}
+                            <button className='text-blue-900 underline' onClick={handleOpenModalTerms}> 
+                              Terms of Service</button></label>
+                    </div>
+
                     <div className='flex flex-col pt-4'>
                       <div className='flex flex-row justify-center'>
-                      <span className='bg-[#D1D5DB] h-[50px] w-[100px] flex justify-center items-center p-2'>Proposed Time</span>
+                      <span className='bg-[#F97316] h-[50px] w-[100px] flex justify-center items-center p-2'>Proposed Time</span>
                       <span className='bg-[#8BEDF3] h-[50px] w-[100px] flex justify-center items-center p-2'>Booked Time</span>
                       <span className='bg-[#FFE142] h-[50px] w-[100px] flex justify-center items-center p-2'>Your Booking</span>
+                      <span className='bg-[#D1D5DB] h-[50px] w-[100px] flex justify-center items-center p-2'>Available</span>
                     </div>
 
                     <p className='text-lg text-center pt-4 pb-2'>Location Schedule</p>
@@ -1849,9 +1967,13 @@ const {scrollToTime} = useMemo(
                           
                             newStyle.backgroundColor = "#FFE142"
                           
-                          } else if (event.title !== "Proposed Booking Time"){
+                          } else if (event.title === "Available"){
 
                             newStyle.backgroundColor = "#8BEDF3"
+                          
+                          } else if (event.title !== "Proposed Booking Time"){
+
+                            newStyle.backgroundColor = "#F97316"
                           }
                     
                           return {
@@ -2080,8 +2202,6 @@ const {scrollToTime} = useMemo(
 
                               if(captureData){
 
-                                  console.log(captureData)
-
                                   const errorDetail = captureData?.details?.[0];
 
                                   // Three cases to handle:
@@ -2127,7 +2247,30 @@ const {scrollToTime} = useMemo(
               </div>
             </Box>
         </Modal>
-      </>
+
+      <Modal
+          open={openModalTerms}
+          onClose={handleCloseModalTerms}
+          onClick={(event)=>{event.stopPropagation()}}
+          aria-labelledby="child-modal-title"
+          aria-describedby="child-modal-description"
+          >
+        <Box sx={{ ...boxStyle, width: 350 }}>
+
+        <div>
+
+            <p className='text-center text-lg font-bold underline'> Terms of Service </p>
+            <p className='text-base break-words text-justify pb-2'>Definitions: “SocketJuice, “we”, “We”, “us”, and “the website” will refer to www.socketjuice.com and subsidiaries. </p>
+
+            <p className='text-center text-lg font-semibold pt-2'> Service Overview </p>
+            <p className='text-base break-words text-justify pb-2'> SocketJuice is an online tool for owners of electric vehicles to share their electric charging equipment in order to earn extra money. </p>  
+            
+        </div>
+
+        </Box>
+
+      </Modal>
+    </>
   )
 }
 

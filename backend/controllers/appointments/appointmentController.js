@@ -53,8 +53,6 @@ const getHostAppointments = async (req, res) => {
 
     if(foundHostProfile){        
 
-        console.log("Found host profile for host appointments", foundHostProfile.hostAppointments)
-
         const hostAppointments = await Appointment.find({ _id: {$in: foundHostProfile?.hostAppointments.map(e => e._appointmentId)}, 
              start: {$gte: yesterday}, end: {$lte: tomorrow}})
 
@@ -84,17 +82,35 @@ const getHostAppointments = async (req, res) => {
 
             if(foundHostProfiles && foundHostProfiles?.length > 0){
 
-                userData = await User.find({_id: {$in: foundHostProfiles.map(e=>e._userId)}}).select("_id profilePicURL phonePrimary firstName lastName")
+                userData = await User.find({_id: {$in: foundHostProfiles.map(e=>e._userId)}}).select("_id profilePicURL plateObjectId plateMediaURL phonePrimary firstName lastName")
 
-                if(userData){
+                if(userData?.length > 0){
 
-                    console.log("User data here", userData)
+                    userData?.forEach(function(item, index){
+
+                        if(item.plateObjectId){
+            
+                            var signParamsPlate = {
+                                Bucket: wasabiPrivateBucketUSA, 
+                                Key: item.plateObjectId,
+                                Expires: 7200
+                            };
+                
+                            var plateUrl = s3.getSignedUrl('getObject', signParamsPlate);
+                        
+                            item.plateMediaURL = plateUrl
+            
+                            item.update()
+            
+                        }  
+                    })
                 
                     doneData = true;
                 
                 } else {
                 
-                    return res.status(401).json({ message: 'Operation failed' })
+                    stop = 1
+                    return res.status(401).json({ message: 'Operation failed', stop })
                 }
 
             } else {
@@ -136,8 +152,6 @@ const getDriverAppointments = async (req, res) => {
     
     var { userId, currentDate } = req.query
 
-    console.log(userId, currentDate)
-
     if (!userId || !currentDate ) {
         return res.status(400).json({ message: 'Missing required information' })
     }
@@ -149,8 +163,6 @@ const getDriverAppointments = async (req, res) => {
     const foundDriverProfile = await DriverProfile.findOne({_userId: userId})
 
     if(foundDriverProfile){
-
-        console.log("Found driver profile", foundDriverProfile.userAppointments.length)
 
         const userAppointments = await Appointment.find({ _id: {$in: foundDriverProfile?.userAppointments.map(e => e._appointmentId)}, 
         start: {$gte: yesterday}, end: {$lte: tomorrow} })
@@ -176,8 +188,6 @@ const getDriverAppointments = async (req, res) => {
 
         if(userAppointments && userAppointments?.length > 0){
 
-            console.log("Found appointments", userAppointments.length)
-
             foundHostProfiles = await HostProfile.find({$or:[{_userId: {$in: userAppointments.map(e=>e._hostUserId)}}, 
                 {_userId: {$in: userAppointments.map(e=>e._requestUserId)}}]})
 
@@ -186,8 +196,6 @@ const getDriverAppointments = async (req, res) => {
                 userData = await User.find({_id: {$in: foundHostProfiles.map(e=>e._userId)}}).select("_id profilePicURL phonePrimary firstName lastName")
 
                 if(userData){
-
-                    console.log("User data here", userData)
                 
                     doneData = true;
                 
@@ -235,8 +243,6 @@ const addAppointmentRequest = async (req, res) => {
     const { userId, hostUserId, appointmentStart, appointmentEnd } = req.body
 
     if (!userId || !hostUserId ) return res.status(400).json({ 'message': 'Missing required fields!' });
-
-    console.log("Adding new appointment request", userId, hostUserId, appointmentStart, appointmentEnd)
 
     try {
 
@@ -385,14 +391,14 @@ const addAppointmentRequest = async (req, res) => {
                 
                 } else {
 
-                    return res.status(403).json({ message: 'Operation failed' })
+                    return res.status(403).json({ message: 'Conflicting appointment' })
                 }
 
                 const newAppointment = await Appointment.create({_requestUserId: userId, _hostUserId: hostUserId, passcode: newToken,
                     start: requestStart, end: requestEnd, requestDateStart: requestStartString, status: "Requested",
                     requestDateEnd: requestEndString, address: foundHostProfile.address, locationlat: foundHostProfile.location.coordinates[1], 
-                    locationlng: foundHostProfile.location.coordinates[0], chargeAmount: chargeAmount, chargeAmountFee: chargeAmountFee, currency: foundHost.currency, 
-                    currencySymbol: currencySymbol})
+                    locationlng: foundHostProfile.location.coordinates[0], chargeAmount: chargeAmount, chargeAmountFee: chargeAmountFee, 
+                    currency: foundHostProfile.currency.toLowerCase(), currencySymbol: currencySymbol})
     
                 if(newAppointment){
 
@@ -477,6 +483,7 @@ const addAppointmentRequest = async (req, res) => {
     
                     return res.status(401).json({ message: 'Operation failed' })
                 }
+
             } else {
 
                 console.log("Already have appointment overlapping during this time")
@@ -504,8 +511,6 @@ const addAppointmentApproval = async (req, res) => {
 
     try {
 
-        console.log("Approving appointment", appointmentId)
-
         const foundAppointment = await Appointment.findOne({_id: appointmentId})
         const foundUser = await User.findOne({_id: userId})
         const foundHost = await User.findOne({_id: hostUserId})
@@ -532,8 +537,8 @@ const addAppointmentApproval = async (req, res) => {
 
                 const updatedAppointment = await Appointment.updateOne({_id: appointmentId},{$set:{status: "Approved"}})
                 
-                const newPayment = await Payment.create({_sendingUserId: userId, _receivingUserId: hostUserId, amount: foundAppointment.chargeAmountFee,
-                    currency: foundAppointment.currency, currencySymbol: foundAppointment.currencySymbol})
+                const newPayment = await Payment.create({_sendingUserId: userId, _receivingUserId: hostUserId, amount: foundAppointment.chargeAmount,
+                    amountFee: foundAppointment.chargeAmountFee, currency: foundAppointment.currency.toLowerCase(), currencySymbol: foundAppointment.currencySymbol})
 
                 if (foundUser.escrow?.length > 0){
 
@@ -561,11 +566,11 @@ const addAppointmentApproval = async (req, res) => {
                                 }
                             }
                             if(!credited){
-                                foundHost.escrow.push({amount: foundAppointment.chargeAmount, currency: foundAppointment.currency, 
+                                foundHost.escrow.push({amount: foundAppointment.chargeAmount, currency: foundAppointment.currency.toLowerCase(), 
                                     currencySymbol: foundAppointment.currencySymbol})
                             }
                         } else {
-                            foundHost.escrow = [{amount: foundAppointment.chargeAmount, currency: foundAppointment.currency, 
+                            foundHost.escrow = [{amount: foundAppointment.chargeAmount, currency: foundAppointment.currency.toLowerCase(), 
                                 currencySymbol: foundAppointment.currencySymbol}]
                         }
                     }
@@ -613,12 +618,12 @@ const addAppointmentApproval = async (req, res) => {
 
                     const driverPayment = await DriverProfile.updateOne({_userId: userId}, {$push: {outgoingPayments: {
                         _paymentId: newPayment._id, amount: foundAppointment.chargeAmount, amountFee: foundAppointment.chargeAmountFee, 
-                        currency: foundAppointment.currency, currencySymbol: foundAppointment.currencySymbol
+                        currency: foundAppointment.currency.toLowerCase(), currencySymbol: foundAppointment.currencySymbol
                     }}})
     
                     const hostPayment = await HostProfile.updateOne({_userId: hostUserId}, {$push: {incomingPayments: {
                         _paymentId: newPayment._id, amount: foundAppointment.chargeAmount, amountFee: foundAppointment.chargeAmountFee, 
-                        currency: foundAppointment.currency, currencySymbol: foundAppointment.currencySymbol
+                        currency: foundAppointment.currency.toLowerCase(), currencySymbol: foundAppointment.currencySymbol
                     }}})
 
                     if(conflictingAppointments && conflictingAppointments?.length > 0){
@@ -748,11 +753,11 @@ const addAppointmentCompletion = async (req, res) => {
                         }
                         if(!credited){
                             foundHost.credits.push({amount: foundAppointment.chargeAmount, 
-                                currency: foundAppointment.currency, currencySymbol: foundAppointment.currencySymbol})
+                                currency: foundAppointment.currency.toLowerCase(), currencySymbol: foundAppointment.currencySymbol})
                         }
                     } else {
                         foundHost.credits = [{amount: foundAppointment.chargeAmount, 
-                            currency: foundAppointment.currency, currencySymbol: foundAppointment.currencySymbol}]
+                            currency: foundAppointment.currency.toLowerCase(), currencySymbol: foundAppointment.currencySymbol}]
                     }
                 }
             
@@ -771,10 +776,10 @@ const addAppointmentCompletion = async (req, res) => {
             }
 
             const sentOutReceipt = await sendReceiptOutgoing({toUser: foundHost.email, firstName: foundHost.firstName, amount: foundAppointment.chargeAmountFee, 
-                currency: foundAppointment.currency, currencySymbol: foundAppointment.currencySymbol })
+                currency: foundAppointment.currency.toLowerCase(), currencySymbol: foundAppointment.currencySymbol })
 
             const sentInReceipt = await sendReceiptIncoming({toUser: foundUser.email, firstName: foundUser.firstName, amount: foundAppointment.chargeAmount, 
-                currency: foundAppointment.currency, currencySymbol: foundAppointment.currencySymbol })
+                currency: foundAppointment.currency.toLowerCase(), currencySymbol: foundAppointment.currencySymbol })
 
             if(foundUser.smsNotifications){
                 const success = await sendSmsNotification(hostUserId, "Completed")
@@ -908,11 +913,11 @@ const addDriverReject = async (req, res) =>{
                             }
                         }
                         if(!credited){
-                            foundUser.credits.push({amount: foundAppointment.chargeAmountFee, currency: foundAppointment.currency, 
+                            foundUser.credits.push({amount: foundAppointment.chargeAmountFee, currency: foundAppointment.currency.toLowerCase(), 
                                 currencySymbol: foundAppointment.currencySymbol})
                         }
                     } else {
-                        foundUser.credits = [{amount: foundAppointment.chargeAmountFee, currency: foundAppointment.currency, 
+                        foundUser.credits = [{amount: foundAppointment.chargeAmountFee, currency: foundAppointment.currency.toLowerCase(), 
                             currencySymbol: foundAppointment.currencySymbol}]
                     }
                 }
@@ -958,6 +963,7 @@ const addDriverReject = async (req, res) =>{
         return res.status(401).json({ message: 'Failed' })
     }
 }
+
 
 const driverRequestCancelApprove = async (req, res) =>{
 
@@ -1025,6 +1031,7 @@ const driverRequestCancelApprove = async (req, res) =>{
     }
 }
 
+
 const hostRequestCancelSubmit = async (req, res) =>{
 
     const { userId, hostUserId, appointmentId } = req.body 
@@ -1045,8 +1052,8 @@ const hostRequestCancelSubmit = async (req, res) =>{
             const updateAppointment = await Appointment.updateOne({_id: appointmentId, _requestUserId: userId, _hostUserId: hostUserId}, {$set: {cancelRequestHostSubmit: true, status: "Cancelled"}})
             const updateHostProfile = await HostProfile.updateOne({_id: hostUserId},{$inc: {numberOfAppointmentCancellations: 1}})
 
-            const newPayment = await Payment.create({_sendingUserId: hostUserId, _receivingUserId: userId, amount: foundAppointment.chargeAmountFee,
-                currency: foundAppointment.currency, currencySymbol: foundAppointment.currencySymbol})
+            const newPayment = await Payment.create({_sendingUserId: hostUserId, _receivingUserId: userId, amount: foundAppointment.chargeAmount,
+                amountFee: foundAppointment.chargeAmountFee, currency: foundAppointment.currency.toLowerCase(), currencySymbol: foundAppointment.currencySymbol})
 
             if (foundHost.escrow?.length > 0){
 
@@ -1075,11 +1082,11 @@ const hostRequestCancelSubmit = async (req, res) =>{
                             }
                         }
                         if(!credited){
-                            foundUser.credits.push({amount: foundAppointment.chargeAmountFee, currency: foundAppointment.currency, 
+                            foundUser.credits.push({amount: foundAppointment.chargeAmountFee, currency: foundAppointment.currency.toLowerCase(), 
                                 currencySymbol: foundAppointment.currencySymbol})
                         }
                     } else {
-                        foundUser.credits = [{amount: foundAppointment.chargeAmountFee, currency: foundAppointment.currency, 
+                        foundUser.credits = [{amount: foundAppointment.chargeAmountFee, currency: foundAppointment.currency.toLowerCase(), 
                             currencySymbol: foundAppointment.currencySymbol}]
                     }
                 }
@@ -1118,12 +1125,12 @@ const hostRequestCancelSubmit = async (req, res) =>{
 
                 const driverPayment = await DriverProfile.updateOne({_userId: userId}, {$push: {outgoingPayments: {
                     _paymentId: newPayment._id, amount: foundAppointment.chargeAmount, amountFee: foundAppointment.chargeAmountFee, 
-                    currency: foundAppointment.currency, currencySymbol: foundAppointment.currencySymbol
+                    currency: foundAppointment.currency.toLowerCase(), currencySymbol: foundAppointment.currencySymbol
                 }}})
 
                 const hostPayment = await HostProfile.updateOne({_userId: hostUserId}, {$push: {incomingPayments: {
                     _paymentId: newPayment._id, amount: foundAppointment.chargeAmount, amountFee: foundAppointment.chargeAmountFee, 
-                    currency: foundAppointment.currency, currencySymbol: foundAppointment.currencySymbol
+                    currency: foundAppointment.currency.toLowerCase(), currencySymbol: foundAppointment.currencySymbol
                 }}})
 
                 if(driverPayment && hostPayment){
@@ -1195,11 +1202,11 @@ const addHostReject = async (req, res) =>{
                             }
                         }
                         if(!credited){
-                            foundUser.credits.push({amount: foundAppointment.chargeAmountFee, currency: foundAppointment.currency, 
+                            foundUser.credits.push({amount: foundAppointment.chargeAmountFee, currency: foundAppointment.currency.toLowerCase(), 
                                 currencySymbol: foundAppointment.currencySymbol})
                         }
                     } else {
-                        foundUser.credits = [{amount: foundAppointment.chargeAmountFee, currency: foundAppointment.currency, 
+                        foundUser.credits = [{amount: foundAppointment.chargeAmountFee, currency: foundAppointment.currency.toLowerCase(), 
                             currencySymbol: foundAppointment.currencySymbol}]
                     }
                 }
@@ -1215,7 +1222,7 @@ const addHostReject = async (req, res) =>{
                     _relatedAppointment: foundAppointment._id, start: foundAppointment?.start, end: foundAppointment?.end, address: foundAppointment?.address})    
 
             if(foundUser.emailNotifications){
-                const success = await sendNotiEmail({firstName: foundUser.firstName, toUser:foundUser.email, notificationType: "CancelSubmitted"})
+                const success = await sendNotiEmail({firstName: foundUser.firstName, toUser:foundUser.email, notificationType: "Cancelled"})
                 if(success){
                     doneEmail = true
                 }
@@ -1224,7 +1231,7 @@ const addHostReject = async (req, res) =>{
             }
 
             if(foundUser.smsNotifications){
-                const success = await sendSmsNotification(hostUserId, "CancelSubmitted")
+                const success = await sendSmsNotification(hostUserId, "Cancelled")
                 if(success){
                     doneSms = true
                 }
@@ -1276,7 +1283,7 @@ const hostRequestCancelApprove = async (req, res) =>{
                     _relatedAppointment: foundAppointment._id, start: foundAppointment?.start, end: foundAppointment?.end, address: foundAppointment?.address})
 
             const newPayment = await Payment.create({_sendingUserId: hostUserId, _receivingUserId: userId, amount: foundAppointment.chargeAmount,
-                currency: foundAppointment.currency, currencySymbol: foundAppointment.currencySymbol})
+                amountFee: foundAppointment.chargeAmountFee, currency: foundAppointment.currency.toLowerCase(), currencySymbol: foundAppointment.currencySymbol})
 
             if (foundHost.escrow?.length > 0){
 
@@ -1305,11 +1312,11 @@ const hostRequestCancelApprove = async (req, res) =>{
                             }
                         }
                         if(!credited){
-                            foundUser.credits.push({amount: foundAppointment.chargeAmountFee, currency: foundAppointment.currency, 
+                            foundUser.credits.push({amount: foundAppointment.chargeAmountFee, currency: foundAppointment.currency.toLowerCase(), 
                                 currencySymbol: foundAppointment.currencySymbol})
                         }
                     } else {
-                        foundUser.credits = [{amount: foundAppointment.chargeAmountFee, currency: foundAppointment.currency, 
+                        foundUser.credits = [{amount: foundAppointment.chargeAmountFee, currency: foundAppointment.currency.toLowerCase(), 
                             currencySymbol: foundAppointment.currencySymbol}]
                     }
                 }
@@ -1345,12 +1352,12 @@ const hostRequestCancelApprove = async (req, res) =>{
 
                 const driverPayment = await DriverProfile.updateOne({_userId: userId}, {$push: {outgoingPayments: {
                     _paymentId: newPayment._id, amount: foundAppointment.chargeAmount, amountFee: foundAppointment.chargeAmountFee, 
-                    currency: foundAppointment.currency, currencySymbol: foundAppointment.currencySymbol
+                    currency: foundAppointment.currency.toLowerCase(), currencySymbol: foundAppointment.currencySymbol
                 }}})
 
                 const hostPayment = await HostProfile.updateOne({_userId: hostUserId}, {$push: {incomingPayments: {
                     _paymentId: newPayment._id, amount: foundAppointment.chargeAmount, amountFee: foundAppointment.chargeAmountFee, 
-                    currency: foundAppointment.currency, currencySymbol: foundAppointment.currencySymbol
+                    currency: foundAppointment.currency.toLowerCase(), currencySymbol: foundAppointment.currencySymbol
                 }}})
 
                 if(driverPayment && hostPayment){
@@ -1431,5 +1438,5 @@ const removeAppointment = async (req, res) => {
 
 
 module.exports = { getHostAppointments, getDriverAppointments, addAppointmentRequest, addAppointmentApproval, addAppointmentCompletion, 
-    driverRequestCancelSubmit, driverRequestCancelApprove, hostRequestCancelSubmit, hostRequestCancelApprove, removeAppointment,
+    driverRequestCancelSubmit, hostRequestCancelSubmit, hostRequestCancelApprove, removeAppointment,
     addDriverReject, addHostReject }

@@ -703,25 +703,15 @@ const handleSelfieCamera = () => {
 
           <div className="flex flex-col">
 
-          { (croppedImageURL?.length >= 1 && croppedImageURL[coverIndex] !== undefined && mediaTypes[coverIndex] !== 'video') &&
+          { (croppedImageURL?.length == 1 && croppedImageURL[coverIndex] !== undefined && mediaTypes[coverIndex] !== 'video') &&
             <div className="flex flex-col pt-2">
               <div className="flex flex-col justify-center pt-2">
-                <p className="text-md">Driver's License Front:</p>
+                <p className="text-md">License Plate:</p>
                 <img key={'licenseFront'} src={croppedImageURL[0] || DEFAULT_IMAGE_PATH} width="284" 
                 className="rounded-xl border" />
               </div>
             </div>
           }
-
-          { (croppedImageURL?.length >= 2 && croppedImageURL[coverIndex] !== undefined && mediaTypes[coverIndex] !== 'video') &&
-            <div className="flex flex-col pt-2">
-              <div className="flex flex-col justify-center pt-2">
-                <p className="text-md">License Plate:</p>
-                <img key={'licenseBack'} src={croppedImageURL[1] || DEFAULT_IMAGE_PATH} width="284" 
-                className="rounded-xl border" />
-              </div>
-            </div>
-          } 
 
           { (videoURLArray?.length > 0 && videoURLArray[coverIndex] !== undefined && mediaTypes[coverIndex] === 'video') &&
             <div className="flex flex-col pt-2">
@@ -753,7 +743,7 @@ const handleSelfieCamera = () => {
 
                       <div className="flex flex-row justify-center gap-x-4">
                             <div>
-                                {croppedImage?.length > 0 && (   
+                                {croppedImage?.length > 1 && (   
                                     <button className="text-black
                                     border-0
                                     text-base 
@@ -856,32 +846,32 @@ const handleSelfieCamera = () => {
                         
                       </div>
 
-                    }
+                  }
 
-                {(croppedImage?.length > 0 && croppedImage?.length < 2 ) && 
+                {(croppedImage?.length > 0 && croppedImage?.length < 1 ) && 
 
                 <div className="py-2">
 
-                <input type="file" 
-                  id="files"
-                  accept="image/*"
-                  onChange={(e)=>handleUploadMedia(e)} 
-                  value={""}
-                  placeholder={"Add a photo!"}
-                  className="w-full 
-                  file:mr-4
-                  file:py-4 file:px-4
-                  file:text-black
-                  file:rounded-xl file:border-0
-                  file:text-base 
-                  file:bg-gray-200 
-                  hover:file:bg-[#8BEDF3]
-                  hover:file:text-white
-                  hover:file:cursor-pointer
-                  hidden
-                  "
-                />
-                <label className="
+                  <input type="file" 
+                    id="files"
+                    accept="image/*"
+                    onChange={(e)=>handleUploadMedia(e)} 
+                    value={""}
+                    placeholder={"Add a photo!"}
+                    className="w-full 
+                    file:mr-4
+                    file:py-4 file:px-4
+                    file:text-black
+                    file:rounded-xl file:border-0
+                    file:text-base 
+                    file:bg-gray-200 
+                    hover:file:bg-[#8BEDF3]
+                    hover:file:text-white
+                    hover:file:cursor-pointer
+                    hidden
+                    "
+                  />
+                  <label className="
                       flex flex-row
                       justify-center
                       items-center

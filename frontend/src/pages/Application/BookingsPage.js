@@ -76,6 +76,10 @@ const BookingsPage = () => {
   const [driverAppointments, setDriverAppointments] = useState([])
   const [newrequest, setNewrequest] = useState(0);
 
+  const [openModalPrivacy, setOpenModalPrivacy] = useState(false);
+  const [openModalTerms, setOpenModalTerms] = useState(false);
+  const [termschecked, setTermschecked] = useState(false);
+
   const [hostEvents, setHostEvents] = useState([])
   const [driverEvents, setDriverEvents] = useState([])
 
@@ -471,6 +475,10 @@ useEffect( () => {
 
   }
 
+  const toggleTerms = () => {
+    setTermschecked(prev => !prev);
+  }
+
   const handleMessageDriver = async () => {
 
     if(!auth.userId){
@@ -479,6 +487,33 @@ useEffect( () => {
 
     setNewIndividualChat({userId: selectedHostUserId, firstName: selectedHostFirstName});
     navigate(`/messages`);
+  }
+
+  const boxStyle = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 350,
+    height: 500,
+    overflow: 'auto',
+    bgcolor: 'background.paper',
+    border: '2px solid #995372',
+    boxShadow: 24,
+    pt: 2,
+    px: 4,
+    pb: 3,
+    borderRadius: '10px',
+  };
+
+  const handleCloseModalTerms = (event) => {
+
+    setOpenModalTerms(false);
+  }
+
+  const handleOpenModalTerms = (event) => {
+
+    setOpenModalTerms(true);
   }
 
   const handleMessageHost = async () => {
@@ -495,7 +530,6 @@ useEffect( () => {
   const handleHostEventListClick = (event, hostevent) => {
 
     event.preventDefault()
-    console.log(hostevent)
 
     setSelectedDriverUserId(hostevent.requesterId)
     setSelectedHostUserId(hostevent.hostId)
@@ -527,7 +561,6 @@ useEffect( () => {
   const handleDriverEventListClick = (event, driverevent) => {
 
     event.preventDefault()
-    console.log(driverevent)
 
     setSelectedDriverUserId(driverevent.requesterId)
     setSelectedHostUserId(driverevent.hostId)
@@ -838,7 +871,6 @@ const handleRegularHourChangeEnd = (event, day) => {
       const submitted = await addHostReject(selectedDriverUserId, auth.userId, selectedEventId, auth.userId, auth.accessToken)
 
       if(submitted){
-        console.log("Cancel submitted")
         alert("Submitted cancel request")
         setOpenDetailsModalHost(false)
         setNewrequest(newrequest + 1)
@@ -853,7 +885,6 @@ const handleRegularHourChangeEnd = (event, day) => {
       const submitted = await addHostCancelSubmit(selectedDriverUserId, auth.userId, selectedEventId, auth.userId, auth.accessToken)
 
       if(submitted){
-        console.log("Cancel submitted")
         alert("Asked driver to cancel")
         setNewrequest(newrequest + 1)
         setWaitingCancel(false)
@@ -869,7 +900,6 @@ const handleRegularHourChangeEnd = (event, day) => {
       const submitted = await addDriverReject(auth.userId, selectedHostUserId, selectedEventId, auth.userId, auth.accessToken)
 
       if(submitted){
-        console.log("Cancel submitted")
         alert("Asked to cancel")
         setOpenDetailsModalDriver(false)
         setWaitingCancel(false)
@@ -884,7 +914,6 @@ const handleRegularHourChangeEnd = (event, day) => {
       const submitted = await addDriverCancelSubmit(auth.userId, selectedDriverUserId, selectedEventId, auth.userId, auth.accessToken)
 
       if(submitted){
-        console.log("Cancel submitted")
         alert("Asked to cancel")
         setOpenDetailsModalDriver(false)
         setWaitingCancel(false)
@@ -907,7 +936,6 @@ const handleRegularHourChangeEnd = (event, day) => {
         const approvedCancel = await addHostCancelApprove(selectedDriverUserId, auth.userId, selectedEventId, auth.userId, auth.accessToken)
 
         if(approvedCancel){
-          console.log("Cancelled booking")
           alert("Cancelled booking")
           setOpenDetailsModalHost(false)
           setNewrequest(newrequest + 1)
@@ -919,7 +947,6 @@ const handleRegularHourChangeEnd = (event, day) => {
         const bookingApproved = await addAppointmentApproval(selectedDriverUserId, auth.userId, selectedEventId, auth.accessToken)
 
         if(bookingApproved){
-          console.log("Booking approved")
           alert("Booking approved")
           setOpenDetailsModalHost(false)
           setNewrequest(newrequest + 1)
@@ -931,7 +958,6 @@ const handleRegularHourChangeEnd = (event, day) => {
         const bookingCompleted = await addAppointmentCompletion(selectedDriverUserId, auth.userId, selectedEventId, auth.accessToken)
 
         if(bookingCompleted){
-          console.log("Booking finished")
           alert("Booking finished")
           setOpenDetailsModalHost(false)
           setNewrequest(newrequest + 1)
@@ -953,7 +979,6 @@ const handleRegularHourChangeEnd = (event, day) => {
         const approvedCancel = await addDriverCancelApprove(auth.userId, selectedHostUserId, selectedEventId, auth.userId, auth.accessToken)
 
         if(approvedCancel){
-          console.log("Approved cancellation")
           alert("Approved cancellation")
           setOpenDetailsModalDriver(false)
           setNewrequest(newrequest + 1)
@@ -964,8 +989,6 @@ const handleRegularHourChangeEnd = (event, day) => {
         const markCompleted = await addAppointmentCompletion(auth.userId, selectedHostUserId, selectedEventId, auth.accessToken)
 
         if(markCompleted){
-
-          console.log("Booking finished")
           alert("Booking finished")
           setOpenDetailsModalDriver(false)
           setNewrequest(newrequest + 1)
@@ -1231,10 +1254,6 @@ const handleRegularHourChangeEnd = (event, day) => {
     }
 
     const handleSelectEventHost = (e) => {
-
-      console.log(e)
-      console.log("Details here host")
-      console.log(auth.userId)
       
       setSelectedDriverUserId(e.requesterId)
       setSelectedHostUserId(e.hostId)
@@ -1255,10 +1274,6 @@ const handleRegularHourChangeEnd = (event, day) => {
 
 
     const handleSelectEventDriver = (e) => {
-
-      console.log(e)
-      console.log("Details here driver")
-      console.log(auth.userId)
       
       setSelectedDriverUserId(e.requesterId)
       setSelectedHostUserId(e.hostId)
@@ -1316,12 +1331,14 @@ const handleRegularHourChangeEnd = (event, day) => {
 
             if(hostuserdata[hostresults.hostAppointments[i]._hostUserId] !== undefined){
               hostresults.hostAppointments[i].hostProfilePicURL = hostuserdata[hostresults.hostAppointments[i]._hostUserId].profilePicURL
+              hostresults.hostAppointments[i].hostPlateMediaURL = hostuserdata[hostresults.hostAppointments[i]._hostUserId].plateMediaURL
               hostresults.hostAppointments[i].hostFirstName = hostuserdata[hostresults.hostAppointments[i]._hostUserId].firstName
               hostresults.hostAppointments[i].hostLastName = hostuserdata[hostresults.hostAppointments[i]._hostUserId].lastName
             }
 
             if(hostuserdata[hostresults.hostAppointments[i]._requestUserId] !== undefined){
               hostresults.hostAppointments[i].driverProfilePicURL = hostuserdata[hostresults.hostAppointments[i]._requestUserId].profilePicURL
+              hostresults.hostAppointments[i].driverPlateMediaURL = hostuserdata[hostresults.hostAppointments[i]._requestUserId].plateMediaURL
               hostresults.hostAppointments[i].driverFirstName = hostuserdata[hostresults.hostAppointments[i]._requestUserId].firstName
               hostresults.hostAppointments[i].driverLastName = hostuserdata[hostresults.hostAppointments[i]._requestUserId].lastName
             }
@@ -1376,7 +1393,17 @@ const handleRegularHourChangeEnd = (event, day) => {
 
     const handleLinkURLDirections = (e) => {
 
-      console.log(e)
+      e.preventDefault()
+        
+      if (!selectedAddress) {
+        return
+      } 
+
+      var destinationString = encodeURIComponent(selectedAddress)
+
+      var finalAddressEncoding = `https://www.google.com/maps/dir/?api=1&destination=${destinationString}&travelmode=driving`
+
+      window.open(finalAddressEncoding, "_blank", "noreferrer");
     }
 
     const {scrollToTime} = useMemo(
@@ -1393,8 +1420,6 @@ const handleRegularHourChangeEnd = (event, day) => {
         const driverresults = await getDriverAppointments(auth.userId, currentDateDriver, auth.accessToken, auth.userId)
   
         if(driverresults){
-  
-          console.log("driver results", driverresults)
   
           var newevents = [];
           var hostprofiledata = {};
@@ -1469,8 +1494,6 @@ const handleRegularHourChangeEnd = (event, day) => {
             newevents.push(instance)
           }
   
-          console.log("host events", newevents)
-  
           setDriverAppointments(driverresults.userAppointments)
           setDriverEvents([...newevents])
         }
@@ -1532,6 +1555,10 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                   <div className='flex flex-col p-4 flex-shrink-0'>
                     <img className='w-[50px] rounded-full' src={event.driverProfilePicURL} />
+                  </div>
+
+                  <div className='flex flex-col'>
+                    <img className='w-[50px]' src={event.driverPlateMediaURL} />
                   </div>
 
                   <div className='flex flex-col gap-y-1 pl-4'>
@@ -1712,6 +1739,8 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                       </select>
                   </div>  
+
+                  <p className='py-2'>Note: The charge rate amount is net of all service fees.</p>
 
                   <div className='flex flex-col justify-center items-center gap-y-3'>
 
@@ -2704,7 +2733,7 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                     {(selectedAddress && selectedHostUserId !== auth.userId) && 
                     <button className='border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]'
-                      onClick={(e)=>handleLinkURLDirections(e, selectedAddress)}>
+                      onClick={(e)=>handleLinkURLDirections(e)}>
                         Get Directions (Opens Map)
                     </button>}
 
@@ -2815,11 +2844,17 @@ const handleRegularHourChangeEnd = (event, day) => {
                       Approved - Cancel and Refund
                     </button> }
 
-                    {(selectedAddress && selectedHostUserId !== auth.userId) && 
-                    <button className='border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]'
-                      onClick={(e)=>handleLinkURLDirections(e, selectedAddress)}>
-                        Get Directions (Opens Map)
-                    </button>}
+                    <div className='flex flex-row ml-2'>
+                        <input  
+                            type="checkbox" 
+                            id='termsagree'
+                            onChange={toggleTerms}
+                            checked={termschecked}
+                        />
+                        <label className='ml-2 text-sm font-medium md:text-base' htmlFor="termsagree">{`I agree to the `}
+                            <button className='text-blue-900 underline' onClick={handleOpenModalTerms}> 
+                              Terms of Service</button></label>
+                    </div>
 
                     {(selectedEventStatus !== "Requested" && selectedEventStatus !== "Cancelled" && selectedEventStatus !== "Completed" ) 
                       && 
@@ -2832,6 +2867,36 @@ const handleRegularHourChangeEnd = (event, day) => {
               </div>
             </Box>
         </Modal>
+
+        <Modal
+          open={openModalTerms}
+          onClose={handleCloseModalTerms}
+          onClick={(event)=>{event.stopPropagation()}}
+          aria-labelledby="child-modal-title"
+          aria-describedby="child-modal-description"
+          >
+        <Box sx={{ ...boxStyle, width: 350 }}>
+
+          <div>
+
+              <p className='text-center text-lg font-bold underline'> Terms of Service </p>
+              <p className='text-base break-words text-justify pb-2'>Definitions: “SocketJuice, “we”, “We”, “us”, and “the website” will refer to www.socketjuice.com and subsidiaries. </p>
+
+              <p className='text-center text-lg font-semibold pt-2'> Service Overview </p>
+              <p className='text-base break-words text-justify pb-2'> SocketJuice is an online tool for owners of electric vehicles to share their electric charging equipment in order to earn extra money. </p>  
+              <p className='text-base break-words text-justify pb-2'> By using the SocketJuice website, you agree to the terms of service and take full responsibility and cover all expenses should any damages or accidents occur during usage of SocketJuice or as a result of using SocketJuice. </p>  
+              <p className='text-base break-words text-justify pb-2'> You agree to waive all responsibility and expenses for SocketJuice should any damage or accident occur during your usage of SocketJuice or as a result of using SocketJuice. </p>  
+              <p className='text-base break-words text-justify pb-2'> You confirm that you will conduct yourself according to all applicable laws and regulations in your geographic region and you confirm that you are aware that SocketJuice will be in full cooperation with law enforcement should  </p>  
+              <p className='text-base break-words text-justify pb-2'> any laws or regulations be broken related to your usage on SocketJuice. </p>  
+              
+              <p className='text-center text-lg font-semibold'> Response to Inappropriate Usage </p>
+              <p className='text-base break-words text-justify pb-2'></p>
+
+          </div>
+
+          </Box>
+
+      </Modal>
 
         <ToastContainer
             toastStyle={{ backgroundColor: "#8BEDF3" }}

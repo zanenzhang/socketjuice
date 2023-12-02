@@ -319,7 +319,7 @@ const VerifyPage = () => {
 
         event.preventDefault();
         
-        if(waitingPhotos || croppedImageId?.length < 2 || !croppedImage){
+        if(waitingPhotos || croppedImageId?.length !== 1 || !croppedImage){
             return
         }
 
@@ -623,13 +623,13 @@ const VerifyPage = () => {
 
             if(finalImageObjArray?.length === mediaLength){
 
-                const driverObjectId = finalImageObjArray[0]
-                const plateObjectId = finalImageObjArray[1]
+                // const driverObjectId = finalImageObjArray[0]
+                const plateObjectId = finalImageObjArray[0]
         
                 try {
 
                     const uploadedUserPhotos = await axios.post('/profile/userphotos', 
-                        JSON.stringify({userId, driverObjectId, plateObjectId}),
+                        JSON.stringify({userId, plateObjectId}),
                         {
                             headers: { "Authorization": `Hash ${hash} ${userId}`, 
                                 'Content-Type': 'application/json'},
@@ -898,7 +898,7 @@ const VerifyPage = () => {
 
                         <div className='flex flex-col justify-center items-center pt-6'>
                             <p className='text-base md:text-lg font-medium text-center'>
-                                b) Upload 1 photo of driver's license (front) and 1 photo of license plate for verification </p>
+                                b) Upload a photo of your license plate for verification </p>
                             
                         </div>
                         
@@ -912,7 +912,8 @@ const VerifyPage = () => {
                         </div>
                     </div>
 
-                    <button disabled={submittedPhotos || croppedImageURLId?.length < 2} onClick={(e)=>handlePhotosUpload(e)} 
+                    <button disabled={submittedPhotos || croppedImageURLId?.length < 2} 
+                        onClick={(e)=>handlePhotosUpload(e)} 
                         className={`my-2 mb-8 py-4 px-3 rounded-2xl border-2 
                             border-[#00D3E0]  flex flex-row gap-x-1 
                             ${(submittedPhotos || croppedImageURLId?.length < 2) ? "bg-gray-200 cursor-not-allowed " : 'hover:bg-[#00D3E0]' }   `}>

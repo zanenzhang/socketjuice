@@ -65,14 +65,13 @@ const getHostProfilesCoord = async (req, res) => {
         return res.status(400).json({ message: 'Missing required info' })
     }
 
-    console.log("Getting host coord", coordinatesInput, loggedUserId, dayofweek, localtime)
-
     coordinatesInput = JSON.parse(coordinatesInput)
 
     try {
         
         var searchobj = {
             "$or": [],
+            _userId: {"$ne": loggedUserId},
             deactivated: false,
             verifiedHostCharging: true,
             location:
@@ -143,8 +142,6 @@ const getHostProfilesCoord = async (req, res) => {
             searchobj["$or"] = array
         }
 
-        console.log("SEARCH OBJ HERE", searchobj)
-
         const preFoundHostProfiles = await HostProfile.find(searchobj).limit(10)
 
         const bookmarksFound = await Bookmark.findOne({_userId: loggedUserId})
@@ -153,8 +150,6 @@ const getHostProfilesCoord = async (req, res) => {
         let doneProfileData = false;
 
         if(preFoundHostProfiles?.length > 0){
-
-            console.log(preFoundHostProfiles?.length)
 
             var foundHostProfiles = []
             var startstr = ""
@@ -196,100 +191,77 @@ const getHostProfilesCoord = async (req, res) => {
                 endstr = "hoursSundayFinish"
             }
 
-            for(let i=0; i<preFoundHostProfiles?.length; i++){
+            var current = new Date()
 
-                console.log(preFoundHostProfiles[i][allDayString])
-                console.log(preFoundHostProfiles[i][endstr])
-                console.log(preFoundHostProfiles[i][startstr])
+            const checkAppointments = await Appointment.find(
+                {$and:[
+                    {_hostUserId: {$in: preFoundHostProfiles.map(e => e._userId)}}, 
+                    {$or: [ 
+                        { start : { $lte: current }, end : { $gt: current } },
+                        { start : { $lt: current }, end : { $gte: current } },
+                        { start : { $gte: current }, end : { $lte: current } }]}, 
+                    {$or: [{status: "Approved" }, {status: "Requested" }]}
+                ]})
 
-                if(preFoundHostProfiles[i][allDayString]){
-                
-                    foundHostProfiles.push(preFoundHostProfiles[i])
-                
-                } else if(preFoundHostProfiles[i][endstr] < preFoundHostProfiles[i][startstr]){
-                    
-                    if(localtime > preFoundHostProfiles[i][endstr] && localtime < preFoundHostProfiles[i][startstr]){
-                        continue
-                    } else {
-                        foundHostProfiles.push(preFoundHostProfiles[i])
-                    }
-                    
-                } else if (preFoundHostProfiles[i][endstr] > preFoundHostProfiles[i][startstr]){
-                
-                    if(localtime > preFoundHostProfiles[i][endstr]){
-                        continue
-                    } else {
-                        foundHostProfiles.push(preFoundHostProfiles[i])
+
+            var appointmentCheck = {}
+            var doneAppointmentChecks = false;
+
+            if(checkAppointments){
+
+                for(let i=0; i<checkAppointments?.length; i++){
+                    if(appointmentCheck[checkAppointments[i]._hostUserId] === undefined){
+                        appointmentCheck[checkAppointments[i]._hostUserId] = checkAppointments[i]._hostUserId
                     }
                 }
+
+                doneAppointmentChecks = true
+
+            } else {
+
+                doneAppointmentChecks = true
             }
 
-            foundHostProfiles?.forEach(function(item, index){
+            if(doneAppointmentChecks){
 
-                if(item.mediaCarouselURLs?.length === 0 && item.mediaCarouselObjectIds?.length > 0){
-    
-                    var finalMediaURLs = []
-    
-                    for(let i=0; i<item.mediaCarouselObjectIds?.length; i++){
-                    
-                        var signParams = {
-                            Bucket: wasabiPrivateBucketUSA, 
-                            Key: item.mediaCarouselObjectIds[i],
-                            Expires: 7200
-                          };
-            
-                        var url = s3.getSignedUrl('getObject', signParams);
-            
-                        finalMediaURLs.push(url)
+                for(let i=0; i<preFoundHostProfiles?.length; i++){
+
+                    if(appointmentCheck[preFoundHostProfiles[i]._userId] !== undefined){
+                        preFoundHostProfiles[i].availableNow = false;
+                    } else {
+                        preFoundHostProfiles[i].availableNow = true;
                     }
     
-                    var finalVideoURLs = []
-    
-                    for(let i=0; i<item.videoCarouselObjectIds?.length; i++){
-    
-                        if(item.videoCarouselObjectIds[i] !== 'image'){
-    
-                            var signParams = {
-                                Bucket: wasabiPrivateBucketUSA, 
-                                Key: item.videoCarouselObjectIds[i],
-                                Expires: 7200
-                            };
-                
-                            var url = s3.getSignedUrl('getObject', signParams);
-                
-                            finalVideoURLs.push(url)
-    
+                    if(preFoundHostProfiles[i][allDayString]){
+                    
+                        foundHostProfiles.push(preFoundHostProfiles[i])
+                    
+                    } else if(preFoundHostProfiles[i][endstr] < preFoundHostProfiles[i][startstr]){
+                        
+                        if(localtime > preFoundHostProfiles[i][endstr] && localtime < preFoundHostProfiles[i][startstr]){
+                            continue
                         } else {
-    
-                            finalVideoURLs.push("image")
+                            foundHostProfiles.push(preFoundHostProfiles[i])
+                        }
+                        
+                    } else if (preFoundHostProfiles[i][endstr] > preFoundHostProfiles[i][startstr]){
+                    
+                        if(localtime > preFoundHostProfiles[i][endstr]){
+                            continue
+                        } else {
+                            foundHostProfiles.push(preFoundHostProfiles[i])
                         }
                     }
+                }
     
-                    item.mediaCarouselURLs = finalMediaURLs
-                    item.videoCarouselURLs = finalVideoURLs
-                    item.previewMediaURL = finalMediaURLs[item.coverIndex]
-                    item.markModified('mediaCarouselURLs')
-                    item.markModified('videoCarouselURLs')
-                    item.markModified('previewMediaURL')
+                foundHostProfiles?.forEach(function(item, index){
     
-                } else if(item.mediaCarouselObjectIds?.length > 0) {
-    
-                    for(let i=0; i<item.mediaCarouselURLs?.length; i++){
+                    if(item.mediaCarouselURLs?.length === 0 && item.mediaCarouselObjectIds?.length > 0){
+        
+                        var finalMediaURLs = []
+        
+                        for(let i=0; i<item.mediaCarouselObjectIds?.length; i++){
                         
-                        var signedUrl = item.mediaCarouselURLs[i];
-    
-                        const params = new URLSearchParams(signedUrl)
-                        const expiry = Number(params.get("Expires")) * 1000
-                        // const creationDate = fns.parseISO(params['X-Amz-Date']);
-                        // const expiresInSecs = Number(params['X-Amz-Expires']);
-                        
-                        // const expiryDate = fns.addSeconds(creationDate, expiresInSecs);
-                        // const expiry = Number(params['Expires']);
-                        const expiryTime = new Date(expiry)
-                        const isExpired = expiryTime < new Date();
-            
-                        if (isExpired){
-            
                             var signParams = {
                                 Bucket: wasabiPrivateBucketUSA, 
                                 Key: item.mediaCarouselObjectIds[i],
@@ -298,20 +270,44 @@ const getHostProfilesCoord = async (req, res) => {
                 
                             var url = s3.getSignedUrl('getObject', signParams);
                 
-                            item.mediaCarouselURLs[i] = url
+                            finalMediaURLs.push(url)
                         }
-    
-                        if(item.coverIndex === i){
-                            item.previewMediaURL = item.mediaCarouselURLs[i]
+        
+                        var finalVideoURLs = []
+        
+                        for(let i=0; i<item.videoCarouselObjectIds?.length; i++){
+        
+                            if(item.videoCarouselObjectIds[i] !== 'image'){
+        
+                                var signParams = {
+                                    Bucket: wasabiPrivateBucketUSA, 
+                                    Key: item.videoCarouselObjectIds[i],
+                                    Expires: 7200
+                                };
+                    
+                                var url = s3.getSignedUrl('getObject', signParams);
+                    
+                                finalVideoURLs.push(url)
+        
+                            } else {
+        
+                                finalVideoURLs.push("image")
+                            }
                         }
-                    }
-    
-                    for(let i=0; i<item.videoCarouselURLs?.length; i++){
-    
-                        if(item.videoCarouselURLs[i] !== 'image'){
-    
-                            var signedUrl = item.videoCarouselURLs[i];
-    
+        
+                        item.mediaCarouselURLs = finalMediaURLs
+                        item.videoCarouselURLs = finalVideoURLs
+                        item.previewMediaURL = finalMediaURLs[item.coverIndex]
+                        item.markModified('mediaCarouselURLs')
+                        item.markModified('videoCarouselURLs')
+                        item.markModified('previewMediaURL')
+        
+                    } else if(item.mediaCarouselObjectIds?.length > 0) {
+        
+                        for(let i=0; i<item.mediaCarouselURLs?.length; i++){
+                            
+                            var signedUrl = item.mediaCarouselURLs[i];
+        
                             const params = new URLSearchParams(signedUrl)
                             const expiry = Number(params.get("Expires")) * 1000
                             // const creationDate = fns.parseISO(params['X-Amz-Date']);
@@ -326,28 +322,63 @@ const getHostProfilesCoord = async (req, res) => {
                 
                                 var signParams = {
                                     Bucket: wasabiPrivateBucketUSA, 
-                                    Key: item.videoCarouselObjectIds[i],
+                                    Key: item.mediaCarouselObjectIds[i],
                                     Expires: 7200
-                                };
+                                  };
                     
                                 var url = s3.getSignedUrl('getObject', signParams);
                     
-                                item.videoCarouselURLs[i] = url
+                                item.mediaCarouselURLs[i] = url
                             }
-    
+        
+                            if(item.coverIndex === i){
+                                item.previewMediaURL = item.mediaCarouselURLs[i]
+                            }
                         }
-                    }
+        
+                        for(let i=0; i<item.videoCarouselURLs?.length; i++){
+        
+                            if(item.videoCarouselURLs[i] !== 'image'){
+        
+                                var signedUrl = item.videoCarouselURLs[i];
+        
+                                const params = new URLSearchParams(signedUrl)
+                                const expiry = Number(params.get("Expires")) * 1000
+                                // const creationDate = fns.parseISO(params['X-Amz-Date']);
+                                // const expiresInSecs = Number(params['X-Amz-Expires']);
+                                
+                                // const expiryDate = fns.addSeconds(creationDate, expiresInSecs);
+                                // const expiry = Number(params['Expires']);
+                                const expiryTime = new Date(expiry)
+                                const isExpired = expiryTime < new Date();
+                    
+                                if (isExpired){
+                    
+                                    var signParams = {
+                                        Bucket: wasabiPrivateBucketUSA, 
+                                        Key: item.videoCarouselObjectIds[i],
+                                        Expires: 7200
+                                    };
+                        
+                                    var url = s3.getSignedUrl('getObject', signParams);
+                        
+                                    item.videoCarouselURLs[i] = url
+                                }
+        
+                            }
+                        }
+        
+                        item.markModified('mediaCarouselURLs')
+                        item.markModified('videoCarouselURLs')
+                        item.markModified('previewMediaURL')
+                    
+                    }  
+        
+                    item.update()
+                })
     
-                    item.markModified('mediaCarouselURLs')
-                    item.markModified('videoCarouselURLs')
-                    item.markModified('previewMediaURL')
-                
-                }  
-    
-                item.update()
-            })
-
-            doneProfileData = true;
+                doneProfileData = true;   
+            }
 
         }  else {
 

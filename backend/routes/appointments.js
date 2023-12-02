@@ -13,7 +13,6 @@ router.post('/request', appointmentController.addAppointmentRequest);
 router.post('/approval', appointmentController.addAppointmentApproval);
 router.post('/completion', appointmentController.addAppointmentCompletion);
 router.post('/drivercancelsubmit', appointmentController.driverRequestCancelSubmit);
-router.post('/drivercancelapprove', appointmentController.driverRequestCancelApprove);
 router.post('/hostcancelsubmit', appointmentController.hostRequestCancelSubmit);
 router.post('/hostcancelapprove', appointmentController.hostRequestCancelApprove);
 

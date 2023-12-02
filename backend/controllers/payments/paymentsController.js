@@ -315,9 +315,6 @@ const getDriverOutgoingPayments = async (req, res) => {
 
         var { userId, pageNumber, dateStart, dateEnd } = req.query
 
-        console.log("Getting outgoing payments")
-        console.log(userId, pageNumber, dateStart, dateEnd)
-
         if (!userId ) {
             return res.status(400).json({ message: 'Missing required information' })
         }
@@ -395,20 +392,20 @@ const addPayment = async (req, res) => {
 
             if(foundHostProfile && foundDriverProfile){
 
-                const newPayment = await Payment.create({_outgoingUserId: userId, _receivingUserId: hostUserId, amount: paymentAmount, currency: currency})
+                const newPayment = await Payment.create({_outgoingUserId: userId, _receivingUserId: hostUserId, amount: paymentAmount, currency: currency.toLowerCase()})
 
                 if(newPayment){
 
                     if(foundHostProfile.incomingPayments?.length > 0){
-                        foundHostProfile.incomingPayments.push({_paymentId: newPayment._id, amount: paymentAmount, currency: currency})
+                        foundHostProfile.incomingPayments.push({_paymentId: newPayment._id, amount: paymentAmount, currency: currency.toLowerCase()})
                     } else{
-                        foundHostProfile.incomingPayments = [{_paymentId: newPayment._id, amount: paymentAmount, currency: currency}]
+                        foundHostProfile.incomingPayments = [{_paymentId: newPayment._id, amount: paymentAmount, currency: currency.toLowerCase()}]
                     }
 
                     if(foundDriverProfile.outgoingPayments?.length > 0){
-                        foundDriverProfile.outgoingPayments.push({_paymentId: newPayment._id, amount: paymentAmount, currency: currency})
+                        foundDriverProfile.outgoingPayments.push({_paymentId: newPayment._id, amount: paymentAmount, currency: currency.toLowerCase()})
                     } else{
-                        foundDriverProfile.outgoingPayments = [{_paymentId: newPayment._id, amount: paymentAmount, currency: currency}]
+                        foundDriverProfile.outgoingPayments = [{_paymentId: newPayment._id, amount: paymentAmount, currency: currency.toLowerCase()}]
                     }
 
                     const savedHost = await foundHostProfile.save()
@@ -523,13 +520,11 @@ const addPayout = async (req, res) => {
                         } else {
 
                             const newPayment = await Payment.create({ _sendingUserId: userId, _receivingUserId: userId, 
-                                amount: paymentAmount, currency: currency, payout: true})
+                                amount: paymentAmount, currency: currency.toLowerCase(), payout: true})
 
                             const saveUser = await checkUser.save()
     
                             if(newPayment && saveUser){
-
-                                console.log("Reached here new payout 0")
 
                                 var sender_batch_id = Math.random().toString(36).substring(9);
 
@@ -555,19 +550,22 @@ const addPayout = async (req, res) => {
                                 var sync_mode = 'false';
 
                                 paypal.payout.create(create_payout_json, sync_mode, async function (error, payout) {
+                                    
                                     if (error) {
                                         console.log(error.response);
                                         throw error;
+
                                     } else {
-                                        console.log("Create Single Payout Response");
-                                        console.log(payout);
 
                                         if(foundDriverProfile.outgoingPayments?.length > 0){
+                                            
                                             foundDriverProfile.outgoingPayments.push({_paymentId: newPayment._id, amount: paymentAmount, 
-                                                currency: currency, payout: true})
+                                                currency: currency.toLowerCase(), payout: true})
+
                                         } else{
+
                                             foundDriverProfile.outgoingPayments = [{_paymentId: newPayment._id, amount: paymentAmount, 
-                                                currency: currency, payout: true}]
+                                                currency: currency.toLowerCase(), payout: true}]
                                         }
                 
                                         const savedDriver = await foundDriverProfile.save()
@@ -589,7 +587,7 @@ const addPayout = async (req, res) => {
                                                 if(payoutDetails){
                                                     
                                                     const sentOutReceipt = await sendReceiptOutgoing({toUser: userId, firstName: checkUser.firstName, amount: paymentAmount,
-                                                       currency: currency, currencySymbol: currencySymbol, time: new Date() })
+                                                       currency: currency.toLowerCase(), currencySymbol: currencySymbol, time: new Date() })
 
                                                     if(sentOutReceipt){
                                                         return res.status(201).json({ message: 'Success' })
@@ -733,7 +731,7 @@ const addRefund = async (req, res) => {
                                     currencySymbol = "$"
                                 }
 
-                                foundUser.credits.push({currency: currency, currencySymbol: currencySymbol, amount: paymentAmount})
+                                foundUser.credits.push({currency: currency.toLowerCase(), currencySymbol: currencySymbol, amount: paymentAmount})
 
 
                             } else {
@@ -882,7 +880,7 @@ const addPaymentFlag = async (req, res) => {
                                     currencySymbol = "$"
                                 }
 
-                                foundUser.credits.push({currency: currency, currencySymbol: currencySymbol, amount: paymentAmount})
+                                foundUser.credits.push({currency: currency.toLowerCase(), currencySymbol: currencySymbol, amount: paymentAmount})
 
 
                             } else {
@@ -1030,7 +1028,7 @@ const removePaymentFlag = async (req, res) => {
                                     currencySymbol = "$"
                                 }
 
-                                foundUser.credits.push({currency: currency, currencySymbol: currencySymbol, amount: paymentAmount})
+                                foundUser.credits.push({currency: currency.toLowerCase(), currencySymbol: currencySymbol, amount: paymentAmount})
 
 
                             } else {
@@ -1123,7 +1121,7 @@ const addBraintreeSale = async (req, res) => {
             const newToken = crypto.randomBytes(3).toString('hex')
 
             const addedPayment = await Payment.create({ _sendingUserId: userId, _receivingUserId: userId, 
-                amount: payamount, currency: currency, currencySymbol: currencySymbol, paymentToken: newToken})
+                amount: payamount, currency: currency.toLowerCase(), currencySymbol: currencySymbol, paymentToken: newToken})
 
             var doneId = false;
             var customerId = ""
@@ -1146,7 +1144,7 @@ const addBraintreeSale = async (req, res) => {
                     }
 
                   } else {
-                    console.log("Failed customer creation")
+
                     doneId = true    
                   }
                 
@@ -1159,7 +1157,7 @@ const addBraintreeSale = async (req, res) => {
             if(addedPayment && doneId){
 
                 const updatedProfile = await DriverProfile.updateOne({_userId: userId},{$push: {outgoingPayments: 
-                        {_paymentId: addedPayment._id, amount: payamount, currency: currency }}})
+                        {_paymentId: addedPayment._id, amount: payamount, currency: currency.toLowerCase() }}})
 
                 if(updatedProfile){
 
@@ -1283,9 +1281,6 @@ const capturePaypalOrder = async (req, res) => {
                 
                         if(orderData){
 
-                            console.log("Order data here")
-                            console.log(orderData.data)
-
                             if(orderData.data.status === "COMPLETED" && orderData.data.purchase_units[0]?.payments.captures[0].status === "COMPLETED"){
 
                                 const orderId = orderData.data.id
@@ -1296,10 +1291,6 @@ const capturePaypalOrder = async (req, res) => {
                                 const grossAmount = orderData.data.purchase_units[0]?.payments?.captures[0].seller_receivable_breakdown.gross_amount
                                 const netAmount = orderData.data.purchase_units[0]?.payments?.captures[0].seller_receivable_breakdown.net_amount
                                 const receivableAmount = orderData.data.purchase_units[0]?.payments?.captures[0].seller_receivable_breakdown.receivable_amount
-
-                                console.log(currency)
-                                console.log(option)
-                                console.log(netAmount)
 
                                 var currencySymbol = "$"
 
@@ -1386,7 +1377,7 @@ const capturePaypalOrder = async (req, res) => {
                                     const newToken = crypto.randomBytes(3).toString('hex')
 
                                     const addedPayment = await Payment.create( {_sendingUserId: userId, _receivingUserId: userId, paypalOrderId: orderId,
-                                        amount: payamount, currency: currency, currencySymbol: currencySymbol, paymentToken: newToken,
+                                        amount: payamount, currency: currency.toLowerCase(), currencySymbol: currencySymbol, paymentToken: newToken,
                                         gross_amount: grossAmount, net_amount: netAmount, receiveable_amount: receivableAmount,
                                         payin: true})
 
@@ -1405,16 +1396,16 @@ const capturePaypalOrder = async (req, res) => {
                                                 }
                                             }
                                             if(!addedCredits){
-                                                foundUser.credits.push({currency: currency, currencySymbol: currencySymbol, amount: payamount})
+                                                foundUser.credits.push({currency: currency.toLowerCase(), currencySymbol: currencySymbol, amount: payamount})
                                             }
                                         } else {
-                                            foundUser.credits = [{currency: currency, currencySymbol: currencySymbol, amount: payamount}]
+                                            foundUser.credits = [{currency: currency.toLowerCase(), currencySymbol: currencySymbol, amount: payamount}]
                                         }
 
                                         const updatedUser = await foundUser.save()
 
                                         const sentReceipt = await sendReceiptIncoming({toUser: userId, firstName: foundUser.firstName, amount: payamount, 
-                                            currency: currency, currencySymbol: currencySymbol, time: new Date() })
+                                            currency: currency.toLowerCase(), currencySymbol: currencySymbol, time: new Date() })
 
                                         if(updatedProfile && updatedUser && sentReceipt){
                                             console.log("Captured Paypal Order")

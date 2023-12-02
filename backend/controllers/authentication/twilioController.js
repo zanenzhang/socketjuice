@@ -192,8 +192,6 @@ async function sendSmsNotification (receivingUserId, notificationType) {
 
         try {
 
-            console.log("Sending sms notification")
-
             var message = ""
 
             if(notificationType === "Approved"){

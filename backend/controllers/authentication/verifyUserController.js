@@ -185,8 +185,6 @@ const rejectUserUploads = async (req, res) => {
 
         if(checkUser && actToken){
 
-            checkUser.driverObjectId = ""
-            checkUser.driverMediaURL = ""
             checkUser.plateObjectId = ""
             checkUser.plateMediaURL = ""
             checkUser.profilePicKey = ""
@@ -242,16 +240,8 @@ const getUserStatusPhotos = async (req, res) => {
             
             usersToCheck?.forEach(function(item, index){
 
-                if(item.driverObjectId && item.plateObjectId){
+                if(item.plateObjectId){
     
-                    var signParamsDriver = {
-                        Bucket: wasabiPrivateBucketUSA, 
-                        Key: item.driverObjectId,
-                        Expires: 7200
-                    };
-        
-                    var driverUrl = s3.getSignedUrl('getObject', signParamsDriver);
-
                     var signParamsPlate = {
                         Bucket: wasabiPrivateBucketUSA, 
                         Key: item.plateObjectId,
@@ -260,7 +250,6 @@ const getUserStatusPhotos = async (req, res) => {
         
                     var plateUrl = s3.getSignedUrl('getObject', signParamsPlate);
                 
-                    item.driverMediaURL = driverUrl
                     item.plateMediaURL = plateUrl
     
                     item.update()

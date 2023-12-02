@@ -14,7 +14,7 @@ async function addAppointmentRequest (userId, hostUserId, appointmentStart, appo
             }
         );
         if(response){
-            return response.data
+            return response
         }
 
     } catch (err) {
