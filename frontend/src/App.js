@@ -16,6 +16,8 @@ const InputNewPassword = lazy( () => import('./pages/Application/InputNewPass'))
 const VerifyPage = lazy( () => import("./pages/Application/VerifyPage"));
 
 const SettingsPage = lazy( () => import("./pages/Application/SettingsPage"));
+const TermsPage = lazy( () => import("./pages/Application/TermsPage"));
+const PrivacyPage = lazy( () => import("./pages/Application/PrivacyPage"));
 const UnauthorizedPage = lazy( () => import("./pages/Application/UnauthorizedPage"));
 const Missing = lazy( () => import('./components/errorHandler/Missing'));
 const ErrorFallback = lazy( () => import('./components/errorHandler/ErrorFallback'));
@@ -72,6 +74,24 @@ function App() {
             >
               <Suspense fallback={<SkeletonFullPage />}>
               <VerifyPage />
+              </Suspense>
+          </ErrorBoundary>} />
+
+          <Route path="/terms" element={<ErrorBoundary
+              FallbackComponent={ErrorFallback}
+              onReset={() => navigate('/')}
+            >
+              <Suspense fallback={<SkeletonFullPage />}>
+              <TermsPage />
+              </Suspense>
+          </ErrorBoundary>} />
+
+          <Route path="/privacy" element={<ErrorBoundary
+              FallbackComponent={ErrorFallback}
+              onReset={() => navigate('/')}
+            >
+              <Suspense fallback={<SkeletonFullPage />}>
+              <PrivacyPage />
               </Suspense>
           </ErrorBoundary>} />
 

@@ -77,8 +77,8 @@ const MainHeader = ({loggedUserId} ) => {
     const emailRef = useRef();
 
     const [recapToken, setRecapToken] = useState(false);
-    const [acceptTerms, setAcceptTerms] = useState(true);
-    const [acceptPrivacy, setAcceptPrivacy] = useState(true);
+    const [acceptTerms, setAcceptTerms] = useState(false);
+    const [acceptPrivacy, setAcceptPrivacy] = useState(false);
     const [countrySet, setCountrySet] = useState(false);
 
     const [emailRegister, setEmailRegister] = useState('');
@@ -139,6 +139,21 @@ const MainHeader = ({loggedUserId} ) => {
            setInputTypeRegister('password')
         }
      }
+
+     const handleTermsClick = (e) => {
+
+        e.preventDefault()
+    
+        window.open("/terms", "_blank");
+     }
+
+     const handlePrivacyClick = (e) => {
+
+        e.preventDefault()
+    
+        window.open("/privacy", "_blank");
+     }
+
 
      const handleAddress = (e) => {
 
@@ -469,6 +484,14 @@ const MainHeader = ({loggedUserId} ) => {
            setInputTypeLogin('password')
         }
      }
+
+     const toggleAcceptTerms = () => {
+        setAcceptTerms(prev => !prev);
+    }
+
+    const toggleAcceptPrivacy = () => {
+        setAcceptPrivacy(prev => !prev);
+    }
 
      const onEnterPress = (event) => {
         if(event.key === 'Enter' && event.shiftKey === false) {  
@@ -1587,6 +1610,64 @@ const MainHeader = ({loggedUserId} ) => {
                     </>
                 )}
             </div>  
+
+            <div className='pl-2 mt-6 flex items-start'>
+                <div>
+                    <input  
+                        type="checkbox" 
+                        id='termsagree'
+                        onChange={toggleAcceptTerms}
+                        checked={acceptTerms}
+                    />
+                    <label className='ml-2 text-sm font-medium md:text-base' htmlFor="termsagree">{`I agree to the `}
+                    <button className='text-blue-900 underline' onClick={(e)=>handleTermsClick(e)}> 
+                        Terms of Service</button></label>
+                </div>
+            </div>
+
+            <div className='mt-2 pl-2 flex items-start'>
+                <div>
+                    <input  
+                        type="checkbox" 
+                        id='privacyagree'
+                        onChange={toggleAcceptPrivacy}
+                        checked={acceptPrivacy}
+                    />
+                    <label className='ml-2 font-medium text-sm md:text-base' htmlFor="privacyagree">{`I agree to the `}
+                    <button className='text-blue-900 underline' onClick={(e)=>handlePrivacyClick(e)}> 
+                        Privacy Policy</button></label>
+                </div>
+            </div>
+
+            <div className='flex flex-row mx-2 gap-x-2 mt-1'>
+            {(acceptTerms && acceptPrivacy) ? 
+                    (
+                        <>
+                        <div className='flex flex-col justify-center'>
+                        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#38a169" className="w-6 h-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        </div>
+                        <div className='flex flex-col justify-center'>
+                            <span className="text-sm md:text-base text-green-600">Please review the Terms of Service and Privacy Policy</span>
+                        </div>
+                        </>
+                    )
+                    : 
+                    ( 
+                        <>
+                        <div className='flex flex-col justify-center'>
+                        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="#e53e3e" className="w-6 h-6" >
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        </div>
+                        <div className='flex flex-col justify-center'>
+                            <span className="text-sm md:text-base text-red-600">Please review the Terms of Service and Privacy Policy</span>
+                        </div>
+                        </>
+                    )
+                }
+            </div> 
 
             {errMsg && <p className='font-medium text-base md:text-lg text-center text-red-500 mt-8'>{errMsg}</p>}
 

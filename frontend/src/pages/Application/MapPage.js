@@ -124,21 +124,16 @@ const MapPage = () => {
   const [openDetailsModal, setOpenDetailsModal] = useState(false);
   const [openPaymentsModal, setOpenPaymentModal] = useState(false);
 
-  const [openModalPrivacy, setOpenModalPrivacy] = useState(false);
-  const [openModalTerms, setOpenModalTerms] = useState(false);
   const [termschecked, setTermschecked] = useState(false);
 
   const [iconLarge, setIconLarge] = useState({})
   const [iconRegular, setIconRegular] = useState({})
 
-  const handleCloseModalTerms = (event) => {
+  const handleTermsClick = (event) => {
 
-    setOpenModalTerms(false);
-  }
+    event.preventDefault()
 
-  const handleOpenModalTerms = (event) => {
-
-    setOpenModalTerms(true);
+    window.open("/terms", "_blank");
   }
 
   const initialOptions = {
@@ -1889,9 +1884,10 @@ const {scrollToTime} = useMemo(
                     <p> Length of Booking: {bookingLengthText}</p>
                     <p className='pt-2 text-xl font-semibold'>Total: {selectedCurrency?.toUpperCase()}{selectedCurrencySymbol}{Number(totalCharge).toFixed(2)}</p>
 
-                    <button className='border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] 
-                      hover:bg-[#00D3E0] flex flex-row gap-x-2 justify-center items-center'
-                      onClick={(e)=>handleAddAppointment(e)}>
+                    <button className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] 
+                      hover:bg-[#00D3E0] flex flex-row gap-x-2 justify-center items-center ${!termschecked ? "cursor-notallowed " : "cursor-pointer"}`}
+                      onClick={(e)=>handleAddAppointment(e)}
+                      disabled={!termschecked}>
 
                       {waitingSubmit && 
                       <div aria-label="Loading..." role="status">
@@ -1917,8 +1913,10 @@ const {scrollToTime} = useMemo(
                             checked={termschecked}
                         />
                         <label className='ml-2 text-sm font-medium md:text-base' htmlFor="termsagree">{`I agree to the `}
-                            <button className='text-blue-900 underline' onClick={handleOpenModalTerms}> 
-                              Terms of Service</button></label>
+                            <button className='text-blue-900 underline' onClick={(e)=>handleTermsClick(e)}> 
+                              Terms of Service
+                            </button>
+                        </label>
                     </div>
 
                     <div className='flex flex-col pt-4'>

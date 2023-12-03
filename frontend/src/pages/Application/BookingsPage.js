@@ -76,8 +76,6 @@ const BookingsPage = () => {
   const [driverAppointments, setDriverAppointments] = useState([])
   const [newrequest, setNewrequest] = useState(0);
 
-  const [openModalPrivacy, setOpenModalPrivacy] = useState(false);
-  const [openModalTerms, setOpenModalTerms] = useState(false);
   const [termschecked, setTermschecked] = useState(false);
 
   const [hostEvents, setHostEvents] = useState([])
@@ -506,14 +504,11 @@ useEffect( () => {
     borderRadius: '10px',
   };
 
-  const handleCloseModalTerms = (event) => {
+  const handleTermsClick = (event) => {
 
-    setOpenModalTerms(false);
-  }
+    event.preventDefault()
 
-  const handleOpenModalTerms = (event) => {
-
-    setOpenModalTerms(true);
+    window.open("/terms", "_blank");
   }
 
   const handleMessageHost = async () => {
@@ -2775,10 +2770,10 @@ const handleRegularHourChangeEnd = (event, day) => {
                     <p className='text-xl font-semibold'>Total: {selectedCurrency?.toUpperCase()}{selectedCurrencySymbol}{Number(selectedTotalCharge).toFixed(2)}</p>
 
                     <button   
-                      disabled={(selectedEventStatus === "Approved" || selectedEventStatus === "Cancelled" || hostRequestedCancel )} 
+                      disabled={(selectedEventStatus === "Approved" || selectedEventStatus === "Cancelled" || hostRequestedCancel || !termschecked )} 
                       className={`border border-gray-300 px-3 py-2 rounded-xl 
                       ${(selectedEventStatus === "Completed" || selectedEventStatus === "Cancelled" 
-                      || hostRequestedCancel) ? "bg-[#c1f2f5] cursor-not-allowed" : "bg-[#c1f2f5] hover:bg-[#00D3E0] " } 
+                      || hostRequestedCancel || !termschecked) ? "bg-[#c1f2f5] cursor-not-allowed" : "cursor-pointer bg-[#c1f2f5] hover:bg-[#00D3E0] " } 
                         gap-x-2 flex flex-row justify-center items-center`}
                       onClick={(e)=>handleEventActionHost(e)}>
 
@@ -2801,6 +2796,18 @@ const handleRegularHourChangeEnd = (event, day) => {
                         {(selectedEventStatus === "Approved") && <p>Approved - Mark as Completed</p> }
 
                     </button>
+
+                    <div className='flex flex-row ml-2'>
+                        <input  
+                            type="checkbox" 
+                            id='termsagree'
+                            onChange={toggleTerms}
+                            checked={termschecked}
+                        />
+                        <label className='ml-2 text-sm font-medium md:text-base' htmlFor="termsagree">{`I agree to the `}
+                            <button className='text-blue-900 underline' onClick={(e)=>handleTermsClick(e)}> 
+                              Terms of Service</button></label>
+                    </div>
 
                     {selectedEventStatus === "Requested" && 
                     <button 
@@ -2845,18 +2852,6 @@ const handleRegularHourChangeEnd = (event, day) => {
                       Approved - Cancel and Refund
                     </button> }
 
-                    <div className='flex flex-row ml-2'>
-                        <input  
-                            type="checkbox" 
-                            id='termsagree'
-                            onChange={toggleTerms}
-                            checked={termschecked}
-                        />
-                        <label className='ml-2 text-sm font-medium md:text-base' htmlFor="termsagree">{`I agree to the `}
-                            <button className='text-blue-900 underline' onClick={handleOpenModalTerms}> 
-                              Terms of Service</button></label>
-                    </div>
-
                     {(selectedEventStatus !== "Requested" && selectedEventStatus !== "Cancelled" && selectedEventStatus !== "Completed" ) 
                       && 
                     <button className='border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]'
@@ -2868,36 +2863,6 @@ const handleRegularHourChangeEnd = (event, day) => {
               </div>
             </Box>
         </Modal>
-
-        <Modal
-          open={openModalTerms}
-          onClose={handleCloseModalTerms}
-          onClick={(event)=>{event.stopPropagation()}}
-          aria-labelledby="child-modal-title"
-          aria-describedby="child-modal-description"
-          >
-        <Box sx={{ ...boxStyle, width: 350 }}>
-
-          <div>
-
-              <p className='text-center text-lg font-bold underline'> Terms of Service </p>
-              <p className='text-base break-words text-justify pb-2'>Definitions: “SocketJuice, “we”, “We”, “us”, and “the website” will refer to www.socketjuice.com and subsidiaries. </p>
-
-              <p className='text-center text-lg font-semibold pt-2'> Service Overview </p>
-              <p className='text-base break-words text-justify pb-2'> SocketJuice is an online tool for owners of electric vehicles to share their electric charging equipment in order to earn extra money. </p>  
-              <p className='text-base break-words text-justify pb-2'> By using the SocketJuice website, you agree to the terms of service and take full responsibility and cover all expenses should any damages or accidents occur during usage of SocketJuice or as a result of using SocketJuice. </p>  
-              <p className='text-base break-words text-justify pb-2'> You agree to waive all responsibility and expenses for SocketJuice should any damage or accident occur during your usage of SocketJuice or as a result of using SocketJuice. </p>  
-              <p className='text-base break-words text-justify pb-2'> You confirm that you will conduct yourself according to all applicable laws and regulations in your geographic region and you confirm that you are aware that SocketJuice will be in full cooperation with law enforcement should  </p>  
-              <p className='text-base break-words text-justify pb-2'> any laws or regulations be broken related to your usage on SocketJuice. </p>  
-              
-              <p className='text-center text-lg font-semibold'> Response to Inappropriate Usage </p>
-              <p className='text-base break-words text-justify pb-2'></p>
-
-          </div>
-
-          </Box>
-
-      </Modal>
 
         <ToastContainer
             toastStyle={{ backgroundColor: "#8BEDF3" }}
