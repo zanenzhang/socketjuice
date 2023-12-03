@@ -828,94 +828,119 @@ const {scrollToTime} = useMemo(
         const todayAvailableEnd = selectedHostProfile[`hours${dayofweek}End`]
         const yesterdayAvailableStart = selectedHostProfile[`hours${lastdayofweek}Start`]
         const yesterdayAvailableEnd = selectedHostProfile[`hours${lastdayofweek}End`]
+        const allDayToday = selectedHostProfile[`allDay${dayofweek}`]
 
         var availabilities = [];
 
-        if(yesterdayAvailableEnd < yesterdayAvailableStart && yesterdayAvailableEnd < todayAvailableStart){
+        if(allDayToday){
 
           var newstarttime = dateCheck.setHours(0)
-          newstarttime.setMinutes(0)
-          newstarttime.setSeconds(0)
-
-          var newendtime = dateCheck.setHours(selectedHostProfile[yesterdayAvailableEnd].slice(0, 2))
-          newendtime.setMinutes(selectedHostProfile[yesterdayAvailableEnd].slice(3, 5))
-          newendtime.setSeconds(0)
-          
-          var availabilityEarly = {
-            id: `today_availability_early`,
-            title: "Available",
-            start: new Date(newstarttime),
-            end: new Date(newendtime),
-            isDraggable: true,
-            disabled: true
-          }
-
-          availabilities.push(availabilityEarly)
-        
-        } else if(yesterdayAvailableEnd < yesterdayAvailableStart && yesterdayAvailableEnd > todayAvailableStart) {
-
-          var newstarttime = dateCheck.setHours(0)
-          newstarttime.setMinutes(0)
-          newstarttime.setSeconds(0)
-
-          var newendtime = dateCheck.setHours(selectedHostProfile[todayAvailableStart].slice(0, 2))
-          newendtime.setMinutes(selectedHostProfile[todayAvailableStart].slice(3, 5))
-          newendtime.setSeconds(0)
-          
-          var availabilityEarly = {
-            id: `today_availability_early`,
-            title: "Available",
-            start: new Date(newstarttime),
-            end: new Date(newendtime),
-            isDraggable: true,
-            disabled: true
-          }
-
-          availabilities.push(availabilityEarly)
-        }
-        
-
-        if(todayAvailableStart > todayAvailableEnd){
-
-          var newstarttime = dateCheck.setHours(selectedHostProfile[todayAvailableStart].slice(0, 2))
-          newstarttime.setMinutes(selectedHostProfile[todayAvailableStart].slice(3, 5))
-          newstarttime.setSeconds(0)
-
+            newstarttime.setMinutes(0)
+            newstarttime.setSeconds(0)
+  
           var newendtime = dateCheck.setHours(24)
           newendtime.setMinutes(0)
           newendtime.setSeconds(0)
+            
+            var availabilityAllDay = {
+              id: `today_availability_early`,
+              title: "Available",
+              start: new Date(newstarttime),
+              end: new Date(newendtime),
+              isDraggable: true,
+              disabled: true
+            }
+  
+            availabilities.push(availabilityAllDay)
+
+        } else {
+
+          if(yesterdayAvailableEnd < yesterdayAvailableStart && yesterdayAvailableEnd < todayAvailableStart){
+
+            var newstarttime = dateCheck.setHours(0)
+            newstarttime.setMinutes(0)
+            newstarttime.setSeconds(0)
+  
+            var newendtime = dateCheck.setHours(selectedHostProfile[yesterdayAvailableEnd].slice(0, 2))
+            newendtime.setMinutes(selectedHostProfile[yesterdayAvailableEnd].slice(3, 5))
+            newendtime.setSeconds(0)
+            
+            var availabilityEarly = {
+              id: `today_availability_early`,
+              title: "Available",
+              start: new Date(newstarttime),
+              end: new Date(newendtime),
+              isDraggable: true,
+              disabled: true
+            }
+  
+            availabilities.push(availabilityEarly)
           
-          var availabilityLate = {
-            id: `today_availability_late`,
-            title: "Available",
-            start: new Date(newstarttime),
-            end: new Date(newendtime),
-            isDraggable: true,
-            disabled: true
+          } else if(yesterdayAvailableEnd < yesterdayAvailableStart && yesterdayAvailableEnd > todayAvailableStart) {
+  
+            var newstarttime = dateCheck.setHours(0)
+            newstarttime.setMinutes(0)
+            newstarttime.setSeconds(0)
+  
+            var newendtime = dateCheck.setHours(selectedHostProfile[todayAvailableStart].slice(0, 2))
+            newendtime.setMinutes(selectedHostProfile[todayAvailableStart].slice(3, 5))
+            newendtime.setSeconds(0)
+            
+            var availabilityEarly = {
+              id: `today_availability_early`,
+              title: "Available",
+              start: new Date(newstarttime),
+              end: new Date(newendtime),
+              isDraggable: true,
+              disabled: true
+            }
+  
+            availabilities.push(availabilityEarly)
           }
-
-          availabilities.push(availabilityLate)
-        
-        } else if(todayAvailableStart < todayAvailableEnd) {
-
-          var newstarttime = dateCheck.setHours(selectedHostProfile[todayAvailableStart].slice(0, 2))
-          newstarttime.setMinutes(selectedHostProfile[todayAvailableStart].slice(3, 5))
-          newstarttime.setSeconds(0)
-
-          var newendtime = dateCheck.setHours(selectedHostProfile[todayAvailableEnd].slice(0, 2))
-          newendtime.setMinutes(selectedHostProfile[todayAvailableEnd].slice(3, 5))
-          newendtime.setSeconds(0)
           
-          var availabilityLate = {
-            id: `today_availability_late`,
-            title: "Available",
-            start: new Date(newstarttime),
-            end: new Date(newendtime),
-            isDraggable: true,
-            disabled: true
+  
+          if(todayAvailableStart > todayAvailableEnd){
+  
+            var newstarttime = dateCheck.setHours(selectedHostProfile[todayAvailableStart].slice(0, 2))
+            newstarttime.setMinutes(selectedHostProfile[todayAvailableStart].slice(3, 5))
+            newstarttime.setSeconds(0)
+  
+            var newendtime = dateCheck.setHours(24)
+            newendtime.setMinutes(0)
+            newendtime.setSeconds(0)
+            
+            var availabilityLate = {
+              id: `today_availability_late`,
+              title: "Available",
+              start: new Date(newstarttime),
+              end: new Date(newendtime),
+              isDraggable: true,
+              disabled: true
+            }
+  
+            availabilities.push(availabilityLate)
+          
+          } else if(todayAvailableStart < todayAvailableEnd) {
+  
+            var newstarttime = dateCheck.setHours(selectedHostProfile[todayAvailableStart].slice(0, 2))
+            newstarttime.setMinutes(selectedHostProfile[todayAvailableStart].slice(3, 5))
+            newstarttime.setSeconds(0)
+  
+            var newendtime = dateCheck.setHours(selectedHostProfile[todayAvailableEnd].slice(0, 2))
+            newendtime.setMinutes(selectedHostProfile[todayAvailableEnd].slice(3, 5))
+            newendtime.setSeconds(0)
+            
+            var availabilityLate = {
+              id: `today_availability_late`,
+              title: "Available",
+              start: new Date(newstarttime),
+              end: new Date(newendtime),
+              isDraggable: true,
+              disabled: true
+            }
+  
+            availabilities.push(availabilityLate)
           }
-
-          availabilities.push(availabilityLate)
         }
 
         setHostEvents([...newevents])
