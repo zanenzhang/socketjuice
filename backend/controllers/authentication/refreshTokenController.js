@@ -1,4 +1,5 @@
 const User = require('../../model/User');
+const Flags = require('../../model/Flags');
 const DriverProfile = require('../../model/DriverProfile');
 const HostProfile = require('../../model/HostProfile');
 const ForexRate = require('../../model/ForexRate');
@@ -24,8 +25,9 @@ const handleRefreshToken = async (req, res) => {
                 if (err ) return res.sendStatus(403);
                 
                 const foundDriver = await DriverProfile.findOne({_userId: foundUser._id})
+                const foundFlags = await Flags.findOne({_userId: foundUser._id})
 
-                if(foundDriver){
+                if(foundDriver && foundFlags){
 
                     const roles = Object.values(foundUser?.roles).filter(Boolean);
                     
@@ -36,7 +38,8 @@ const handleRefreshToken = async (req, res) => {
                     const currency = foundUser?.currency;
                     const currencySymbol = foundUser?.currencySymbol;
                     const credits = foundUser?.credits;
-                    const phoneNumber = foundUser?.phonePrimary
+                    const phoneNumber = foundUser?.phonePrimary;
+                    const appointmentFlags = foundFlags.appointmentFlags;
 
                     const pushNotifications = foundUser?.pushNotifications;
                     const smsNotifications = foundUser?.smsNotifications;
@@ -89,7 +92,8 @@ const handleRefreshToken = async (req, res) => {
                             res.status(200).json({ firstName, lastName, userId, roles, accessToken, profilePicURL, phoneNumber,
                                 currency, currencySymbol, pushNotifications, smsNotifications, emailNotifications, credits,
                                 j1772ACChecked, ccs1DCChecked, mennekesACChecked, ccs2DCChecked, chademoDCChecked, gbtACChecked, 
-                                gbtDCChecked, teslaChecked, requestedPayout, requestedPayoutCurrency, requestedPayoutOption })
+                                gbtDCChecked, teslaChecked, requestedPayout, requestedPayoutCurrency, requestedPayoutOption,
+                                appointmentFlags })
 
                         } else {
                             res.status(401)

@@ -21,6 +21,8 @@ const useRefreshToken = () => {
                 profilePicURL: response?.data?.profilePicURL,
                 privacySetting: response?.data?.privacySetting,
                 currency: response?.data?.currency,
+                appointmentFlags: response?.data?.appointmentFlags,
+
                 FXRates: response?.data?.FXRates,
                 
                 userTheme: response?.data?.userTheme,

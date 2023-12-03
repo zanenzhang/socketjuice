@@ -65,9 +65,24 @@ var appointmentSchema = new Schema({
         default: false
     },
     flaggedBy: [{
-        _userId: { 
+        _flaggedByUserId: {
             type: Schema.Types.ObjectId, 
-            ref: 'User' 
+            ref: 'User'
+        },
+        _violationUserId: {
+            type: Schema.Types.ObjectId, 
+            ref: 'User'
+        },
+        flaggedByDriverOrHost: {
+            type: Number,
+            default: 1 //1 is driver, 2 is host
+        },
+        comment: {
+            type: String,
+        },
+        createdAt: { 
+            type: Date, 
+            default: Date.now
         }
     }],
     flagsCount: {

@@ -1,9 +1,9 @@
 import axios from "../../api/axios";
 
-async function getAllFlags(userId, accessToken) {
+async function getAppointmentFlags(userId, accessToken) {
 
     try {
-        const response = await axios.get('/flag/user/' + userId, 
+        const response = await axios.get('/flag/appointment/' + userId, 
         {headers: { "Authorization": `Bearer ${accessToken} ${userId}`}});
         
         if(response){
@@ -15,4 +15,4 @@ async function getAllFlags(userId, accessToken) {
     }
 }
 
-export default getAllFlags
+export default getAppointmentFlags

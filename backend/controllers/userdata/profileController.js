@@ -1127,8 +1127,9 @@ const uploadUserPhotos = async (req, res) => {
 
     const foundUser = await User.findOne({_id: userId})
     const foundDriver = await DriverProfile.findOne({_userId: userId})
+    const foundFlags = await Flags.findOne({_userId: userId})
 
-    if(foundUser && foundDriver){
+    if(foundUser && foundDriver && foundFlags){
 
         if(!foundUser.checkedMobile || foundUser.receivedIdApproval){
         
@@ -1159,6 +1160,7 @@ const uploadUserPhotos = async (req, res) => {
                 const currency = foundUser.currency;
                 const currencySymbol = foundUser.currencySymbol;
                 const credits = foundUser.credits;
+                const appointmentFlags = foundFlags.appointmentFlags
 
                 const lessMotion = foundUser.lessMotion;
                 const pushNotifications = foundUser.pushNotifications;
@@ -1228,7 +1230,7 @@ const uploadUserPhotos = async (req, res) => {
                             currency, currencySymbol, lessMotion, pushNotifications, smsNotifications, emailNotifications, 
                             userTheme, FXRates, credits, j1772ACChecked, ccs1DCChecked, mennekesACChecked, ccs2DCChecked, 
                             chademoDCChecked, gbtACChecked, gbtDCChecked, teslaChecked, requestedPayout, 
-                            requestedPayoutCurrency, requestedPayoutOption})
+                            requestedPayoutCurrency, requestedPayoutOption, appointmentFlags})
                     }
                 }
 

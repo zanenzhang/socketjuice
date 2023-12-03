@@ -1,4 +1,5 @@
 const User = require('../../model/User');
+const Appointment = require('../../model/Appointment');
 const DriverProfile = require("../../model/DriverProfile");
 const { sendVerifiedAccount, sendVerifiedToAdmin } = require("../../middleware/mailer");
 
@@ -280,4 +281,39 @@ async function sendChatMessageSMS (receivingUserId, sendingUserFirstName) {
 }
 
 
-module.exports = { sendVerification, checkVerification, sendSmsNotification, sendChatMessageSMS }
+async function sendFlagSMS (submitterName, submitterPhone, appointmentId, comment) {
+
+    if ( !submitterName || !submitterPhone || !appointmentId || !comment ) {
+        return res.status(400).json({ message: 'Missing required info' })
+    }
+
+    try {
+
+        var message = `Help app-${appointmentId} From ${submitterName} ${submitterPhone} ${comment}`
+
+        const sent = await client.messages
+        .create({
+            body: `${message}`,
+            from: `${process.env.TWILIO_PHONE_NUM}`,
+            to: `${process.env.PERSONAL_PHONE}`
+        })
+
+        if(sent && sent.status === 'sent'){
+            
+            console.log("Success")
+            return ({result: sent.status})
+            
+        } else {
+            return ({result: "Not sent"})
+        }
+
+    } catch(err){
+
+        console.log(err)
+        return ({result: "Operation failed"})
+    }
+}
+
+
+module.exports = { sendVerification, checkVerification, sendSmsNotification, 
+    sendChatMessageSMS, sendFlagSMS }

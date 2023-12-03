@@ -650,6 +650,7 @@ const VerifyPage = () => {
                         const profilePicURL = uploadedUserPhotos?.data?.profilePicURL
                         const currency = uploadedUserPhotos?.data?.currency
                         const currencySymbol = uploadedUserPhotos?.data?.currencySymbol
+                        const appointmentFlags = uploadedUserPhotos?.data?.appointmentFlags
                         const phoneNumber = uploadedUserPhotos?.data?.phoneNumber
 
                         const credits = uploadedUserPhotos?.data?.credits
@@ -676,6 +677,7 @@ const VerifyPage = () => {
                                 currency: currency, 
                                 currencySymbol: currencySymbol, 
                                 credits: credits,
+                                appointmentFlags: appointmentFlags,
 
                                 j1772ACChecked: j1772ACChecked,
                                 ccs1DCChecked: ccs1DCChecked,

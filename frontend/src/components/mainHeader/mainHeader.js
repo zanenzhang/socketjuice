@@ -527,6 +527,7 @@ const MainHeader = ({loggedUserId} ) => {
                 const currency = response?.data?.currency
                 const currencySymbol = response?.data?.currencySymbol
                 const phoneNumber = response?.data?.phoneNumber
+                const appointmentFlags = response?.data?.appointmentFlags
                 
                 const pushNotifications = response?.data?.pushNotifications
                 const emailNotifications = response?.data?.emailNotifications
@@ -550,7 +551,8 @@ const MainHeader = ({loggedUserId} ) => {
                 setAuth({ firstName, lastName, userId, roles, accessToken, profilePicURL, phoneNumber,
                     currency, currencySymbol, credits, smsNotifications, pushNotifications, emailNotifications,
                     j1772ACChecked, ccs1DCChecked, mennekesACChecked, ccs2DCChecked, chademoDCChecked, gbtACChecked, 
-                    gbtDCChecked, teslaChecked, requestedPayout, requestedPayoutCurrency, requestedPayoutOption });
+                    gbtDCChecked, teslaChecked, requestedPayout, requestedPayoutCurrency, requestedPayoutOption,
+                    appointmentFlags });
 
                 localStorage.setItem("socketjuice-persist", persist)
 
@@ -838,8 +840,9 @@ const MainHeader = ({loggedUserId} ) => {
                 <div className='w-full max-w-[350px] py-10
                     rounded-xl md:rounded-none shadow-inner md:shadow-none'>
 
-                    <div className='flex items-center justify-center px-2 sm:px-4 md:px-6 lg:px-10 pb-6 flex-shrink-0'>
+                    <div className='flex flex-col items-center justify-center px-2 sm:px-4 md:px-6 lg:px-10 pb-6 flex-shrink-0'>
                         <img className='w-[250px]' src={socketjuice_full_logo} />
+                        <p className='text-base'>Share your electric vehicle charger to earn extra income!</p>
                     </div>
 
                     <div className='py-4 flex flex-col justify-center items-center'>
@@ -931,6 +934,19 @@ const MainHeader = ({loggedUserId} ) => {
                             </button>
                         </div>
                     }
+
+                    <div className='w-full flex flex-col pt-16 justify-center pb-4 gap-y-2'>
+                        <div className='flex flex-row justify-center gap-x-6'>
+                            <Link to={"/terms"} className='flex flex-col text-[#995372] 
+                                text-[12px] sm:text-sm md:text-base underline'> Terms of Service </Link>
+                            <Link to={"/privacy"} className='flex flex-col text-[#995372] 
+                                text-[12px] sm:text-sm md:text-base underline'> Privacy Policy </Link>
+                        </div>
+                        <div className='flex justify-center flex-row'>
+                            <p className='text-xs text-gray-500'>Copyright © 2023 SocketJuice</p>
+                        </div>
+                    </div>
+
                 </div>
 
                 <div className='flex flex-col gap-y-4 pb-10'>

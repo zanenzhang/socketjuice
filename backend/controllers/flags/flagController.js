@@ -22,6 +22,8 @@ const s3 = new S3({
     secretAccessKey: wasabiSecretAccessKey,
   })
 
+const { sendHelpMessage } = require("../../middleware/mailer")
+
 
 const getAllFlags = async (req, res) => {
     
@@ -57,6 +59,40 @@ const getAllFlags = async (req, res) => {
             if(usersDone){
 
                 return res.status(200).json({ flaggedUsers })
+            }
+        }
+    }
+}
+
+
+const getAppointmentFlags = async (req, res) => {
+    
+    const { userId } = req.params
+
+    if (!userId) {
+        return res.status(400).json({ message: 'User ID Required' })
+    }
+
+    const checkUserRoles = await User.findOne({_id: userId}).select("roles")
+
+    if(!checkUserRoles){
+
+        return res.status(403).json({ message: 'User ID Required' })
+    
+    } else {
+
+        if(! Object.values(checkUserRoles.roles).includes(5150)){
+
+            return res.status(403).json({ message: 'User ID Required' })
+        
+        } else {
+
+            const foundAppointments = await Appointment.find({flagged: true})
+            const userData = await User.find({$or:[{_id: {$in: foundAppointments.map(e => e._requestUserId)}},
+                {_id: {$in: foundAppointments.map(e => e._hostUserId)}}]}).select(" _id firstName lastName phonePrimary email ")
+
+            if(foundAppointments && userData){
+                return res.status(201).json({ foundAppointments, userData })
             }
         }
     }
@@ -261,51 +297,29 @@ const removeUserFlag = async (req, res) => {
 
 const removeAppointmentFlag = async (req, res) => {
 
-    const { loggedUserId, appointmentId } = req.query
+    const { appointmentId } = req.query
 
-    if (!loggedUserId || !appointmentId ) return res.status(400).json({ 'message': 'Missing required fields!' });
+    if ( !appointmentId ) return res.status(400).json({ 'message': 'Missing required fields!' });
 
     try {
 
-        const foundFlags = await Appointment.findOne({_id: appointmentId})
+        const foundAppointment = await Appointment.findOne({_id: appointmentId})
 
-        if(foundFlags){
+        if(foundAppointment){
 
-            if(foundFlags.flaggedBy?.some(e=>e._userId.toString() === loggedUserId)){
+            foundAppointment.flaggedBy = []
+            foundAppointment.flagsCount = 0
+            foundAppointment.flagged = false
 
-                foundFlags.flaggedBy.pull({_userId: loggedUserId})
-                foundFlags.flagsCount = Math.max(foundFlags.flagsCount - 1, 0)
-                foundFlags.flagged = false
+            const userFlags = await Flags.updateMany({_userId: {$in: foundAppointment.flaggedBy.map(e => e._flaggedByUserId)}},
+                {$pull: {appointmentFlags: {_appointmentId: appointmentId}}})
 
-                const userFlags = await Flags.findOne({_userId: loggedUserId})
+            const savedFlags = await foundAppointment.save()
 
-                if(userFlags){
+            if( savedFlags && userFlags){
 
-                    if(userFlags.appointmentFlags?.some(e=>e._appointmentId.toString() === appointmentId ) ){
+                return res.status(200).json({ message:'Success, removed comment flag' });
 
-                        userFlags.appointmentFlags.pull({_appointmentId: appointmentId})
-                    
-                    } else {
-
-                        return res.status(400).json({ message:'Operation Failed' });
-                    }
-                } else {
-
-                    return res.status(400).json({ message:'Operation Failed' });
-                }
-            
-                const savedFlags = await foundFlags.save()
-                const savedUser = await userFlags.save()
-
-                if( savedFlags && savedUser){
-
-                    return res.status(200).json({ message:'Success, removed comment flag' });
-
-                } else {
-
-                    return res.status(400).json({ message:'Operation Failed' });
-                }
-            
             } else {
 
                 return res.status(400).json({ message:'Operation Failed' });
@@ -325,12 +339,13 @@ const removeAppointmentFlag = async (req, res) => {
 
 const addAppointmentFlag = async (req, res) => {
 
-    const { loggedUserId, appointmentId } = req.body
+    const { loggedUserId, appointmentId, comment } = req.body
 
-    if (!loggedUserId || !appointmentId ) return res.status(400).json({ 'message': 'Missing required fields!' });
+    if (!loggedUserId || !appointmentId || !comment ) return res.status(400).json({ 'message': 'Missing required fields!' });
 
     try {
 
+        const foundUser = await User.findOne({_id: loggedUserId})
         const userFlags = await Flags.findOne({_userId: loggedUserId})
         const foundLimits = await UsageLimit.findOne({_userId: loggedUserId})
 
@@ -381,7 +396,7 @@ const addAppointmentFlag = async (req, res) => {
             }
         }
 
-        if(doneOperation){
+        if(doneOperation && foundUser){
         
             if (userFlags){
 
@@ -393,7 +408,7 @@ const addAppointmentFlag = async (req, res) => {
     
                     if(userFlags.appointmentFlags?.length > 0){
     
-                        userFlags.appointmentFlags?.push({_appointmentId: appointmentId})
+                        userFlags.appointmentFlags?.push({_appointmentId: appointmentId })
     
                     } else {
     
@@ -405,20 +420,33 @@ const addAppointmentFlag = async (req, res) => {
                     const foundAppointment = await Appointment.findOne({_id: appointmentId})
                     
                     if(foundAppointment){
+
+                        var violationUserId = ""
+                        var whichpartyflagged = 0
+
+                        if(foundAppointment._requestUserId === loggedUserId){
+                            violationUserId = foundAppointment._hostUserId
+                            whichpartyflagged = 1
+                        } else {
+                            violationUserId = foundAppointment._requestUserId 
+                            whichpartyflagged = 2
+                        }
     
                         if(foundAppointment.flaggedBy?.length > 0){
     
-                            if(foundAppointment.flaggedBy?.some(e=>e._userId.toString() === loggedUserId)){
+                            if(foundAppointment.flaggedBy?.some(e=>e._flaggedByUserId.toString() === loggedUserId)){
                                 
                                 return res.status(403).json({ message: 'Already flagged this comment' })
                             
                             } else {
     
-                                foundAppointment.flaggedBy?.push({_userId: loggedUserId})
+                                foundAppointment.flaggedBy?.push({_flaggedByUserId: loggedUserId, _violationUserId: violationUserId, flaggedByDriverOrHost: whichpartyflagged,
+                                    comment: comment })
                             }
                         } else {
     
-                            foundAppointment.flaggedBy = [{_userId: loggedUserId}]
+                            foundAppointment.flaggedBy = [{_flaggedByUserId: loggedUserId, _violationUserId: violationUserId, flaggedByDriverOrHost: whichpartyflagged,
+                                comment: comment }]
     
                         }
     
@@ -426,10 +454,34 @@ const addAppointmentFlag = async (req, res) => {
                         foundAppointment.flagsCount = foundAppointment.flagsCount + 1
     
                         const savedFlag = await foundAppointment.save()
+                        const problemUser = await User.findOne({_id: violationUserId})
     
-                        if(savedFlag && savedUserFlags){
-    
-                            return res.status(201).json({ message: 'Added comment flag' })    
+                        if(savedFlag && savedUserFlags && problemUser){
+
+                            problemUser.flagged = true
+                            problemUser.flagsCount = problemUser.flagsCount + 1
+                            
+                            if(problemUser.flaggedBy?.length > 0){
+                                problemUser.flaggedBy.push({_userId: loggedUserId})
+                            } else {
+                                problemUser.flaggedBy = [{_userId: loggedUserId}]
+                            }
+
+                            //send flag email and sms message
+                            const sentEmail = await sendHelpMessage({submitterName: foundUser.firstName, submitterPhone: foundUser.phonePrimary, submitterUserId: foundUser._id, 
+                                appointmentId: foundAppointment._id, problemName: problemUser.firstName, problemUserId: problemUser._id, problemPhone: problemUser.phonePrimary,
+                                comment: comment })
+                            
+                            const sentSMS = await sendFlagSMS({submitterName: foundUser.firstName, submitterPhone: foundUser.phonePrimary, 
+                                appointmentId: foundAppointment._id, comment: comment} )
+
+                            const savedUser = await problemUser.save()
+
+                            if(savedUser && sentEmail && sentSMS){
+                                return res.status(201).json({ message: 'Added appointment flag' })    
+                            } else {
+                                return res.status(401).json({ message: 'Operation failed' })
+                            }
                         }
                     
                     } else {
@@ -495,5 +547,5 @@ const clearUserFlags = async (req, res) => {
     }
 }
 
-module.exports = { getAllFlags, addUserFlag, removeUserFlag, clearUserFlags, 
+module.exports = { getAllFlags, getAppointmentFlags, addUserFlag, removeUserFlag, clearUserFlags, 
     addAppointmentFlag, removeAppointmentFlag }

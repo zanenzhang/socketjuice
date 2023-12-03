@@ -203,6 +203,33 @@ exports.sendVerifiedEmail = function({toUser, firstName}) {
   }
 
 
+  exports.sendHelpMessage = function({submitterName, submitterPhone, submitterUserId, 
+    appointmentId, problemName, problemUserId, problemPhone, comment}) {
+
+    const message = {
+      from: process.env.EMAIL_SUPPORT,
+      // to: toUser.email // in production uncomment this
+      to: process.env.EMAIL_SUPPORT,
+      subject: `SocketJuice - Requested Help - ${submitterUserId}`,
+      html: `
+        <p> Submitter name ${submitterName}! </p>
+        <p> Submitter phone number ${submitterPhone}! </p>
+        <p> Submitter User Id ${submitterUserId}! </p>
+        <p> </p>
+        <p> Appointment Id ${appointmentId}! </p>
+        <p> </p>
+        <p> Problem person name ${problemName}! </p>
+        <p> Problem person user Id ${problemUserId}! </p>
+        <p> Problem person phone number ${problemPhone}! </p>
+        <p> </p>
+        <p>${comment} </p>
+      `,
+    }
+  
+    return sendEmail(message);
+  }
+
+
   exports.sendHostProfileConfirm = function({toUser, firstName}) {
     const message = {
       from: process.env.EMAIL_SUPPORT,

@@ -34,6 +34,7 @@ import getHostAppointments from '../../helpers/Appointments/getHostAppointments'
 
 import addAppointmentApproval from '../../helpers/Appointments/addAppointmentApproval';
 import addAppointmentCompletion from '../../helpers/Appointments/addAppointmentCompletion';
+import addAppointmentFlag from '../../helpers/Flags/addAppointmentFlag';
 
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -62,8 +63,15 @@ const BookingsPage = () => {
   const [waitingSubmit, setWaitingSubmit] = useState(false);
   const [waitingCancel, setWaitingCancel] = useState(false);
   
+  const [openHelpModal, setOpenHelpModal] = useState(false);
+  const [flagged, setFlagged] = useState(false);
+  const [waitingHelp, setWaitingHelp] = useState(false);
+  const [helpMessage, setHelpMessage] = useState(false);
+  const [validHelpMessage, setValidHelpMessage] = useState(false);
+  
   const [errorMessage, setErrorMessage] = useState("");
   const IMAGE_UPLOAD_URL = '/s3/singleimage';
+  const MESSAGE_REGEX = /^.{4,100}$/;
 
   const [scheduleCheck, setScheduleCheck] = useState(false)
 
@@ -183,6 +191,9 @@ const BookingsPage = () => {
   const HOLIDAY_HOURS_REGEX = /^.{2,100}$/;
   const COMMENTS_REGEX = /^.{2,250}$/;
 
+  useEffect(() => {
+    setValidHelpMessage(MESSAGE_REGEX.test(helpMessage))
+  }, [helpMessage])
   
   const jpyvalues = [
     {value: 0, text: "Free (¥0)"},{value: 75, text: "¥75"},
@@ -549,6 +560,12 @@ useEffect( () => {
     var charge = ((hostevent.end - hostevent.end) / 1000 / 1800) * hostevent.chargeRatePerHalfHourFee
     setSelectedChargeRate(hostevent.chargeRate)
     setSelectedTotalCharge(charge)
+
+    if(auth.appointmentFlags?.length > 0){
+      if(auth.appointmentFlags.some(e => e._appointmentId === hostevent.appointmentId)){
+        setFlagged(true)
+      }
+    }
     
     setOpenDetailsModalHost(true)
   }
@@ -581,6 +598,12 @@ useEffect( () => {
     var charge = ((driverevent.end - driverevent.end) / 1000 / 1800) * driverevent.chargeRatePerHalfHourFee
     setSelectedChargeRate(driverevent.chargeRate)
     setSelectedTotalCharge(charge)
+
+    if(auth.appointmentFlags?.length > 0){
+      if(auth.appointmentFlags.some(e => e._appointmentId === driverevent.appointmentId)){
+        setFlagged(true)
+      }
+    }
     
     setOpenDetailsModalDriver(true)
 
@@ -773,6 +796,41 @@ useEffect( () => {
 
         setHolidayHoursStart(event.target.value)      
     }
+}
+
+const handleSendHelp = (e) => {
+
+  e.preventDefault()
+  setWaitingHelp(true)
+
+  async function sentFlag(){
+
+    const addedflag = await addAppointmentFlag(auth.userId, selectedEventId, helpMessage, auth.accessToken)
+
+    if(addedflag){
+      setFlagged([...flagged, selectedEventId])
+      setWaitingHelp(false)
+      alert("Sent request for help!")
+    }
+  }
+
+  if(auth.userId){
+    sentFlag()
+  }
+}
+
+const handleHelpOpen = (e) => {
+
+  e.preventDefault()
+
+  setOpenHelpModal(true)
+}
+
+const handleHelpClose = (e) => {
+
+  e.preventDefault()
+
+  setOpenHelpModal(false)
 }
 
 const handleRegularHourChangeEnd = (event, day) => {
@@ -1027,6 +1085,7 @@ const handleRegularHourChangeEnd = (event, day) => {
       e.preventDefault()
   
       setSelectedEventId("")
+      setFlagged(false);
       setOpenDetailsModalDriver(false)
     }
 
@@ -1036,6 +1095,7 @@ const handleRegularHourChangeEnd = (event, day) => {
       e.preventDefault()
   
       setSelectedEventId("")
+      setFlagged(false)
       setOpenDetailsModalHost(false)
     }
 
@@ -1264,6 +1324,12 @@ const handleRegularHourChangeEnd = (event, day) => {
   
       setSelectedLat(e.location[0])
       setSelectedLng(e.location[1])
+
+      if(auth.appointmentFlags?.length > 0){
+          if(auth.appointmentFlags.some(e => e._appointmentId === e.appointmentId)){
+            setFlagged(true)
+          }
+      }
       
       setOpenDetailsModalHost(true)
     }
@@ -1284,6 +1350,12 @@ const handleRegularHourChangeEnd = (event, day) => {
   
       setSelectedLat(e.location[0])
       setSelectedLng(e.location[1])
+
+      if(auth.appointmentFlags?.length > 0){
+        if(auth.appointmentFlags.some(e => e._appointmentId === e.appointmentId)){
+          setFlagged(true)
+        }
+    }
       
       setOpenDetailsModalDriver(true)
     }
@@ -2740,6 +2812,16 @@ const handleRegularHourChangeEnd = (event, day) => {
                       Send Message
                     </button>}
 
+                    {(selectedEventStatus !== "Requested") && <button className='border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0] 
+                        gap-x-2 flex flex-row justify-center items-center'
+                      onClick={(e)=>handleHelpOpen(e)}>
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
+                        strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                      </svg>
+                      Help! Contact SocketJuice
+                    </button>}
+
                 </div>
               </div>
             </Box>
@@ -2859,10 +2941,110 @@ const handleRegularHourChangeEnd = (event, day) => {
                       Send Message
                     </button>}
 
+                    {(selectedEventStatus !== "Requested") && <button className='border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0] 
+                        gap-x-2 flex flex-row justify-center items-center'
+                      onClick={(e)=>handleHelpOpen(e)}>
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
+                        strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                      </svg>
+                      Help! Contact SocketJuice
+                    </button>}
+
+
                 </div>
               </div>
             </Box>
         </Modal>
+
+        <Modal
+            open={openHelpModal}
+            onClose={handleHelpClose}
+            onClick={(event)=>{event.stopPropagation()}}
+            onKeyDown={(event)=>{
+              if (event.key === "Tab") {
+                event.stopPropagation();
+              }
+            }}
+            style={{zIndex: 10001}}
+            aria-labelledby="child-modal-title"
+            aria-describedby="child-modal-description"
+        >
+            <Box sx={{ ...boxStyle, width: 350 }}>
+
+            <div className='flex flex-col items-center justify-center'>
+              <p className='text-center pt-4 text-xl font-semibold pb-2 text-[#8BEDF3]'>Feedback or Report An Issue:</p>
+
+              <div className="flex flex-col w-full">
+
+              <div className='py-2'>
+                <p className='font-semibold'>Help Message:</p>
+                  <textarea
+                    aria-label="helpmessage" 
+                    type="text" 
+                    id="helpmessage"
+                    autoComplete="off"
+                    placeholder="Message (100 character limit):"
+                    className='inline-block text-sm text-gray-base focus:outline-[#8BEDF3]
+                    w-full mr-3 h-40 py-3 px-3 border border-gray-primary rounded mb-2' 
+                    onChange={ ( e ) => setHelpMessage(e.target.value)}
+                    value={helpMessage}
+                  />
+                </div>
+                  
+                <div className='flex flex-row gap-x-8 py-4'>
+                  
+              <button 
+                  className={`${ (flagged || waitingHelp || !validHelpMessage )
+                      ? "bg-gray-100 text-gray-400 cursor-notallowed" : "bg-[#8BEDF3] text-black cursor-pointer"}  
+                      hover:bg-[#FFE142] w-full rounded-xl py-3 font-bold border-solid border-2 flex justify-center 
+                      items-center gap-x-3`}
+                  disabled={ (flagged || waitingHelp || !validHelpMessage ) 
+                      ? true : false}
+                  onClick={(event)=>handleSendHelp(event)}
+                  onKeyDown={(event)=>{
+                    if (event.key === "Enter") {
+                      handleSendHelp(event);
+                    }
+                  }}
+                  >
+                  {waitingHelp && 
+                      <div aria-label="Loading..." role="status">
+                          <svg className="h-6 w-6 animate-spin" viewBox="3 3 18 18">
+                          <path
+                              className="fill-gray-200"
+                              d="M12 5C8.13401 5 5 8.13401 5 12C5 15.866 8.13401 19 12 19C15.866 19 19 15.866 19 12C19 8.13401 15.866 5 12 5ZM3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12Z"></path>
+                          <path
+                              className="fill-[#00D3E0]"
+                              d="M16.9497 7.05015C14.2161 4.31648 9.78392 4.31648 7.05025 7.05015C6.65973 7.44067 6.02656 7.44067 5.63604 7.05015C5.24551 6.65962 5.24551 6.02646 5.63604 5.63593C9.15076 2.12121 14.8492 2.12121 18.364 5.63593C18.7545 6.02646 18.7545 6.65962 18.364 7.05015C17.9734 7.44067 17.3403 7.44067 16.9497 7.05015Z"></path>
+                          </svg>
+                      </div>
+                  }
+                  
+                  Send
+              </button>
+              <button 
+                  className={`align-center px-4 py-4 text-black
+                  border-2 rounded-xl border-black bg-white text-base font-semibold
+                  hover:bg-orange-200 hover:text-black`}
+                  onClick={handleHelpClose}
+                  onKeyDown={(event)=>{
+                    if (event.key === "Enter") {
+                      handleHelpClose();
+                    }
+                  }}
+                  >
+                      Close
+              </button>
+              </div>
+
+          </div>
+
+        </div>
+
+        </Box>
+        
+      </Modal>
 
         <ToastContainer
             toastStyle={{ backgroundColor: "#8BEDF3" }}

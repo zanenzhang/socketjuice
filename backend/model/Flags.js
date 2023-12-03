@@ -25,17 +25,6 @@ var flagSchema = new Schema({
             type: Schema.Types.ObjectId, 
             ref: 'Appointment'
         },
-        _flaggedByUserId: {
-            type: Schema.Types.ObjectId, 
-            ref: 'User'
-        },
-        _violationUserId: {
-            type: Schema.Types.ObjectId, 
-            ref: 'User'
-        },
-        comment: {
-            type: String,
-        },
         createdAt: { 
             type: Date, 
             default: Date.now

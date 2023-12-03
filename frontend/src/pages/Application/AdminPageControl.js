@@ -7,6 +7,8 @@ import debounce from 'lodash.debounce';
 import searchUsers from '../../helpers/Userdata/searchUsers';
 import addUserBan from '../../helpers/Bans/addUserBan';
 import removeUserBan from '../../helpers/Bans/removeUserBan';
+import getAppointmentFlags from '../../helpers/Flags/getAppointmentFlags';
+import removeAppointmentFlag from "../../helpers/Flags/removeAppointmentFlag";
 
 import useAuth from '../../hooks/useAuth';
 
@@ -20,6 +22,7 @@ const AdminPageControl = () => {
     const [changed, setChanged] = useState(0)
     const [firstNameDisplay, setFirstNameDisplay] = useState("")
     const [lastNameDisplay, setLastNameDisplay] = useState("")
+    const [appointments, setAppointments] = useState([]);
     
     const navigate = useNavigate();
 
@@ -60,7 +63,6 @@ const AdminPageControl = () => {
         setLastNameDisplay(e.target.value)
     }
 
-
     useEffect ( ()=> {
 
         async function searchUserList(){
@@ -77,8 +79,61 @@ const AdminPageControl = () => {
             searchUserList()
         }
 
-
     }, [firstName, lastName, changed])
+
+
+    useEffect( ()=> {
+
+        async function getFlaggedAppointments(){
+
+            const appointmentData = await getAppointmentFlags(auth.userId, auth.accessToken)
+
+            if(appointmentData && appointmentData?.foundAppointments?.length > 0){
+
+                var userHash = {}
+
+                for(let i=0; i<appointmentData?.userData?.length; i++){
+                    if(userHash[appointmentData?.userData[i]._id] !== undefined){
+                        userHash[appointmentData.userData[i]._id] = appointmentData.userData[i]
+                    }
+                }
+
+                for(let i=0; i<appointmentData?.foundAppointments?.flaggedBy?.length; i++){
+                    if(userHash[appointmentData?.foundAppointments?.flaggedBy[i]._flaggedByUserId] !== undefined){
+                        appointmentData?.foundAppointments.flaggedBy[i].flaggedUserData = userHash[appointmentData?.foundAppointments?.flaggedBy[i]._flaggedByUserId]
+                    }
+                    if(userHash[appointmentData?.foundAppointments?.flaggedBy[i]._violationUserId] !== undefined){
+                        appointmentData?.foundAppointments.flaggedBy[i].violationUserData = userHash[appointmentData?.foundAppointments?.flaggedBy[i]._violationUserId]
+                    }
+                }
+
+                setAppointments(appointmentData.foundAppointments)
+            }
+        }
+
+        if(auth.userId){
+            getFlaggedAppointments()
+        }
+
+
+    }, [auth])
+
+
+    const handleRemoveFlag = (e, appointmentId) => {
+
+        e.preventDefault()
+
+        async function removeFlag(){
+
+            const removed = await removeAppointmentFlag(appointmentId, auth.userId, auth.accessToken)
+
+            if(removed){
+                alert("Removed appointment flag")
+            }
+        }
+
+        removeFlag()
+    }
     
 
     const handleAddBan = (e, userId) => {
@@ -131,31 +186,31 @@ const AdminPageControl = () => {
                 profilePicURL={auth.profilePicURL}
             />
         
-            <div className='w-full flex flex-col items-center pt-[12vh] overflow-y-auto'>
+            <div className='w-full flex flex-col items-center pt-[12vh] overflow-y-auto pb-4'>
 
-            <p className='text-lg font-semibold'>User Search</p>
+                <p className='text-lg font-semibold'>User Search</p>
 
-            <div className='flex flex-row gap-x-2 py-4'> 
+                <div className='flex flex-row gap-x-2 py-4'> 
 
-                <input 
-                    className='w-full border-2 rounded-xl p-4 mt-1 text-base hover:scale-[1.01] ease-in-out
-                        bg-white focus:outline-[#00D3E0] border-[#00D3E0]/10'
-                    placeholder="First name"
-                    aria-label="Enter first name" 
-                    type="text" 
-                    onChange={ ( e ) => handleFirstName(e)}
-                    value={firstNameDisplay}
-                />
+                    <input 
+                        className='w-full border-2 rounded-xl p-4 mt-1 text-base hover:scale-[1.01] ease-in-out
+                            bg-white focus:outline-[#00D3E0] border-[#00D3E0]/10'
+                        placeholder="First name"
+                        aria-label="Enter first name" 
+                        type="text" 
+                        onChange={ ( e ) => handleFirstName(e)}
+                        value={firstNameDisplay}
+                    />
 
-                <input 
-                    className='w-full border-2 rounded-xl p-4 mt-1 text-base hover:scale-[1.01] ease-in-out
-                        bg-white focus:outline-[#00D3E0] border-[#00D3E0]/10'
-                    placeholder="Last name"
-                    aria-label="Enter last name" 
-                    type="text" 
-                    onChange={ ( e ) => handleLastName(e)}
-                    value={lastNameDisplay}
-                />
+                    <input 
+                        className='w-full border-2 rounded-xl p-4 mt-1 text-base hover:scale-[1.01] ease-in-out
+                            bg-white focus:outline-[#00D3E0] border-[#00D3E0]/10'
+                        placeholder="Last name"
+                        aria-label="Enter last name" 
+                        type="text" 
+                        onChange={ ( e ) => handleLastName(e)}
+                        value={lastNameDisplay}
+                    />
 
                 </div>
 
@@ -196,6 +251,42 @@ const AdminPageControl = () => {
 
                 : null}
                 
+            </div>
+
+            <div className='flex flex-col'>
+
+                {appointments?.length > 0 && appointments.map((appointment) => (
+
+                    <div key={appointment._id}>
+
+                        {appointment?.flaggedBy?.length > 0 && appointment?.flaggedBy?.map( (user) => (
+
+                            <div key={user._id} className='py-3'>
+
+                                <p>Flagged By User Id: {user._flaggedByUserId}</p>
+                                <p>Flagged By User First Name: {user.flaggedUserData.firstName}</p>
+                                <p>Flagged By User Last Name: {user.flaggedUserData.lastName}</p>
+                                <p>Flagged By User Phone Number: {user.flaggedUserData.phonePrimary}</p>
+                                <p></p>
+                                <p>Problem User Id: {user._violationUserId}</p>
+                                <p>Problem User First Name: {user.violationUserData.firstName}</p>
+                                <p>Problem User Last Name: {user.violationUserData.lastName}</p>
+                                <p>Problem User Phone Number: {user.violationUserData.phonePrimary}</p>
+                                <p></p>
+                                {user.flaggedByDriverOrHost === 1 && <p>Flagged By Driver</p>}
+                                {user.flaggedByDriverOrHost === 2 && <p>Flagged By Host</p>}
+                                <p>Commentary: {user.comment}</p>
+
+                                <button className='py-2 px-4 border border-gray-500 hover:bg-gray-200' onClick={(e) => handleRemoveFlag(e, appointment._id)}>
+                                    Remove Flag
+                                </button>
+
+                            </div>
+                        ))}
+
+                    </div>
+                ))}
+
             </div>
 
         </div>
