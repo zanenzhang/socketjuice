@@ -100,10 +100,10 @@ const AdminPageControl = () => {
 
                 for(let i=0; i<appointmentData?.foundAppointments?.flaggedBy?.length; i++){
                     if(userHash[appointmentData?.foundAppointments?.flaggedBy[i]._flaggedByUserId] !== undefined){
-                        appointmentData?.foundAppointments.flaggedBy[i].flaggedUserData = userHash[appointmentData?.foundAppointments?.flaggedBy[i]._flaggedByUserId]
+                        appointmentData.foundAppointments.flaggedBy[i].flaggedUserData = userHash[appointmentData?.foundAppointments?.flaggedBy[i]._flaggedByUserId]
                     }
                     if(userHash[appointmentData?.foundAppointments?.flaggedBy[i]._violationUserId] !== undefined){
-                        appointmentData?.foundAppointments.flaggedBy[i].violationUserData = userHash[appointmentData?.foundAppointments?.flaggedBy[i]._violationUserId]
+                        appointmentData.foundAppointments.flaggedBy[i].violationUserData = userHash[appointmentData?.foundAppointments?.flaggedBy[i]._violationUserId]
                     }
                 }
 

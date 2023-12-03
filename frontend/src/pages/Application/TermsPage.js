@@ -1,5 +1,6 @@
 import React from 'react';
 import socketjuice_full_logo from "../../images/SocketJuice.png"
+import { Link } from 'react-router-dom';
 
 export default function TermsPage(){
 
@@ -7,11 +8,13 @@ export default function TermsPage(){
     return (
 
         <>
-        <div className='w-full flex-col max-w-[700px] px-6 sm:px-8 md:px-10 py-10
+        <div className='w-full flex-col px-6 sm:px-8 md:px-10 py-10 justify-center items-center
             rounded-xl md:rounded-none shadow-inner md:shadow-none'>
 
             <div className='flex items-center justify-center px-10 pb-6'>
-                <img className='w-100' src={socketjuice_full_logo} />
+            <Link to={"/map"} className='flex flex-col'>
+                <img className='w-[350px]' src={socketjuice_full_logo} />
+            </Link>
             </div>
         
             <div className='flex items-center justify-center px-10'>

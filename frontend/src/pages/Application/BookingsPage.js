@@ -507,7 +507,7 @@ useEffect( () => {
     height: 500,
     overflow: 'auto',
     bgcolor: 'background.paper',
-    border: '2px solid #995372',
+    border: '2px solid #00D3E0',
     boxShadow: 24,
     pt: 2,
     px: 4,
@@ -1654,9 +1654,7 @@ const handleRegularHourChangeEnd = (event, day) => {
 
             <div className='flex flex-col w-full max-w-[400px] overflow-y-scroll justify-center'>
 
-                <div className='pt-1 pb-4 flex flex-col gap-y-3'>
-
-                    <p className='text-lg text-center pt-4 pb-2'>Location Schedule</p>
+                <div className='pt-4 pb-4 flex flex-col gap-y-3'>
 
                     <DnDCalendar
 
@@ -1701,10 +1699,11 @@ const handleRegularHourChangeEnd = (event, day) => {
 
             {(!verifiedHost && submitted && isLoaded) && 
         
-            <div className='flex relative flex-col items-center pt-[7vh] sm:pt-[8vh] 
-                  md:pt-[9vh] h-[100svh] w-[100svw] overflow-y-scroll'>
-            
-              <p>We are currently reviewing your charging location, please hold</p>
+            <div className='flex relative flex-col items-center h-[100svh] w-[100svw] overflow-y-scroll py-3'>
+                    
+              <div className='flex flex-row bg-[#FFE142] py-4 px-6 rounded-xl'>
+                <p>We are currently reviewing your charging location, please hold</p>
+              </div>
             
             </div> }
 
@@ -1808,7 +1807,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                       </select>
                   </div>  
 
-                  <p className='py-2'>Note: The charge rate amount is net of all service fees.</p>
+                  <p className='py-2'>Note: The charge rate amount is what you will receive (net of all service fees).</p>
 
                   <div className='flex flex-col justify-center items-center gap-y-3'>
 
@@ -2599,9 +2598,9 @@ const handleRegularHourChangeEnd = (event, day) => {
             w-full md:w-[45vw] px-4 md:px-0 py-4'>
 
             <button className={`border bg-gray-300 
-                  ${!scheduleCheck ? "hover:cursor-not-allowed" : "hover:bg-[#8BEDF3] "}
+                  ${ (!scheduleCheck || croppedImage.length < 1) ? "hover:cursor-not-allowed" : "hover:bg-[#8BEDF3] "}
                   px-5 py-3 rounded-xl`}
-              disabled={!scheduleCheck}
+              disabled={!scheduleCheck || croppedImage.length < 1}
               onClick={(e)=>handleHostPhotosUpload(e)}>
               Submit For Review
             </button>
@@ -2611,8 +2610,8 @@ const handleRegularHourChangeEnd = (event, day) => {
 
         </TabPanel>
 
-          <TabPanel style={{paddingLeft: '16px', paddingRight: '16px', paddingTop: '0px', paddingBottom: '0px',
-              display:'flex', flexDirection: 'column', width: '100%'}} value="1">        
+        <TabPanel style={{paddingLeft: '16px', paddingRight: '16px', paddingTop: '0px', paddingBottom: '0px',
+              display:'flex', flexDirection: 'column', width: '100%'}} value="1"> 
 
             <div className='pt-1 pb-4 flex flex-col gap-y-3 w-full justify-center items-center'>
 
@@ -2649,16 +2648,15 @@ const handleRegularHourChangeEnd = (event, day) => {
                     <DatePicker
                       value={dayjs(pickerDateDriver)}
                       onChange={(date) => setPickerDateDriver(dayjs(new Date(date)))}
-                      />
+                    />
 
                 </LocalizationProvider>
+              
               </div>
 
                 <div className='flex flex-col w-full max-w-[400px] overflow-y-scroll justify-center'>
 
-                    <div className='pt-1 pb-4 flex flex-col gap-y-3'>
-
-                        <p className='text-lg text-center pt-4 pb-2'>Location Schedule</p>
+                    <div className='pt-4 pb-4 flex flex-col gap-y-3'>
 
                         <DnDCalendar
 

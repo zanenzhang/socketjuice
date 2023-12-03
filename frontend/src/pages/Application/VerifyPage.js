@@ -708,7 +708,7 @@ const VerifyPage = () => {
                         
                         setTimeout( ()=> {
 
-                            navigate("/map")
+                            navigate("/bookings")
 
                         }, '1000')
                     }
@@ -822,7 +822,8 @@ const VerifyPage = () => {
 
 
                 <p className='text-sm flex flex-col w-[300px]'>
-                Note: You will receive the code via a SMS text message. Regular charges from your phone plan may apply.</p>
+                    Note: You will receive the code via a SMS text message. Regular charges from your phone plan may apply.
+                </p>
 
             </div>}
 
@@ -914,11 +915,11 @@ const VerifyPage = () => {
                         </div>
                     </div>
 
-                    <button disabled={submittedPhotos || croppedImageURLId?.length < 2} 
+                    <button disabled={submittedPhotos || croppedImageURLId?.length < 1} 
                         onClick={(e)=>handlePhotosUpload(e)} 
                         className={`my-2 mb-8 py-4 px-3 rounded-2xl border-2 
                             border-[#00D3E0]  flex flex-row gap-x-1 
-                            ${(submittedPhotos || croppedImageURLId?.length < 2) ? "bg-gray-200 cursor-not-allowed " : 'hover:bg-[#00D3E0]' }   `}>
+                            ${(submittedPhotos || croppedImageURLId?.length < 1) ? "bg-gray-200 cursor-not-allowed " : 'hover:bg-[#00D3E0]' }   `}>
 
                         {waitingPhotos && 
                         <div aria-label="Loading..." role="status">

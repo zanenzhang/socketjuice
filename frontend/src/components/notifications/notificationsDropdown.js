@@ -261,7 +261,7 @@ export default function NotificationsDropdown() {
           className="mx-2 h-7 md:h-8 sm:mx-3 text-black-light 
           cursor-pointer transform transition duration-300 hover:scale-125" 
           xmlns="http://www.w3.org/2000/svg" 
-          fill="#FFE142" viewBox="0 0 24 24" 
+          fill="#8BEDF3" viewBox="0 0 24 24" 
           strokeWidth={1} 
           stroke="black"
       >

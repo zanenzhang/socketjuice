@@ -155,7 +155,7 @@ async function checkVerification (req, res) {
                 sendVerifiedAccount({ toUser: foundUser.email, firstName: foundUser.firstName })
                 
                 sendVerifiedToAdmin({verifiedUserId: foundUser._id, verifiedPhone: foundUser.phonePrimary,
-                    verifiedFirstName: foundUser.firstName, verifiedLastame: foundUser.lastName})
+                    verifiedFirstName: foundUser.firstName, verifiedLastName: foundUser.lastName})
 
                 if(updatedUser && updatedDriver){
                     console.log("Success")

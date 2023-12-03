@@ -280,7 +280,7 @@ exports.sendVerifiedEmail = function({toUser, firstName}) {
   }
 
 
-  exports.sendVerifiedToAdmin = function({verifiedUserId, verifiedPhone, verifiedFirstName, verifiedLastName, verifiedAddress}) {
+  exports.sendVerifiedToAdmin = function({verifiedUserId, verifiedPhone, verifiedFirstName, verifiedLastName}) {
     const message = {
       from: process.env.EMAIL_SUPPORT,
       // to: toUser.email // in production uncomment this

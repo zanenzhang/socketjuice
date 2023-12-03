@@ -151,7 +151,7 @@ const MapPage = () => {
     height: 500,
     overflow: 'auto',
     bgcolor: 'background.paper',
-    border: '2px solid #995372',
+    border: '2px solid #00D3E0',
     boxShadow: 24,
     pt: 2,
     px: 4,
@@ -1320,7 +1320,7 @@ const {scrollToTime} = useMemo(
         </GoogleMap>
       </div>
 
-      {<div className="p-2 rounded-xl m-2 bg-white shadow-sm z-10 
+      {auth.userId && <div className="p-2 rounded-xl m-2 bg-white shadow-sm z-10 
       flex flex-row border items-center justify-center gap-x-2">
 
         <div className='flex flex-row items-center'> 
@@ -2270,29 +2270,6 @@ const {scrollToTime} = useMemo(
               </div>
             </Box>
         </Modal>
-
-      <Modal
-          open={openModalTerms}
-          onClose={handleCloseModalTerms}
-          onClick={(event)=>{event.stopPropagation()}}
-          aria-labelledby="child-modal-title"
-          aria-describedby="child-modal-description"
-          >
-        <Box sx={{ ...boxStyle, width: 350 }}>
-
-        <div>
-
-            <p className='text-center text-lg font-bold underline'> Terms of Service </p>
-            <p className='text-base break-words text-justify pb-2'>Definitions: “SocketJuice, “we”, “We”, “us”, and “the website” will refer to www.socketjuice.com and subsidiaries. </p>
-
-            <p className='text-center text-lg font-semibold pt-2'> Service Overview </p>
-            <p className='text-base break-words text-justify pb-2'> SocketJuice is an online tool for owners of electric vehicles to share their electric charging equipment in order to earn extra money. </p>  
-            
-        </div>
-
-        </Box>
-
-      </Modal>
     </>
   )
 }

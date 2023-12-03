@@ -36,6 +36,7 @@
     "react-datetime": "^3.2.0",
     "react-dom": "^18.2.0",
     "react-easy-crop": "^5.0.2",
+    "react-error-boundary": "^4.0.11",
     "react-google-places-autocomplete": "^4.0.1",
     "react-google-recaptcha": "^3.1.0",
     "react-html5-camera-photo": "^1.5.11",

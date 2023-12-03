@@ -383,7 +383,7 @@ export default function ChangeProfileMainUser({loggedUserId }) {
                     onChange={handleLanguage}
                     value={language}
                     className={`text-sm w-full mr-4 h-10 ${language === "English" ? "text-gray-400" : "text-black" }
-                    border border-gray-primary mb-2 rounded focus:outline-[#995372] pl-3
+                    border border-gray-primary mb-2 rounded focus:outline-[#00D3E0] pl-3
                     `}
                     >
                     <option key={"English"} value={"English"}>{"English"}</option>

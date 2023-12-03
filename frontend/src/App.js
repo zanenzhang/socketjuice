@@ -48,26 +48,6 @@ function App() {
         
           <Route path="/map" element={<MapPage />}></Route>
 
-          <Route element={<RequireAuth allowedRoles={[ROLES.User, ROLES.Manager, ROLES.Admin]} />}>  
-
-          <Route path="/bookings" element={<ErrorBoundary
-              FallbackComponent={ErrorFallback}
-              onReset={() => navigate('/')}
-            >
-              <Suspense fallback={<SkeletonFullPage />}>
-              <BookingsPage />
-              </Suspense>
-          </ErrorBoundary>} />
-
-          <Route path="/messages" element={<ErrorBoundary
-              FallbackComponent={ErrorFallback}
-              onReset={() => navigate('/')}
-            >
-              <Suspense fallback={<SkeletonFullPage />}>
-              <MessagesPage />
-              </Suspense>
-          </ErrorBoundary>} />
-
           <Route path="/verify" element={<ErrorBoundary
               FallbackComponent={ErrorFallback}
               onReset={() => navigate('/')}
@@ -104,15 +84,6 @@ function App() {
               </Suspense>
           </ErrorBoundary>} />
 
-          <Route path="/settings" element={<ErrorBoundary
-              FallbackComponent={ErrorFallback}
-              onReset={() => navigate('/')}
-            >
-              <Suspense fallback={<SkeletonFullPage />}>
-              <SettingsPage />
-              </Suspense>
-          </ErrorBoundary>} />
-
           <Route path="/inputnewpassword" element={<ErrorBoundary
               FallbackComponent={ErrorFallback}
               onReset={() => navigate('/')}
@@ -128,6 +99,35 @@ function App() {
             >
               <Suspense fallback={<SkeletonFullPage />}>
               <UnauthorizedPage />
+              </Suspense>
+          </ErrorBoundary>} />
+
+          <Route element={<RequireAuth allowedRoles={[ROLES.User, ROLES.Manager, ROLES.Admin]} />}>  
+
+          <Route path="/bookings" element={<ErrorBoundary
+              FallbackComponent={ErrorFallback}
+              onReset={() => navigate('/')}
+            >
+              <Suspense fallback={<SkeletonFullPage />}>
+              <BookingsPage />
+              </Suspense>
+          </ErrorBoundary>} />
+
+          <Route path="/messages" element={<ErrorBoundary
+              FallbackComponent={ErrorFallback}
+              onReset={() => navigate('/')}
+            >
+              <Suspense fallback={<SkeletonFullPage />}>
+              <MessagesPage />
+              </Suspense>
+          </ErrorBoundary>} />
+
+          <Route path="/settings" element={<ErrorBoundary
+              FallbackComponent={ErrorFallback}
+              onReset={() => navigate('/')}
+            >
+              <Suspense fallback={<SkeletonFullPage />}>
+              <SettingsPage />
               </Suspense>
           </ErrorBoundary>} />
 

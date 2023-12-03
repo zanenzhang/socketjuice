@@ -21,7 +21,7 @@ const PurchasesDisplay = (loggedUserId, loggedUsername, profilePicURL, roles) =>
         flexDirection: 'column',
         overflow: 'auto',
         bgcolor: 'background.paper',
-        border: '2px solid #995372',
+        border: '2px solid #00D3E0',
         boxShadow: 24,
         pt: 2,
         px: 4,
@@ -31,10 +31,10 @@ const PurchasesDisplay = (loggedUserId, loggedUsername, profilePicURL, roles) =>
 
     const StyledRating = styled(Rating)({
         '& .MuiRating-iconFilled': {
-            color: '#995372',
+            color: '#00D3E0',
         },
         '& .MuiRating-iconHover': {
-            color: '#995372',
+            color: '#00D3E0',
         },
     });
 
@@ -82,7 +82,7 @@ const PurchasesDisplay = (loggedUserId, loggedUsername, profilePicURL, roles) =>
         width: 360,
         padding: 2,
         bgcolor: 'background.paper',
-        border: '2px solid #995372',
+        border: '2px solid #00D3E0',
         boxShadow: 24,
         borderRadius: '10px',
         display: "flex",
@@ -550,7 +550,7 @@ const PurchasesDisplay = (loggedUserId, loggedUsername, profilePicURL, roles) =>
                     <div className='flex flex-col items-center justify-center w-full'>
                         <div className='pt-6'>
                             <button
-                                className={`bg-gray-200 rounded-2xl px-4 py-2 gap-x-2 flex flex-row ${ (completedOrder && orderStatus === 4) ?  ' hover:cursor-pointer hover:bg-[#995372] hover:text-white ' : ' hover:cursor-not-allowed bg-gray-200 text-gray-500' }`}
+                                className={`bg-gray-200 rounded-2xl px-4 py-2 gap-x-2 flex flex-row ${ (completedOrder && orderStatus === 4) ?  ' hover:cursor-pointer hover:bg-[#00D3E0] hover:text-white ' : ' hover:cursor-not-allowed bg-gray-200 text-gray-500' }`}
                                 onClick={(event)=>openRatingsModal(event)}
                                 disabled={ !completedOrder || orderStatus !== 4}
                                 >
@@ -564,7 +564,7 @@ const PurchasesDisplay = (loggedUserId, loggedUsername, profilePicURL, roles) =>
 
                         <div className='pt-2'>
                             <button
-                                className='bg-gray-200 rounded-2xl px-4 py-2 hover:bg-[#995372] hover:text-white gap-x-2 flex flex-row'
+                                className='bg-gray-200 rounded-2xl px-4 py-2 hover:bg-[#00D3E0] hover:text-white gap-x-2 flex flex-row'
                                 onClick={(event)=>openModalInquiry(event)}>
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
                                     strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
@@ -690,7 +690,7 @@ const PurchasesDisplay = (loggedUserId, loggedUsername, profilePicURL, roles) =>
               <Box sx={{ ...boxStyleOrder, width: 350 }}>
 
                 <div className='flex flex-col items-center justify-center'>
-                    <p className='text-center pt-4 text-xl font-semibold pb-2 text-[#995372]'>Report An Issue</p>
+                    <p className='text-center pt-4 text-xl font-semibold pb-2 text-[#00D3E0]'>Report An Issue</p>
 
                     <div className="flex flex-col w-full">
 
@@ -702,7 +702,7 @@ const PurchasesDisplay = (loggedUserId, loggedUsername, profilePicURL, roles) =>
                                 id="firstname"
                                 autoComplete="off"
                                 placeholder="Message (2000 character limit):"
-                                className='inline-block text-sm text-gray-base focus:outline-[#995372]
+                                className='inline-block text-sm text-gray-base focus:outline-[#00D3E0]
                                 w-full mr-3 h-40 py-3 px-3 border border-gray-primary rounded mb-2' 
                                 onChange={ ( e ) => setMessage(e.target.value)}
                                 value={message}
@@ -716,7 +716,7 @@ const PurchasesDisplay = (loggedUserId, loggedUsername, profilePicURL, roles) =>
                             
                                 <button 
                                     className={`${!validMessage  || sentInvite || waiting
-                                        ? "bg-gray-100 text-gray-400" : "bg-[#995372] text-white"}  
+                                        ? "bg-gray-100 text-gray-400" : "bg-[#00D3E0] text-white"}  
                                         w-full rounded-xl py-3 font-bold border-solid border-2 flex justify-center 
                                         items-center gap-x-3`}
                                     disabled={ (!validMessage  || sentInvite || waiting ) 
@@ -809,7 +809,7 @@ const PurchasesDisplay = (loggedUserId, loggedUsername, profilePicURL, roles) =>
                   id="caption"
                   placeholder="Caption"
                   className='text-sm text-gray-base w-full mr-3 py-5 px-4 h-2 border 
-                    border-gray-primary rounded mb-2 focus:outline-[#995372]' 
+                    border-gray-primary rounded mb-2 focus:outline-[#00D3E0]' 
                   onChange={ ( e ) => setCaption(e.target.value)}
                   value={caption}
                   aria-invalid={validCaption ? "false" : "true"}
@@ -854,9 +854,9 @@ const PurchasesDisplay = (loggedUserId, loggedUsername, profilePicURL, roles) =>
                 </div>
                 <div className='flex justify-between pt-2'>
                     <button 
-                        className={`align-center mb-4 px-4 py-2 text-[#995372] 
-                        border-2 rounded-xl border-[#995372] bg-white text-base font-semibold
-                        hover:bg-[#995372] hover:text-white flex justify-center items-center gap-x-2
+                        className={`align-center mb-4 px-4 py-2 text-[#00D3E0] 
+                        border-2 rounded-xl border-[#00D3E0] bg-white text-base font-semibold
+                        hover:bg-[#00D3E0] hover:text-white flex justify-center items-center gap-x-2
                         ${((caption && !validCaption) || !validStarRating || waiting ) && 'opacity-50' }`}
                         onClick={(event)=>handleSubmitRatings(event, starRating, caption, postId)}
                         disabled={( (caption && !validCaption) || !validStarRating || waiting)}>
@@ -1103,14 +1103,14 @@ const PurchasesDisplay = (loggedUserId, loggedUsername, profilePicURL, roles) =>
                 <div className="flex flex-col">
                 
                 <label className="flex justify-start text-sm sm:text-base
-                    text-[#995372] font-bold">Date Start (Required):</label>
+                    text-[#00D3E0] font-bold">Date Start (Required):</label>
                     <input 
                         aria-label="dateStart" 
                         type="date" 
                         id="dateStart"
                         placeholder="Start Date"
                         className={`text-sm text-gray-base w-[150px] sm:w-[200px] mr-1 sm:mr-3 py-5 px-4 h-10
-                        border border-gray-primary rounded focus:outline-[#995372]
+                        border border-gray-primary rounded focus:outline-[#00D3E0]
                         ${(!dateStart) ? 'text-gray-400' : 'text-black'}
                         `}
                         onChange={ ( e ) => setDateStart(e.target.value)}
@@ -1121,7 +1121,7 @@ const PurchasesDisplay = (loggedUserId, loggedUsername, profilePicURL, roles) =>
                 <div className="flex flex-col">
                 
                 <label className="flex justify-start text-sm sm:text-base
-                    text-[#995372] font-bold">Date End (Required):</label>
+                    text-[#00D3E0] font-bold">Date End (Required):</label>
                 
                 <input 
                     aria-label="dateEnd" 
@@ -1129,7 +1129,7 @@ const PurchasesDisplay = (loggedUserId, loggedUsername, profilePicURL, roles) =>
                     id="dateEnd"
                     placeholder="End Date"
                     className={`text-sm text-gray-base mr-1 sm:mr-3 w-[150px] sm:w-[200px] py-5 px-4 h-10
-                        border border-gray-primary rounded focus:outline-[#995372]
+                        border border-gray-primary rounded focus:outline-[#00D3E0]
                         ${(!dateEnd) ? 'text-gray-400' : 'text-black'}
                         `}
                     onChange={ ( e ) => setDateEnd(e.target.value)}
@@ -1139,7 +1139,7 @@ const PurchasesDisplay = (loggedUserId, loggedUsername, profilePicURL, roles) =>
                 </div>
 
                 <button className={`flex items-center text-sm sm:text-base 
-                    rounded-2xl bg-gray-200 h-12 px-2 sm:px-4 py-1 hover:bg-[#995372] 
+                    rounded-2xl bg-gray-200 h-12 px-2 sm:px-4 py-1 hover:bg-[#00D3E0] 
                     hover:text-white ${(!validDateStart || !validDateEnd) ? 'text-gray-400 cursor-not-allowed' : 'text-black cursor-pointer'}`} 
                     onClick={(event)=>{getOrderData(event)}}
                     disabled={!validDateStart || !validDateEnd}>
@@ -1152,20 +1152,20 @@ const PurchasesDisplay = (loggedUserId, loggedUsername, profilePicURL, roles) =>
                 <div className='flex flex-row items-center justify-evenly py-4 
                     sticky top-0 opacity-100 bg-white w-full md:border-y-2'>
 
-                    <div className='w-[80px] md:w-[150px] whitespace-pre-line flex items-center justify-center'> <p className='text-center text-[#995372] font-semibold'>{"Product"}</p></div>
-                    <div className='w-[80px] md:w-[150px] whitespace-pre-line flex items-center justify-center'> <p className='text-center text-[#995372] font-semibold'>{"Order \n Options"}</p></div>
-                    <div className='w-[80px] md:w-[150px] whitespace-pre-line flex items-center justify-center'> <p className='text-center text-[#995372] font-semibold'>{"Shipping \n Status"}</p></div>
-                    <div className='w-[80px] md:w-[150px] whitespace-pre-line flex items-center justify-center'> <p className='text-center text-[#995372] font-semibold'>{"Order \n Status"}</p></div>
+                    <div className='w-[80px] md:w-[150px] whitespace-pre-line flex items-center justify-center'> <p className='text-center text-[#00D3E0] font-semibold'>{"Product"}</p></div>
+                    <div className='w-[80px] md:w-[150px] whitespace-pre-line flex items-center justify-center'> <p className='text-center text-[#00D3E0] font-semibold'>{"Order \n Options"}</p></div>
+                    <div className='w-[80px] md:w-[150px] whitespace-pre-line flex items-center justify-center'> <p className='text-center text-[#00D3E0] font-semibold'>{"Shipping \n Status"}</p></div>
+                    <div className='w-[80px] md:w-[150px] whitespace-pre-line flex items-center justify-center'> <p className='text-center text-[#00D3E0] font-semibold'>{"Order \n Status"}</p></div>
                     
                 </div>
                 
                 <div className='flex flex-row items-center justify-evenly py-4 
                     sticky top-0 opacity-100 bg-white w-full md:border-y-2'>
                     
-                    <div className='w-[80px] md:w-[150px] whitespace-pre-line flex items-center justify-center'> <p className='text-center text-[#995372] font-semibold'>{"Estimated \n Delivery"}</p></div>
-                    <div className='w-[80px] md:w-[150px] whitespace-pre-line flex items-center justify-center'> <p className='text-center text-[#995372] font-semibold'>{"Total \n Price"}</p></div>
-                    <div className='w-[80px] md:w-[150px] whitespace-pre-line flex items-center justify-center'> <p className='text-center text-[#995372] font-semibold'>{"Purchase \n Currency"}</p></div>
-                    <div className='w-[80px] md:w-[150px] whitespace-pre-line flex items-center justify-center'> <p className='text-center text-[#995372] font-semibold'>{"Order \n Date"}</p></div>
+                    <div className='w-[80px] md:w-[150px] whitespace-pre-line flex items-center justify-center'> <p className='text-center text-[#00D3E0] font-semibold'>{"Estimated \n Delivery"}</p></div>
+                    <div className='w-[80px] md:w-[150px] whitespace-pre-line flex items-center justify-center'> <p className='text-center text-[#00D3E0] font-semibold'>{"Total \n Price"}</p></div>
+                    <div className='w-[80px] md:w-[150px] whitespace-pre-line flex items-center justify-center'> <p className='text-center text-[#00D3E0] font-semibold'>{"Purchase \n Currency"}</p></div>
+                    <div className='w-[80px] md:w-[150px] whitespace-pre-line flex items-center justify-center'> <p className='text-center text-[#00D3E0] font-semibold'>{"Order \n Date"}</p></div>
                 </div>
 
             </div>
@@ -1311,7 +1311,7 @@ const PurchasesDisplay = (loggedUserId, loggedUsername, profilePicURL, roles) =>
         </Modal>
 
         <ToastContainer
-        toastStyle={{ backgroundColor: "#995372" }}
+        toastStyle={{ backgroundColor: "#00D3E0" }}
           position="bottom-center"
           autoClose={1500}
           hideProgressBar={false}

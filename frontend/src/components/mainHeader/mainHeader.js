@@ -96,7 +96,7 @@ const MainHeader = ({loggedUserId} ) => {
 
     var todaysDate = new Date().toISOString().slice(0, 10)
     var pastDate = new Date()
-    pastDate.setFullYear(pastDate.getFullYear() - 13)
+    pastDate.setFullYear(pastDate.getFullYear() - 16)
     var cutoffDate = pastDate.toISOString().slice(0,10)
 
     const [birthdate, setBirthdate] = useState(todaysDate);
@@ -618,6 +618,18 @@ const MainHeader = ({loggedUserId} ) => {
           y: window.innerHeight
     });
 
+    useEffect ( () => {
+
+        if(!auth.userId && activeTab === 'map'){
+
+            const currentpath = window.location.pathname;
+            if(currentpath.startsWith("/map")){
+                setOpenModalLogin(true)
+            }
+        }
+
+    }, [auth, activeTab])
+
     const handleChange = (event, newValue) => {
 
         if(waiting){
@@ -640,21 +652,19 @@ const MainHeader = ({loggedUserId} ) => {
         setWaiting(false);
     };
 
-    const handleLoginClick = () => {
+    const handleLoginItemClick = () => {
 
         if(!auth.userId){
             
             setOpenModalLogin(true)
-        
-        } else {
-
-            //Open account settings menu dropdown
         }
     }
     
       const handleCloseModalLogin = (event) => {
 
-        setOpenModalLogin(false);
+        if(auth?.userId){
+            setOpenModalLogin(false);
+        }
     }
 
 
@@ -689,18 +699,21 @@ const MainHeader = ({loggedUserId} ) => {
         <div className="h-[7vh] sm:h-[8vh] md:h-[9vh] max-w-full overflow-x-hidden flex flex-row justify-center items-center
             opacity-100 border-b w-full z-[1500] bg-[#00D3E0] shadow-sm shadow-[#FFE142] fixed">
 
-            <div className="flex flex-row justify-evenly sm:justify-between items-center max-w-full w-full h-full 
-                gap-y-1 gap-x-4 sm:gap-x-6 pt-1 overflow-x-hidden" >
+            <div className="flex flex-row justify-evenly md:justify-between items-center max-w-full w-full h-full 
+                gap-y-1 gap-x-4 sm:gap-x-6 pt-1 overflow-x-hidden flex-shrink-0" >
 
-                <Link reloadDocument to={ROUTES.MAP} >
-                    <img className='h-[7vh] flex-shrink-0' src={socketjuice_full_logo} />
-                </Link>
+                <div className='flex flex-row w-1/2 justify-center'>
+                    <Link reloadDocument to={ROUTES.MAP} >
+                        <img className='h-[7vh] flex-shrink-0' src={socketjuice_full_logo} />
+                    </Link>
+                </div>
 
-                <div className='flex flex-row w-full justify-evenly sm:justify-center gap-x-2 sm:gap-x-4 md:gap-x-6'>
+                <div className='flex flex-row w-full justify-center gap-x-6 pr-2'>
 
                     <Link reloadDocument to={ROUTES.MAP} aria-label="StoreDashboard"
-                        className={`flex flex-row justify-center items-center bg-[#FFE142] hover:bg-[#8BEDF3]
-                        ${activeTab === 'map' ? 'border-2 border-black ' : ' '} rounded-lg p-1 px-2`}>
+                        className={`flex justify-center flex-row items-center hover:bg-[#FFE142]
+                        ${activeTab === 'map' ? 'border-2 border-black bg-[#FFE142] ' 
+                        : 'bg-[#8BEDF3]'} rounded-lg p-1 px-3 md:px-2`}>
 
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
                             strokeWidth="1" stroke="currentColor" className="w-6 h-6 md:w-7 md:h-7">
@@ -708,13 +721,14 @@ const MainHeader = ({loggedUserId} ) => {
                         <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
                         </svg>
 
-                        <p className='hidden sm:flex mx-1 sm:text-sm md:text-base '>Mapping</p>
+                        <p className='hidden md:flex mx-1 sm:text-sm md:text-base '>Mapping</p>
 
                     </Link>
 
                     <Link reloadDocument to={ROUTES.BOOKINGS} aria-label="ActiveTab" 
-                    className={`flex flex-row justify-center items-center bg-[#FFE142] hover:bg-[#8BEDF3]
-                        ${activeTab === 'bookings' ? 'border-2 border-black' : ' '} rounded-lg p-1 px-2`}>
+                        className={`flex justify-center flex-row items-center hover:bg-[#FFE142]
+                        ${activeTab === 'bookings' ? 'border-2 border-black bg-[#FFE142] ' 
+                        : 'bg-[#8BEDF3]'} rounded-lg p-1 px-3 md:px-2`}>
 
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
                             strokeWidth="1" stroke="currentColor" className="w-6 h-6 md:w-7 md:h-7">
@@ -722,7 +736,7 @@ const MainHeader = ({loggedUserId} ) => {
                             d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z" />
                         </svg>
 
-                        <p className='hidden sm:flex mx-1 sm:text-sm md:text-base text-black'>Bookings</p>
+                        <p className='hidden md:flex mx-1 sm:text-sm md:text-base text-black'>Bookings</p>
 
                     </Link>
 
@@ -731,8 +745,9 @@ const MainHeader = ({loggedUserId} ) => {
                         {newMessagesFill ? (
                         
                         <button onClick={(event)=>handleMessagesClick(event)}
-                        className={`flex justify-center flex-row items-center bg-[#FFE142] hover:bg-[#8BEDF3]
-                                ${activeTab === 'chat' ? 'border-2 border-black' : ''} rounded-lg p-1 px-2`}>
+                        className={`flex justify-center flex-row items-center hover:bg-[#FFE142]
+                        ${activeTab === 'chat' ? 'border-2 border-black bg-[#FFE142] ' 
+                        : 'bg-[#8BEDF3]'} rounded-lg p-1 px-3 md:px-2`}>
 
                             <svg xmlns="http://www.w3.org/2000/svg" fill="#00D3E0" viewBox="0 0 24 24" 
                                 strokeWidth="1" stroke="#00D3E0" className="w-6 h-6 md:w-7 md:h-7">
@@ -740,7 +755,7 @@ const MainHeader = ({loggedUserId} ) => {
                                 d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
                             </svg>
 
-                            <p className='hidden sm:flex mx-1 sm:text-sm md:text-base text-black'>Messages</p>
+                            <p className='hidden md:flex mx-1 sm:text-sm md:text-base text-black'>Messages</p>
 
                         </button>
                         ) 
@@ -749,8 +764,9 @@ const MainHeader = ({loggedUserId} ) => {
                         (
                         
                         <button onClick={(event)=>handleMessagesClick(event)}
-                        className={`flex justify-center flex-row items-center bg-[#FFE142] hover:bg-[#8BEDF3]
-                                ${activeTab === 'chat' ? 'border-2 border-black' : ''} rounded-lg p-1 px-2`}>
+                        className={`flex justify-center flex-row items-center hover:bg-[#FFE142]
+                            ${activeTab === 'chat' ? 'border-2 border-black bg-[#FFE142] ' 
+                            : 'bg-[#8BEDF3]'} rounded-lg p-1 px-3 md:px-2`}>
 
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
                                 strokeWidth="1" stroke="currentColor" className="w-6 h-6 md:w-7 md:h-7">
@@ -758,7 +774,7 @@ const MainHeader = ({loggedUserId} ) => {
                                 d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
                             </svg>
 
-                            <p className='hidden sm:flex mx-1 sm:text-sm md:text-base text-black'>Messages</p>
+                            <p className='hidden md:flex mx-1 sm:text-sm md:text-base text-black'>Messages</p>
 
                         </button>
                         )}
@@ -767,7 +783,7 @@ const MainHeader = ({loggedUserId} ) => {
                     
                     {auth?.userId ? 
                     
-                        <div className='flex flex-row gap-x-3'>
+                        <div className='flex flex-row items-center justify-center'>
                             <NotificationsDropdown />
                             <SettingsDropdown /> 
                         </div>
@@ -776,9 +792,10 @@ const MainHeader = ({loggedUserId} ) => {
                     
                     <div className='flex flex-row'>
 
-                        <button onClick={(e)=>handleLoginClick(e)} 
-                        className={`flex justify-center flex-row items-center bg-[#FFE142] hover:bg-[#8BEDF3]
-                        ${activeTab === 'profile' ? 'border-2 border-black' : ''} rounded-lg p-1 px-2`}>
+                        <button onClick={(e)=>handleLoginItemClick(e)} 
+                        className={`flex justify-center flex-row items-center hover:bg-[#FFE142]
+                        ${activeTab === 'profile' ? 'border-2 border-black bg-[#FFE142] ' 
+                        : 'bg-[#8BEDF3]'} rounded-lg p-1 px-3 md:px-2`}>
 
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
                                 strokeWidth="1" stroke="currentColor" className="w-6 h-6 md:w-7 md:h-7">
@@ -786,7 +803,7 @@ const MainHeader = ({loggedUserId} ) => {
                                 d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
                             </svg>
 
-                            <p className='hidden sm:flex mx-1 sm:text-sm md:text-base text-black'>Account</p>
+                            <p className='hidden md:flex mx-1 sm:text-sm md:text-base text-black'>Account</p>
                         </button>
                     </div>}
 
@@ -806,17 +823,7 @@ const MainHeader = ({loggedUserId} ) => {
         >
         <Box sx={mainstyle}>
 
-            <button onClick={(e)=>handleCloseModalLogin(e)} 
-            className='absolute ml-80 mt-2'> 
-                <svg
-                    viewBox="0 0 24 24"
-                    fill="#00D3E0"
-                    height="2em"
-                    width="2em"
-                    >
-                    <path d="M19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2m0 16H5V5h14v14M17 8.4L13.4 12l3.6 3.6-1.4 1.4-3.6-3.6L8.4 17 7 15.6l3.6-3.6L7 8.4 8.4 7l3.6 3.6L15.6 7 17 8.4z" />
-                    </svg>
-            </button>
+            
 
         <TabContext value={value}>
 
@@ -842,7 +849,7 @@ const MainHeader = ({loggedUserId} ) => {
 
                     <div className='flex flex-col items-center justify-center px-2 sm:px-4 md:px-6 lg:px-10 pb-6 flex-shrink-0'>
                         <img className='w-[250px]' src={socketjuice_full_logo} />
-                        <p className='text-base'>Share your electric vehicle charger to earn extra income!</p>
+                        <p className='text-base text-center'>Share your electric vehicle charger to earn extra income!</p>
                     </div>
 
                     <div className='py-4 flex flex-col justify-center items-center'>
@@ -935,18 +942,6 @@ const MainHeader = ({loggedUserId} ) => {
                         </div>
                     }
 
-                    <div className='w-full flex flex-col pt-16 justify-center pb-4 gap-y-2'>
-                        <div className='flex flex-row justify-center gap-x-6'>
-                            <Link to={"/terms"} className='flex flex-col text-[#995372] 
-                                text-[12px] sm:text-sm md:text-base underline'> Terms of Service </Link>
-                            <Link to={"/privacy"} className='flex flex-col text-[#995372] 
-                                text-[12px] sm:text-sm md:text-base underline'> Privacy Policy </Link>
-                        </div>
-                        <div className='flex justify-center flex-row'>
-                            <p className='text-xs text-gray-500'>Copyright © 2023 SocketJuice</p>
-                        </div>
-                    </div>
-
                 </div>
 
                 <div className='flex flex-col gap-y-4 pb-10'>
@@ -1011,9 +1006,17 @@ const MainHeader = ({loggedUserId} ) => {
 
                 <div className='w-full flex flex-col pt-16 justify-center pb-4 gap-y-2'>
 
-                <div className='flex justify-center flex-row'>
-                    <p className='text-xs text-gray-500'>Copyright © 2023 SocketJuice</p>
-                </div>
+                <div className='w-full flex flex-col pt-16 justify-center pb-4 gap-y-2'>
+                        <div className='flex flex-row justify-center gap-x-6'>
+                            <Link to={"/terms"} className='flex flex-col text-[#00D3E0] 
+                                text-[12px] sm:text-sm md:text-base underline'> Terms of Service </Link>
+                            <Link to={"/privacy"} className='flex flex-col text-[#00D3E0] 
+                                text-[12px] sm:text-sm md:text-base underline'> Privacy Policy </Link>
+                        </div>
+                        <div className='flex justify-center flex-row'>
+                            <p className='text-xs text-gray-500'>Copyright © 2023 SocketJuice</p>
+                        </div>
+                    </div>
             </div>
             
         </TabPanel>
@@ -1027,7 +1030,7 @@ const MainHeader = ({loggedUserId} ) => {
                     rounded-xl md:rounded-none shadow-inner md:shadow-none'>
         
             <div className='flex items-center justify-center px-10 pb-6'>
-                <img className='w-100' src={socketjuice_full_logo} />
+                <img className='w-[250px]' src={socketjuice_full_logo} />
             </div>
 
             <div className='py-4 flex flex-col justify-center items-center'>
@@ -1628,8 +1631,9 @@ const MainHeader = ({loggedUserId} ) => {
             </div>  
 
             <div className='pl-2 mt-6 flex items-start'>
-                <div>
+                <div className='flex flex-row items-center py-2'>
                     <input  
+                        className="w-5 h-5"
                         type="checkbox" 
                         id='termsagree'
                         onChange={toggleAcceptTerms}
@@ -1641,9 +1645,10 @@ const MainHeader = ({loggedUserId} ) => {
                 </div>
             </div>
 
-            <div className='mt-2 pl-2 flex items-start'>
-                <div>
+            <div className='pl-2 mt-2 flex items-start'>
+                <div className='flex flex-row items-center pb-2'>
                     <input  
+                        className="w-5 h-5"
                         type="checkbox" 
                         id='privacyagree'
                         onChange={toggleAcceptPrivacy}
