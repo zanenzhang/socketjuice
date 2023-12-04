@@ -156,9 +156,6 @@ async function getMatrix (req, res) {
 
         if(matrix && doneOperation){
 
-            console.log("Getting Google Matrix")
-            console.log(matrix)
-
             return res.status(200).json({matrix: matrix.data})
         
         } else {

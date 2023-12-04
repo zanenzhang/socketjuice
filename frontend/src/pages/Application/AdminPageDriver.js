@@ -139,9 +139,15 @@ const AdminPageDriver = () => {
                             <p>{user.phonePrimary}</p>
                             <p>{user.host.city}, {user.host.region}</p>
 
-                            <div className='flex flex-row'>
-                                <img className='w-[175px]' src={user.profilePicURL} />
-                                <img className='w-[175px]' src={user.plateMediaURL} />
+                            <div className='flex flex-row py-1 gap-x-2'>
+                                <div className='flex flex-col'>
+                                    <p>Profile Pic</p>
+                                    <img className='w-[240px]' src={user.profilePicURL} />
+                                </div>
+                                <div className='flex flex-col'>
+                                    <p>License Plate</p>
+                                    <img className='w-[240px]' src={user.plateMediaURL} />
+                                </div>
                             </div>
 
                             <div className='flex flex-row w-full justify-between'>

@@ -119,7 +119,7 @@ const AdminPage = () => {
 
                     hostList?.map((host) => (
 
-                        <div key={host._id} className='flex flex-col py-10'>
+                        <div key={host._id} className='flex flex-col py-10 justify-center items-center'>
 
                             <p>{host._id}</p>
                             <p>{host.firstName} {host.lastName}</p>
@@ -130,13 +130,14 @@ const AdminPage = () => {
                             <p>Level: {host.host.chargingLevel}</p>
                             <p>{host.host.city}, {host.host.region}</p>
 
-                            <img className='w-[250px]' src={host.profilePicURL} />
+                            <p>Profile Pic:</p>
+                            <img className='w-[250px] border border-gray-400 m-1' src={host.profilePicURL} />
 
-                            <div className='flex flex-wrap'>
+                            <div className='flex flex-wrap gap-1'>
 
                                 {host?.host?.mediaCarouselURLs?.map((image) => (
 
-                                    <img className='w-[250px]' src={image} />
+                                    <img className='w-[250px] border border-gray-400' src={image} />
                                 ))}
 
                             </div>

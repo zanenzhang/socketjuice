@@ -460,26 +460,26 @@ useEffect( () => {
 
   const handleChargeRate = (e) => {
 
-    setChargeRate(e.target.value)
+    setChargeRate(Number(e.target.value))
 
     if(currency === "cad"){
-      setChargeRateFee(e.target.value + 0.50)
+      setChargeRateFee(Number(e.target.value) + 0.50)
     } else if(currency === "usd"){
-      setChargeRateFee(e.target.value + 0.50)
+      setChargeRateFee(Number(e.target.value) + 0.50)
     } else if(currency === "eur"){
-      setChargeRateFee(e.target.value + 0.50)
+      setChargeRateFee(Number(e.target.value) + 0.50)
     } else if(currency === "gbp"){
-      setChargeRateFee(e.target.value + 0.50)
+      setChargeRateFee(Number(e.target.value) + 0.50)
     } else if(currency === "inr"){
-      setChargeRateFee(e.target.value + 50)
+      setChargeRateFee(Number(e.target.value) + 50)
     } else if(currency === "jpy"){
-      setChargeRateFee(e.target.value + 50)
+      setChargeRateFee(Number(e.target.value) + 50)
     } else if(currency === "cny"){
-      setChargeRateFee(e.target.value + 2)
+      setChargeRateFee(Number(e.target.value) + 2)
     } else if(currency === "aud"){
-      setChargeRateFee(e.target.value + 0.50)
+      setChargeRateFee(Number(e.target.value) + 0.50)
     } else if(currency === "nzd"){
-      setChargeRateFee(e.target.value + 0.50)
+      setChargeRateFee(Number(e.target.value) + 0.50)
     }
 
   }
@@ -900,7 +900,7 @@ const handleRegularHourChangeEnd = (event, day) => {
           setSubmitted(userdata?.foundHost?.submittedChargingForReview)
           setDeactivated(userdata?.foundHost?.deactivated)
 
-          setCurrency(userdata?.foundUser?.currency)
+          setCurrency(userdata?.foundUser?.currency.toLowerCase())
           setCurrencySymbol(userdata.foundUser?.currencySymbol)
           setIsLoaded(true)
         }
@@ -1299,6 +1299,37 @@ const handleRegularHourChangeEnd = (event, day) => {
                     });
 
                     setWaiting(false)
+                
+                } else if(uploadedHostPhotos && uploadedHostPhotos.status === 402){
+
+                  console.log("Unfortunately, inappropriate content has been detected, please try again")
+                    toast.info("Unfortunately, inappropriate content has been detected, please try again", {
+                        position: "bottom-center",
+                        autoClose: 1500,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "colored",
+                    });
+
+                    setWaiting(false)
+
+                } else {
+                  console.log("Unfortunately, inappropriate content has been detected, please try again")
+                    toast.info("Unfortunately, inappropriate content has been detected, please try again", {
+                        position: "bottom-center",
+                        autoClose: 1500,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "colored",
+                    });
+
+                    setWaiting(false)
                 }
 
             } catch(err){
@@ -1656,6 +1687,10 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                 <div className='pt-4 pb-4 flex flex-col gap-y-3'>
 
+                    <div className='flex flex-row justify-center py-2'>
+                        <span className='bg-[#FFE142] h-[50px] w-[100px] flex justify-center items-center p-2'>Your Bookings</span>
+                      </div>
+
                     <DnDCalendar
 
                       style={{ height: "500px" }}
@@ -1702,7 +1737,7 @@ const handleRegularHourChangeEnd = (event, day) => {
             <div className='flex relative flex-col items-center h-[100svh] w-[100svw] overflow-y-scroll py-3'>
                     
               <div className='flex flex-row bg-[#FFE142] py-4 px-6 rounded-xl'>
-                <p>We are currently reviewing your charging location, please hold</p>
+                <p>We are currently reviewing your charging location, please hold!</p>
               </div>
             
             </div> }
@@ -1813,7 +1848,7 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                   <p className='text-base md:text-lg font-bold pt-4'>Step 3) Select the connector type for your main plug and if you have an adapter. (We will check against your photos but please match carefully!) </p>
 
-                      <img className='min-w-[375px] w-[600px] py-4' src={evconnectors} />
+                      <img className='border-2 border-[#00D3E0] mx-4 px-4 min-w-[375px] w-[600px] py-4' src={evconnectors} />
 
                       <div className='flex flex-row justify-center items-center'>
                       <label className="font-semibold pr-2">Connector Type:</label>
@@ -2657,6 +2692,10 @@ const handleRegularHourChangeEnd = (event, day) => {
                 <div className='flex flex-col w-full max-w-[400px] overflow-y-scroll justify-center'>
 
                     <div className='pt-4 pb-4 flex flex-col gap-y-3'>
+
+                        <div className='flex flex-row justify-center py-2'>
+                          <span className='bg-[#FFE142] h-[50px] w-[100px] flex justify-center items-center p-2'>Your Bookings</span>
+                        </div>
 
                         <DnDCalendar
 

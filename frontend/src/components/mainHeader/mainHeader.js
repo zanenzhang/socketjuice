@@ -58,9 +58,9 @@ const MainHeader = ({loggedUserId} ) => {
     const BIRTHDATE_REGEX = /^[0-9]{4}[-]{1}[0-9]{2}[-]{1}[0-9]{2}$/;
 
     const ADDRESS_REGEX = /^.{4,250}$/;
-    const CITY_REGEX = /^.{1,48}$/;
-    const REGION_REGEX = /^.{2,48}$/;
-    const COUNTRY_REGEX = /^.{4,48}$/;
+    const CITY_REGEX = /^.{1,100}$/;
+    const REGION_REGEX = /^.{2,100}$/;
+    const COUNTRY_REGEX = /^.{4,100}$/;
 
     const [inputTypeLogin, setInputTypeLogin] = useState("password");
     const [emailLogin, setEmailLogin] = useState("");
@@ -446,7 +446,7 @@ const MainHeader = ({loggedUserId} ) => {
                 setSuccess(true);
                 setPwdRegister('');
                 setMatchPwd('');
-                alert("Registered! Please check your email inbox to activate the account!")
+                alert("Registered! Please check your email inbox to activate the account! (Could also be in your email spam folder).")
 
             } else if(response?.status === 402){
 
@@ -593,7 +593,7 @@ const MainHeader = ({loggedUserId} ) => {
 
     const mainstyle = {
         position: 'absolute',
-        top: '55%',
+        top: '53%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
         width: 360,
@@ -604,7 +604,7 @@ const MainHeader = ({loggedUserId} ) => {
         height: '550px',
         overflow: "hidden",
         overflowY: "scroll",
-        borderRadius: "10px"
+        borderRadius: "5px"
       };
     
     const [size, setSize] = useState({

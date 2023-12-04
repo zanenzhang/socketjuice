@@ -87,6 +87,14 @@ const userSchema = new Schema({
         type: Number,
         default: 0
     },
+    verifications: {
+        type: Number,
+        default: 0
+    },
+    smsChecks: {
+        type: Number,
+        default: 0
+    },
     flagged: {
         type: Boolean,
         default: false
@@ -144,23 +152,29 @@ const userSchema = new Schema({
     credits: [{
         currency:{
             type: String, 
+            default: "usd"
         },
         currencySymbol:{
             type: String, 
+            default: "$"
         },
         amount:{
             type: Number, 
+            default: 0
         } 
     }],
     escrow: [{
         currency:{
             type: String, 
+            default: "usd"
         },
         currencySymbol:{
             type: String, 
+            default: "$"
         },
         amount:{
             type: Number, 
+            default: 0
         } 
     }],
     canReceivePayments: { 

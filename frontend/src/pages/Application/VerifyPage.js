@@ -100,6 +100,7 @@ const VerifyPage = () => {
     
     const [waitingRequest, setWaitingRequest] = useState(false);
     const [waitingVerify, setWaitingVerify] = useState(false);
+    const [verifyCount, setVerifyCount] = useState(0);
     const [waitingPhotos, setWaitingPhotos] = useState(false);
 
     useEffect( ()=> {
@@ -299,8 +300,40 @@ const VerifyPage = () => {
                         progress: undefined,
                         theme: "colored",
                     });
-                }
 
+                    setWaitingVerify(false)
+
+                } else {
+
+                    toast.info("Code was incorrect, please try again!", {
+                        position: "bottom-center",
+                        autoClose: 1500,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "colored",
+                    });
+
+                    setVerifyCount(verifyCount + 1)
+                    setWaitingVerify(false)
+                }
+            
+            } else {
+
+                toast.info("Sorry, please try again!", {
+                    position: "bottom-center",
+                    autoClose: 1500,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "colored",
+                });
+
+                setVerifyCount(verifyCount + 1)
                 setWaitingVerify(false)
             }
         }
@@ -311,7 +344,9 @@ const VerifyPage = () => {
 
         setWaitingVerify(true);
 
-        handlePhoneVerify()
+        if(verifyCount < 4){
+            handlePhoneVerify()
+        }
         
     }
 
@@ -820,7 +855,6 @@ const VerifyPage = () => {
                 </button>
                 }
 
-
                 <p className='text-sm flex flex-col w-[300px]'>
                     Note: You will receive the code via a SMS text message. Regular charges from your phone plan may apply.
                 </p>
@@ -840,7 +874,8 @@ const VerifyPage = () => {
                 />
 
                 {!verifiedPhone ? 
-                <button disabled={phonePrimary?.length < 7 || !submittedPhone} onClick={(e)=>handlePhoneCodeVerify(e)} 
+                <button disabled={phonePrimary?.length < 7 || !submittedPhone} 
+                onClick={(e)=>handlePhoneCodeVerify(e)} 
                 className={`my-2 py-4 px-3 rounded-2xl border-2 border-[#00D3E0] flex flex-row gap-x-1 justify-center w-[250px]
                      ${ (phonePrimary?.length < 7 || !submittedPhone || verifiedPhone || codeInput?.length < 6 ) ? ' hover:bg-gray-100 cursor-not-allowed ' : ' hover:bg-[#00D3E0] '}`}>
                     

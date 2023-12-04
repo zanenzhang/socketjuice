@@ -287,6 +287,10 @@ var hostProfileSchema = new Schema({
         type: String,
         default: "$"
     },
+    availableNow: { 
+        type: Boolean, 
+        default: false 
+    },
     hostAppointments: [{  
         _appointmentId: { 
             type: Schema.Types.ObjectId, 

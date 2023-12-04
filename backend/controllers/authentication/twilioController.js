@@ -19,9 +19,17 @@ async function sendVerification (req, res) {
 
     if(foundUser && !foundUser.checkedMobile){
 
+        if(foundUser.verifications >= 4){
+            return res.status(402).json({ message: 'Operation failed' })
+        } 
+        
+        foundUser.verifications = foundUser.verifications + 1
+
+        const savedUser = await foundUser.save()
+
         const checkedNumber = phoneUtil.parseAndKeepRawInput(number, phoneCountryCode?.toUpperCase());
 
-        if(phoneUtil.isValidNumber(checkedNumber)){
+        if(savedUser && phoneUtil.isValidNumber(checkedNumber)){
 
             client.verify.v2.services(process.env.TWILIO_SOCKETJUICE_SID)
             .verifications
@@ -56,120 +64,132 @@ async function checkVerification (req, res) {
 
     if(foundUser && !foundUser.checkedMobile){
 
-        try {
+        if(foundUser.smsChecks >= 4){
+            return res.status(402).json({ message: 'Operation failed' })
+        } 
+        
+        foundUser.smsChecks = foundUser.smsChecks + 1
 
-            console.log("Checking verification code")
+        const savedUser = await foundUser.save()
 
-            const verification = await client.verify.v2.services(process.env.TWILIO_SOCKETJUICE_SID)
-            .verificationChecks
-            .create({to: `${number}`, code: `${code}`})
+        if(savedUser){
 
-            if(verification?.status === 'approved'){
-                
-                console.log(verification.status)
+            try {
 
-                var searchObj = {}
-                var currency = "cad"
-                var currencySymbol = "$"
-
-
-                if(phoneCountryCode == "ca"){
+                console.log("Checking verification code")
+    
+                const verification = await client.verify.v2.services(process.env.TWILIO_SOCKETJUICE_SID)
+                .verificationChecks
+                .create({to: `${number}`, code: `${code}`})
+    
+                if(verification?.status === 'approved'){
                     
-                    currency = "cad"
-                    currencySymbol = "$"
-                    searchObj["j1772ACChecked"] = true
-                    searchObj["ccs1DCChecked"] = true
-                    searchObj["teslaChecked"] = true
-
-                } else if(phoneCountryCode == "us"){
+                    console.log(verification.status)
+    
+                    var searchObj = {}
+                    var currency = "cad"
+                    var currencySymbol = "$"
+    
+    
+                    if(phoneCountryCode == "ca"){
+                        
+                        currency = "cad"
+                        currencySymbol = "$"
+                        searchObj["j1772ACChecked"] = true
+                        searchObj["ccs1DCChecked"] = true
+                        searchObj["teslaChecked"] = true
+    
+                    } else if(phoneCountryCode == "us"){
+                        
+                        currency = "usd"
+                        currencySymbol = "$"
+                        searchObj["j1772ACChecked"] = true
+                        searchObj["ccs1DCChecked"] = true
+                        searchObj["teslaChecked"] = true
+    
+                    } else if(phoneCountryCode == "au"){
+                        
+                        currency = "aud"
+                        currencySymbol = "$"
+                        searchObj["mennekesACChecked"] = true
+                        searchObj["ccs2DCChecked"] = true
+                        searchObj["teslaChecked"] = true
+    
+                    } else if(phoneCountryCode == "nz"){
+                        
+                        currency = "nzd"
+                        currencySymbol = "$"
+                        searchObj["mennekesACChecked"] = true
+                        searchObj["ccs2DCChecked"] = true
+                        searchObj["teslaChecked"] = true
+    
+                    } else if(phoneCountryCode == "gb"){
+                        
+                        currency = "gbp"
+                        currencySymbol = "£"
+                        searchObj["mennekesACChecked"] = true
+                        searchObj["ccs2DCChecked"] = true
+    
+                    } else if(phoneCountryCode == "in"){
+                        
+                        currency = "inr"
+                        currencySymbol = "₹"
+                        searchObj["gbtACChecked"] = true
+                        searchObj["gbtDCChecked"] = true
+                        searchObj["teslaChecked"] = true
+    
+                    } else if(phoneCountryCode == "jp"){
+                        
+                        currency = "jpy"
+                        currencySymbol = "¥"
+                        searchObj["j1772ACChecked"] = true
+                        searchObj["chademoDCChecked"] = true
+                        searchObj["teslaChecked"] = true
+    
+                    } else if(phoneCountryCode == "cn"){
+                        
+                        currency = "cny"
+                        currencySymbol = "¥"
+                        searchObj["gbtACChecked"] = true
+                        searchObj["gbtDCChecked"] = true
+                        searchObj["teslaChecked"] = true
+    
+                    } else {
+                        
+                        currency = "eur"
+                        currencySymbol = "€"
+                        searchObj["mennekesACChecked"] = true
+                        searchObj["ccs2DCChecked"] = true
+                    }
+    
+                    const updatedUser = await User.updateOne({_id: userId},
+                        {$set:{checkedMobile: true, phonePrimary: number, phonePrefix: phonePrefix, currentStage: 2,
+                        currency: currency, currencySymbol: currencySymbol, phoneCountry: phoneCountry, 
+                        phoneCountryCode: phoneCountryCode, credits: [{currency: currency, currencySymbol: currencySymbol, amount: 0}], 
+                        escrow: [{currency: currency, currencySymbol: currencySymbol, amount: 0}], active: true}})
+    
+                    const updatedDriver = await DriverProfile.updateOne({_userId: userId},
+                        {$set: searchObj})
+    
+                    sendVerifiedAccount({ toUser: foundUser.email, firstName: foundUser.firstName })
                     
-                    currency = "usd"
-                    currencySymbol = "$"
-                    searchObj["j1772ACChecked"] = true
-                    searchObj["ccs1DCChecked"] = true
-                    searchObj["teslaChecked"] = true
-
-                } else if(phoneCountryCode == "au"){
+                    sendVerifiedToAdmin({verifiedUserId: userId, verifiedPhone: number,
+                        verifiedFirstName: foundUser.firstName, verifiedLastName: foundUser.lastName})
+    
+                    if(updatedUser && updatedDriver){
+                        console.log("Success")
+                        res.status(200).send({result: verification.status})
+                    }
                     
-                    currency = "aud"
-                    currencySymbol = "$"
-                    searchObj["mennekesACChecked"] = true
-                    searchObj["ccs2DCChecked"] = true
-                    searchObj["teslaChecked"] = true
-
-                } else if(phoneCountryCode == "nz"){
-                    
-                    currency = "nzd"
-                    currencySymbol = "$"
-                    searchObj["mennekesACChecked"] = true
-                    searchObj["ccs2DCChecked"] = true
-                    searchObj["teslaChecked"] = true
-
-                } else if(phoneCountryCode == "gb"){
-                    
-                    currency = "gbp"
-                    currencySymbol = "£"
-                    searchObj["mennekesACChecked"] = true
-                    searchObj["ccs2DCChecked"] = true
-
-                } else if(phoneCountryCode == "in"){
-                    
-                    currency = "inr"
-                    currencySymbol = "₹"
-                    searchObj["gbtACChecked"] = true
-                    searchObj["gbtDCChecked"] = true
-                    searchObj["teslaChecked"] = true
-
-                } else if(phoneCountryCode == "jp"){
-                    
-                    currency = "jpy"
-                    currencySymbol = "¥"
-                    searchObj["j1772ACChecked"] = true
-                    searchObj["chademoDCChecked"] = true
-                    searchObj["teslaChecked"] = true
-
-                } else if(phoneCountryCode == "cn"){
-                    
-                    currency = "cny"
-                    currencySymbol = "¥"
-                    searchObj["gbtACChecked"] = true
-                    searchObj["gbtDCChecked"] = true
-                    searchObj["teslaChecked"] = true
-
                 } else {
-                    
-                    currency = "eur"
-                    currencySymbol = "€"
-                    searchObj["mennekesACChecked"] = true
-                    searchObj["ccs2DCChecked"] = true
+                    res.status(400);    
                 }
-
-                const updatedUser = await User.updateOne({_id: userId},
-                    {$set:{checkedMobile: true, phonePrimary: number, phonePrefix: phonePrefix, currentStage: 2,
-                    currency: currency, currencySymbol: currencySymbol, phoneCountry: phoneCountry, 
-                    phoneCountryCode: phoneCountryCode, active: true}})
-
-                const updatedDriver = await DriverProfile.updateOne({_userId: userId},
-                    {$set: searchObj})
-
-                sendVerifiedAccount({ toUser: foundUser.email, firstName: foundUser.firstName })
-                
-                sendVerifiedToAdmin({verifiedUserId: foundUser._id, verifiedPhone: foundUser.phonePrimary,
-                    verifiedFirstName: foundUser.firstName, verifiedLastName: foundUser.lastName})
-
-                if(updatedUser && updatedDriver){
-                    console.log("Success")
-                    res.status(200).send({result: verification.status})
-                }
-                
-            } else {
+    
+            } catch(err){
+    
                 res.status(400);    
+                console.log(err)
             }
-
-        } catch(err){
-
-            res.status(400);    
-            console.log(err)
         }
 
     } else {

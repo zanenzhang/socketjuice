@@ -1479,6 +1479,12 @@ const addHostProfile = async (req, res) => {
         return res.status(400).json({ message: 'User ID Required' })
     }
 
+    for(let i=0; i < languageList.length; i++){
+        if(hostComments.indexOf(languageList[i]) !== -1){
+            return res.status(402).json({"message":"Inappropriate content"})  
+        }
+    }
+
     const foundUser = await User.findOne({_id: userId})
     const foundDriver = await DriverProfile.findOne({_userId: userId})
     const foundHost = await HostProfile.findOne({_userId: userId})

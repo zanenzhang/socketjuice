@@ -124,7 +124,7 @@ const MapPage = () => {
   const [openDetailsModal, setOpenDetailsModal] = useState(false);
   const [openPaymentsModal, setOpenPaymentModal] = useState(false);
 
-  const [termschecked, setTermschecked] = useState(false);
+  const [termschecked, setTermschecked] = useState(true);
 
   const [iconLarge, setIconLarge] = useState({})
   const [iconRegular, setIconRegular] = useState({})
@@ -257,8 +257,8 @@ const [newrequest, setNewrequest] = useState(false);
 
 const [events, setEvents] = useState([])
 const [hostEvents, setHostEvents] = useState([])
+const [availableEvents, setAvailableEvents] = useState([])
 const [proposedEvents, setProposedEvents] = useState([])
-const [availability, setAvailability] = useState([])
 
 const {isLoaded} = useJsApiLoader({
   googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
@@ -337,13 +337,18 @@ useEffect( () => {
     
     } else {
 
+      if(selectedChargeRate){
+        var charge = ((bookingEnd - bookingStart) / 1000 / 1800) * selectedChargeRate
+        setTotalCharge(charge)
+      }
+
       var timeMin = (bookingEnd - bookingStart)/60000
       setBookingLengthValue(timeMin)
       setBookingLengthText(`${Math.round(timeMin)} Min`)
 
       var updatedCurrent = {
         id: `proposed_${auth.userId}`,
-        title: "Proposed Booking Time",
+        title: "Requested Booking Time",
         start: new Date(bookingStart["$d"]),
         end: new Date(bookingEnd["$d"]),
         isDraggable: true
@@ -353,7 +358,7 @@ useEffect( () => {
       filteredevents = [...filteredevents, updatedCurrent]
 
       setProposedEvents([...filteredevents])
-      setEvents([...filteredevents, ...hostEvents])
+      setEvents([...filteredevents, ...availableEvents, ...hostEvents])
     }
   }
 
@@ -449,9 +454,8 @@ const handleEventResize = (e) => {
 }
 
 const handleNavigate = (e) => {
-  console.log(e)
   
-  setCurrentDate(new Date().toISOString().slice(0,10))
+  setCurrentDate(new Date(e).toISOString().slice(0,10))
   setDate(dayjs(new Date(e)))
 }
 
@@ -659,6 +663,7 @@ const {scrollToTime} = useMemo(
 
     var checkedCredits = false
     var charge = ((bookingEnd - bookingStart) / 1000 / 1800) * selectedChargeRate
+    setTotalCharge(charge)
     
     if (auth.credits?.length > 0){
 
@@ -675,6 +680,7 @@ const {scrollToTime} = useMemo(
       setWaitingSubmit(false)
       setOpenPaymentModal(true)
     }
+      
 
     if(!checkedCredits){
 
@@ -683,9 +689,6 @@ const {scrollToTime} = useMemo(
       setOpenPaymentModal(true)
 
     } else {
-
-      var charge = ((bookingEnd - bookingStart) / 1000 / 1800) * selectedChargeRate
-      setTotalCharge(charge)
 
       const added = await addAppointmentRequest(auth.userId, hostUserId, bookingStart, bookingEnd, auth.accessToken)
 
@@ -830,24 +833,21 @@ const {scrollToTime} = useMemo(
         const yesterdayAvailableEnd = selectedHostProfile[`hours${lastdayofweek}End`]
         const allDayToday = selectedHostProfile[`allDay${dayofweek}`]
 
+        console.log(selectedHostProfile[`allDay${dayofweek}`])
+
         var availabilities = [];
 
         if(allDayToday){
 
-          var newstarttime = dateCheck.setHours(0)
-            newstarttime.setMinutes(0)
-            newstarttime.setSeconds(0)
-  
-          var newendtime = dateCheck.setHours(24)
-          newendtime.setMinutes(0)
-          newendtime.setSeconds(0)
+          var newstarttime = dateCheck.setHours(0,0,0,0)
+          var newendtime = dateCheck.setHours(24,0,0,-1)
             
             var availabilityAllDay = {
               id: `today_availability_early`,
               title: "Available",
               start: new Date(newstarttime),
               end: new Date(newendtime),
-              isDraggable: true,
+              isDraggable: false,
               disabled: true
             }
   
@@ -855,95 +855,78 @@ const {scrollToTime} = useMemo(
 
         } else {
 
-          if(yesterdayAvailableEnd < yesterdayAvailableStart && yesterdayAvailableEnd < todayAvailableStart){
+              if(yesterdayAvailableEnd < yesterdayAvailableStart && yesterdayAvailableEnd < todayAvailableStart){
 
-            var newstarttime = dateCheck.setHours(0)
-            newstarttime.setMinutes(0)
-            newstarttime.setSeconds(0)
-  
-            var newendtime = dateCheck.setHours(selectedHostProfile[yesterdayAvailableEnd].slice(0, 2))
-            newendtime.setMinutes(selectedHostProfile[yesterdayAvailableEnd].slice(3, 5))
-            newendtime.setSeconds(0)
-            
-            var availabilityEarly = {
-              id: `today_availability_early`,
-              title: "Available",
-              start: new Date(newstarttime),
-              end: new Date(newendtime),
-              isDraggable: true,
-              disabled: true
-            }
-  
-            availabilities.push(availabilityEarly)
-          
-          } else if(yesterdayAvailableEnd < yesterdayAvailableStart && yesterdayAvailableEnd > todayAvailableStart) {
-  
-            var newstarttime = dateCheck.setHours(0)
-            newstarttime.setMinutes(0)
-            newstarttime.setSeconds(0)
-  
-            var newendtime = dateCheck.setHours(selectedHostProfile[todayAvailableStart].slice(0, 2))
-            newendtime.setMinutes(selectedHostProfile[todayAvailableStart].slice(3, 5))
-            newendtime.setSeconds(0)
-            
-            var availabilityEarly = {
-              id: `today_availability_early`,
-              title: "Available",
-              start: new Date(newstarttime),
-              end: new Date(newendtime),
-              isDraggable: true,
-              disabled: true
-            }
-  
-            availabilities.push(availabilityEarly)
-          }
-          
-  
-          if(todayAvailableStart > todayAvailableEnd){
-  
-            var newstarttime = dateCheck.setHours(selectedHostProfile[todayAvailableStart].slice(0, 2))
-            newstarttime.setMinutes(selectedHostProfile[todayAvailableStart].slice(3, 5))
-            newstarttime.setSeconds(0)
-  
-            var newendtime = dateCheck.setHours(24)
-            newendtime.setMinutes(0)
-            newendtime.setSeconds(0)
-            
-            var availabilityLate = {
-              id: `today_availability_late`,
-              title: "Available",
-              start: new Date(newstarttime),
-              end: new Date(newendtime),
-              isDraggable: true,
-              disabled: true
-            }
-  
-            availabilities.push(availabilityLate)
-          
-          } else if(todayAvailableStart < todayAvailableEnd) {
-  
-            var newstarttime = dateCheck.setHours(selectedHostProfile[todayAvailableStart].slice(0, 2))
-            newstarttime.setMinutes(selectedHostProfile[todayAvailableStart].slice(3, 5))
-            newstarttime.setSeconds(0)
-  
-            var newendtime = dateCheck.setHours(selectedHostProfile[todayAvailableEnd].slice(0, 2))
-            newendtime.setMinutes(selectedHostProfile[todayAvailableEnd].slice(3, 5))
-            newendtime.setSeconds(0)
-            
-            var availabilityLate = {
-              id: `today_availability_late`,
-              title: "Available",
-              start: new Date(newstarttime),
-              end: new Date(newendtime),
-              isDraggable: true,
-              disabled: true
-            }
-  
-            availabilities.push(availabilityLate)
-          }
+                var newstarttime = dateCheck.setHours(0,0,0,0)
+                var newendtime = dateCheck.setHours(selectedHostProfile[yesterdayAvailableEnd].slice(0, 2),selectedHostProfile[yesterdayAvailableEnd].slice(3, 5),0,0)
+                
+                var availabilityEarly = {
+                  id: `today_availability_early`,
+                  title: "Available",
+                  start: new Date(newstarttime),
+                  end: new Date(newendtime),
+                  isDraggable: false,
+                  disabled: true
+                }
+      
+                availabilities.push(availabilityEarly)
+              
+              } else if(yesterdayAvailableEnd < yesterdayAvailableStart && yesterdayAvailableEnd > todayAvailableStart) {
+      
+                var newstarttime = dateCheck.setHours(0,0,0,0)
+                var newendtime = dateCheck.setHours(selectedHostProfile[todayAvailableStart].slice(0, 2),selectedHostProfile[todayAvailableStart].slice(3, 5),0,0)
+                
+                var availabilityEarly = {
+                  id: `today_availability_early`,
+                  title: "Available",
+                  start: new Date(newstarttime),
+                  end: new Date(newendtime),
+                  isDraggable: false,
+                  disabled: true
+                }
+      
+                availabilities.push(availabilityEarly)
+              }
+              
+      
+              if(todayAvailableStart > todayAvailableEnd){
+      
+                var newstarttime = dateCheck.setHours(selectedHostProfile[todayAvailableStart].slice(0, 2), selectedHostProfile[todayAvailableStart].slice(3, 5), 0,0)
+                var newendtime = dateCheck.setHours(24)
+                
+                var availabilityLate = {
+                  id: `today_availability_late`,
+                  title: "Available",
+                  start: new Date(newstarttime),
+                  end: new Date(newendtime),
+                  isDraggable: false,
+                  disabled: true
+                }
+      
+                availabilities.push(availabilityLate)
+              
+              } else if(todayAvailableStart < todayAvailableEnd) {
+      
+                var newstarttime = dateCheck.setHours(selectedHostProfile[todayAvailableStart].slice(0, 2), selectedHostProfile[todayAvailableStart].slice(3, 5), 0,0)
+                var newendtime = dateCheck.setHours(selectedHostProfile[todayAvailableEnd].slice(0, 2), selectedHostProfile[todayAvailableEnd].slice(3, 5), 0,0)
+                
+                var availabilityLate = {
+                  id: `today_availability_late`,
+                  title: "Available",
+                  start: new Date(newstarttime),
+                  end: new Date(newendtime),
+                  isDraggable: false,
+                  disabled: true
+                }
+      
+                availabilities.push(availabilityLate)
+              }
         }
 
+        console.log(availabilities)
+
         setHostEvents([...newevents])
+        setAvailableEvents([...availabilities])
         setEvents([...proposedEvents, ...availabilities, ...newevents])
       }
     }
@@ -972,6 +955,9 @@ const {scrollToTime} = useMemo(
     setSelectedChargeRate(host.chargeRatePerHalfHourFee)
     setSelectedCurrency(host.currency)
     setSelectedCurrencySymbol(host.currencySymbol)
+
+    var charge = ((bookingEnd - bookingStart) / 1000 / 1800) * host.chargeRatePerHalfHourFee
+    setTotalCharge(charge)
 
     setSelectedDistance(host.distanceText)
     setSelectedDuration(host.durationText)
@@ -1002,7 +988,7 @@ const {scrollToTime} = useMemo(
     setOpenDetailsModal(false)
   }
 
-  const handleAddress = (e) => {
+  const handleGoogleAddress = (e) => {
 
     async function getcoordinates(){
         
@@ -1217,6 +1203,14 @@ const {scrollToTime} = useMemo(
       }
     };
 
+
+    const handleAddressClick = (e, host) => {
+
+      e.preventDefault()
+      setCenter({ lat: host.location?.coordinates[1], lng: host.location?.coordinates[0] })
+      setCurrentMarker(host._id)
+    }
+
     const handleMarkerClick = (e, host) => {
 
       setCurrentMarker(host._id)
@@ -1344,7 +1338,7 @@ const {scrollToTime} = useMemo(
                   //   }}
                   selectProps={{
                       defaultInputValue: userAddress,
-                      onChange: handleAddress, //save the value gotten from google
+                      onChange: handleGoogleAddress, //save the value gotten from google
                       placeholder: "Address",
                       styles: {
                           control: (provided, state) => ({
@@ -1565,9 +1559,10 @@ const {scrollToTime} = useMemo(
                 
                 {hostLocations.map((host, index) => (
                   
-                  <div key={`${host._id}_leftsquare`} 
+                  
+                  <div key={`${host._id}_leftsquare`} onClick={(e)=>handleAddressClick(e, host)}
                     className={`w-full flex flex-col px-2 bg-[#c1f2f5]
-                    py-2 ${currentMarker === host._id ? 'border-2 border-[#FFE142] '   
+                    py-2 ${currentMarker === host._id ? 'border-4 border-[#FFE142] '   
                     : 'border border-gray-300  '} rounded-lg`}>
                     
                     <div className='flex flex-row'>
@@ -1586,19 +1581,19 @@ const {scrollToTime} = useMemo(
                     
                     <div className='flex flex-row w-full justify-between items-center'>
                       
-                      <div className='flex flex-col w-full'>
-                        <p>Distance: {host.distanceText} / {host.durationText}</p>
-                        <p>30 Min Rate: {host.currencySymbol}{Number(host.chargeRatePerHalfHourFee).toFixed(2)}</p>
+                      <div className='flex flex-col w-full gap-y-1'>
+                        <p className='text-base'>Distance: {host.distanceText} / {host.durationText}</p>
+                        <p className='text-base'>30 Min Rate: {host.currencySymbol}{Number(host.chargeRatePerHalfHourFee).toFixed(2)}</p>
                       </div>
                     
-                      <div className='flex flex-col'>
+                      <div className='flex flex-col items-center py-1'>
                           <button 
                             className='px-3 py-2 bg-[#FFE142] hover:bg-[orange] rounded-lg'
                             onClick={(e)=>handleOpenReserveModal(e, host)}
                             >
                               Reserve
                           </button>
-                          {host.availableNow && <p>Available Now!</p>}
+                          {host.availableNow && <p className='text-sm text-center'>Open Now!</p>}
                       </div>
                     </div>
 
@@ -1810,30 +1805,6 @@ const {scrollToTime} = useMemo(
 
           <div className='flex flex-col w-full overflow-y-scroll'>
 
-            <div className="flex flex-row justify-center items-center gap-x-2">
-
-              <label className="flex justify-center items-center pr-2 font-semibold">Currency:</label>
-
-              <select onChange={(event)=>setPaymentCurrency(event.target.value)}
-              value={paymentCurrency}
-              className={`pl-6 w-30 md:w-40 h-9 border border-gray-primary justify-center items-center`}>
-
-                  {userCurrencies?.length>0 && userCurrencies.map( (e) =>
-                  
-                      <option key={`${e.currency}_incoming`} value={`${e.currency.toLowerCase()}`}>{e.currencySymbol}{e.currency.toUpperCase()}</option>
-                  )}
-
-              </select> 
-
-              </div>
-
-            <div className='text-3xl'>
-              Account Balance
-            </div>
-
-            <p className="text-lg">In Wallet: {paymentCurrency.toUpperCase()} {paymentCurrencySymbol}{accountBalance.toFixed(2)}</p>
-            <p className="text-lg">On Hold: {paymentCurrency.toUpperCase()} {paymentCurrencySymbol}{escrowBalance.toFixed(2)}</p>
-
           <div className='py-2'>
           <p className='text-lg text-center font-semibold pb-2 text-black'> Host Information: </p>
             {/* <p className='text-center'><b>Address:</b> {selectedAddress.slice(0, selectedAddress.lastIndexOf(',', selectedAddress.lastIndexOf(',')-1))}</p> */}
@@ -1868,8 +1839,7 @@ const {scrollToTime} = useMemo(
                         <div className='flex flex-col justify-center items-center'>
 
                             <img 
-                                className={`w-[175px] sm:w-[192px] md:w-[225px] lg:w-[242px] rounded-t-lg 
-                                border border-gray-200 z-0`}
+                                className={`w-[300px] rounded-t-lg border border-gray-200 z-0`}
                                 src={mediaURLs[index]} 
                             />
                         
@@ -1883,11 +1853,9 @@ const {scrollToTime} = useMemo(
 
             </Slider>
 
-              <p className='text-center pt-4'><b>30 Min Rate:</b> {selectedCurrency?.toUpperCase()} {selectedCurrencySymbol}{Number(selectedChargeRate).toFixed(2)}</p>
-
                 <p className='text-base text-center font-semibold pt-4 pb-2'> Enter Requested Time Below: </p>
 
-                <div className='pt-1 pb-4 flex flex-col gap-y-3'>
+                <div className='pt-1 pb-4 flex flex-col gap-y-2'>
 
                     <LocalizationProvider sx={{borderColor: "#8BEDF3"}} dateAdapter={AdapterDayjs}>
             
@@ -1905,12 +1873,41 @@ const {scrollToTime} = useMemo(
                           onChange={(newValue) => setBookingEnd(dayjs(new Date(newValue)))}
                           />
                     </LocalizationProvider>
+                    
+                    <div className='w-full flex flex-col justify-center items-center pt-1 pb-3'>
+                      <p className='text-center text-lg pt-2'>30 Min Rate: {selectedCurrency?.toUpperCase()} {selectedCurrencySymbol}{Number(selectedChargeRate).toFixed(2)}</p>
+                      <p className='text-center text-lg'> Length of Booking: {bookingLengthText}</p>
+                      <p className='pt-2 text-xl font-semibold'>Total Cost: {selectedCurrency?.toUpperCase()}{selectedCurrencySymbol}{Number(totalCharge).toFixed(2)}</p>
+                    </div>
 
-                    <p> Length of Booking: {bookingLengthText}</p>
-                    <p className='pt-2 text-xl font-semibold'>Total: {selectedCurrency?.toUpperCase()}{selectedCurrencySymbol}{Number(totalCharge).toFixed(2)}</p>
+                    <div className="flex flex-row justify-center items-center gap-x-2">
+
+                      <label className="flex justify-center items-center pr-2 font-semibold">Currency:</label>
+
+                      <select onChange={(event)=>setPaymentCurrency(event.target.value)}
+                      value={paymentCurrency}
+                      className={`pl-6 w-30 md:w-40 h-9 border border-gray-primary justify-center items-center`}>
+
+                          {userCurrencies?.length>0 && userCurrencies.map( (e) =>
+                          
+                              <option key={`${e.currency}_incoming`} value={`${e.currency.toLowerCase()}`}>{e.currencySymbol}{e.currency.toUpperCase()}</option>
+                          )}
+
+                      </select> 
+
+                      </div>
+
+                    <div className='text-xl text-center pt-1 font-semibold'>
+                      My Account Balance
+                    </div>
+                    
+                    <div className='flex flex-col justify-center items-center pb-3'>
+                      <p className="text-lg">In Wallet: {paymentCurrency.toUpperCase()} {paymentCurrencySymbol}{accountBalance.toFixed(2)}</p>
+                      <p className="text-lg">On Hold: {paymentCurrency.toUpperCase()} {paymentCurrencySymbol}{escrowBalance.toFixed(2)}</p>
+                    </div>
 
                     <button className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] 
-                      hover:bg-[#00D3E0] flex flex-row gap-x-2 justify-center items-center ${!termschecked ? "cursor-notallowed " : "cursor-pointer"}`}
+                     flex flex-row gap-x-2 justify-center items-center ${!termschecked ? "cursor-not-allowed hover:bg-gray-400" : "cursor-pointer hover:bg-[#00D3E0]"}`}
                       onClick={(e)=>handleAddAppointment(e)}
                       disabled={!termschecked}>
 
@@ -1932,6 +1929,7 @@ const {scrollToTime} = useMemo(
 
                     <div className='flex flex-row ml-2'>
                         <input  
+                          className='w-5 h-5'
                             type="checkbox" 
                             id='termsagree'
                             onChange={toggleTerms}
@@ -1945,18 +1943,19 @@ const {scrollToTime} = useMemo(
                     </div>
 
                     <div className='flex flex-col pt-4'>
+                      
                       <div className='flex flex-row justify-center'>
-                      <span className='bg-[#F97316] h-[50px] w-[100px] flex justify-center items-center p-2'>Proposed Time</span>
-                      <span className='bg-[#8BEDF3] h-[50px] w-[100px] flex justify-center items-center p-2'>Booked Time</span>
-                      <span className='bg-[#FFE142] h-[50px] w-[100px] flex justify-center items-center p-2'>Your Booking</span>
-                      <span className='bg-[#D1D5DB] h-[50px] w-[100px] flex justify-center items-center p-2'>Available</span>
-                    </div>
+                      <span className='bg-[#8BEDF3] h-[50px] w-[100px] flex justify-center items-center p-2'>3rd Party Bookings</span>
+                        <span className='bg-[#F97316] h-[50px] w-[100px] flex justify-center items-center p-2'>Your Requests</span>
+                        <span className='bg-[#FFE142] h-[50px] w-[100px] flex justify-center items-center p-2'>Your Bookings</span>
+                        <span className='bg-[#D1D5DB] h-[50px] w-[100px] flex justify-center items-center p-2'>Available</span>
+                      </div>
 
-                    <p className='text-lg text-center pt-4 pb-2'>Location Schedule</p>
+                      <p className='text-lg text-center pt-4 pb-2'>Location Schedule</p>
 
                     <DnDCalendar
 
-                      style={{ height: "500px" }}
+                      style={{ height: "500px"}}
 
                       date={date}
                       defaultView="day"
@@ -1983,7 +1982,7 @@ const {scrollToTime} = useMemo(
                             backgroundColor: "#D1D5DB",
                             color: 'black',
                             borderRadius: "0px",
-                            border: "none"
+                            border: "none",
                           };
                     
                           if (event.requesterId === auth.userId){
@@ -1992,11 +1991,17 @@ const {scrollToTime} = useMemo(
                           
                           } else if (event.title === "Available"){
 
-                            newStyle.backgroundColor = "#8BEDF3"
+                            newStyle.backgroundColor = "#D1D5DB"
+                            newStyle.marginRight = "60px"
+                            newStyle.width = "60%"
                           
-                          } else if (event.title !== "Proposed Booking Time"){
+                          } else if (event.title === "Requested Booking Time"){
 
                             newStyle.backgroundColor = "#F97316"
+                          
+                          } else {
+
+                            newStyle.backgroundColor = "#8BEDF3"
                           }
                     
                           return {

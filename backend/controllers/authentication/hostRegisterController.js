@@ -25,7 +25,7 @@ const handleNewHost = async (req, res) => {
     } 
 
     if(email?.length > 48 || firstName?.length > 48 || lastName?.length > 48 || pwd?.length < 8 || pwd?.length > 48 
-        || address?.length > 48  || city?.length > 48  || region?.length > 48 || regionCode?.length > 48 || country?.length > 48 ){
+        || address?.length > 250  || city?.length > 100  || region?.length > 100 || regionCode?.length > 48 || country?.length > 100 ){
             return res.status(400).json({ 'message': 'Content does not meet requirements' });
         }
 

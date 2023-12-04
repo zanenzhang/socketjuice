@@ -2,8 +2,6 @@ import axios from "../../api/axios";
 
 async function getHostProfilesCoord(coordinatesInput, dayofweek, localtime, loggedUserId, accessToken)  {
 
-        console.log(coordinatesInput, dayofweek, localtime, loggedUserId)
-
     try {
         const response = await axios.get('/profile/hostcoord/',
         {

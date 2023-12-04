@@ -2,6 +2,7 @@ const User = require('../../model/User')
 const HostProfile = require('../../model/HostProfile');
 const Bookmark = require('../../model/Bookmark');
 const Flags = require('../../model/Flags')
+const Appointment = require('../../model/Appointment')
 
 const languageList = require('../languageCheck');
 const ObjectId  = require('mongodb').ObjectId;
@@ -194,18 +195,18 @@ const getHostProfilesCoord = async (req, res) => {
             var current = new Date()
 
             const checkAppointments = await Appointment.find(
-                {$and:[
-                    {_hostUserId: {$in: preFoundHostProfiles.map(e => e._userId)}}, 
-                    {$or: [ 
-                        { start : { $lte: current }, end : { $gt: current } },
-                        { start : { $lt: current }, end : { $gte: current } },
-                        { start : { $gte: current }, end : { $lte: current } }]}, 
-                    {$or: [{status: "Approved" }, {status: "Requested" }]}
-                ]})
+            {$and:[
+                {_hostUserId: {$in: preFoundHostProfiles.map(e => e._userId)}}, 
+                {$or: [ 
+                    { start : { $lte: current }, end : { $gt: current } },
+                    { start : { $lt: current }, end : { $gte: current } },
+                    { start : { $gte: current }, end : { $lte: current } }]}, 
+                {$or: [{status: "Approved" }, {status: "Requested" }]}
+            ]})
 
 
             var appointmentCheck = {}
-            var doneAppointmentChecks = false;
+            var doneAppointmentChecks = null;
 
             if(checkAppointments){
 
@@ -225,12 +226,6 @@ const getHostProfilesCoord = async (req, res) => {
             if(doneAppointmentChecks){
 
                 for(let i=0; i<preFoundHostProfiles?.length; i++){
-
-                    if(appointmentCheck[preFoundHostProfiles[i]._userId] !== undefined){
-                        preFoundHostProfiles[i].availableNow = false;
-                    } else {
-                        preFoundHostProfiles[i].availableNow = true;
-                    }
     
                     if(preFoundHostProfiles[i][allDayString]){
                     
@@ -255,6 +250,12 @@ const getHostProfilesCoord = async (req, res) => {
                 }
     
                 foundHostProfiles?.forEach(function(item, index){
+
+                    if(appointmentCheck[item._userId] !== undefined){
+                        item.availableNow = false;
+                    } else {
+                        item.availableNow = true;
+                    }
     
                     if(item.mediaCarouselURLs?.length === 0 && item.mediaCarouselObjectIds?.length > 0){
         
