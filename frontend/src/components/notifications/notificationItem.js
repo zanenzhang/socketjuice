@@ -7,29 +7,29 @@ function NotificationItem({notiLine}) {
 
     useEffect( ()=> {
 
-        if(notiLine){
-            console.log(notiLine)
-        }
+        if(notiLine?.notificationType === "Requested"){
 
-        if(notiLine?.notificationType === "Rejected"){
+            setMessage(`Received a booking request starting at ${new Date(notiLine.start).toLocaleTimeString()}, ending at ${new Date(notiLine.end).toLocaleTimeString()}. Please review under the bookings page`)
 
-            setMessage(`Apologies, your booking request at ${notiLine?.appointment?.start.toLocaleTimeString()} was not accepted or someone else beat you to the time slot. Please try another booking request`)
+        } else if(notiLine?.notificationType === "Rejected"){
+
+            setMessage(`Apologies, your booking request at ${new Date(notiLine.start).toLocaleTimeString()} was not accepted or someone else beat you to the time slot. Please try another booking request`)
 
         } else if (notiLine?.notificationType === "Approved"){
 
-            setMessage(`Awesome, your booking request at ${notiLine?.appointment?.start.toLocaleTimeString()} was approved. Happy charging!`)
+            setMessage(`Awesome, your booking request at ${new Date(notiLine.start).toLocaleTimeString()} was approved. Happy charging!`)
 
         } else if (notiLine?.notificationType === "CancelSubmitted"){
 
-            setMessage(`Your cancellation request at ${notiLine?.appointment?.start.toLocaleTimeString()} was submitted. `)
+            setMessage(`Your cancellation request at ${new Date(notiLine.start).toLocaleTimeString()} was submitted. `)
 
         } else if (notiLine?.notificationType === "Cancelled"){
 
-            setMessage(`Your booking at ${notiLine?.appointment?.start.toLocaleTimeString()} was cancelled and refunded. `)
+            setMessage(`Your booking at ${new Date(notiLine.start).toLocaleTimeString()} was cancelled and refunded. `)
 
         } else if (notiLine?.notificationType === "Completed"){
 
-            setMessage(`Your booking that started at ${notiLine?.appointment?.start.toLocaleTimeString()} has ended. `)
+            setMessage(`Your booking that started at ${new Date(notiLine.start).toLocaleTimeString()} has ended. `)
         
         } 
 

@@ -37,6 +37,8 @@ export default function NotificationsDropdown() {
 
       if(notis){
 
+        console.log(notis)
+
         if(notis.status === 403){
 
           logout();
@@ -222,12 +224,7 @@ export default function NotificationsDropdown() {
 
       (
         <button type="button" title='Notification Dropdown' 
-        onClick={(event)=>handleClick(event)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter"){
-                
-            }
-        }}>
+        onClick={(event)=>handleClick(event)}>
 
       <svg 
         xmlns="http://www.w3.org/2000/svg" 

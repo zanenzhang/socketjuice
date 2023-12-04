@@ -193,9 +193,28 @@ const getDriverAppointments = async (req, res) => {
 
             if(foundHostProfiles && foundHostProfiles?.length > 0){
 
-                userData = await User.find({_id: {$in: foundHostProfiles.map(e=>e._userId)}}).select("_id profilePicURL phonePrimary firstName lastName")
+                userData = await User.find({_id: {$in: foundHostProfiles.map(e=>e._userId)}}).select("_id profilePicURL plateObjectId plateMediaURL phonePrimary firstName lastName")
 
-                if(userData){
+                if(userData?.length > 0){
+
+                    userData?.forEach(function(item, index){
+
+                        if(item.plateObjectId){
+            
+                            var signParamsPlate = {
+                                Bucket: wasabiPrivateBucketUSA, 
+                                Key: item.plateObjectId,
+                                Expires: 7200
+                            };
+                
+                            var plateUrl = s3.getSignedUrl('getObject', signParamsPlate);
+                        
+                            item.plateMediaURL = plateUrl
+            
+                            item.update()
+            
+                        }  
+                    })
                 
                     doneData = true;
                 

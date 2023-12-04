@@ -84,7 +84,8 @@ const BookingsPage = () => {
   const [driverAppointments, setDriverAppointments] = useState([])
   const [newrequest, setNewrequest] = useState(0);
 
-  const [termschecked, setTermschecked] = useState(false);
+  const [termscheckedDriver, setTermscheckedDriver] = useState(false);
+  const [termscheckedHost, setTermscheckedHost] = useState(false);
 
   const [hostEvents, setHostEvents] = useState([])
   const [driverEvents, setDriverEvents] = useState([])
@@ -95,6 +96,7 @@ const BookingsPage = () => {
 
   const [chargeRate, setChargeRate] = useState(3.0);
   const [chargeRateFee, setChargeRateFee] = useState(3.5);
+  const [chargeTotal, setChargeTotal] = useState(3.5);
   const [currency, setCurrency] = useState("cad");
   const [currencySymbol, setCurrencySymbol] = useState("$");
   const [connectorType, setConnectorType] = useState("AC-J1772-Type1");
@@ -447,6 +449,7 @@ useEffect( () => {
   const [selectedEventStatus, setSelectedEventStatus] = useState("")
   const [selectedEventStart, setSelectedEventStart] = useState("")
   const [selectedEventEnd, setSelectedEventEnd] = useState("")
+  const [selectedPlateURL, setSelectedPlateURL] = useState("")
   const [driverRequestedCancel, setDriverRequestedCancel] = useState(false)
   const [hostRequestedCancel, setHostRequestedCancel] = useState(false)
   
@@ -484,8 +487,12 @@ useEffect( () => {
 
   }
 
-  const toggleTerms = () => {
-    setTermschecked(prev => !prev);
+  const toggleTermsDriver = () => {
+    setTermscheckedDriver(prev => !prev);
+  }
+
+  const toggleTermsHost = () => {
+    setTermscheckedHost(prev => !prev);
   }
 
   const handleMessageDriver = async () => {
@@ -546,6 +553,7 @@ useEffect( () => {
     setSelectedAddress(hostevent.address)
     setSelectedEventStart(hostevent.start.toLocaleTimeString())
     setSelectedEventEnd(hostevent.end.toLocaleTimeString())
+    setSelectedPlateURL(hostevent.driverPlateMediaURL)
     setSelectedEventStatus(hostevent.status)
     
     setDriverRequestedCancel(hostevent.driverRequestedCancel)
@@ -557,7 +565,7 @@ useEffect( () => {
     setSelectedCurrency(hostevent.currency)
     setSelectedCurrencySymbol(hostevent.currencySymbol)
 
-    var charge = ((hostevent.end - hostevent.end) / 1000 / 1800) * hostevent.chargeRatePerHalfHourFee
+    var charge = ((hostevent.end - hostevent.start) / 1000 / 1800) * hostevent.chargeRatePerHalfHour
     setSelectedChargeRate(hostevent.chargeRate)
     setSelectedTotalCharge(charge)
 
@@ -584,6 +592,7 @@ useEffect( () => {
     setSelectedAddress(driverevent.address)
     setSelectedEventStart(driverevent.start.toLocaleTimeString())
     setSelectedEventEnd(driverevent.end.toLocaleTimeString())
+    setSelectedPlateURL(driverevent.driverPlateMediaURL)
     setSelectedEventStatus(driverevent.status)
     
     setDriverRequestedCancel(driverevent.driverRequestedCancel)
@@ -595,7 +604,7 @@ useEffect( () => {
     setSelectedCurrency(driverevent.currency)
     setSelectedCurrencySymbol(driverevent.currencySymbol)
 
-    var charge = ((driverevent.end - driverevent.end) / 1000 / 1800) * driverevent.chargeRatePerHalfHourFee
+    var charge = ((driverevent.end - driverevent.start) / 1000 / 1800) * driverevent.chargeRatePerHalfHourFee
     setSelectedChargeRate(driverevent.chargeRate)
     setSelectedTotalCharge(charge)
 
@@ -1348,6 +1357,7 @@ const handleRegularHourChangeEnd = (event, day) => {
       setSelectedAddress(e.address)
       setSelectedEventStart(e.start.toLocaleTimeString())
       setSelectedEventEnd(e.end.toLocaleTimeString())
+      setSelectedPlateURL(e.driverPlateMediaURL)
       setSelectedEventStatus(e.status)
       
       setDriverRequestedCancel(e.driverRequestedCancel)
@@ -1374,6 +1384,7 @@ const handleRegularHourChangeEnd = (event, day) => {
       setSelectedAddress(e.address)
       setSelectedEventStart(e.start.toLocaleTimeString())
       setSelectedEventEnd(e.end.toLocaleTimeString())
+      setSelectedPlateURL(e.driverPlateMediaURL)
       setSelectedEventStatus(e.status)
       
       setDriverRequestedCancel(e.driverRequestedCancel)
@@ -1433,6 +1444,7 @@ const handleRegularHourChangeEnd = (event, day) => {
               hostresults.hostAppointments[i].hostPlateMediaURL = hostuserdata[hostresults.hostAppointments[i]._hostUserId].plateMediaURL
               hostresults.hostAppointments[i].hostFirstName = hostuserdata[hostresults.hostAppointments[i]._hostUserId].firstName
               hostresults.hostAppointments[i].hostLastName = hostuserdata[hostresults.hostAppointments[i]._hostUserId].lastName
+              hostresults.hostAppointments[i].phonePrimary = hostuserdata[hostresults.hostAppointments[i]._hostUserId].phonePrimary
             }
 
             if(hostuserdata[hostresults.hostAppointments[i]._requestUserId] !== undefined){
@@ -1440,12 +1452,13 @@ const handleRegularHourChangeEnd = (event, day) => {
               hostresults.hostAppointments[i].driverPlateMediaURL = hostuserdata[hostresults.hostAppointments[i]._requestUserId].plateMediaURL
               hostresults.hostAppointments[i].driverFirstName = hostuserdata[hostresults.hostAppointments[i]._requestUserId].firstName
               hostresults.hostAppointments[i].driverLastName = hostuserdata[hostresults.hostAppointments[i]._requestUserId].lastName
+              hostresults.hostAppointments[i].phonePrimary = hostuserdata[hostresults.hostAppointments[i]._requestUserId].phonePrimary
             }
             
             var instance = {
               id: `booking_${hostresults.hostAppointments[i]._id}`,
               appointmentId: hostresults.hostAppointments[i]._id, 
-              title: "Booked Time",
+              title: `Booked Time - ${hostresults.hostAppointments[i].firstName}`,
               address: hostresults.hostAppointments[i].address,
               location: [hostresults.hostAppointments[i].locationlat, hostresults.hostAppointments[i].locationlng],
               status: hostresults.hostAppointments[i].status,
@@ -1457,17 +1470,19 @@ const handleRegularHourChangeEnd = (event, day) => {
               hostRequestedCancel: hostresults.hostAppointments[i].cancelRequestHostSubmit,
               
               hostProfilePicURL: hostresults.hostAppointments[i].hostProfilePicURL,
+              hostPlateMediaURL: hostresults.hostAppointments[i].hostPlateMediaURL,
               hostFirstName: hostresults.hostAppointments[i].hostFirstName,
               hostLastName: hostresults.hostAppointments[i].hostLastName,
 
               driverProfilePicURL: hostresults.hostAppointments[i].driverProfilePicURL,
+              driverPlateMediaURL: hostresults.hostAppointments[i].driverPlateMediaURL,
               driverFirstName: hostresults.hostAppointments[i].driverFirstName,
               driverLastName: hostresults.hostAppointments[i].driverLastName,
 
-              chargeRatePerHalfHour:  hostresults.hostAppointments[i].chargeRatePerHalfHour,
-              chargeRatePerHalfHourFee:  hostresults.hostAppointments[i].chargeRatePerHalfHourFee,
-              currency:  hostresults.hostAppointments[i].currency,
-              currencySymbol:  hostresults.hostAppointments[i].currencySymbol,
+              chargeRatePerHalfHour: hostresults.hostAppointments[i].chargeRatePerHalfHour,
+              chargeRatePerHalfHourFee: hostresults.hostAppointments[i].chargeRatePerHalfHourFee,
+              currency: hostresults.hostAppointments[i].currency,
+              currencySymbol: hostresults.hostAppointments[i].currencySymbol,
 
               isDraggable: true
             }
@@ -1483,7 +1498,7 @@ const handleRegularHourChangeEnd = (event, day) => {
         }
       }
   
-      if(currentDateHost && auth.userId && value === "0" && newrequest > 0){
+      if((currentDateHost && auth.userId && value === "0") || (newrequest > 0) ){
         hostAppointments()
       }
   
@@ -1519,6 +1534,8 @@ const handleRegularHourChangeEnd = (event, day) => {
         const driverresults = await getDriverAppointments(auth.userId, currentDateDriver, auth.accessToken, auth.userId)
   
         if(driverresults){
+
+          console.log(driverresults)
   
           var newevents = [];
           var hostprofiledata = {};
@@ -1550,20 +1567,24 @@ const handleRegularHourChangeEnd = (event, day) => {
 
             if(hostuserdata[driverresults.userAppointments[i]._hostUserId]){
               driverresults.userAppointments[i].hostProfilePicURL = hostuserdata[driverresults.userAppointments[i]._hostUserId].profilePicURL
+              driverresults.userAppointments[i].hostPlateMediaURL = hostuserdata[driverresults.userAppointments[i]._hostUserId].plateMediaURL
               driverresults.userAppointments[i].hostFirstName = hostuserdata[driverresults.userAppointments[i]._hostUserId].firstName
               driverresults.userAppointments[i].hostLastName = hostuserdata[driverresults.userAppointments[i]._hostUserId].lastName
+              driverresults.userAppointments[i].phonePrimary = hostuserdata[driverresults.userAppointments[i]._hostUserId].phonePrimary
             }
 
             if(hostuserdata[driverresults.userAppointments[i]._requestUserId]){
               driverresults.userAppointments[i].driverProfilePicURL = hostuserdata[driverresults.userAppointments[i]._requestUserId].profilePicURL
+              driverresults.userAppointments[i].driverPlateMediaURL = hostuserdata[driverresults.userAppointments[i]._requestUserId].plateMediaURL
               driverresults.userAppointments[i].driverFirstName = hostuserdata[driverresults.userAppointments[i]._requestUserId].firstName
               driverresults.userAppointments[i].driverLastName = hostuserdata[driverresults.userAppointments[i]._requestUserId].lastName
+              driverresults.userAppointments[i].phonePrimary = hostuserdata[driverresults.userAppointments[i]._requestUserId].phonePrimary
             }
             
             var instance = {
               id: `booking_${driverresults.userAppointments[i]._id}`,
               appointmentId: driverresults.userAppointments[i]._id, 
-              title: "Booked Time",
+              title: `Booked Time - ${driverresults.userAppointments[i].driverFirstName}`,
               address: driverresults.userAppointments[i].address,
               location: [driverresults.userAppointments[i].locationlat, driverresults.userAppointments[i].locationlng],
               status: driverresults.userAppointments[i].status,
@@ -1575,17 +1596,19 @@ const handleRegularHourChangeEnd = (event, day) => {
               hostRequestedCancel: driverresults.userAppointments[i].cancelRequestHostSubmit,
               
               hostProfilePicURL: driverresults.userAppointments[i].hostProfilePicURL,
+              hostPlateMediaURL: driverresults.userAppointments[i].hostPlateMediaURL,
               hostFirstName: driverresults.userAppointments[i].hostFirstName,
               hostLastName: driverresults.userAppointments[i].hostLastName,
 
               driverProfilePicURL: driverresults.userAppointments[i].driverProfilePicURL,
+              driverPlateMediaURL: driverresults.userAppointments[i].driverPlateMediaURL,
               driverFirstName: driverresults.userAppointments[i].driverFirstName,
               driverLastName: driverresults.userAppointments[i].driverLastName,
 
-              chargeRatePerHalfHour:  driverresults.userAppointments[i].chargeRatePerHalfHour,
-              chargeRatePerHalfHourFee:  driverresults.userAppointments[i].chargeRatePerHalfHourFee,
-              currency:  driverresults.userAppointments[i].currency,
-              currencySymbol:  driverresults.userAppointments[i].currencySymbol,
+              chargeRatePerHalfHour: driverresults.userAppointments[i].chargeRatePerHalfHour,
+              chargeRatePerHalfHourFee: driverresults.userAppointments[i].chargeRatePerHalfHourFee,
+              currency: driverresults.userAppointments[i].currency,
+              currencySymbol: driverresults.userAppointments[i].currencySymbol,
 
               isDraggable: true
             }
@@ -1598,7 +1621,7 @@ const handleRegularHourChangeEnd = (event, day) => {
         }
       }
   
-      if(currentDateDriver && auth.userId && value === "1" && newrequest > 0){
+      if ( (currentDateDriver && auth.userId && value === "1") || (newrequest > 0) ){
         driverAppointments()
       }
   
@@ -1649,18 +1672,14 @@ const handleRegularHourChangeEnd = (event, day) => {
 
               {hostEvents.map((event) => (
                 
-                <div key={event.id} className='flex flex-row w-full border border-[#00D3E0]'
+                <div key={event.id} className='flex flex-row w-full border border-[#00D3E0] justify-center items-center py-1 px-3'
                   onClick={(e)=>{handleHostEventListClick(e, event)}}>
 
-                  <div className='flex flex-col p-4 flex-shrink-0'>
-                    <img className='w-[50px] rounded-full' src={event.driverProfilePicURL} />
+                  <div className='flex flex-col flex-shrink-0'>
+                    <img className='w-[70px] rounded-full border border-gray-400' src={event.driverProfilePicURL} />
                   </div>
 
-                  <div className='flex flex-col'>
-                    <img className='w-[50px]' src={event.driverPlateMediaURL} />
-                  </div>
-
-                  <div className='flex flex-col gap-y-1 pl-4'>
+                  <div className='flex flex-col gap-y-1 pl-6'>
                     <p>Booked By: {event.driverFirstName}</p>
                     <p>Start: {event.start.toLocaleTimeString()}</p>
                     <p>End: {event.end.toLocaleTimeString()}</p>
@@ -1688,8 +1707,9 @@ const handleRegularHourChangeEnd = (event, day) => {
                 <div className='pt-4 pb-4 flex flex-col gap-y-3'>
 
                     <div className='flex flex-row justify-center py-2'>
-                        <span className='bg-[#FFE142] h-[50px] w-[100px] flex justify-center items-center p-2'>Your Bookings</span>
-                      </div>
+                      <span className='bg-[#8BEDF3] h-[50px] w-[100px] flex justify-center items-center p-2'>Incoming Bookings</span>
+                      <span className='bg-[#FFE142] h-[50px] w-[100px] flex justify-center items-center p-2'>Your Bookings</span>
+                    </div>
 
                     <DnDCalendar
 
@@ -1713,7 +1733,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                       eventPropGetter={
                         (event) => {
                           let newStyle = {
-                            backgroundColor: "#00D3E0",
+                            backgroundColor: "#8BEDF3",
                             color: 'black',
                             borderRadius: "0px",
                             border: "none"
@@ -2656,14 +2676,14 @@ const handleRegularHourChangeEnd = (event, day) => {
 
               {driverEvents.map((event) => (
                 
-                <div key={event.id} className='flex flex-row w-full border border-[#00D3E0]'
+                <div key={event.id} className='flex flex-row w-full border border-[#00D3E0] justify-center items-center py-1 px-3'
                   onClick={(e)=>{handleDriverEventListClick(e, event)}}>
 
-                  <div className='flex flex-col p-4 flex-shrink-0'>
-                    <img className='w-[50px] rounded-full' src={event.hostProfilePicURL} />
+                  <div className='flex flex-col flex-shrink-0'>
+                    <img className='w-[70px] rounded-full border border-gray-400' src={event.hostProfilePicURL} />
                   </div>
 
-                  <div className='flex flex-col gap-y-1 pl-4'>
+                  <div className='flex flex-col gap-y-1 pl-6'>
                     <p>Address: {event.address.slice(0, (event.address.lastIndexOf(',', (event.address).lastIndexOf(',')-1))) }</p>
                     <p>Start: {event.start.toLocaleTimeString()}</p>
                     <p>End: {event.end.toLocaleTimeString()}</p>
@@ -2694,6 +2714,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                     <div className='pt-4 pb-4 flex flex-col gap-y-3'>
 
                         <div className='flex flex-row justify-center py-2'>
+                          <span className='bg-[#8BEDF3] h-[50px] w-[100px] flex justify-center items-center p-2'>Incoming Bookings</span>
                           <span className='bg-[#FFE142] h-[50px] w-[100px] flex justify-center items-center p-2'>Your Bookings</span>
                         </div>
 
@@ -2759,20 +2780,40 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                 <div className='pt-1 pb-4 flex flex-col gap-y-3'>
 
-                    <p className='text-center text-lg font-semibold'>Details of Outgoing Booking Request</p>
+                  <div className='w-full flex flex-col justify-center items-center gap-y-2'>
 
-                    <img className='w-[350px] h-[350px]' src={`https://maps.googleapis.com/maps/api/staticmap?center=${selectedAddress}&zoom=14&size=300x300&markers=color:yellow%7C${selectedLat},${selectedLng}&maptype=roadmap&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`} />
-                    
-                    <p>Start Time: {selectedEventStart}</p>
-                    <p>End Time: {selectedEventEnd}</p>
-                    <p>Status: {(driverRequestedCancel && selectedEventStatus !== "Cancelled") ? "You Asked To Cancel" : ( (hostRequestedCancel && selectedEventStatus !== "Cancelled" ) ? "You Asked to Cancel" : (selectedEventStatus === "Requested" ? "Booking Requested" : (selectedEventStatus === "Approved" ? "Approved" : (selectedEventStatus === "Cancelled" ? "Cancelled" : (selectedEventStatus === "Completed" ? "Completed" : "Waiting") )))) }</p>
-                    <p className='text-xl font-semibold'>Total: {selectedCurrency?.toUpperCase()}{selectedCurrencySymbol}{Number(selectedTotalCharge).toFixed(2)}</p>
+                      <p className='text-center text-lg font-semibold'>Details of Outgoing Booking Request</p>
+
+                      <img className='w-[350px] h-[350px]' src={`https://maps.googleapis.com/maps/api/staticmap?center=${selectedAddress}&zoom=14&size=300x300&markers=color:yellow%7C${selectedLat},${selectedLng}&maptype=roadmap&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`} />
+
+                      <img className='w-[200px] h-[200px]' src={selectedPlateURL} />
+                      
+                      <p>Booking With: {selectedHostFirstName}</p>
+                      <p>Start Time: {selectedEventStart}</p>
+                      <p>End Time: {selectedEventEnd}</p>
+                      <p>Status: {(driverRequestedCancel && selectedEventStatus !== "Cancelled") ? "You Asked To Cancel" : ( (hostRequestedCancel && selectedEventStatus !== "Cancelled" ) ? "You Asked to Cancel" : (selectedEventStatus === "Requested" ? "Booking Requested" : (selectedEventStatus === "Approved" ? "Approved" : (selectedEventStatus === "Cancelled" ? "Cancelled" : (selectedEventStatus === "Completed" ? "Completed" : "Waiting") )))) }</p>
+                      <p className='text-xl font-semibold'>Total: {selectedCurrency?.toUpperCase()}{selectedCurrencySymbol}{Number(selectedTotalCharge).toFixed(2)}</p>
+
+                    </div>
+
+                    <div className='flex flex-row ml-2 py-2'>
+                        <input  
+                            className='w-5 h-5'
+                            type="checkbox" 
+                            id='termsagree'
+                            onChange={toggleTermsDriver}
+                            checked={termscheckedDriver}
+                        />
+                        <label className='ml-2 text-sm font-medium md:text-base' htmlFor="termsagree">{`I agree to the `}
+                            <button className='text-blue-900 underline' onClick={(e)=>handleTermsClick(e)}> 
+                              Terms of Service</button></label>
+                    </div>
 
                     {(selectedEventStatus !== "Requested") &&
                     
-                    <button disabled={selectedEventStatus === "Approved" || selectedEventStatus === "Cancelled" || driverRequestedCancel} 
+                    <button disabled={selectedEventStatus === "Approved" || selectedEventStatus === "Cancelled" || driverRequestedCancel || !termscheckedDriver} 
                       className={`border border-gray-300 px-3 py-2 rounded-xl gap-x-2 flex flex-row justify-center items-center
-                      ${ (selectedEventStatus === "Completed" || selectedEventStatus === "Cancelled" || driverRequestedCancel) ? "bg-[#c1f2f5] cursor-not-allowed" : "bg-[#c1f2f5] hover:bg-[#00D3E0] " } `}
+                      ${ (selectedEventStatus === "Completed" || selectedEventStatus === "Cancelled" || driverRequestedCancel || !termscheckedDriver) ? "bg-[#c1f2f5] cursor-not-allowed" : "bg-[#c1f2f5] hover:bg-[#00D3E0] " } `}
                       onClick={(e)=>handleEventActionDriver(e)}>
 
                     {waitingSubmit && 
@@ -2795,8 +2836,9 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                     {selectedEventStatus === "Requested" && 
                       <button 
-                      className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]
+                      className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] ${!termscheckedDriver ? "hover:bg-gray-300 cursor-not-allowed" : "hover:bg-[#00D3E0] cursor-pointer" } 
                         gap-x-2 flex flex-row justify-center items-center`}
+                        disabled={!termscheckedDriver}
                       onClick={(e)=>handleEventRejectDriver(e)}>
 
                     {waitingCancel && 
@@ -2818,6 +2860,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                     {(selectedEventStatus === "Approved" && !driverRequestedCancel) && 
                       <button className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0] 
                         gap-x-2 flex flex-row justify-center items-center`}
+                        disabled={!termscheckedDriver}
                       onClick={(e)=>handleEventCancelDriver(e)}>
 
                       {waitingCancel && 
@@ -2836,7 +2879,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                         Approved - Request to Cancel
                       </button>}
 
-                    {(selectedAddress && selectedHostUserId !== auth.userId) && 
+                    {(selectedAddress && selectedHostUserId !== auth.userId && selectedEventStatus !== "Requested") && 
                     <button className='border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]'
                       onClick={(e)=>handleLinkURLDirections(e)}>
                         Get Directions (Opens Map)
@@ -2879,21 +2922,43 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                 <div className='pt-1 pb-4 flex flex-col gap-y-3'>
 
-                    <p className='text-center text-lg font-semibold'>Details of Incoming Booking Request</p>
+                    <div className='w-full flex flex-col justify-center items-center gap-y-2'>
 
-                    <img className='w-[350px] h-[350px]' src={`https://maps.googleapis.com/maps/api/staticmap?center=${selectedAddress}&zoom=14&size=300x300&markers=color:yellow%7C${selectedLat},${selectedLng}&maptype=roadmap&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`} />
-                    
-                    <p>Start Time: {selectedEventStart}</p>
-                    <p>End Time: {selectedEventEnd}</p>
-                    <p>Status: {(driverRequestedCancel && selectedEventStatus === "CancelSubmitted") ? "Driver Requested To Cancel" : ((selectedEventStatus === "Requested" ? "Booking Requested" : (selectedEventStatus === "Approved" ? "Approved" : (selectedEventStatus === "Cancelled" ? "Cancelled" : "Completed")))) }</p>
-                    <p className='text-xl font-semibold'>Total: {selectedCurrency?.toUpperCase()}{selectedCurrencySymbol}{Number(selectedTotalCharge).toFixed(2)}</p>
+                      <p className='text-center text-lg font-semibold'>Details of Incoming Booking Request</p>
+
+                      <img className='w-[350px] h-[350px]' src={`https://maps.googleapis.com/maps/api/staticmap?center=${selectedAddress}&zoom=14&size=300x300&markers=color:yellow%7C${selectedLat},${selectedLng}&maptype=roadmap&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`} />
+
+                      <img className='w-[200px] h-[200px]' src={selectedPlateURL}/>
+                      
+                      <p>Booked By: {selectedDriverFirstName}</p>
+                      <p>Start Time: {selectedEventStart}</p>
+                      <p>End Time: {selectedEventEnd}</p>
+                      <p>Status: {(driverRequestedCancel && selectedEventStatus === "CancelSubmitted") ? "Driver Requested To Cancel" : ((selectedEventStatus === "Requested" ? "Booking Requested" : (selectedEventStatus === "Approved" ? "Approved" : (selectedEventStatus === "Cancelled" ? "Cancelled" : "Completed")))) }</p>
+                      <p className='text-xl font-semibold'>Total: {selectedCurrency?.toUpperCase()}{selectedCurrencySymbol}{Number(selectedTotalCharge).toFixed(2)}</p>
+
+                    </div>
+
+                    <div className='flex flex-row ml-2 py-2'>
+                        <input  
+                            className='w-5 h-5'
+                            type="checkbox" 
+                            id='termsagree'
+                            onChange={toggleTermsHost}
+                            checked={termscheckedHost}
+                        />
+                        <label className='ml-2 text-sm font-medium md:text-base' htmlFor="termsagree">{`I agree to the `}
+                            <button className='text-blue-900 underline' onClick={(e)=>handleTermsClick(e)}> 
+                              Terms of Service</button></label>
+                    </div>
 
                     <button   
-                      disabled={(selectedEventStatus === "Approved" || selectedEventStatus === "Cancelled" || hostRequestedCancel || !termschecked )} 
+                      disabled={(selectedEventStatus === "Approved" || selectedEventStatus === "Cancelled" || hostRequestedCancel || !termscheckedHost )} 
+                      
                       className={`border border-gray-300 px-3 py-2 rounded-xl 
                       ${(selectedEventStatus === "Completed" || selectedEventStatus === "Cancelled" 
-                      || hostRequestedCancel || !termschecked) ? "bg-[#c1f2f5] cursor-not-allowed" : "cursor-pointer bg-[#c1f2f5] hover:bg-[#00D3E0] " } 
+                      || hostRequestedCancel || !termscheckedHost) ? "bg-[#c1f2f5] cursor-not-allowed" : "cursor-pointer bg-[#c1f2f5] hover:bg-[#00D3E0] " } 
                         gap-x-2 flex flex-row justify-center items-center`}
+
                       onClick={(e)=>handleEventActionHost(e)}>
 
                       {waitingSubmit && 
@@ -2916,22 +2981,14 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                     </button>
 
-                    <div className='flex flex-row ml-2'>
-                        <input  
-                            type="checkbox" 
-                            id='termsagree'
-                            onChange={toggleTerms}
-                            checked={termschecked}
-                        />
-                        <label className='ml-2 text-sm font-medium md:text-base' htmlFor="termsagree">{`I agree to the `}
-                            <button className='text-blue-900 underline' onClick={(e)=>handleTermsClick(e)}> 
-                              Terms of Service</button></label>
-                    </div>
-
                     {selectedEventStatus === "Requested" && 
                     <button 
-                      className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]
+
+                    className={`border border-gray-300 px-3 py-2 rounded-xl 
+                      ${(!termscheckedHost ) ? "bg-[#c1f2f5] cursor-not-allowed" : "cursor-pointer bg-[#c1f2f5] hover:bg-[#00D3E0] " } 
                         gap-x-2 flex flex-row justify-center items-center`}
+                    
+                        disabled={(selectedEventStatus === "Cancelled" || !termscheckedHost )} 
                       onClick={(e)=>handleEventRejectHost(e)}>
 
                     {waitingCancel && 
@@ -2946,7 +3003,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                           </svg>
                       </div>}
 
-                        Cancel Booking Request
+                        Reject Booking Request
                     </button>}
 
                     {(selectedEventStatus === "Approved" && !driverRequestedCancel && !hostRequestedCancel) && 

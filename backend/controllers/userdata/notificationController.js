@@ -32,12 +32,12 @@ const getNotifications = async (req, res) => {
     
                 if(notiData && settings){
     
-                    const userData = await User.find({_id: {$in: notiData.map(e=>e._otherUserId)}}).select("_id username roles profilePicURL")
+                    const userData = await User.find({_id: {$in: notiData.map(e=>e._otherUserId)}}).select("_id roles profilePicURL")
                     const relatedAppointments = await Appointment.find({_id: {$in: notiData?.map((item)=>item._relatedAppointment)}})
                     const relatedMessages = await Message.find({_id: {$in: notiData?.map((item)=>item._relatedMessage)}})
     
                     if(userData && relatedAppointments && relatedMessages){
-    
+
                         var stop = 0
                         return res.status(200).json({notiData, userData, settings, relatedAppointments, relatedMessages, stop})
                     
@@ -496,6 +496,3 @@ const editNewRequestsFill = async (req, res) => {
 
 module.exports = { getNotifications, addMessageNoti, editReadRecent, 
         editOpenedAlert, editNewMessagesFill }
-
-
-//Need deletecomment, deletereply, and deletemessage routes and process
