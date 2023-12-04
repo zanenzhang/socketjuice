@@ -109,6 +109,7 @@ app.use('/api/appointment', cors(corsOptions), require('./routes/appointments'))
 app.use('/api/public', cors(corsOptions), require('./routes/public')); 
 app.use('/api/verifyuser', cors(corsOptions), require('./routes/verifyuser')); 
 app.use('/api/checkuser', cors(corsOptions), require('./routes/checkuser')); 
+app.use('/api/flag', cors(corsOptions), require('./routes/flags')); 
 
 app.use('/api/emails', cors(corsOptions), require('./routes/emails')); 
 app.use('/api/payments', cors(corsOptions), require('./routes/payments'));

@@ -419,12 +419,12 @@ const addAppointmentFlag = async (req, res) => {
     
                     const foundAppointment = await Appointment.findOne({_id: appointmentId})
                     
-                    if(foundAppointment){
+                    if(foundAppointment && savedUserFlags){
 
                         var violationUserId = ""
                         var whichpartyflagged = 0
 
-                        if(foundAppointment._requestUserId === loggedUserId){
+                        if(foundAppointment._requestUserId.toString() === loggedUserId){
                             violationUserId = foundAppointment._hostUserId
                             whichpartyflagged = 1
                         } else {
@@ -440,8 +440,8 @@ const addAppointmentFlag = async (req, res) => {
                             
                             } else {
     
-                                foundAppointment.flaggedBy?.push({_flaggedByUserId: loggedUserId, _violationUserId: violationUserId, flaggedByDriverOrHost: whichpartyflagged,
-                                    comment: comment })
+                                foundAppointment.flaggedBy?.push({_flaggedByUserId: loggedUserId, _violationUserId: violationUserId, 
+                                    flaggedByDriverOrHost: whichpartyflagged, comment: comment })
                             }
                         } else {
     

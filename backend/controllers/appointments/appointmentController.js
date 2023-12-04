@@ -3,6 +3,7 @@ const DriverProfile = require('../../model/DriverProfile');
 const HostProfile = require('../../model/HostProfile');
 const Appointment = require('../../model/Appointment');
 const Notification = require('../../model/Notification');
+const NotificationSettings = require('../../model/NotificationSettings');
 
 const Flags = require('../../model/Flags');
 const UsageLimit = require('../../model/UsageLimit');

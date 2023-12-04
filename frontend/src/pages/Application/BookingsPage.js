@@ -66,7 +66,7 @@ const BookingsPage = () => {
   const [openHelpModal, setOpenHelpModal] = useState(false);
   const [flagged, setFlagged] = useState(false);
   const [waitingHelp, setWaitingHelp] = useState(false);
-  const [helpMessage, setHelpMessage] = useState(false);
+  const [helpMessage, setHelpMessage] = useState("");
   const [validHelpMessage, setValidHelpMessage] = useState(false);
   
   const [errorMessage, setErrorMessage] = useState("");
@@ -570,7 +570,7 @@ useEffect( () => {
     setSelectedTotalCharge(charge)
 
     if(auth.appointmentFlags?.length > 0){
-      if(auth.appointmentFlags.some(e => e._appointmentId === hostevent.appointmentId)){
+      if(auth.appointmentFlags.some(flag => flag._appointmentId === hostevent.appointmentId)){
         setFlagged(true)
       }
     }
@@ -609,7 +609,7 @@ useEffect( () => {
     setSelectedTotalCharge(charge)
 
     if(auth.appointmentFlags?.length > 0){
-      if(auth.appointmentFlags.some(e => e._appointmentId === driverevent.appointmentId)){
+      if(auth.appointmentFlags.some(flag => flag._appointmentId === driverevent.appointmentId)){
         setFlagged(true)
       }
     }
@@ -1367,7 +1367,7 @@ const handleRegularHourChangeEnd = (event, day) => {
       setSelectedLng(e.location[1])
 
       if(auth.appointmentFlags?.length > 0){
-          if(auth.appointmentFlags.some(e => e._appointmentId === e.appointmentId)){
+          if(auth.appointmentFlags.some(flag => flag._appointmentId === e.appointmentId)){
             setFlagged(true)
           }
       }
@@ -1394,7 +1394,7 @@ const handleRegularHourChangeEnd = (event, day) => {
       setSelectedLng(e.location[1])
 
       if(auth.appointmentFlags?.length > 0){
-        if(auth.appointmentFlags.some(e => e._appointmentId === e.appointmentId)){
+        if(auth.appointmentFlags.some(flag => flag._appointmentId === e.appointmentId)){
           setFlagged(true)
         }
     }
@@ -2796,6 +2796,7 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                     </div>
 
+                    {(selectedEventStatus !== "Cancelled" && selectedEventStatus !== "CancelSubmitted") && 
                     <div className='flex flex-row ml-2 py-2'>
                         <input  
                             className='w-5 h-5'
@@ -2807,7 +2808,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                         <label className='ml-2 text-sm font-medium md:text-base' htmlFor="termsagree">{`I agree to the `}
                             <button className='text-blue-900 underline' onClick={(e)=>handleTermsClick(e)}> 
                               Terms of Service</button></label>
-                    </div>
+                    </div>}
 
                     {(selectedEventStatus !== "Requested") &&
                     
@@ -2830,7 +2831,7 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                         {(selectedEventStatus === "CancelSubmitted" && driverRequestedCancel) && <p>You Asked To Cancel - Waiting For Cancellation and Refund</p> }
                         {(selectedEventStatus === "CancelSubmitted" && hostRequestedCancel) && <p>Host Asked To Cancel</p> }
-                        {(selectedEventStatus === "Cancelled") && <p>Cancelled</p> }
+                        {(selectedEventStatus === "Cancelled") && <p>Booking Cancelled</p> }
                         {(selectedEventStatus === "Approved") && <p>Approved - Mark as Completed</p> }
                     </button>}
 
@@ -2879,7 +2880,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                         Approved - Request to Cancel
                       </button>}
 
-                    {(selectedAddress && selectedHostUserId !== auth.userId && selectedEventStatus !== "Requested") && 
+                    {(selectedAddress && selectedHostUserId !== auth.userId && selectedEventStatus !== "Requested" && selectedEventStatus !== "Cancelled") && 
                     <button className='border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]'
                       onClick={(e)=>handleLinkURLDirections(e)}>
                         Get Directions (Opens Map)
@@ -3064,10 +3065,10 @@ const handleRegularHourChangeEnd = (event, day) => {
             aria-labelledby="child-modal-title"
             aria-describedby="child-modal-description"
         >
-            <Box sx={{ ...boxStyle, width: 350 }}>
+            <Box sx={{ ...boxStyle, width: 350, height: 400 }}>
 
             <div className='flex flex-col items-center justify-center'>
-              <p className='text-center pt-4 text-xl font-semibold pb-2 text-[#8BEDF3]'>Feedback or Report An Issue:</p>
+              <p className='text-center pt-4 text-xl font-semibold pb-2 text-black'>What happened?</p>
 
               <div className="flex flex-col w-full">
 
