@@ -122,7 +122,7 @@ const MapPage = () => {
 
   const [openReserveModal, setOpenReserveModal] = useState(false);
   const [openDetailsModal, setOpenDetailsModal] = useState(false);
-  const [openPaymentsModal, setOpenPaymentModal] = useState(false);
+  const [openPaymentsModal, setOpenPaymentsModal] = useState(false);
 
   const [termschecked, setTermschecked] = useState(true);
 
@@ -136,11 +136,11 @@ const MapPage = () => {
     window.open("/terms", "_blank");
   }
 
-  const initialOptions = {
+  const [initialOptions, setInitialOptions] = useState({
     "client-id": process.env.REACT_APP_PAYPAL_PUBLIC_ID,
     "enable-funding": "venmo",
     "currency": "USD"
-  };
+  });
 
   const boxStyle = {
     position: 'absolute',
@@ -309,13 +309,22 @@ useEffect( ()=> {
 
 useEffect( ()=> {
 
-  if(currentDuration !== null){
+  if(currentDuration){
 
     var hours = Math.floor(currentDuration / 3600)
     var min = (Math.floor(currentDuration % 3600) / 60) + 3
 
     const today = new Date()
     const timePlusDuration = new Date(today.getFullYear(), today.getMonth(), today.getDate(), today.getHours()+hours, today.getMinutes()+min);
+    const endOfThirty = new Date(timePlusDuration.getFullYear(), timePlusDuration.getMonth(), timePlusDuration.getDate(), timePlusDuration.getHours(), timePlusDuration.getMinutes()+30);
+
+    setBookingStart(dayjs(timePlusDuration))
+    setBookingEnd(dayjs(endOfThirty))
+  
+  } else {
+
+    const today = new Date()
+    const timePlusDuration = new Date(today.getFullYear(), today.getMonth(), today.getDate(), today.getHours(), today.getMinutes());
     const endOfThirty = new Date(timePlusDuration.getFullYear(), timePlusDuration.getMonth(), timePlusDuration.getDate(), timePlusDuration.getHours(), timePlusDuration.getMinutes()+30);
 
     setBookingStart(dayjs(timePlusDuration))
@@ -417,6 +426,21 @@ const handleSelectEvent = (e) => {
 
     setSelectedChargeRate(e.chargeRatePerHalfHourFee)
     setSelectedCurrency(e.currency)
+
+    if(auth.credits?.length > 0){
+      for(let i=0; i< auth.credits?.length; i++){
+        if(auth.credits[i].currency === e.currency?.toLowerCase()){
+          setPaymentCurrency(e.currency)
+          break
+        }
+      }
+    }
+
+    setInitialOptions({
+      "client-id": process.env.REACT_APP_PAYPAL_PUBLIC_ID,
+      "enable-funding": "venmo",
+      "currency": e.currency.toUpperCase()
+    })
     setSelectedCurrencySymbol(e.currencySymbol)
 
     setSelectedDistance(e.distanceText)
@@ -678,7 +702,7 @@ const {scrollToTime} = useMemo(
 
       alert("Not enough funds, please fund your account")
       setWaitingSubmit(false)
-      setOpenPaymentModal(true)
+      setOpenPaymentsModal(true)
     }
       
 
@@ -686,7 +710,7 @@ const {scrollToTime} = useMemo(
 
       alert("Not enough funds, please fund your account")
       setWaitingSubmit(false)
-      setOpenPaymentModal(true)
+      setOpenPaymentsModal(true)
 
     } else {
 
@@ -954,6 +978,21 @@ const {scrollToTime} = useMemo(
 
     setSelectedChargeRate(host.chargeRatePerHalfHourFee)
     setSelectedCurrency(host.currency)
+    
+    if(auth.credits?.length > 0){
+      for(let i=0; i< auth.credits?.length; i++){
+        if(auth.credits[i].currency === host.currency.toLowerCase()){
+          setPaymentCurrency(host.currency)
+          break
+        }
+      }
+    }
+
+    setInitialOptions({
+      "client-id": process.env.REACT_APP_PAYPAL_PUBLIC_ID,
+      "enable-funding": "venmo",
+      "currency": host.currency.toUpperCase()
+    })
     setSelectedCurrencySymbol(host.currencySymbol)
 
     var charge = ((bookingEnd - bookingStart) / 1000 / 1800) * host.chargeRatePerHalfHourFee
@@ -977,7 +1016,7 @@ const {scrollToTime} = useMemo(
 
     e.preventDefault()
 
-    setOpenPaymentModal(false)
+    setOpenPaymentsModal(false)
   }
 
   const handleCloseDetailsModal = (e) => {
@@ -1033,18 +1072,14 @@ const {scrollToTime} = useMemo(
         if(locations){
 
           var destinations = []
-          var hostIndexHash = {}
           
           for(let i=0; i< locations?.foundHostProfiles?.length; i++){
 
             if(locations.foundHostProfiles[i]?.address){
-
               destinations.push(locations.foundHostProfiles[i].address)
 
               var address_array = locations.foundHostProfiles[i].address?.split(',');
               locations.foundHostProfiles[i].addressArray = address_array
-
-              hostIndexHash[locations.foundHostProfiles[i].address] = i
             }
           }
           
@@ -1055,18 +1090,13 @@ const {scrollToTime} = useMemo(
 
               for(let i=0; i<matrix?.rows[0]?.elements?.length; i++){
                 
-                if(matrix?.destination_addresses[i]){
-                  
-                  var index = hostIndexHash[matrix?.destination_addresses[i]]
-
-                  if(index !== undefined){
+                if(matrix.destination_addresses[i]){
                     
-                    locations.foundHostProfiles[index].durationValue = matrix?.rows[0]?.elements[i].duration?.value
-                    locations.foundHostProfiles[index].durationText = matrix?.rows[0]?.elements[i].duration?.text
+                  locations.foundHostProfiles[i].durationValue = matrix?.rows[0]?.elements[i].duration?.value
+                  locations.foundHostProfiles[i].durationText = matrix?.rows[0]?.elements[i].duration?.text
 
-                    locations.foundHostProfiles[index].distanceValue = matrix?.rows[0]?.elements[i].distance?.value
-                    locations.foundHostProfiles[index].distanceText = matrix?.rows[0]?.elements[i].distance?.text
-                  }
+                  locations.foundHostProfiles[i].distanceValue = matrix?.rows[0]?.elements[i].distance?.value
+                  locations.foundHostProfiles[i].distanceText = matrix?.rows[0]?.elements[i].distance?.text
                 }
               }
               
@@ -1743,9 +1773,10 @@ const {scrollToTime} = useMemo(
                 
                 {hostLocations.map((host, index) => (
                   
-                  <div key={`${host._id}_leftsquare`} 
+                  
+                  <div key={`${host._id}_leftsquare`} onClick={(e)=>handleAddressClick(e, host)}
                     className={`w-full flex flex-col px-2 bg-[#c1f2f5]
-                    py-2 ${currentMarker === host._id ? 'border-2 border-['.concat(colorsList[index],']')   
+                    py-2 ${currentMarker === host._id ? 'border-4 border-[#FFE142] '   
                     : 'border border-gray-300  '} rounded-lg`}>
                     
                     <div className='flex flex-row'>
@@ -1763,23 +1794,24 @@ const {scrollToTime} = useMemo(
                     </div>
                     
                     <div className='flex flex-row w-full justify-between items-center'>
-
-                    <div className='flex flex-col w-full'>
-                        <p>Distance: {host.distanceText} / {host.durationText}</p>
-                        <p>30 Min Rate: {host.currencySymbol}{Number(host.chargeRatePerHalfHourFee).toFixed(2)}</p>
+                      
+                      <div className='flex flex-col w-full gap-y-1'>
+                        <p className='text-base'>Distance: {host.distanceText} / {host.durationText}</p>
+                        <p className='text-base'>30 Min Rate: {host.currencySymbol}{Number(host.chargeRatePerHalfHourFee).toFixed(2)}</p>
                       </div>
                     
-                      <div className='flex flex-row'>
-                      
-                      <button 
-                        className='px-3 py-2 bg-[#FFE142] hover:bg-[orange] rounded-lg'
-                        onClick={(e)=>handleOpenReserveModal(e, host)}
-                        >
-                          Reserve
-                      </button>
+                      <div className='flex flex-col items-center py-1'>
+                          <button 
+                            className='px-3 py-2 bg-[#FFE142] hover:bg-[orange] rounded-lg'
+                            onClick={(e)=>handleOpenReserveModal(e, host)}
+                            >
+                              Reserve
+                          </button>
+                          {host.availableNow && <p className='text-sm text-center'>Open Now!</p>}
                       </div>
                     </div>
-                </div>
+
+                  </div>
                 ))}
 
             </div>
@@ -2141,13 +2173,13 @@ const {scrollToTime} = useMemo(
 
                       <div className="py-4 flex flex-col justify-center items-center">
 
-                          <p className="text-3xl font-bold">{selectedCurrencySymbol}{selectedAmount.toFixed(2)}</p>
+                          <p className="text-3xl font-bold">{selectedCurrency.toUpperCase()} {selectedCurrencySymbol}{selectedAmount.toFixed(2)}</p>
                           
                           <p className="text-lg font-bold"> +Service Fee: {selectedCurrencySymbol}{selectedServiceFee.toFixed(2)} </p>
 
                           <p className="flex flex-col w-[325px] text-center text-sm">Note: Service fee includes all processing charges for PayPal, credit cards, and bank transfers. </p>
 
-                          <p className="text-4xl font-bold pt-8 pb-4">Total: {selectedCurrencySymbol}{selectedTotal.toFixed(2)}</p>
+                          <p className="text-4xl font-bold pt-8 pb-4">Total: {selectedCurrency.toUpperCase()} {selectedCurrencySymbol}{selectedTotal.toFixed(2)}</p>
 
                       </div>
 
@@ -2255,6 +2287,7 @@ const {scrollToTime} = useMemo(
                                       setPaymentSuccess(true)
                                       setChanged(changed + 1)
                                       alert(`Success, your payment of ${captureData?.data?.orderData?.currency_code} ${captureData?.data?.orderData?.value} has been received!`)
+                                      setOpenPaymentsModal(false)
                                   }
                               }   
 

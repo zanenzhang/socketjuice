@@ -70,6 +70,7 @@ const s3 = new S3({
 
   const createOrder = async (cart, userId) => {
 
+    console.log("creating order", cart)
     var amount = "21.50"
     var currency = "USD"
 
@@ -1404,7 +1405,7 @@ const capturePaypalOrder = async (req, res) => {
 
                                         const updatedUser = await foundUser.save()
 
-                                        const sentReceipt = await sendReceiptIncoming({toUser: userId, firstName: foundUser.firstName, amount: payamount, 
+                                        const sentReceipt = await sendReceiptIncoming({toUser: foundUser.email, firstName: foundUser.firstName, amount: payamount, 
                                             currency: currency.toLowerCase(), currencySymbol: currencySymbol, time: new Date() })
 
                                         if(updatedProfile && updatedUser && sentReceipt){

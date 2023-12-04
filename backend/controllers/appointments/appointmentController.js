@@ -331,17 +331,17 @@ const addAppointmentRequest = async (req, res) => {
 
                 // In milliseconds
                 const timediff = (requestEnd - requestStart) / 1000 / 1800
-                const chargeAmount = Math.round(foundHost.chargeRatePerHalfHour * timediff * 100) / 100
-                const chargeAmountFee = Math.round(foundHost.chargeRatePerHalfHourFee * timediff * 100) / 100
+                const chargeAmount = Math.round(foundHostProfile.chargeRatePerHalfHour * timediff * 100) / 100
+                const chargeAmountFee = Math.round(foundHostProfile.chargeRatePerHalfHourFee * timediff * 100) / 100
 
                 if(chargeAmount && foundUser?.credits?.length > 0){
 
                     var checked = false
                     for(let i=0; i<foundUser?.credits?.length; i++){
-                        if(foundUser.credits[i].amount > chargeAmountFee && foundUser.credits[i].currency.toLowerCase() === foundHost.currency.toLowerCase()){
+                        if(foundUser.credits[i].amount > chargeAmountFee && foundUser.credits[i].currency.toLowerCase() === foundHostProfile.currency.toLowerCase()){
                             currencySymbol = foundUser.credits[i].currencySymbol
                             
-                            foundUser.credits[i].amount = foundUser.credits[i].amount - chargeAmountFee
+                            foundUser.credits[i].amount = Math.max(foundUser.credits[i].amount - chargeAmountFee, 0)
                             checked = true
                             break
                         }
@@ -352,8 +352,9 @@ const addAppointmentRequest = async (req, res) => {
                     } else {
                         var escrow = false
                         for(let i=0; i<foundUser?.escrow?.length; i++){
-                            if(foundUser.escrow[i].currency.toLowerCase() === foundHost.escrow.toLowerCase()){                                
+                            if(foundUser.escrow[i].currency.toLowerCase() === foundHostProfile.currency.toLowerCase()){                                
                                 currencySymbol = foundUser.escrow[i].currencySymbol
+                                currency = foundUser.escrow[i].currency.toLowerCase()
                                 foundUser.escrow[i].amount = foundUser.escrow[i].amount + chargeAmountFee
                                 escrow = true
                                 break
@@ -361,30 +362,30 @@ const addAppointmentRequest = async (req, res) => {
                         }   
                         if(!escrow){
 
-                            if(foundHost.currency.toLowerCase() === "cad"){
+                            if(foundHostProfile.currency.toLowerCase() === "cad"){
                                 currencySymbol = "$"
-                            } else if(foundHost.currency.toLowerCase() === "usd"){
+                            } else if(foundHostProfile.currency.toLowerCase() === "usd"){
                                 currencySymbol = "$"
-                            } else if(foundHost.currency.toLowerCase() === "eur"){
+                            } else if(foundHostProfile.currency.toLowerCase() === "eur"){
                                 currencySymbol = "€"
-                            } else if(foundHost.currency.toLowerCase() === "gbp"){
+                            } else if(foundHostProfile.currency.toLowerCase() === "gbp"){
                                 currencySymbol = "£"
-                            } else if(foundHost.currency.toLowerCase() === "inr"){
+                            } else if(foundHostProfile.currency.toLowerCase() === "inr"){
                                 currencySymbol = "₹"
-                            } else if(foundHost.currency.toLowerCase() === "jpy"){
+                            } else if(foundHostProfile.currency.toLowerCase() === "jpy"){
                                 currencySymbol = "¥"
-                            } else if(foundHost.currency.toLowerCase() === "cny"){
+                            } else if(foundHostProfile.currency.toLowerCase() === "cny"){
                                 currencySymbol = "¥"
-                            } else if(foundHost.currency.toLowerCase() === "aud"){
+                            } else if(foundHostProfile.currency.toLowerCase() === "aud"){
                                 currencySymbol = "$"
-                            } else if(foundHost.currency.toLowerCase() === "nzd"){
+                            } else if(foundHostProfile.currency.toLowerCase() === "nzd"){
                                 currencySymbol = "$"
                             }
                             
                             if(foundUser.escrow?.length > 0){
-                                foundUser.escrow.push({currency: currency.toLowerCase(), currencySymbol: currencySymbol, amount: chargeAmountFee})
+                                foundUser.escrow.push({currency: foundHostProfile.currency.toLowerCase(), currencySymbol: currencySymbol, amount: chargeAmountFee})
                             } else {
-                                foundUser.escrow = [{currency: currency.toLowerCase(), currencySymbol: currencySymbol, amount: chargeAmountFee}]
+                                foundUser.escrow = [{currency: foundHostProfile.currency.toLowerCase(), currencySymbol: currencySymbol, amount: chargeAmountFee}]
                             }
                         }
                     }
@@ -473,9 +474,11 @@ const addAppointmentRequest = async (req, res) => {
                         doneNoti = true
                     }
                 }
+
+                const savedUser = await foundUser.save()
     
                 if(doneHostAppointments && doneDriverAppointments && doneOperation 
-                    && doneNoti && doneEmail && doneSms ){
+                    && doneNoti && doneEmail && doneSms && savedUser ){
                     
                     return res.status(201).json({ message: 'Success' })
                 
@@ -741,7 +744,7 @@ const addAppointmentCompletion = async (req, res) => {
                 if(!checked){
                     return res.status(403).json({ message: 'Operation failed' })
                 } else {
-                    
+
                     if(foundHost?.credits?.length > 0){
                         var credited = false
                         for(let i=0; i<foundHost?.credits?.length > 0; i++){
@@ -893,7 +896,7 @@ const addDriverReject = async (req, res) =>{
                     if(foundUser.escrow[i].amount > foundAppointment.chargeAmountFee && 
                         foundUser.escrow[i].currency.toLowerCase() === foundAppointment?.currency.toLowerCase() ){
                         
-                        foundUser.escrow[i].amount = foundUser.escrow[i].amount - foundAppointment.chargeAmountFee
+                        foundUser.escrow[i].amount = Math.max(foundUser.escrow[i].amount - foundAppointment.chargeAmountFee)
                         escrow = true;
                         break
                     }
@@ -1182,7 +1185,7 @@ const addHostReject = async (req, res) =>{
                     if(foundUser.escrow[i].amount > foundAppointment.chargeAmountFee 
                         && foundUser.escrow[i].currency.toLowerCase() === foundAppointment?.currency.toLowerCase() ){
                         
-                        foundUser.escrow[i].amount = foundUser.escrow[i].amount - foundAppointment.chargeAmountFee
+                        foundUser.escrow[i].amount = Math.max(foundUser.escrow[i].amount - foundAppointment.chargeAmountFee, 0)
                         escrow = true;
                         break
                     }
