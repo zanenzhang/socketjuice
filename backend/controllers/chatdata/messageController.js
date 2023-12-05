@@ -138,6 +138,7 @@ const addMessage = async (req, res) => {
                             if(foundLimits.numberOfMessageEmails[i].emailsNumber >= 1){
                                 
                                 doneEmail = true;
+                                toUpdate = false;
                             
                             } else {
     
@@ -185,6 +186,7 @@ const addMessage = async (req, res) => {
                             if(foundLimits.numberOfMessageTexts[i].textsNumber >= 1){
                                 
                                 doneSMS = true;
+                                toUpdate = false;
                             
                             } else {
     
@@ -224,17 +226,19 @@ const addMessage = async (req, res) => {
 
         if(doneOperation && doneEmail && doneSMS){
 
+            console.log("Doneemail", doneEmail)
+            console.log("Donesms", doneSMS)
+            console.log("toUpdate", toUpdate)
+
             let foundChat = await Chat.findOne({"_id":chatId})
 
-            var addMessage = new Message({
+            var addMessage = await Message.create({
                 "_userId": loggedUserId,
                 "firstName": foundUser.firstName,
                 "_chatId": chatId,
                 "content": content,
                 "createdAt": Date.now()
-            })
-
-            var savedMessage = false;            
+            })         
 
             if(addMessage && foundChat){
 
@@ -257,33 +261,28 @@ const addMessage = async (req, res) => {
                 const done = await foundChat.save()
 
                 if(done){
-                    savedMessage = true;
-                }
-            }
-            
-            const savedNew = await addMessage.save()
 
-            if (savedNew && savedMessage){
-
-                if(toUpdate){
+                    if(toUpdate){
                 
-                    const recipientUser = await User.findOne({_id: recipient})
-
-                    if(recipientUser){
-
-                        const sentEmail = await sendMessageUpdate(recipientUser.email, recipientUser.firstName, foundUser.firstName )
-                        const sentSms = await sendChatMessageSMS(recipientUser._id, foundUser.firstName)
-
-                        if(sentEmail && sentSms){
-                            return res.status(201).json({ 'Message': "Success" });
-                        } else {
-                            return res.status(401).json({ 'Message': "Failed operation" });
+                        const recipientUser = await User.findOne({_id: recipient})
+    
+                        if(recipientUser){
+    
+                            const sentEmail = await sendMessageUpdate({toUser: recipientUser.email, firstName: recipientUser.firstName, fromUserFirstName: foundUser.firstName })
+                            
+                            const sentSms = await sendChatMessageSMS(recipientUser._id, foundUser.firstName)
+    
+                            if(sentEmail && sentSms){
+                                return res.status(201).json({ 'Message': "Success" });
+                            } else {
+                                return res.status(401).json({ 'Message': "Failed operation" });
+                            }
                         }
+                    
+                    } else {
+    
+                        return res.status(201).json({ 'Message': "Success" });
                     }
-                
-                } else {
-
-                    return res.status(201).json({ 'Message': "Success" });
                 }
             
             } else {

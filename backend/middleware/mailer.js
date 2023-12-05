@@ -342,7 +342,12 @@ exports.sendVerifiedEmail = function({toUser, firstName}) {
   }
 
 
-  exports.sendReceiptOutgoing = function({toUser, firstName, amount, currency, currencySymbol, time}) {
+  exports.sendReceiptOutgoing = function({toUser, firstName, amount, currency, currencySymbol}) {
+
+    var today = new Date()
+    var newdate = today.toLocaleDateString()
+    var newtime = today.toLocaleTimeString()
+
     const message = {
       from: process.env.EMAIL_SUPPORT,
       // to: toUser.email // in production uncomment this
@@ -354,7 +359,7 @@ exports.sendVerifiedEmail = function({toUser, firstName}) {
         <p>This is a receipt for your outgoing payment </p>
         <p>Details: </p>
         <p>Amount: ${currency.toUpperCase()} ${currencySymbol} ${amount.toFixed(2)} </p>
-        <p>Time: ${new Date(time).toLocaleDateString} ${new Date(time).toLocaleTimeString} </p>
+        <p>Time: ${newdate} ${newtime} </p>
         <p></p>
         <p>Cheers,</p>
         <p>The ${process.env.MAIL_FROM_NAME} team</p>
@@ -370,7 +375,12 @@ exports.sendVerifiedEmail = function({toUser, firstName}) {
   }
 
 
-  exports.sendReceiptIncoming = function({toUser, firstName, amount, currency, currencySymbol, time}) {
+  exports.sendReceiptIncoming = function({toUser, firstName, amount, currency, currencySymbol}) {
+
+    var today = new Date()
+    var newdate = today.toLocaleDateString()
+    var newtime = today.toLocaleTimeString()
+
     const message = {
       from: process.env.EMAIL_SUPPORT,
       // to: toUser.email // in production uncomment this
@@ -382,7 +392,7 @@ exports.sendVerifiedEmail = function({toUser, firstName}) {
         <p>Nice! You have received a new payment in your account! </p>
         <p>Details: </p>
         <p>Amount: ${currency.toUpperCase()} ${currencySymbol} ${amount.toFixed(2)} </p>
-        <p>Time: ${new Date(time).toLocaleDateString} ${new Date(time).toLocaleTimeString} </p>
+        <p>Time: ${newdate} ${newtime} </p>
         <p></p>
         <p>Cheers,</p>
         <p>The ${process.env.MAIL_FROM_NAME} team</p>

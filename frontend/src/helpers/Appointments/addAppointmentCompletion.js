@@ -1,14 +1,14 @@
 import axios from "../../api/axios";
 const APPOINTMENT_URL = '/appointment/completion/'
 
-async function addAppointmentCompletion (userId, hostUserId, appointmentId, accessToken) {
+async function addAppointmentCompletion (userId, hostUserId, appointmentId, authUserId, accessToken) {
 
     try {
         
         const response = await axios.post(APPOINTMENT_URL, 
             JSON.stringify({userId, hostUserId, appointmentId}),
             {
-                headers: { "Authorization": `Bearer ${accessToken} ${userId}`, 
+                headers: { "Authorization": `Bearer ${accessToken} ${authUserId}`, 
                     'Content-Type': 'application/json'},
                 withCredentials: true
             }

@@ -588,7 +588,7 @@ const addPayout = async (req, res) => {
                                                 if(payoutDetails){
                                                     
                                                     const sentOutReceipt = await sendReceiptOutgoing({toUser: userId, firstName: checkUser.firstName, amount: paymentAmount,
-                                                       currency: currency.toLowerCase(), currencySymbol: currencySymbol, time: new Date() })
+                                                       currency: currency.toLowerCase(), currencySymbol: currencySymbol, })
 
                                                     if(sentOutReceipt){
                                                         return res.status(201).json({ message: 'Success' })
@@ -1406,7 +1406,7 @@ const capturePaypalOrder = async (req, res) => {
                                         const updatedUser = await foundUser.save()
 
                                         const sentReceipt = await sendReceiptIncoming({toUser: foundUser.email, firstName: foundUser.firstName, amount: payamount, 
-                                            currency: currency.toLowerCase(), currencySymbol: currencySymbol, time: new Date() })
+                                            currency: currency.toLowerCase(), currencySymbol: currencySymbol })
 
                                         if(updatedProfile && updatedUser && sentReceipt){
                                             console.log("Captured Paypal Order")

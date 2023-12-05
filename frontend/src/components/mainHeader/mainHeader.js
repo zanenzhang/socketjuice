@@ -515,8 +515,6 @@ const MainHeader = ({loggedUserId} ) => {
 
             if(response && response.status === 200){
 
-                console.log(response)
-
                 const firstName = response?.data?.firstName;
                 const lastName = response?.data?.lastName;
                 const accessToken = response?.data?.accessToken;
@@ -558,6 +556,7 @@ const MainHeader = ({loggedUserId} ) => {
 
                 setEmailRegister('');
                 setPwdRegister('');
+                setWaiting(false);
                 setOpenModalLogin(false);
 
             } else if(response && response.status === 202) {
@@ -849,7 +848,7 @@ const MainHeader = ({loggedUserId} ) => {
 
                     <div className='flex flex-col items-center justify-center px-2 sm:px-4 md:px-6 lg:px-10 pb-6 flex-shrink-0'>
                         <img className='w-[250px]' src={socketjuice_full_logo} />
-                        <p className='text-base text-center'>Share your electric vehicle charger to earn extra income!</p>
+                        <p className='text-base text-center'>Share your electric vehicle charger to earn extra income or for free!</p>
                     </div>
 
                     <div className='py-4 flex flex-col justify-center items-center'>

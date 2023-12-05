@@ -103,8 +103,8 @@ const addChat = async (req, res) => {
 
         const newCount = Object.keys(participantsList).length
 
-        if(newCount > 40){
-            res.status(400).json({ 'message': 'Too many chat participants' })
+        if(newCount !== 2 ){
+            res.status(400).json({ 'message': 'Incorrect number of participants' })
         }
 
         Comm.findOne({_userId: participantsList[0]._userId}, async function(err, duplicate){
@@ -135,15 +135,18 @@ const addChat = async (req, res) => {
 
             if(savedNew){
 
+                var count = 0
                 for(let i=0; i<newCount; i++){
 
                     var item = participantsList[i];
 
                     try{
 
-                        Comm.findOne({_userId: item._userId}, async function(err, newComm){
+                        const newComm = await Comm.findOne({_userId: item._userId})
+                        
+                        if(newComm){
 
-                            if(err) {return res.status(400).json({message: "Operation failed"})}
+                            console.log("found Comm")
         
                             if(newComm?.chats.length > 0){
             
@@ -159,17 +162,19 @@ const addChat = async (req, res) => {
                             const savedComm = await newComm.save();
 
                             if(savedComm){
-                                return res.status(201).json({ savedNew });
-                            } else {
-                                return res.status(401).json({"message": "Failed operation"});
+                                count += 1
                             }
-                        })
+                        } 
 
                     } catch(err){
 
                         console.log(err)
-                        res.status(500).json({ 'Message': err.message });        
+                        return res.status(500).json({ 'Message': err.message });        
                     }
+                }
+
+                if(count === newCount){
+                    return res.status(200).json({"Message": "Success"})
                 }
 
             } else {
@@ -266,6 +271,8 @@ const removeUserFromChat = async (req, res) => {
 
     if (!loggedUserId || !loggedFirstName || !chatId ) return res.status(400).json({ 'message': 'Missing required fields!' });
 
+    console.log(loggedUserId, loggedFirstName, chatId)
+
     try {
 
         const leftChat = await Chat.updateOne({_id: chatId},{$pull:{participants: {_userId: loggedUserId}}, $inc: {participantsNumber: -1}});         
@@ -280,33 +287,39 @@ const removeUserFromChat = async (req, res) => {
 
                 var newCount = updatedChat.participants?.length;
 
+                var count = 0
                 for(let i=0; i<newCount; i++){
 
                     try{
 
                         var person = updatedChat.participants[i]
+
                         if(person._userId !== loggedUserId){
 
-                            Comm.findOne({_userId: person._userId}, function(err, foundComm){
+                            const foundComm = await Comm.findOne({_userId: person._userId})
 
-                                if(err) {return res.status(400).json({message: "Operation failed"})}
-            
+                            if(foundComm){
+
                                 if(foundComm.chats?.length > 0){
 
                                     for(let j=0; j<foundComm.chats.length; j++){
 
-                                        if(foundComm.chats[j]._chatId.toString() === ((chatId))){
+                                        if(foundComm.chats[j]._chatId.toString() === chatId.toString()){
 
                                             foundComm.chats[j].participants.pull({_userId: loggedUserId})
                                             foundComm.chats[j].participantsNumber = foundComm.chats[j].participantsNumber - 1;
-                                            
-                                            foundComm.save();
 
                                             break;
                                         }
                                     }
+
+                                    const savedComm = await foundComm.save();
+
+                                    if(savedComm){
+                                        count += 1
+                                    }
                                 } 
-                            })
+                            }
                         }
 
                     } catch(err){
@@ -331,12 +344,12 @@ const removeUserFromChat = async (req, res) => {
                 }
             }
 
-            if(foundComm){
+            if(count === newCount && doneChatUpdate){
 
                 const updatedComm = await Comm.updateOne({"_userId": loggedUserId},{$inc:{participantsNumber: - 1}}); 
             
-                if(doneChatUpdate && updatedComm){
-                    res.status(201).json({ 'Message': "Success, left chat" });
+                if(updatedComm){
+                   return res.status(201).json({ 'Message': "Success, left chat" });
                 }
             }
         
@@ -350,6 +363,7 @@ const removeUserFromChat = async (req, res) => {
         return res.status(400).json({ message: err})
     }
 }
+
 
 const deleteChat = async (req, res) => {
 

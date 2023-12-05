@@ -19,9 +19,8 @@ const ChatSlot = ({chatItem, loggedUserId, loggedFirstName,
   return (
 
     <>
-    <div className={`${chatItem._id === selectedChat ? 'bg-[#FFE142]' : 'bg-[#8BEDF3]'} 
-        flex flex-row shadow-inner shadow-[#8BEDF3]/50 hover:bg-[#00D3E0] cursor-pointer 
-            border-b border-[#00D3E0]`}>
+    <div className={`${chatItem._id === selectedChat ? 'bg-[#FFE142] border-2 border-black' : 'bg-[#8BEDF3] border-b border-[#00D3E0]'} 
+        flex flex-row hover:bg-[#00D3E0] cursor-pointer rounded-xl`}>
             
         <div className="overflow-x-auto flex flex-grow ">
         

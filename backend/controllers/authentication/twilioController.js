@@ -202,7 +202,7 @@ async function checkVerification (req, res) {
 async function sendSmsNotification (receivingUserId, notificationType) {
 
     if (!receivingUserId || !notificationType ) {
-        return res.status(400).json({ message: 'Missing required info' })
+        return ({result: "Operation failed"})
     }
 
     console.log("Starting sms notification")
@@ -259,7 +259,7 @@ async function sendSmsNotification (receivingUserId, notificationType) {
 async function sendChatMessageSMS (receivingUserId, sendingUserFirstName) {
 
     if (!receivingUserId || !sendingUserFirstName ) {
-        return res.status(400).json({ message: 'Missing required info' })
+        return ({result: "Operation failed"})
     }
 
     console.log("Starting chat message sms notification")
@@ -304,7 +304,7 @@ async function sendChatMessageSMS (receivingUserId, sendingUserFirstName) {
 async function sendFlagSMS (submitterName, submitterPhone, appointmentId, comment) {
 
     if ( !submitterName || !submitterPhone || !appointmentId || !comment ) {
-        return res.status(400).json({ message: 'Missing required info' })
+        return ({ result: "Operation failed" })
     }
 
     try {

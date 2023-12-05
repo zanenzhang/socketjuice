@@ -2,6 +2,7 @@ const User = require('../../model/User');
 const Appointment = require('../../model/Appointment');
 const Flags = require('../../model/Flags');
 const UsageLimit = require('../../model/UsageLimit');
+const { sendFlagSMS } = require("../../controllers/authentication/twilioController");
 const ObjectId  = require('mongodb').ObjectId;
 
 const S3 = require("aws-sdk/clients/s3");
@@ -66,6 +67,29 @@ const getAllFlags = async (req, res) => {
 
 
 const getAppointmentFlags = async (req, res) => {
+    
+    const { userId } = req.params
+
+    if ( !userId ) {
+
+        return res.status(400).json({ message: 'User ID Required' })
+    }
+
+    const appointmentFlags = await Flags.findOne({_userId: userId})
+
+    if(appointmentFlags){
+
+        return res.status(201).json({ appointmentFlags })
+
+    } else {
+
+        return res.status(403).json({ message: 'Operation failed' })
+    
+    } 
+}
+
+
+const getAppointmentFlagsAdmin = async (req, res) => {
     
     const { userId } = req.params
 
@@ -443,6 +467,7 @@ const addAppointmentFlag = async (req, res) => {
                                 foundAppointment.flaggedBy?.push({_flaggedByUserId: loggedUserId, _violationUserId: violationUserId, 
                                     flaggedByDriverOrHost: whichpartyflagged, comment: comment })
                             }
+
                         } else {
     
                             foundAppointment.flaggedBy = [{_flaggedByUserId: loggedUserId, _violationUserId: violationUserId, flaggedByDriverOrHost: whichpartyflagged,
@@ -456,7 +481,7 @@ const addAppointmentFlag = async (req, res) => {
                         const savedFlag = await foundAppointment.save()
                         const problemUser = await User.findOne({_id: violationUserId})
     
-                        if(savedFlag && savedUserFlags && problemUser){
+                        if(savedFlag && problemUser){
 
                             problemUser.flagged = true
                             problemUser.flagsCount = problemUser.flagsCount + 1
@@ -478,7 +503,8 @@ const addAppointmentFlag = async (req, res) => {
                             const savedUser = await problemUser.save()
 
                             if(savedUser && sentEmail && sentSMS){
-                                return res.status(201).json({ message: 'Added appointment flag' })    
+
+                                return res.status(201).json({ message: 'Added appointment flag' }) 
                             } else {
                                 return res.status(401).json({ message: 'Operation failed' })
                             }
@@ -498,6 +524,7 @@ const addAppointmentFlag = async (req, res) => {
         
     } catch (err) {
 
+        console.log(err)
         return res.status(400).json({ message: 'Failed' })
     }
 }
@@ -547,5 +574,5 @@ const clearUserFlags = async (req, res) => {
     }
 }
 
-module.exports = { getAllFlags, getAppointmentFlags, addUserFlag, removeUserFlag, clearUserFlags, 
+module.exports = { getAllFlags, getAppointmentFlagsAdmin, getAppointmentFlags, addUserFlag, removeUserFlag, clearUserFlags, 
     addAppointmentFlag, removeAppointmentFlag }

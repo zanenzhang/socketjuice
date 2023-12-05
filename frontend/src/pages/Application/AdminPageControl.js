@@ -7,7 +7,7 @@ import debounce from 'lodash.debounce';
 import searchUsers from '../../helpers/Userdata/searchUsers';
 import addUserBan from '../../helpers/Bans/addUserBan';
 import removeUserBan from '../../helpers/Bans/removeUserBan';
-import getAppointmentFlags from '../../helpers/Flags/getAppointmentFlags';
+import getAppointmentFlagsAdmin from '../../helpers/Flags/getAppointmentFlagsAdmin';
 import removeAppointmentFlag from "../../helpers/Flags/removeAppointmentFlag";
 
 import useAuth from '../../hooks/useAuth';
@@ -86,7 +86,7 @@ const AdminPageControl = () => {
 
         async function getFlaggedAppointments(){
 
-            const appointmentData = await getAppointmentFlags(auth.userId, auth.accessToken)
+            const appointmentData = await getAppointmentFlagsAdmin(auth.userId, auth.accessToken)
 
             if(appointmentData && appointmentData?.foundAppointments?.length > 0){
 

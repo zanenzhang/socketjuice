@@ -35,6 +35,7 @@ import getHostAppointments from '../../helpers/Appointments/getHostAppointments'
 import addAppointmentApproval from '../../helpers/Appointments/addAppointmentApproval';
 import addAppointmentCompletion from '../../helpers/Appointments/addAppointmentCompletion';
 import addAppointmentFlag from '../../helpers/Flags/addAppointmentFlag';
+import getAppointmentFlags from "../../helpers/Flags/getAppointmentFlags";
 
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -52,7 +53,7 @@ const BookingsPage = () => {
   const localizer = dayjsLocalizer(dayjs);
   const DnDCalendar = withDragAndDrop(Calendar);
 
-  const { auth, setActiveTab, socket, setSocket, 
+  const { auth, setAuth, setActiveTab, socket, setSocket, 
       setNewMessages, setNewIndividualChat } = useAuth();
 
   const navigate = useNavigate();
@@ -62,6 +63,7 @@ const BookingsPage = () => {
   const [waiting, setWaiting] = useState(false);
   const [waitingSubmit, setWaitingSubmit] = useState(false);
   const [waitingCancel, setWaitingCancel] = useState(false);
+  const [refreshFlags, setRefreshFlags] = useState([])
   
   const [openHelpModal, setOpenHelpModal] = useState(false);
   const [flagged, setFlagged] = useState(false);
@@ -539,6 +541,30 @@ useEffect( () => {
     navigate(`/messages`);
   }
 
+  useEffect ( () => {
+
+    async function getFlags(){
+
+      const appointmentFlags = await getAppointmentFlags(auth.userId, auth.accessToken)
+
+      if(appointmentFlags){
+
+        setAuth( prev => {
+
+          return {
+            ...prev,
+            appointmentFlags: appointmentFlags?.appointmentFlags
+          }
+        })
+      }
+    }
+
+    if(refreshFlags > 0){
+      getFlags()
+    }
+
+  }, [refreshFlags])
+
 
   const handleHostEventListClick = (event, hostevent) => {
 
@@ -570,8 +596,10 @@ useEffect( () => {
     setSelectedTotalCharge(charge)
 
     if(auth.appointmentFlags?.length > 0){
-      if(auth.appointmentFlags.some(flag => flag._appointmentId === hostevent.appointmentId)){
+      if(auth.appointmentFlags.some(flag => flag._appointmentId.toString() === hostevent?.appointmentId?.toString())){
         setFlagged(true)
+      } else {
+        setFlagged(false)
       }
     }
     
@@ -609,8 +637,10 @@ useEffect( () => {
     setSelectedTotalCharge(charge)
 
     if(auth.appointmentFlags?.length > 0){
-      if(auth.appointmentFlags.some(flag => flag._appointmentId === driverevent.appointmentId)){
+      if(auth.appointmentFlags.some(flag => flag._appointmentId.toString() === driverevent?.appointmentId?.toString())){
         setFlagged(true)
+      } else {
+        setFlagged(false)
       }
     }
     
@@ -817,7 +847,7 @@ const handleSendHelp = (e) => {
     const addedflag = await addAppointmentFlag(auth.userId, selectedEventId, helpMessage, auth.accessToken)
 
     if(addedflag){
-      setFlagged([...flagged, selectedEventId])
+      setRefreshFlags(refreshFlags + 1)
       setWaitingHelp(false)
       alert("Sent request for help!")
     }
@@ -933,7 +963,7 @@ const handleRegularHourChangeEnd = (event, day) => {
       const submitted = await addHostReject(selectedDriverUserId, auth.userId, selectedEventId, auth.userId, auth.accessToken)
 
       if(submitted){
-        alert("Submitted cancel request")
+        alert("Rejected booking request")
         setOpenDetailsModalHost(false)
         setNewrequest(newrequest + 1)
         setWaitingCancel(false)
@@ -947,7 +977,7 @@ const handleRegularHourChangeEnd = (event, day) => {
       const submitted = await addHostCancelSubmit(selectedDriverUserId, auth.userId, selectedEventId, auth.userId, auth.accessToken)
 
       if(submitted){
-        alert("Asked driver to cancel")
+        alert("Cancelled booking")
         setNewrequest(newrequest + 1)
         setWaitingCancel(false)
         setOpenDetailsModalHost(false)
@@ -962,7 +992,7 @@ const handleRegularHourChangeEnd = (event, day) => {
       const submitted = await addDriverReject(auth.userId, selectedHostUserId, selectedEventId, auth.userId, auth.accessToken)
 
       if(submitted){
-        alert("Asked to cancel")
+        alert("Cancelled booking request")
         setOpenDetailsModalDriver(false)
         setWaitingCancel(false)
         setNewrequest(newrequest + 1)
@@ -973,10 +1003,10 @@ const handleRegularHourChangeEnd = (event, day) => {
 
       setWaitingCancel(true)
 
-      const submitted = await addDriverCancelSubmit(auth.userId, selectedDriverUserId, selectedEventId, auth.userId, auth.accessToken)
+      const submitted = await addDriverCancelSubmit(auth.userId, selectedHostUserId, selectedEventId, auth.userId, auth.accessToken)
 
       if(submitted){
-        alert("Asked to cancel")
+        alert("Cancellation request sent to host")
         setOpenDetailsModalDriver(false)
         setWaitingCancel(false)
         setNewrequest(newrequest + 1)
@@ -986,6 +1016,7 @@ const handleRegularHourChangeEnd = (event, day) => {
     const handleEventActionHost = async (e) => {
 
       e.preventDefault()
+      console.log(e)
 
       if(hostRequestedCancel){
         return
@@ -1017,18 +1048,24 @@ const handleRegularHourChangeEnd = (event, day) => {
 
       } else if (selectedEventStatus === "Approved"){
 
-        const bookingCompleted = await addAppointmentCompletion(selectedDriverUserId, auth.userId, selectedEventId, auth.accessToken)
+        const bookingCompleted = await addAppointmentCompletion(selectedDriverUserId, auth.userId, selectedEventId, auth.userId, auth.accessToken)
 
         if(bookingCompleted){
           alert("Booking finished")
           setOpenDetailsModalHost(false)
           setNewrequest(newrequest + 1)
           setWaitingSubmit(false)
+        } else {
+          alert("Please hold, appointment has not yet been completed")
         }
       }
     }
 
     const handleEventActionDriver = async (e) => {
+
+      e.preventDefault()
+
+      console.log(e)
 
       if(driverRequestedCancel){
         return
@@ -1046,18 +1083,7 @@ const handleRegularHourChangeEnd = (event, day) => {
           setNewrequest(newrequest + 1)
           setWaitingSubmit(false)
         }
-        
-      } else if (selectedEventStatus === "Approved"){
-        
-        const markCompleted = await addAppointmentCompletion(auth.userId, selectedHostUserId, selectedEventId, auth.accessToken)
-
-        if(markCompleted){
-          alert("Booking finished")
-          setOpenDetailsModalDriver(false)
-          setNewrequest(newrequest + 1)
-          setWaitingSubmit(false)
-        }
-      }
+      } 
     }
 
 
@@ -1112,7 +1138,7 @@ const handleRegularHourChangeEnd = (event, day) => {
 
       event.preventDefault();
       
-      if(waiting || (croppedImage?.length !== croppedImageURL?.length) || (croppedImage?.length === 0) ){
+      if(waiting || (croppedImage?.length < 2) || (croppedImage?.length !== croppedImageURL?.length) || (croppedImage?.length === 0) ){
         return
       }
 
@@ -1367,9 +1393,11 @@ const handleRegularHourChangeEnd = (event, day) => {
       setSelectedLng(e.location[1])
 
       if(auth.appointmentFlags?.length > 0){
-          if(auth.appointmentFlags.some(flag => flag._appointmentId === e.appointmentId)){
-            setFlagged(true)
-          }
+        if(auth.appointmentFlags.some(flag => flag._appointmentId.toString() === e.appointmentId?.toString())){
+          setFlagged(true)
+        } else {
+          setFlagged(false)
+        }
       }
       
       setOpenDetailsModalHost(true)
@@ -1394,10 +1422,12 @@ const handleRegularHourChangeEnd = (event, day) => {
       setSelectedLng(e.location[1])
 
       if(auth.appointmentFlags?.length > 0){
-        if(auth.appointmentFlags.some(flag => flag._appointmentId === e.appointmentId)){
+        if(auth.appointmentFlags.some(flag => flag._appointmentId.toString() === e?.appointmentId?.toString())){
           setFlagged(true)
+        } else {
+          setFlagged(false)
         }
-    }
+      }
       
       setOpenDetailsModalDriver(true)
     }
@@ -1534,8 +1564,6 @@ const handleRegularHourChangeEnd = (event, day) => {
         const driverresults = await getDriverAppointments(auth.userId, currentDateDriver, auth.accessToken, auth.userId)
   
         if(driverresults){
-
-          console.log(driverresults)
   
           var newevents = [];
           var hostprofiledata = {};
@@ -1668,11 +1696,13 @@ const handleRegularHourChangeEnd = (event, day) => {
           <p>Received Bookings From Other EV Drivers</p>
           {deactivated && <p>Please note: You are currently not offering charging in your host settings</p>}
 
-            <div className='flex flex-col w-[350px] max-h-[400px] overflow-y-auto mx-2 hover:cursor-pointer'>
+            <div className='flex flex-col w-[350px] max-h-[400px] overflow-y-auto mx-2 my-2 
+              hover:cursor-pointer border-y border-gray-500'>
 
               {hostEvents.map((event) => (
                 
-                <div key={event.id} className='flex flex-row w-full border border-[#00D3E0] justify-center items-center py-1 px-3'
+                <div key={event.id} className='flex flex-row w-full border border-[#00D3E0] justify-center 
+                  items-center py-2 px-3 mt-2'
                   onClick={(e)=>{handleHostEventListClick(e, event)}}>
 
                   <div className='flex flex-col flex-shrink-0'>
@@ -2653,9 +2683,9 @@ const handleRegularHourChangeEnd = (event, day) => {
             w-full md:w-[45vw] px-4 md:px-0 py-4'>
 
             <button className={`border bg-gray-300 
-                  ${ (!scheduleCheck || croppedImage.length < 1) ? "hover:cursor-not-allowed" : "hover:bg-[#8BEDF3] "}
+                  ${ (!scheduleCheck || croppedImage.length < 2) ? "hover:cursor-not-allowed" : "hover:bg-[#8BEDF3] "}
                   px-5 py-3 rounded-xl`}
-              disabled={!scheduleCheck || croppedImage.length < 1}
+              disabled={!scheduleCheck || croppedImage.length < 2}
               onClick={(e)=>handleHostPhotosUpload(e)}>
               Submit For Review
             </button>
@@ -2672,11 +2702,13 @@ const handleRegularHourChangeEnd = (event, day) => {
 
               <p>Your Outgoing Bookings</p>
 
-              <div className='flex flex-col w-[350px] max-h-[400px] overflow-y-auto mx-2 hover:cursor-pointer'>
+              <div className='flex flex-col w-[350px] max-h-[400px] overflow-y-auto mx-2 my-2 hover:cursor-pointer
+                border-y border-gray-500'>
 
               {driverEvents.map((event) => (
                 
-                <div key={event.id} className='flex flex-row w-full border border-[#00D3E0] justify-center items-center py-1 px-3'
+                <div key={event.id} className='flex flex-row w-full border border-[#00D3E0] justify-center 
+                  items-center py-2 mt-2 px-3'
                   onClick={(e)=>{handleDriverEventListClick(e, event)}}>
 
                   <div className='flex flex-col flex-shrink-0'>
@@ -2784,15 +2816,24 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                       <p className='text-center text-lg font-semibold'>Details of Outgoing Booking Request</p>
 
-                      <img className='w-[350px] h-[350px]' src={`https://maps.googleapis.com/maps/api/staticmap?center=${selectedAddress}&zoom=14&size=300x300&markers=color:yellow%7C${selectedLat},${selectedLng}&maptype=roadmap&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`} />
+                      {(selectedAddress && selectedHostUserId !== auth.userId && !driverRequestedCancel
+                     && selectedEventStatus !== "Requested" && selectedEventStatus !== "Cancelled"  && selectedEventStatus !== "Completed") && 
+                    <button className='border border-gray-300 font-semibold font-lg px-3 py-3 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]'
+                      onClick={(e)=>handleLinkURLDirections(e)}>
+                        Get Directions (Opens Map)
+                    </button>}
 
-                      <img className='w-[200px] h-[200px]' src={selectedPlateURL} />
+                      <img className='w-[350px] h-[350px] rounded-lg' src={`https://maps.googleapis.com/maps/api/staticmap?center=${selectedAddress}&zoom=14&size=300x300&markers=color:yellow%7C${selectedLat},${selectedLng}&maptype=roadmap&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`} />
+
+                      <img className='w-[350px] h-[350px] rounded-lg' src={selectedPlateURL} />
                       
-                      <p>Booking With: {selectedHostFirstName}</p>
-                      <p>Start Time: {selectedEventStart}</p>
-                      <p>End Time: {selectedEventEnd}</p>
-                      <p>Status: {(driverRequestedCancel && selectedEventStatus !== "Cancelled") ? "You Asked To Cancel" : ( (hostRequestedCancel && selectedEventStatus !== "Cancelled" ) ? "You Asked to Cancel" : (selectedEventStatus === "Requested" ? "Booking Requested" : (selectedEventStatus === "Approved" ? "Approved" : (selectedEventStatus === "Cancelled" ? "Cancelled" : (selectedEventStatus === "Completed" ? "Completed" : "Waiting") )))) }</p>
-                      <p className='text-xl font-semibold'>Total: {selectedCurrency?.toUpperCase()}{selectedCurrencySymbol}{Number(selectedTotalCharge).toFixed(2)}</p>
+                      <div className='w-full py-3 gap-y-2 flex flex-col justify-center items-center'>
+                        <p>Booking With: {selectedHostFirstName}</p>
+                        <p>Start Time: {selectedEventStart}</p>
+                        <p>End Time: {selectedEventEnd}</p>
+                        <p>Status: {(driverRequestedCancel && selectedEventStatus !== "Cancelled") ? "You Asked To Cancel" : ( (hostRequestedCancel && selectedEventStatus !== "Cancelled" ) ? "You Asked to Cancel" : (selectedEventStatus === "Requested" ? "Booking Requested" : (selectedEventStatus === "Approved" ? "Approved" : (selectedEventStatus === "Cancelled" ? "Cancelled" : (selectedEventStatus === "Completed" ? "Completed" : "Waiting") )))) }</p>
+                        <p className='text-xl font-semibold'>Total: {selectedCurrency?.toUpperCase()}{selectedCurrencySymbol}{Number(selectedTotalCharge).toFixed(2)}</p>
+                      </div>
 
                     </div>
 
@@ -2810,9 +2851,9 @@ const handleRegularHourChangeEnd = (event, day) => {
                               Terms of Service</button></label>
                     </div>}
 
-                    {(selectedEventStatus !== "Requested") &&
+                    {(selectedEventStatus !== "Requested" && selectedEventStatus !== "Approved") &&
                     
-                    <button disabled={selectedEventStatus === "Approved" || selectedEventStatus === "Cancelled" || driverRequestedCancel || !termscheckedDriver} 
+                    <button disabled={selectedEventStatus === "Completed" || selectedEventStatus === "Cancelled" || driverRequestedCancel || !termscheckedDriver} 
                       className={`border border-gray-300 px-3 py-2 rounded-xl gap-x-2 flex flex-row justify-center items-center
                       ${ (selectedEventStatus === "Completed" || selectedEventStatus === "Cancelled" || driverRequestedCancel || !termscheckedDriver) ? "bg-[#c1f2f5] cursor-not-allowed" : "bg-[#c1f2f5] hover:bg-[#00D3E0] " } `}
                       onClick={(e)=>handleEventActionDriver(e)}>
@@ -2832,17 +2873,17 @@ const handleRegularHourChangeEnd = (event, day) => {
                         {(selectedEventStatus === "CancelSubmitted" && driverRequestedCancel) && <p>You Asked To Cancel - Waiting For Cancellation and Refund</p> }
                         {(selectedEventStatus === "CancelSubmitted" && hostRequestedCancel) && <p>Host Asked To Cancel</p> }
                         {(selectedEventStatus === "Cancelled") && <p>Booking Cancelled</p> }
-                        {(selectedEventStatus === "Approved") && <p>Approved - Mark as Completed</p> }
+                        {(selectedEventStatus === "Completed") && <p>Booking Completed</p> }
                     </button>}
 
                     {selectedEventStatus === "Requested" && 
                       <button 
                       className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] ${!termscheckedDriver ? "hover:bg-gray-300 cursor-not-allowed" : "hover:bg-[#00D3E0] cursor-pointer" } 
                         gap-x-2 flex flex-row justify-center items-center`}
-                        disabled={!termscheckedDriver}
+                        disabled={!termscheckedDriver || waitingCancel}
                       onClick={(e)=>handleEventRejectDriver(e)}>
 
-                    {waitingCancel && 
+                      {waitingCancel && 
                       <div aria-label="Loading..." role="status">
                           <svg className="h-4 w-4 animate-spin" viewBox="3 3 18 18">
                           <path
@@ -2852,8 +2893,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                               className="fill-[#00D3E0]"
                               d="M16.9497 7.05015C14.2161 4.31648 9.78392 4.31648 7.05025 7.05015C6.65973 7.44067 6.02656 7.44067 5.63604 7.05015C5.24551 6.65962 5.24551 6.02646 5.63604 5.63593C9.15076 2.12121 14.8492 2.12121 18.364 5.63593C18.7545 6.02646 18.7545 6.65962 18.364 7.05015C17.9734 7.44067 17.3403 7.44067 16.9497 7.05015Z"></path>
                           </svg>
-                      </div>
-                      }
+                      </div>}
 
                         Cancel Booking Request
                       </button>}
@@ -2874,33 +2914,44 @@ const handleRegularHourChangeEnd = (event, day) => {
                               className="fill-[#00D3E0]"
                               d="M16.9497 7.05015C14.2161 4.31648 9.78392 4.31648 7.05025 7.05015C6.65973 7.44067 6.02656 7.44067 5.63604 7.05015C5.24551 6.65962 5.24551 6.02646 5.63604 5.63593C9.15076 2.12121 14.8492 2.12121 18.364 5.63593C18.7545 6.02646 18.7545 6.65962 18.364 7.05015C17.9734 7.44067 17.3403 7.44067 16.9497 7.05015Z"></path>
                           </svg>
-                      </div>
-                      }
+                      </div>}
 
                         Approved - Request to Cancel
-                      </button>}
-
-                    {(selectedAddress && selectedHostUserId !== auth.userId && selectedEventStatus !== "Requested" && selectedEventStatus !== "Cancelled") && 
-                    <button className='border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]'
-                      onClick={(e)=>handleLinkURLDirections(e)}>
-                        Get Directions (Opens Map)
                     </button>}
+
+                    {(selectedEventStatus !== "Requested" && selectedEventStatus !== "Cancelled" && selectedEventStatus !== "Completed" ) && 
+                    <p className='text-xl font-semibold pt-3 text-center w-full'>
+                      Communications</p>}
 
                     {(selectedEventStatus !== "Requested" && selectedEventStatus !== "Cancelled" && selectedEventStatus !== "Completed" ) 
                       && 
-                    <button className='border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]'
+                    <button className='border border-gray-300 px-3 py-2  gap-x-2
+                      rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0] flex flex-row justify-center items-center'
                     onClick={(e)=>handleMessageDriver(e)}>
-                      Send Message
+
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
+                        strokeWidth="1.5" stroke="currentColor" 
+                        className="w-6 h-6">
+                        <path strokeLinecap="round" strokeLinejoin="round" 
+                        d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
+                      </svg>
+
+                      Send Message to {selectedHostFirstName}
                     </button>}
 
-                    {(selectedEventStatus !== "Requested") && <button className='border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0] 
-                        gap-x-2 flex flex-row justify-center items-center'
+                    {(selectedEventStatus !== "Requested") && 
+                    
+                    <button className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] ${flagged ? " bg-gray-400 " : " hover:bg-[#00D3E0] "} 
+                      gap-x-2 flex flex-row justify-center items-center`}
+
                       onClick={(e)=>handleHelpOpen(e)}>
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
                         strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
                       </svg>
-                      Help! Contact SocketJuice
+
+                      <p>{!flagged ? "Help! Contact SocketJuice" : "Already requested help!"}</p>
+
                     </button>}
 
                 </div>
@@ -2927,9 +2978,9 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                       <p className='text-center text-lg font-semibold'>Details of Incoming Booking Request</p>
 
-                      <img className='w-[350px] h-[350px]' src={`https://maps.googleapis.com/maps/api/staticmap?center=${selectedAddress}&zoom=14&size=300x300&markers=color:yellow%7C${selectedLat},${selectedLng}&maptype=roadmap&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`} />
+                      <img className='w-[350px] h-[350px] rounded-xl' src={`https://maps.googleapis.com/maps/api/staticmap?center=${selectedAddress}&zoom=14&size=300x300&markers=color:yellow%7C${selectedLat},${selectedLng}&maptype=roadmap&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`} />
 
-                      <img className='w-[200px] h-[200px]' src={selectedPlateURL}/>
+                      <img className='w-[350px] h-[350px] rounded-xl' src={selectedPlateURL}/>
                       
                       <p>Booked By: {selectedDriverFirstName}</p>
                       <p>Start Time: {selectedEventStart}</p>
@@ -2953,7 +3004,8 @@ const handleRegularHourChangeEnd = (event, day) => {
                     </div>
 
                     <button   
-                      disabled={(selectedEventStatus === "Approved" || selectedEventStatus === "Cancelled" || hostRequestedCancel || !termscheckedHost )} 
+                      disabled={( selectedEventStatus === "Completed" || selectedEventStatus === "Cancelled" 
+                      || hostRequestedCancel || !termscheckedHost || waitingSubmit )} 
                       
                       className={`border border-gray-300 px-3 py-2 rounded-xl 
                       ${(selectedEventStatus === "Completed" || selectedEventStatus === "Cancelled" 
@@ -2979,6 +3031,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                         {(selectedEventStatus === "CancelSubmitted" && hostRequestedCancel) && <p>Host Asked To Cancel</p> }
                         {(selectedEventStatus === "Cancelled") && <p>Cancelled</p> }
                         {(selectedEventStatus === "Approved") && <p>Approved - Mark as Completed</p> }
+                        {(selectedEventStatus === "Completed") && <p>Booking Completed</p> }
 
                     </button>
 
@@ -3009,8 +3062,10 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                     {(selectedEventStatus === "Approved" && !driverRequestedCancel && !hostRequestedCancel) && 
                     <button 
-                    className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]
+                    className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] 
+                    ${(!termscheckedHost ) ? "bg-[#c1f2f5] cursor-not-allowed" : "cursor-pointer bg-[#c1f2f5] hover:bg-[#00D3E0] " } 
                       gap-x-2 flex flex-row justify-center items-center`}
+                    disabled={!termscheckedHost || waitingCancel}
                     onClick={(e)=>handleEventCancelHost(e)}>
 
                     {waitingCancel && 
@@ -3029,21 +3084,38 @@ const handleRegularHourChangeEnd = (event, day) => {
                       Approved - Cancel and Refund
                     </button> }
 
+                    {(selectedEventStatus !== "Requested" && selectedEventStatus !== "Cancelled" && selectedEventStatus !== "Completed" ) && 
+                    <p className='text-xl font-semibold pt-3 text-center w-full'>
+                      Communications</p>}
+
                     {(selectedEventStatus !== "Requested" && selectedEventStatus !== "Cancelled" && selectedEventStatus !== "Completed" ) 
                       && 
-                    <button className='border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0]'
+                    <button className='border border-gray-300 px-3 py-2 rounded-xl gap-x-2
+                    bg-[#c1f2f5] hover:bg-[#00D3E0] flex flex-row justify-center items-center'
                     onClick={(e)=>handleMessageHost(e)}>
-                      Send Message
+  
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
+                        strokeWidth="1.5" stroke="currentColor" 
+                        className="w-6 h-6">
+                        <path strokeLinecap="round" strokeLinejoin="round" 
+                        d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
+                      </svg>
+
+                      Send Message to {selectedDriverFirstName}
                     </button>}
 
-                    {(selectedEventStatus !== "Requested") && <button className='border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0] 
-                        gap-x-2 flex flex-row justify-center items-center'
+                    {(selectedEventStatus !== "Requested") && 
+                    
+                    <button 
+                    disabled={flagged}
+                    className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] ${flagged ? " bg-gray-400 " : " hover:bg-[#00D3E0] "} 
+                        gap-x-2 flex flex-row justify-center items-center`}
                       onClick={(e)=>handleHelpOpen(e)}>
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
                         strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
                       </svg>
-                      Help! Contact SocketJuice
+                      <p>{!flagged ? "Help! Contact SocketJuice" : "Already requested help!"}</p>
                     </button>}
 
 

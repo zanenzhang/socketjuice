@@ -2,6 +2,7 @@ const User = require('../../model/User');
 const DriverProfile = require('../../model/DriverProfile');
 const HostProfile = require('../../model/HostProfile');
 const Appointment = require('../../model/Appointment');
+const Payment = require('../../model/Payment');
 const Notification = require('../../model/Notification');
 const NotificationSettings = require('../../model/NotificationSettings');
 
@@ -358,7 +359,7 @@ const addAppointmentRequest = async (req, res) => {
 
                     var checked = false
                     for(let i=0; i<foundUser?.credits?.length; i++){
-                        if(foundUser.credits[i].amount > chargeAmountFee && foundUser.credits[i].currency.toLowerCase() === foundHostProfile.currency.toLowerCase()){
+                        if(foundUser.credits[i].amount >= chargeAmountFee && foundUser.credits[i].currency.toLowerCase() === foundHostProfile.currency.toLowerCase()){
                             currencySymbol = foundUser.credits[i].currencySymbol
                             
                             foundUser.credits[i].amount = Math.max(foundUser.credits[i].amount - chargeAmountFee, 0)
@@ -532,6 +533,8 @@ const addAppointmentApproval = async (req, res) => {
 
     if (!userId || !hostUserId ) return res.status(400).json({ 'message': 'Missing required fields!' });
 
+    console.log(userId, hostUserId, appointmentId)
+
     try {
 
         const foundAppointment = await Appointment.findOne({_id: appointmentId})
@@ -553,7 +556,7 @@ const addAppointmentApproval = async (req, res) => {
                         { start : { $lte: requestStart }, end : { $gt: requestStart } },
                         { start : { $lt: requestEnd }, end : { $gte: requestEnd } },
                         { start : { $gte: requestStart }, end : { $lte: requestEnd } }]}, 
-                    {$or: [{status: "Approved" }]}
+                    {status: "Approved" }
                 ]})
 
             if(!checkAppointments){
@@ -568,7 +571,7 @@ const addAppointmentApproval = async (req, res) => {
                     var escrow = false;
                     for(let i=0; i<foundUser.escrow?.length; i++){
                         if(foundUser.escrow[i].currency.toLowerCase() === foundAppointment?.currency.toLowerCase() 
-                            && foundUser.escrow[i].amount > foundAppointment?.chargeAmountFee){
+                            && foundUser.escrow[i].amount >= foundAppointment?.chargeAmountFee){
                             
                             foundUser.escrow[i].amount = foundUser.escrow[i].amount - foundAppointment.chargeAmountFee
                             escrow = true;
@@ -629,7 +632,7 @@ const addAppointmentApproval = async (req, res) => {
                 }
 
                 if(foundUser.smsNotifications){
-                    const success = await sendSmsNotification(hostUserId, "Approved")
+                    const success = await sendSmsNotification(userId, "Approved")
                     if(success){
                         doneSms = true
                     }
@@ -744,7 +747,11 @@ const addAppointmentCompletion = async (req, res) => {
 
             const updatedAppointment = await Appointment.updateOne({_id: appointmentId},{$set:{status: "Completed"}})
 
-            const newNoti = await Notification.create({_receivingUserId: userId, _sendingUserId: hostUserId, notificationType: "Completed", 
+            const newNoti1 = await Notification.create({_receivingUserId: userId, _sendingUserId: hostUserId, notificationType: "Completed", 
+                    _relatedAppointment: foundAppointment._id, start: foundAppointment?.start, end: foundAppointment?.end, 
+                    address: foundAppointment?.address})
+
+            const newNoti2 = await Notification.create({_receivingUserId: hostUserId, _sendingUserId: userId, notificationType: "Completed", 
                     _relatedAppointment: foundAppointment._id, start: foundAppointment?.start, end: foundAppointment?.end, 
                     address: foundAppointment?.address})
 
@@ -752,7 +759,7 @@ const addAppointmentCompletion = async (req, res) => {
 
                 var checked = false
                 for(let i=0; i<foundHost?.escrow?.length; i++){
-                    if(foundHost.escrow[i].amount > foundAppointment?.chargeAmount 
+                    if(foundHost.escrow[i].amount >= foundAppointment?.chargeAmount 
                         && foundHost.escrow[i].currency.toLowerCase() === foundAppointment.currency.toLowerCase()){
                         
                         foundHost.escrow[i].amount = foundHost.escrow[i].amount - foundAppointment.chargeAmount
@@ -814,7 +821,7 @@ const addAppointmentCompletion = async (req, res) => {
                 doneSms = true
             }
 
-            if(updatedAppointment && newNoti && doneEmail && doneSms && sentOutReceipt && sentInReceipt){
+            if(updatedAppointment && newNoti1 && newNoti2 && doneEmail && doneSms && sentOutReceipt && sentInReceipt){
                 
                 return res.status(201).json({ message: 'Success' })
 
@@ -845,9 +852,11 @@ const driverRequestCancelSubmit = async (req, res) =>{
         var doneEmail = false;
         var doneSms = false;
 
-        if(foundUser && foundAppointment){
+        if(foundUser && foundAppointment && foundAppointment?.status === "Approved"){
 
-            const updateAppointment = await Appointment.updateOne({_id: appointmentId, _requestUserId: userId, _hostUserId: hostUserId}, {$set: {cancelRequestDriverSubmit: true, status: "CancelSubmitted"}})
+            const updateAppointment = await Appointment.updateOne({_id: appointmentId, _requestUserId: userId, _hostUserId: hostUserId}, 
+                {$set: {cancelRequestDriverSubmit: true, status: "CancelSubmitted"}})
+
             const updateDriverProfile = await DriverProfile.updateOne({_id: userId},{$inc: {numberOfAppointmentCancellations: 1}})
 
             const newNoti = await Notification.create({_receivingUserId: hostUserId, _sendingUserId: userId, notificationType: "CancelSubmitted", 
@@ -913,7 +922,7 @@ const addDriverReject = async (req, res) =>{
 
                 var escrow = false;
                 for(let i=0; i<foundUser.escrow?.length; i++){
-                    if(foundUser.escrow[i].amount > foundAppointment.chargeAmountFee && 
+                    if(foundUser.escrow[i].amount >= foundAppointment.chargeAmountFee && 
                         foundUser.escrow[i].currency.toLowerCase() === foundAppointment?.currency.toLowerCase() ){
                         
                         foundUser.escrow[i].amount = Math.max(foundUser.escrow[i].amount - foundAppointment.chargeAmountFee)
@@ -948,6 +957,7 @@ const addDriverReject = async (req, res) =>{
 
             } else {
 
+                console.log("No escrow balance")
                 return res.status(401).json({ message: 'Operation failed' })
             }
 
@@ -1085,7 +1095,7 @@ const hostRequestCancelSubmit = async (req, res) =>{
                 for(let i=0; i<foundHost.escrow?.length; i++){
                     
                     if(foundHost.escrow[i].currency.toLowerCase() === foundAppointment?.currency.toLowerCase() 
-                        && foundHost.escrow[i].amount > foundAppointment?.chargeAmount){
+                        && foundHost.escrow[i].amount >= foundAppointment?.chargeAmount){
                         
                         foundHost.escrow[i].amount = foundHost.escrow[i].amount - foundAppointment.chargeAmount
                         balance = true;
@@ -1136,7 +1146,7 @@ const hostRequestCancelSubmit = async (req, res) =>{
             const savedHost = await foundHost.save()
 
             if(foundUser.smsNotifications){
-                const success = await sendSmsNotification(hostUserId, "Cancelled")
+                const success = await sendSmsNotification(userId, "Cancelled")
                 if(success){
                     doneSms = true
                 }
@@ -1202,7 +1212,7 @@ const addHostReject = async (req, res) =>{
 
                 var escrow = false;
                 for(let i=0; i<foundUser.escrow?.length; i++){
-                    if(foundUser.escrow[i].amount > foundAppointment.chargeAmountFee 
+                    if(foundUser.escrow[i].amount >= foundAppointment.chargeAmountFee 
                         && foundUser.escrow[i].currency.toLowerCase() === foundAppointment?.currency.toLowerCase() ){
                         
                         foundUser.escrow[i].amount = Math.max(foundUser.escrow[i].amount - foundAppointment.chargeAmountFee, 0)
@@ -1303,8 +1313,11 @@ const hostRequestCancelApprove = async (req, res) =>{
             const foundDriverProfile = await DriverProfile.updateOne({_userId: userId},{$inc: {numberOfAppointmentCancellations: 1}})
             const foundHostProfile = await HostProfile.updateOne({_userId: hostUserId},{$inc: {numberOfAppointmentCancellations: 1}})
 
-            const newNoti = await Notification.create({_receivingUserId: userId, _sendingUserId: hostUserId, notificationType: "Cancelled", 
+            const newNoti1 = await Notification.create({_receivingUserId: userId, _sendingUserId: hostUserId, notificationType: "Cancelled", 
                     _relatedAppointment: foundAppointment._id, start: foundAppointment?.start, end: foundAppointment?.end, address: foundAppointment?.address})
+
+            const newNoti2 = await Notification.create({_receivingUserId: hostUserId, _sendingUserId: userId, notificationType: "Cancelled", 
+                _relatedAppointment: foundAppointment._id, start: foundAppointment?.start, end: foundAppointment?.end, address: foundAppointment?.address})
 
             const newPayment = await Payment.create({_sendingUserId: hostUserId, _receivingUserId: userId, amount: foundAppointment.chargeAmount,
                 amountFee: foundAppointment.chargeAmountFee, currency: foundAppointment.currency.toLowerCase(), currencySymbol: foundAppointment.currencySymbol})
@@ -1315,7 +1328,7 @@ const hostRequestCancelApprove = async (req, res) =>{
                 for(let i=0; i<foundHost.escrow?.length; i++){
                     
                     if(foundHost.escrow[i].currency.toLowerCase() === foundAppointment?.currency.toLowerCase() 
-                        && foundHost.escrow[i].amount > foundAppointment?.chargeAmount){
+                        && foundHost.escrow[i].amount >= foundAppointment?.chargeAmount){
                         
                         foundHost.escrow[i].amount = foundHost.escrow[i].amount - foundAppointment.chargeAmount
                         escrow = true;
@@ -1371,7 +1384,7 @@ const hostRequestCancelApprove = async (req, res) =>{
                 doneSms = true
             }
 
-            if(newPayment && foundDriverProfile && foundHostProfile && newNoti && doneEmail 
+            if(newPayment && foundDriverProfile && foundHostProfile && newNoti1 && newNoti2 && doneEmail 
                 && doneSms && savedUser && savedHost && updatedAppointment){
 
                 const driverPayment = await DriverProfile.updateOne({_userId: userId}, {$push: {outgoingPayments: {

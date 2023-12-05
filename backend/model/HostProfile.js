@@ -325,8 +325,8 @@ var hostProfileSchema = new Schema({
             default: 0
         },
         currency: {
-            type: Number, 
-            default: 0
+            type: String,
+            default: "cad"
         },
         currencySymbol: {
             type: String, 

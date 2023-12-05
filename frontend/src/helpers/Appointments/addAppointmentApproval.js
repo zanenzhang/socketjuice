@@ -8,9 +8,8 @@ async function addAppointmentApproval (userId, hostUserId, appointmentId, access
         const response = await axios.post(APPOINTMENT_URL, 
             JSON.stringify({userId, hostUserId, appointmentId}),
             {
-                headers: { "Authorization": `Bearer ${accessToken} ${userId}`, 
+                headers: { "Authorization": `Bearer ${accessToken} ${hostUserId}`, 
                     'Content-Type': 'application/json'},
-                withCredentials: true
             }
         );
         if(response){

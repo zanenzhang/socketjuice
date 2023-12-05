@@ -7,7 +7,8 @@ const verifyJWT = require('../middleware/verifyJWT')
 router.use(verifyJWT)
 
 router.get('/user/:userId', flagController.getAllFlags);
-router.get('/appointment', flagController.getAppointmentFlags);
+router.get('/appointmentadmin/:userId', flagController.getAppointmentFlagsAdmin);
+router.get('/appointment/:userId', flagController.getAppointmentFlags);
 
 router.post('/user', flagController.addUserFlag);
 router.delete('/user', flagController.removeUserFlag);

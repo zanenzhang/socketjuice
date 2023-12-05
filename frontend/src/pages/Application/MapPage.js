@@ -60,7 +60,7 @@ const MapPage = () => {
   const [center, setCenter] = useState({ lat: 48.8584, lng: 2.2945 })
 
   const [map, setMap] = useState(null);
-  const [date, setDate] = useState(new Date());
+  const [date, setDate] = useState(dayjs(new Date()));
   const [directionsResponse, setDirectionsResponse] = useState(null);
   const [distance, setDistance] = useState('');
   const [duration, setDuration] = useState('');
@@ -363,11 +363,11 @@ useEffect( () => {
         isDraggable: true
       }
 
-      var filteredevents = proposedEvents.filter(e => e.id !== `proposed_${auth.userId}`)
+      var filteredevents = events.filter(e => e.id !== `proposed_${auth.userId}`)
       filteredevents = [...filteredevents, updatedCurrent]
 
-      setProposedEvents([...filteredevents])
-      setEvents([...filteredevents, ...availableEvents, ...hostEvents])
+      setProposedEvents([updatedCurrent])
+      setEvents([...filteredevents])
     }
   }
 
@@ -397,11 +397,11 @@ const handleSelectSlot = (e) => {
       isDraggable: true
     }
 
-    var filteredevents = proposedEvents.filter(e => e.id !== `proposed_${auth.userId}`)
+    var filteredevents = events.filter(e => e.id !== `proposed_${auth.userId}`)
     filteredevents = [...filteredevents, updatedCurrent]
 
-    setProposedEvents([...filteredevents])
-    setEvents([...filteredevents, ...hostEvents]) 
+    setProposedEvents([updatedCurrent])
+    setEvents([...filteredevents]) 
   }
 }
 
@@ -454,8 +454,6 @@ const handleSelectEvent = (e) => {
 }
 
 const handleEventResize = (e) => {
-
-  console.log(e)
   
   if(e.event.id === `proposed_${auth.userId}`){
   
@@ -488,8 +486,6 @@ const toggleTerms = () => {
 }
 
 const handleEventMove = (e) => {
-
-  console.log(e)
   
   if(e.event.id === `proposed_${auth.userId}`){
   
@@ -626,8 +622,6 @@ const {scrollToTime} = useMemo(
 
   const handleEventActionDriver = async (e) => {
 
-    console.log(e)
-
     if(driverRequestedCancel){
       return
     }
@@ -669,8 +663,6 @@ const {scrollToTime} = useMemo(
   }
 
   const handleEventCancelDriver = async (e) => {
-
-    console.log(e)
 
     const submitted = await addDriverCancelSubmit(auth.userId, selectedHostUserId, selectedEventId, auth.userId, auth.accessToken)
 
@@ -716,16 +708,21 @@ const {scrollToTime} = useMemo(
 
       const added = await addAppointmentRequest(auth.userId, hostUserId, bookingStart, bookingEnd, auth.accessToken)
 
-      if(added && added.status === 201){
+      if(added && added?.status === 201){
+        
         alert("Submitted booking request")
         setNewrequest(!newrequest)
+        setChanged(changed + 1)
         setOpenReserveModal(false);
         setWaitingSubmit(false)
-      } else if (added.status === 403) {
+
+      } else if (added && added?.status === 403) {
         alert("Please try again, conflicting appointment")
+        setChanged(changed + 1)
         setWaitingSubmit(false);
       } else {
         alert("Sorry, please try another time!")
+        setChanged(changed + 1)
         setWaitingSubmit(false);
       }
     }
@@ -846,7 +843,8 @@ const {scrollToTime} = useMemo(
         }
 
         var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-        const dateCheck = new Date(currentDate)
+        const dateCheck = new Date(date["$d"])
+        const currentDay = (date["$d"]?.toString()).slice(8,10)
         const yesterday = new Date(dateCheck.getDate() -1)
         const dayofweek = days[dateCheck.getDay()]
         const lastdayofweek = days[yesterday.getDay()]
@@ -857,17 +855,18 @@ const {scrollToTime} = useMemo(
         const yesterdayAvailableEnd = selectedHostProfile[`hours${lastdayofweek}End`]
         const allDayToday = selectedHostProfile[`allDay${dayofweek}`]
 
-        console.log(selectedHostProfile[`allDay${dayofweek}`])
-
         var availabilities = [];
 
         if(allDayToday){
 
-          var newstarttime = dateCheck.setHours(0,0,0,0)
-          var newendtime = dateCheck.setHours(24,0,0,-1)
+          var newstarttime = new Date(dateCheck.setHours(0,0,0,0)) 
+          newstarttime.setDate(currentDay)
+
+          var newendtime = new Date(dateCheck.setHours(24,0,0,-1)) 
+          newendtime.setDate(currentDay)
             
             var availabilityAllDay = {
-              id: `today_availability_early`,
+              id: `today_availability_allday`,
               title: "Available",
               start: new Date(newstarttime),
               end: new Date(newendtime),
@@ -881,8 +880,11 @@ const {scrollToTime} = useMemo(
 
               if(yesterdayAvailableEnd < yesterdayAvailableStart && yesterdayAvailableEnd < todayAvailableStart){
 
-                var newstarttime = dateCheck.setHours(0,0,0,0)
-                var newendtime = dateCheck.setHours(selectedHostProfile[yesterdayAvailableEnd].slice(0, 2),selectedHostProfile[yesterdayAvailableEnd].slice(3, 5),0,0)
+                var newstarttime = new Date(dateCheck.setHours(0,0,0,0))
+                var newendtime = new Date(dateCheck.setHours(selectedHostProfile[yesterdayAvailableEnd].slice(0, 2),selectedHostProfile[yesterdayAvailableEnd].slice(3, 5),0,0))
+
+                newstarttime.setDate(currentDay)
+                newendtime.setDate(currentDay)
                 
                 var availabilityEarly = {
                   id: `today_availability_early`,
@@ -897,8 +899,11 @@ const {scrollToTime} = useMemo(
               
               } else if(yesterdayAvailableEnd < yesterdayAvailableStart && yesterdayAvailableEnd > todayAvailableStart) {
       
-                var newstarttime = dateCheck.setHours(0,0,0,0)
-                var newendtime = dateCheck.setHours(selectedHostProfile[todayAvailableStart].slice(0, 2),selectedHostProfile[todayAvailableStart].slice(3, 5),0,0)
+                var newstarttime = new Date(dateCheck.setHours(0,0,0,0))
+                var newendtime = new Date(dateCheck.setHours(selectedHostProfile[todayAvailableStart].slice(0, 2),selectedHostProfile[todayAvailableStart].slice(3, 5),0,0))
+
+                newstarttime.setDate(currentDay)
+                newendtime.setDate(currentDay)
                 
                 var availabilityEarly = {
                   id: `today_availability_early`,
@@ -915,8 +920,11 @@ const {scrollToTime} = useMemo(
       
               if(todayAvailableStart > todayAvailableEnd){
       
-                var newstarttime = dateCheck.setHours(selectedHostProfile[todayAvailableStart].slice(0, 2), selectedHostProfile[todayAvailableStart].slice(3, 5), 0,0)
-                var newendtime = dateCheck.setHours(24)
+                var newstarttime = new Date(dateCheck.setHours(selectedHostProfile[todayAvailableStart].slice(0, 2), selectedHostProfile[todayAvailableStart].slice(3, 5), 0,0))
+                var newendtime = new Date(dateCheck.setHours(24))
+
+                newstarttime.setDate(currentDay)
+                newendtime.setDate(currentDay)
                 
                 var availabilityLate = {
                   id: `today_availability_late`,
@@ -931,8 +939,11 @@ const {scrollToTime} = useMemo(
               
               } else if(todayAvailableStart < todayAvailableEnd) {
       
-                var newstarttime = dateCheck.setHours(selectedHostProfile[todayAvailableStart].slice(0, 2), selectedHostProfile[todayAvailableStart].slice(3, 5), 0,0)
-                var newendtime = dateCheck.setHours(selectedHostProfile[todayAvailableEnd].slice(0, 2), selectedHostProfile[todayAvailableEnd].slice(3, 5), 0,0)
+                var newstarttime = new Date(dateCheck.setHours(selectedHostProfile[todayAvailableStart].slice(0, 2), selectedHostProfile[todayAvailableStart].slice(3, 5), 0,0))
+                var newendtime = new Date(dateCheck.setHours(selectedHostProfile[todayAvailableEnd].slice(0, 2), selectedHostProfile[todayAvailableEnd].slice(3, 5), 0,0))
+
+                newstarttime.setDate(currentDay)
+                newendtime.setDate(currentDay)
                 
                 var availabilityLate = {
                   id: `today_availability_late`,
@@ -993,6 +1004,7 @@ const {scrollToTime} = useMemo(
       "enable-funding": "venmo",
       "currency": host.currency.toUpperCase()
     })
+
     setSelectedCurrencySymbol(host.currencySymbol)
 
     var charge = ((bookingEnd - bookingStart) / 1000 / 1800) * host.chargeRatePerHalfHourFee
@@ -1155,7 +1167,7 @@ const {scrollToTime} = useMemo(
 
   useEffect( ()=> {
 
-    if((auth.credits?.length || changed > 0) && paymentCurrency){
+    if((auth.credits?.length) && paymentCurrency){
       for(let i=0; i<auth.credits?.length; i++){
           if(auth.credits[i].currency.toLowerCase() === paymentCurrency){
               setPaymentCurrencySymbol(auth.credits[i].currencySymbol)
@@ -1169,7 +1181,7 @@ const {scrollToTime} = useMemo(
       }
     }
 
-  }, [paymentCurrency])
+  }, [paymentCurrency, auth])
 
 
   useEffect( ()=> {
@@ -1179,12 +1191,25 @@ const {scrollToTime} = useMemo(
         const userdata = await getUserData(auth.accessToken, auth.userId)
 
         if(userdata){
+
+          for(let i=0; i<userdata.credits?.length; i++){
+            if(userdata.credits[i].currency.toLowerCase() === paymentCurrency){
+                setPaymentCurrencySymbol(userdata.credits[i].currencySymbol)
+                setAccountBalance(userdata.credits[i].amount)
+            }
+          }
+          for(let i=0; i<userdata.escrow?.length; i++){
+              if(userdata.escrow[i].currency.toLowerCase() === paymentCurrency){
+                  setEscrowBalance(userdata.escrow[i].amount)
+              }
+          }
             
             setAuth(prev => {
         
                 return {
                     ...prev,
                     credits: userdata.foundUser?.credits,
+                    escrow: userdata.foundUser?.escrow,
                     requestedPayout: userdata.foundUser?.requestedPayout,
                     requestedPayoutCurrency: userdata.foundUser?.requestedPayoutCurrency,
                     requestedPayoutOption: userdata.foundUser?.requestedPayoutOption,
@@ -1247,10 +1272,13 @@ const {scrollToTime} = useMemo(
 
       if(scrollRefs){
 
-        scrollRefs[host._id].current.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start',
-        });
+        setTimeout(() =>
+          scrollRefs[host._id].current.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+          }),
+          50
+        )
       }
     }
 
@@ -1326,11 +1354,12 @@ const {scrollToTime} = useMemo(
           
             hostLocations.map((host, index)=> (
               
-              <div key={`${host._id}_marker`} id={host._id} ref={scrollRefs[host._id]}>
-                <button>
+              <div key={`${host._id}_marker`}>
+
+                <button className='flex flex-col' >
                     <Marker position={{lat: host.location.coordinates[1], lng:host.location.coordinates[0]}} 
                       icon={svgMarkerPins(colorsList[index])}
-                      value={host.address} onClick={(e)=>handleMarkerClick(e, host)} />
+                      value={host.address}  onClick={(e)=>handleMarkerClick(e, host)}/>
                 </button>
               </div>
             ))
@@ -1452,11 +1481,11 @@ const {scrollToTime} = useMemo(
         
         <div className='flex w-full justify-start items-start '>
             
-            <div className='ml-4 py-2 flex flex-col w-[350px] h-[500px] rounded-xl overflow-y-scroll
+            <div className='ml-4 py-2 flex flex-col w-[350px] h-[500px] rounded-xl
               bg-gray-50 border-2 border-[#00D3E0] z-10 items-center px-2'>
 
                 <div className='flex flex-row overflow-x-scroll w-full
-                pl-4 border-b border-gray-500'>
+                pl-4 border-b border-gray-500 py-1'>
 
                     <div className='flex flex-row items-center justify-start gap-x-3'>
                     <label className='text-right pr-1 text-xs sm:text-sm'>J1772 AC</label>
@@ -1586,14 +1615,16 @@ const {scrollToTime} = useMemo(
                     />
                     </div>
                 </div>
+
+                <div className='w-full overflow-y-scroll' key={"hostlocations_container"}>
                 
                 {hostLocations.map((host, index) => (
-                  
                   
                   <div key={`${host._id}_leftsquare`} onClick={(e)=>handleAddressClick(e, host)}
                     className={`w-full flex flex-col px-2 bg-[#c1f2f5]
                     py-2 ${currentMarker === host._id ? 'border-4 border-[#FFE142] '   
-                    : 'border border-gray-300  '} rounded-lg`}>
+                    : 'border border-gray-300  '} rounded-lg`}
+                    ref={scrollRefs[host._id]}>
                     
                     <div className='flex flex-row'>
                       
@@ -1629,6 +1660,7 @@ const {scrollToTime} = useMemo(
 
                   </div>
                 ))}
+              </div>    
             </div>
         </div>}
        
@@ -1637,10 +1669,10 @@ const {scrollToTime} = useMemo(
        <div className='flex flex-grow justify-end items-end'>
             
             <div className='flex flex-col w-[350px] h-[200px] rounded-xl bg-gray-50 
-              border-2 border-[#00D3E0] z-10 items-center'>
+              border-2 border-[#00D3E0] z-10 items-center overflow-y-scroll'>
 
               <div className='flex flex-row overflow-x-scroll w-full
-                pl-4 border-b border-gray-500'>
+                pl-4 border-b border-gray-500 py-4'>
 
                     <div className='flex flex-row items-center justify-start gap-x-3'>
                     <label className='text-right pr-1 text-xs sm:text-sm'>J1772 AC</label>
@@ -1770,16 +1802,18 @@ const {scrollToTime} = useMemo(
                     />
                     </div>
                 </div>
+
+                <div className='w-full' key={"hostlocations_container_mini"}>
                 
                 {hostLocations.map((host, index) => (
                   
-                  
                   <div key={`${host._id}_leftsquare`} onClick={(e)=>handleAddressClick(e, host)}
-                    className={`w-full flex flex-col px-2 bg-[#c1f2f5]
+                    className={`w-full flex flex-col px-3 bg-[#c1f2f5] my-1
                     py-2 ${currentMarker === host._id ? 'border-4 border-[#FFE142] '   
-                    : 'border border-gray-300  '} rounded-lg`}>
+                    : 'border border-gray-300  '} rounded-lg`}
+                    ref={scrollRefs[host._id]}>
                     
-                    <div className='flex flex-row'>
+                    <div className='flex flex-row m-1'>
                       
                       <svg version="1.2" baseProfile="tiny" 
                       xmlns="http://www.w3.org/2000/svg" 
@@ -1814,8 +1848,8 @@ const {scrollToTime} = useMemo(
                   </div>
                 ))}
 
+              </div>
             </div>
-
         </div>
         }
 
@@ -1838,10 +1872,9 @@ const {scrollToTime} = useMemo(
           <div className='flex flex-col w-full overflow-y-scroll'>
 
           <div className='py-2'>
-          <p className='text-lg text-center font-semibold pb-2 text-black'> Host Information: </p>
             {/* <p className='text-center'><b>Address:</b> {selectedAddress.slice(0, selectedAddress.lastIndexOf(',', selectedAddress.lastIndexOf(',')-1))}</p> */}
-            <p className='text-center'><b>Connector:</b> {selectedConnection}</p>
-            <p className='text-center'><b>Other Adapter:</b> {secondaryConnection}</p>
+            <p className='text-center text-lg'><b>Connector:</b> {selectedConnection}</p>
+            <p className='text-center text-lg'><b>Other Adapter:</b> {secondaryConnection}</p>
           </div>
 
           <Slider {...settings} ref={sliderRefPre}>
@@ -1885,7 +1918,7 @@ const {scrollToTime} = useMemo(
 
             </Slider>
 
-                <p className='text-base text-center font-semibold pt-4 pb-2'> Enter Requested Time Below: </p>
+                <p className='text-lg text-center font-semibold pt-6 pb-2'> Enter Requested Time Below: </p>
 
                 <div className='pt-1 pb-4 flex flex-col gap-y-2'>
 
@@ -1912,7 +1945,43 @@ const {scrollToTime} = useMemo(
                       <p className='pt-2 text-xl font-semibold'>Total Cost: {selectedCurrency?.toUpperCase()}{selectedCurrencySymbol}{Number(totalCharge).toFixed(2)}</p>
                     </div>
 
-                    <div className="flex flex-row justify-center items-center gap-x-2">
+                    <div className='flex flex-row ml-2'>
+                        <input  
+                          className='w-5 h-5'
+                            type="checkbox" 
+                            id='termsagree'
+                            onChange={toggleTerms}
+                            checked={termschecked}
+                        />
+                        <label className='ml-2 text-sm font-medium md:text-base' htmlFor="termsagree">{`I agree to the `}
+                            <button className='text-blue-900 underline' onClick={(e)=>handleTermsClick(e)}> 
+                              Terms of Service
+                            </button>
+                        </label>
+                    </div>
+
+                    <button className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] 
+                     flex flex-row gap-x-2 justify-center items-center ${!termschecked ? "cursor-not-allowed hover:bg-gray-400" : "cursor-pointer hover:bg-[#00D3E0]"}`}
+                      onClick={(e)=>handleAddAppointment(e)}
+                      disabled={!termschecked || waitingSubmit}>
+
+                      {waitingSubmit && 
+                      <div aria-label="Loading..." role="status">
+                          <svg className="h-4 w-4 animate-spin" viewBox="3 3 18 18">
+                          <path
+                              className="fill-gray-200"
+                              d="M12 5C8.13401 5 5 8.13401 5 12C5 15.866 8.13401 19 12 19C15.866 19 19 15.866 19 12C19 8.13401 15.866 5 12 5ZM3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12Z"></path>
+                          <path
+                              className="fill-[#00D3E0]"
+                              d="M16.9497 7.05015C14.2161 4.31648 9.78392 4.31648 7.05025 7.05015C6.65973 7.44067 6.02656 7.44067 5.63604 7.05015C5.24551 6.65962 5.24551 6.02646 5.63604 5.63593C9.15076 2.12121 14.8492 2.12121 18.364 5.63593C18.7545 6.02646 18.7545 6.65962 18.364 7.05015C17.9734 7.44067 17.3403 7.44067 16.9497 7.05015Z"></path>
+                          </svg>
+                      </div>
+                      }
+
+                      Submit Request
+                    </button>
+
+                    <div className="flex flex-row justify-center items-center gap-x-2 pt-8">
 
                       <label className="flex justify-center items-center pr-2 font-semibold">Currency:</label>
 
@@ -1938,49 +2007,13 @@ const {scrollToTime} = useMemo(
                       <p className="text-lg">On Hold: {paymentCurrency.toUpperCase()} {paymentCurrencySymbol}{escrowBalance.toFixed(2)}</p>
                     </div>
 
-                    <button className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] 
-                     flex flex-row gap-x-2 justify-center items-center ${!termschecked ? "cursor-not-allowed hover:bg-gray-400" : "cursor-pointer hover:bg-[#00D3E0]"}`}
-                      onClick={(e)=>handleAddAppointment(e)}
-                      disabled={!termschecked}>
-
-                      {waitingSubmit && 
-                      <div aria-label="Loading..." role="status">
-                          <svg className="h-4 w-4 animate-spin" viewBox="3 3 18 18">
-                          <path
-                              className="fill-gray-200"
-                              d="M12 5C8.13401 5 5 8.13401 5 12C5 15.866 8.13401 19 12 19C15.866 19 19 15.866 19 12C19 8.13401 15.866 5 12 5ZM3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12Z"></path>
-                          <path
-                              className="fill-[#00D3E0]"
-                              d="M16.9497 7.05015C14.2161 4.31648 9.78392 4.31648 7.05025 7.05015C6.65973 7.44067 6.02656 7.44067 5.63604 7.05015C5.24551 6.65962 5.24551 6.02646 5.63604 5.63593C9.15076 2.12121 14.8492 2.12121 18.364 5.63593C18.7545 6.02646 18.7545 6.65962 18.364 7.05015C17.9734 7.44067 17.3403 7.44067 16.9497 7.05015Z"></path>
-                          </svg>
-                      </div>
-                      }
-
-                      Submit Request
-                    </button>
-
-                    <div className='flex flex-row ml-2'>
-                        <input  
-                          className='w-5 h-5'
-                            type="checkbox" 
-                            id='termsagree'
-                            onChange={toggleTerms}
-                            checked={termschecked}
-                        />
-                        <label className='ml-2 text-sm font-medium md:text-base' htmlFor="termsagree">{`I agree to the `}
-                            <button className='text-blue-900 underline' onClick={(e)=>handleTermsClick(e)}> 
-                              Terms of Service
-                            </button>
-                        </label>
-                    </div>
-
                     <div className='flex flex-col pt-4'>
                       
                       <div className='flex flex-row justify-center'>
                       <span className='bg-[#8BEDF3] h-[50px] w-[100px] flex justify-center items-center p-2'>3rd Party Bookings</span>
-                        <span className='bg-[#F97316] h-[50px] w-[100px] flex justify-center items-center p-2'>Your Requests</span>
+                        <span className='bg-[#F97316] h-[50px] w-[100px] flex justify-center items-center p-2'>Current Request</span>
                         <span className='bg-[#FFE142] h-[50px] w-[100px] flex justify-center items-center p-2'>Your Bookings</span>
-                        <span className='bg-[#D1D5DB] h-[50px] w-[100px] flex justify-center items-center p-2'>Available</span>
+                        <span className='bg-[#D1D5DB] h-[50px] w-[100px] flex justify-center items-center p-2'>Host Available</span>
                       </div>
 
                       <p className='text-lg text-center pt-4 pb-2'>Location Schedule</p>
@@ -2095,7 +2128,7 @@ const {scrollToTime} = useMemo(
 
                     {selectedEventStatus === "Requested" && 
                     <button 
-                      disabled={(selectedEventStatus === "Cancelled" || selectedEventStatus === "CancelSubmitted")}
+                      disabled={(selectedEventStatus === "Cancelled" || selectedEventStatus === "CancelSubmitted" || waitingSubmit)}
                       className={`border border-gray-300 px-3 py-2 rounded-xl flex flex-row justify-center items-center gap-x-2
                         ${( (selectedEventStatus === "CancelSubmitted" || selectedEventStatus === "Cancelled"  && driverRequestedCancel) || selectedEventStatus === "Cancelled" ) 
                         ? "cursor-not-allowed bg-gray-300" : "bg-[rgb(193,242,245)] hover:bg-[#00D3E0]" }`}
@@ -2287,6 +2320,7 @@ const {scrollToTime} = useMemo(
                                       setPaymentSuccess(true)
                                       setChanged(changed + 1)
                                       alert(`Success, your payment of ${captureData?.data?.orderData?.currency_code} ${captureData?.data?.orderData?.value} has been received!`)
+                                      setPaymentCurrency(selectedCurrency.toLowerCase())
                                       setOpenPaymentsModal(false)
                                   }
                               }   
