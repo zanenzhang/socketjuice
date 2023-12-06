@@ -149,12 +149,12 @@ const AdminGeneral = () => {
             }
         }
 
-        if(Object.values(roles).includes(5150)){
+        if(Object.values(roles).includes(5150) && auth.userId && changed > 0){
 
             getData();
         }
 
-    }, [roles, loggedUserId, changed])
+    }, [roles, auth.userId, changed])
 
 
     useEffect( () => {
@@ -205,7 +205,7 @@ const AdminGeneral = () => {
             const removed = await removePostComment(item._id, item.isReply, item._originalCommentId, item._postId, auth.accessToken, auth.userId)
             if(removed){
                 waiting = false;;
-                setChanged(!changed)
+                setChanged(changed + 1)
             }
         }
     }
@@ -221,7 +221,7 @@ const AdminGeneral = () => {
         const removed = await clearCommentFlags(loggedUserId, item._id, auth.accessToken )
         if(removed){
             waiting = false;;
-            setChanged(!changed)
+            setChanged(changed + 1)
         }
 
     }
@@ -239,7 +239,7 @@ const AdminGeneral = () => {
             const deletedPost = await removeSingleReviewPost(item._id, item._userId, item._productId, item.userOrStore, auth.accessToken, auth.userId)
             if(deletedPost){
                 waiting = false;;
-                setChanged(!changed);
+                setChanged(changed + 1);
             }
         }
     }
@@ -255,7 +255,7 @@ const AdminGeneral = () => {
         const removed = await clearPostFlags(loggedUserId, item._id, auth.accessToken )
         if(removed){
             waiting = false;;
-            setChanged(!changed);
+            setChanged(changed + 1);
         }
 
     }
@@ -276,7 +276,7 @@ const AdminGeneral = () => {
 
             if(banned){
                 waiting = false;;
-                setChanged(!changed);
+                setChanged(changed + 1);
             }
         }
     }
@@ -292,7 +292,7 @@ const AdminGeneral = () => {
         const removed = await clearUserFlags(loggedUserId, item._id, auth.accessToken )
         if(removed){
             waiting = false;;
-            setChanged(!changed);
+            setChanged(changed + 1);
         }
 
     }
@@ -311,7 +311,7 @@ const AdminGeneral = () => {
             const banned = await addProductBan(auth.userId, item._id, auth.accessToken )
             if(banned){
                 waiting = false;;
-                setChanged(!changed);
+                setChanged(changed + 1);
             }
         }
     }
@@ -327,7 +327,7 @@ const AdminGeneral = () => {
         const removed = await clearProductFlags(loggedUserId, item._id, auth.accessToken )
         if(removed){
             waiting = false;;
-            setChanged(!changed);
+            setChanged(changed + 1);
         }
     }
 

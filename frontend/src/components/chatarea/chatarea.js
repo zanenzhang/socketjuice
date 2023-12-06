@@ -9,9 +9,10 @@ import editNewMessagesFill from "../../helpers/Notifications/editNewMessagesFill
 import cloneDeep from 'lodash/cloneDeep';
 
 
-const ChatArea = ({loggedUserId, chatsList, setChatsList, pageNumber, setPageNumber}) => {
+const ChatArea = ({loggedUserId, pageNumber, setPageNumber}) => {
 
-    const {auth, socket, newMessages, setNewMessages, selectedChat } = useAuth();
+    const {auth, socket, newMessages, setNewMessages, selectedChat,
+      chatsList, setChatsList } = useAuth();
     
     const [scrollStop, setScrollStop] = useState(false);
     const [othersTyping, setOthersTyping] = useState(false);
@@ -83,7 +84,7 @@ const ChatArea = ({loggedUserId, chatsList, setChatsList, pageNumber, setPageNum
       async function updateNewMessages() {
 
         if(newMessages){
-          const openedMsgs = await editNewMessagesFill(loggedUserId, auth.accessToken)
+          const openedMsgs = await editNewMessagesFill(auth.userId, auth.accessToken)
           if(openedMsgs){
             setNewMessages(false)
           }  
@@ -100,6 +101,7 @@ const ChatArea = ({loggedUserId, chatsList, setChatsList, pageNumber, setPageNum
       async function getNewChat(){
 
         if(updatedChat){
+
           const newChat = await getSingleChat(updatedChat, auth.accessToken, auth.userId)
 
           if(newChat){
@@ -124,8 +126,8 @@ const ChatArea = ({loggedUserId, chatsList, setChatsList, pageNumber, setPageNum
   
             var newChatsList = cloneDeep(chatsList);
   
-            for(let i=0; i < Object.keys(newChatsList.userChats).length; i++){
-              var item = newChatsList.userChats[i];
+            for(let i=0; i < Object.keys(newChatsList?.userChats).length; i++){
+              var item = newChatsList?.userChats[i];
               
               if(item._id === newChat?.foundChat._id){
                 newChatsList.userChats[i] = newChat.foundChat;
@@ -208,7 +210,7 @@ const ChatArea = ({loggedUserId, chatsList, setChatsList, pageNumber, setPageNum
 
     useEffect( () => {
 
-        if(socket && Object.keys(socket).length !== 0 && socket.connected){
+        if(socket && Object.keys(socket).length > 0 && socket.connected){
 
           console.log("Listening for changes")
       
@@ -232,7 +234,7 @@ const ChatArea = ({loggedUserId, chatsList, setChatsList, pageNumber, setPageNum
   
       }
 
-    }, [socket?.connected])
+    }, [socket])
 
 
     return (
@@ -241,7 +243,7 @@ const ChatArea = ({loggedUserId, chatsList, setChatsList, pageNumber, setPageNum
         
         <MessagesArea 
           key={"messagesArea"}
-          loggedUserId={loggedUserId}
+          loggedUserId={auth.userId}
           messages={messages} setMessages={setMessages} 
           othersTyping={othersTyping} pageNumber={pageNumber}
           setPageNumber={setPageNumber} setScrollStop={setScrollStop}
@@ -254,7 +256,7 @@ const ChatArea = ({loggedUserId, chatsList, setChatsList, pageNumber, setPageNum
         className="flex flex-col items-end justify-items-end">
 
           <ChatInput 
-           loggedUserId={loggedUserId}
+           loggedUserId={auth.userId}
             messages={messages} 
             setMessages={setMessages} socket={socket}
             />

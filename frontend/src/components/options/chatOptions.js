@@ -14,10 +14,9 @@ import removeUserFromChat from '../../helpers/Chats/removeUserFromChat';
 
 
 export default function ChatOptions({chatId, loggedUserId, loggedFirstName,
-    chatsList, changedData, setChangedData, participants, 
-    drawerState, setDrawerState }) {
+    changedData, setChangedData, participants, drawerState, setDrawerState }) {
 
-const { auth, setSelectedChat } = useAuth();
+const { auth, setSelectedChat, chatsList } = useAuth();
 const [anchorElMain, setAnchorElMain] = useState(null);
   const [anchorElPop, setAnchorElPop] = useState(null);
   const [openPopover, setOpenPopover] = useState(false);
@@ -165,7 +164,7 @@ useEffect( ()=> {
     if(leftChat){
         setWaiting(false);
         setSelectedChat("cleared");
-        setChangedData(!changedData);
+        setChangedData(changedData + 1);
     }
   }
 
@@ -175,7 +174,7 @@ useEffect( ()=> {
     setOpenChildAdd(false);
 
     if(alreadyChatting){
-        setChangedData(!changedData)
+        setChangedData(changedData + 1)
         setSelectedChat(chatId)
         setDrawerState({ ...drawerState, ['left']: false });
 
@@ -185,7 +184,7 @@ useEffect( ()=> {
             selectedUser.username, tempParticipants, auth.accessToken, auth.userId) 
 
         if(addedUser?.status === 200){
-            setChangedData(!changedData)
+            setChangedData(changedData + 1)
             setSelectedChat(chatId)
         }
     }

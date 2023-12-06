@@ -213,18 +213,27 @@ async function sendSmsNotification (receivingUserId, notificationType) {
 
         try {
 
-            var message = ""
+            var message = "";
 
             if(notificationType === "Approved"){
-                message = `Hi ${foundReceiver.firstName}, your booking request was approved. Please open the app to get directions at www.socketjuice.com`
+            
+                message = `Hi ${foundReceiver.firstName}, your request was approved. You can review the booking at www.socketjuice.com/bookings and get map directions`
+            
             } else if (notificationType === "Rejected"){
-                message = `Hi ${foundReceiver.firstName}, your booking request was approved. Please open the app to make a new booking at www.socketjuice.com`
+
+                message = `Hi ${foundReceiver.firstName}, your request was rejected. Please open the app to make a new booking at www.socketjuice.com`
+            
             } else if (notificationType === "Requested"){
-                message = `Hi ${foundReceiver.firstName}, a booking request was made. Please open the app to review the request, and approve or reject at www.socketjuice.com`
+            
+                message = `Hi ${foundReceiver.firstName}, a request was made. Please open the app to review the request, and approve or reject at www.socketjuice.com/bookings`
+            
             } else if (notificationType === "CancelSubmitted"){
-                message = `Hi ${foundReceiver.firstName}, a cancellation and refund request was made. Please open the app to review the request, and approve or reject at www.socketjuice.com`
+            
+                message = `Hi ${foundReceiver.firstName}, a cancellation and refund request was made. Please open the app to review the request at www.socketjuice.com/bookings`
+            
             } else if (notificationType === "Cancelled"){
-                message = `Hi ${foundReceiver.firstName}, sorry, a booking request was cancelled prior to approval and refunded. Accounts tied to high volumes of cancellations will be reviewed. `
+            
+                message = `Hi ${foundReceiver.firstName}, sorry, a request was cancelled prior to approval and refunded. Accounts tied to high volumes of cancellations will be reviewed. `
             }
 
             const sent = await client.messages

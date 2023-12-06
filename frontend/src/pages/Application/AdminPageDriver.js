@@ -65,7 +65,7 @@ const AdminPageDriver = () => {
         }
 
         console.log(auth.userId, auth.accessToken)
-        if(auth.userId && auth.accessToken){
+        if(auth.userId && auth.accessToken && changed > 0){
             getUsersList()
         }
 
@@ -85,7 +85,7 @@ const AdminPageDriver = () => {
                 console.log(response)
                 // var userListCopy = userList.filter(e => e._id !== userId)
                 // setUserList(userListCopy)
-                setChanged(!changed)
+                setChanged(changed + 1)
             }
         }
 
@@ -104,7 +104,7 @@ const AdminPageDriver = () => {
                 console.log(response)
                 // var userListCopy = userList.filter(e => e._id !== userId)
                 // setUserList(userListCopy)
-                setChanged(!changed)
+                setChanged(changed + 1)
             }
         }
 

@@ -91,7 +91,7 @@ const addMessage = async (req, res) => {
     
                         if(foundLimits.numberOfMessages[i].date === todaysDate){
     
-                            if(foundLimits.numberOfMessages[i].messagesNumber >= 400){
+                            if(foundLimits.numberOfMessages[i].messagesNumber >= 200){
                                 
                                 return res.status(401).json({ message: 'Reached message limit for today' })
                             
@@ -102,9 +102,8 @@ const addMessage = async (req, res) => {
     
                                 if(savedLimits){
                                     doneOperation = true;
+                                    break;
                                 }
-    
-                                break;
                             }
                         }
                     }
@@ -148,9 +147,8 @@ const addMessage = async (req, res) => {
                                 if(savedLimits){
                                     toUpdate = true;
                                     doneEmail = true;
+                                    break;
                                 }
-    
-                                break;
                             }
                         }
                     }
@@ -196,9 +194,8 @@ const addMessage = async (req, res) => {
                                 if(savedLimits){
                                     doneSMS = true;
                                     toUpdate = true;
+                                    break;
                                 }
-    
-                                break;
                             }
                         }
                     }
@@ -253,7 +250,7 @@ const addMessage = async (req, res) => {
                 foundChat.lastUpdated = Date.now()
 
                 for(let i=0; i<foundChat?.participants?.length; i++){
-                    if(foundChat.participants[i]._userId !== loggedUserId){
+                    if(foundChat.participants[i]._userId.toString() !== loggedUserId.toString()){
                         recipient = foundChat.participants[i]._userId
                     }
                 }

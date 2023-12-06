@@ -626,7 +626,7 @@ const AdminOrders = () => {
 
     useEffect( ()=> {
 
-        if(orders?.length > 0){
+        if(orders?.length > 0 && changedData > 0){
             getOrderData()
         }
 

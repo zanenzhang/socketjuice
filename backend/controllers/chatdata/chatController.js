@@ -93,9 +93,9 @@ const getSingleChat = async (req, res) => {
 
 const addChat = async (req, res) => {
 
-    const { participantsList } = req.body
+    var { participantsList, loggedUserId, inviteUserId } = req.body
 
-    console.log("Adding new chat", participantsList)
+    console.log("Adding new chat", participantsList, loggedUserId, inviteUserId)
 
     if (!participantsList ) return res.status(400).json({ 'message': 'Missing required fields!' });
 
@@ -104,84 +104,47 @@ const addChat = async (req, res) => {
         const newCount = Object.keys(participantsList).length
 
         if(newCount !== 2 ){
-            res.status(400).json({ 'message': 'Incorrect number of participants' })
+            return res.status(400).json({ 'message': 'Incorrect number of participants' })
         }
 
-        Comm.findOne({_userId: participantsList[0]._userId}, async function(err, duplicate){
+        const checkChat = await Comm.findOne({_userId: loggedUserId, "chats.participants": {$elemMatch: { _userId: inviteUserId }}, participantsNumber: newCount})
 
-            if(err){
-                console.log(err)
-                return res.status(400).json({message: "Operation failed"})
-            }
+        if(!checkChat){
 
-            for(let i= 0 ; i< Object.keys(duplicate.chats).length; i++){
-
-                var item = duplicate.chats[i]
-                var newList1 = JSON.stringify(item.participants.map(e=>e._userId))
-                var newList2 = JSON.stringify(participantsList.map(e=>e._userId))
-
-                if(item.participantsNumber == newCount && newList1 === newList2 ){
-                    return res.status(401).json({message: "Chat already exists!"})
-                }               
-            }
-
-            var newChat = new Chat({
-                "participants": participantsList,
-                "lastUpdated": Date.now(),
-                "participantsNumber": participantsList.length
-            })
-
-            const savedNew = await newChat.save();
-
-            if(savedNew){
-
-                var count = 0
-                for(let i=0; i<newCount; i++){
-
-                    var item = participantsList[i];
-
-                    try{
-
-                        const newComm = await Comm.findOne({_userId: item._userId})
-                        
-                        if(newComm){
-
-                            console.log("found Comm")
+            const duplicate = await Comm.findOne({_userId: inviteUserId, "chats.participants": {$elemMatch: { _userId: loggedUserId }}, participantsNumber: newCount})
         
-                            if(newComm?.chats.length > 0){
-            
-                                newComm.chats.push({_chatId: savedNew._id, participants: participantsList, 
-                                    participantsNumber: newCount})
-            
-                            } else {
-            
-                                newComm.chats = [{_chatId: savedNew._id, participants: participantsList, 
-                                    participantsNumber: newCount}]
-                            }
+            if(!duplicate){
 
-                            const savedComm = await newComm.save();
-
-                            if(savedComm){
-                                count += 1
-                            }
-                        } 
-
-                    } catch(err){
-
-                        console.log(err)
-                        return res.status(500).json({ 'Message': err.message });        
+                var savedNew = await Chat.create({
+                    "participants": participantsList,
+                    "lastUpdated": Date.now(),
+                    "participantsNumber": participantsList.length
+                })
+    
+                if(savedNew){
+    
+                    const savedComms = await Comm.updateMany({_userId: {$in: participantsList.map(e =>e._userId)}},
+                                {$push: {chats: {_chatId: savedNew._id, participants: participantsList, participantsNumber: newCount}}})
+                            
+                    if(savedComms){
+    
+                        return res.status(200).json({savedNew})
+                    
+                    } else {
+    
+                        return res.status(401).json({ 'Message': "Failed operation" });
                     }
+    
+                } else {
+    
+                    return res.status(402).json({ 'Message': "Failed" });
                 }
-
-                if(count === newCount){
-                    return res.status(200).json({"Message": "Success"})
-                }
-
             } else {
-
-                res.status(500).json({ 'Message': err.message });
+                return res.status(402).json({ 'Message': "Failed" });
             }
-        })
+        } else {
+            return res.status(500).json({ 'Message': "Failed" });
+        }
         
     } catch (err) {
 
@@ -276,10 +239,12 @@ const removeUserFromChat = async (req, res) => {
     try {
 
         const leftChat = await Chat.updateOne({_id: chatId},{$pull:{participants: {_userId: loggedUserId}}, $inc: {participantsNumber: -1}});         
-        const foundComm = await Comm.updateOne( {_userId: loggedUserId},{$pull: {chats: {_chatId: chatId}}});
+        const updatedComm = await Comm.updateOne( {_userId: loggedUserId},{$pull: {chats: {_chatId: chatId}}});
+        
         var doneChatUpdate = false
+        var doneComm = false
 
-        if(leftChat){
+        if(leftChat && updatedComm){
 
             const updatedChat = await Chat.findOne({_id: chatId}); 
 
@@ -287,7 +252,6 @@ const removeUserFromChat = async (req, res) => {
 
                 var newCount = updatedChat.participants?.length;
 
-                var count = 0
                 for(let i=0; i<newCount; i++){
 
                     try{
@@ -316,7 +280,7 @@ const removeUserFromChat = async (req, res) => {
                                     const savedComm = await foundComm.save();
 
                                     if(savedComm){
-                                        count += 1
+                                        doneComm = true
                                     }
                                 } 
                             }
@@ -344,13 +308,8 @@ const removeUserFromChat = async (req, res) => {
                 }
             }
 
-            if(count === newCount && doneChatUpdate){
-
-                const updatedComm = await Comm.updateOne({"_userId": loggedUserId},{$inc:{participantsNumber: - 1}}); 
-            
-                if(updatedComm){
-                   return res.status(201).json({ 'Message': "Success, left chat" });
-                }
+            if(doneComm && doneChatUpdate){
+                return res.status(201).json({ 'Message': "Success, left chat" });
             }
         
         } else {

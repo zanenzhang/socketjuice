@@ -674,8 +674,6 @@ const VerifyPage = () => {
 
                     if(uploadedUserPhotos && uploadedUserPhotos.status === 200){
 
-                        console.log(uploadedUserPhotos)
-
                         const firstName = uploadedUserPhotos?.data?.firstName;
                         const lastName = uploadedUserPhotos?.data?.lastName;
                         const accessToken = uploadedUserPhotos?.data?.accessToken;
@@ -689,6 +687,7 @@ const VerifyPage = () => {
                         const phoneNumber = uploadedUserPhotos?.data?.phoneNumber
 
                         const credits = uploadedUserPhotos?.data?.credits
+                        const escrow = uploadedUserPhotos?.data?.escrow
 
                         const j1772ACChecked = uploadedUserPhotos?.data?.j1772ACChecked
                         const ccs1DCChecked = uploadedUserPhotos?.data?.ccs1DCChecked
@@ -712,6 +711,7 @@ const VerifyPage = () => {
                                 currency: currency, 
                                 currencySymbol: currencySymbol, 
                                 credits: credits,
+                                escrow: escrow,
                                 appointmentFlags: appointmentFlags,
 
                                 j1772ACChecked: j1772ACChecked,

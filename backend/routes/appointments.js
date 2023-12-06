@@ -19,7 +19,5 @@ router.post('/hostcancelapprove', appointmentController.hostRequestCancelApprove
 router.post('/driverreject', appointmentController.addDriverReject);
 router.post('/hostreject', appointmentController.addHostReject);
 
-router.delete('/', appointmentController.removeAppointment);
-
 
 module.exports = router;

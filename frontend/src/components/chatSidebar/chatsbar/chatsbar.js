@@ -3,66 +3,80 @@ import ChatSlot from "../chatContact/chatSlot";
 import useAuth from "../../../hooks/useAuth";
 import addChat from "../../../helpers/Chats/addChat";
 
-const Chatsbar = ({chatsList, changedData, setChangedData,  
-    setPageNumber, drawerState, setDrawerState, loggedUserId, loggedFirstName }) => {
+const Chatsbar = ({changedData, setChangedData, drawerState, setDrawerState }) => {
   
       const { newIndividualChat, setNewIndividualChat, auth, 
-        selectedChat, setSelectedChat, } = useAuth();    
+        chatsList, setSelectedChat, selectedChat } = useAuth();    
+
+      const [waiting, setWaiting] = useState(false);
+      const [alreadyChatting, setAlreadyChatting] = useState(false)
 
       useEffect( ()=> {
 
-        if(newIndividualChat.userId && loggedUserId && newIndividualChat.userId !== loggedUserId){
+        async function checkContext(){
 
           let newChatUserId = newIndividualChat.userId
           let newChatFirstName = newIndividualChat.firstName
 
-          console.log(newChatUserId, newChatFirstName)
+          console.log(chatsList)
+          console.log(newChatUserId)
 
-          async function checkContext(){
+            for (let i=0; i < chatsList?.userChats?.length; i++){
 
-            let alreadyChatting = false;
+                var item = chatsList.userChats[i];
 
-            if(chatsList?.userChats){
+                console.log(item.participants.some(e => e._userId.toString() === newChatUserId.toString()))
 
-                for (let i=0; i < chatsList.userChats.length; i++){
-
-                    var item = chatsList.userChats[i];
-
-                    if(item.participants.length === 2 && item.participants.some(e => e._userId === newChatUserId)){
-                        alreadyChatting = true
-                        setSelectedChat(item._id);
-                        setDrawerState({ ...drawerState, ['left']: false });
-                        setNewIndividualChat({})
-                        break
-                    }
-                }
-
-                if(!alreadyChatting){
-
-                  var participants = [{_userId: loggedUserId, loggedFirstName: auth.firstName}, 
-                    {_userId: newChatUserId, firstName: newChatFirstName}]    
-                    
-                    participants.sort((a,b) => a.firstName > b.firstName ? 1 : -1);
-
-                    console.log(participants)
-                        
-                    const added = await addChat(participants, loggedUserId, auth.accessToken)
-          
-                    if(added){
-                      if(added.savedNew){
-                        setSelectedChat(added.savedNew._id)
-                        setDrawerState({ ...drawerState, ['left']: false });
-                        setNewIndividualChat({})
-                      }
-                        
-                    }
+                if(item.participants.some(e => e._userId.toString() === newChatUserId.toString())){
+                    setAlreadyChatting(true)
+                    setSelectedChat(item._id);
+                    setDrawerState({ ...drawerState, ['left']: false });
+                    setNewIndividualChat({})
+                    break
                 }
             }
-          }
+
+            if(!alreadyChatting && !selectedChat){
+
+              var participants = [{_userId: auth.userId, firstName: auth.firstName}, 
+                {_userId: newChatUserId, firstName: newChatFirstName}]    
+                
+                participants.sort((a,b) => a.firstName > b.firstName ? 1 : -1);
+                    
+                const added = await addChat(participants, auth.userId, newChatUserId, auth.accessToken)
+      
+                if(added){
+
+                  console.log(added)
+                  
+                  if(added.savedNew){
+                    console.log("Created a new chat")
+                    setSelectedChat(added.savedNew._id)
+                    setAlreadyChatting(true)
+                    setDrawerState({ ...drawerState, ['left']: false });
+                    setNewIndividualChat({})
+                    setWaiting(false)
+                  
+                  } else {
+                    console.log("Failed to create new chat")
+                    setWaiting(false)
+                  }
+                    
+                } else {
+                  console.log("Failed to create new chat")
+                  setWaiting(false)
+                }
+            }
+        }
+
+        if(newIndividualChat.userId && auth.userId && auth.firstName && !selectedChat
+          && newIndividualChat.userId !== auth.userId && !waiting){
+
+          setWaiting(true)
           checkContext();
         }
 
-    }, [newIndividualChat.userId, chatsList, loggedUserId])
+    }, [newIndividualChat.userId, chatsList?.length, selectedChat, auth.userId])
 
 
     return (
@@ -76,7 +90,6 @@ const Chatsbar = ({chatsList, changedData, setChangedData,
               chatItem={item}
               loggedUserId={auth.userId}
               loggedFirstName={auth.firstName}
-              setPageNumber={setPageNumber}
               chatsList={chatsList}
               changedData={changedData}
               setChangedData={setChangedData}

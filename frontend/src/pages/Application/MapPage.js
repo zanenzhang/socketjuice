@@ -66,6 +66,7 @@ const MapPage = () => {
   const [duration, setDuration] = useState('');
   const [mediaURLs, setMediaURLs] = useState([]);
   const [hostComments, setHostComments] = useState([]);
+  const [insufficientFunds, setInsufficientFunds] = useState(false)
 
   const sliderRefPre = useRef(null);
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -253,7 +254,7 @@ const [bookingLengthValue, setBookingLengthValue] = useState(30)
 const [bookingLengthText, setBookingLengthText] = useState("30 Min")
 
 const [currentDate, setCurrentDate] = useState(new Date().toISOString().slice(0,10))
-const [newrequest, setNewrequest] = useState(false);
+const [newrequest, setNewrequest] = useState(0);
 
 const [events, setEvents] = useState([])
 const [hostEvents, setHostEvents] = useState([])
@@ -349,6 +350,26 @@ useEffect( () => {
       if(selectedChargeRate){
         var charge = ((bookingEnd - bookingStart) / 1000 / 1800) * selectedChargeRate
         setTotalCharge(charge)
+
+        if (auth.credits?.length > 0 && selectedCurrency){
+
+          var checkedFunds = false
+          for(let i=0; i< auth?.credits?.length; i++){
+            if(auth.credits[i].currency === selectedCurrency && auth.credits[i].amount > charge){
+              setInsufficientFunds(false)
+              checkedFunds = true
+              break
+            }
+          }
+
+          if(!checkedFunds){
+            setInsufficientFunds(true)  
+          }
+    
+        } else {
+    
+          setInsufficientFunds(true)
+        }
       }
 
       var timeMin = (bookingEnd - bookingStart)/60000
@@ -371,7 +392,7 @@ useEffect( () => {
     }
   }
 
-}, [bookingStart, bookingEnd, auth.userId])
+}, [bookingStart, bookingEnd, auth, changed])
 
 
 
@@ -631,7 +652,7 @@ const {scrollToTime} = useMemo(
       const approved = await addDriverCancelApprove(auth.userId, selectedHostUserId, selectedEventId, auth.userId, auth.accessToken)
 
       if(approved){
-        setNewrequest(!newrequest)
+        setNewrequest(newrequest + 1)
       }
     
     } else {
@@ -639,7 +660,7 @@ const {scrollToTime} = useMemo(
       const submitted = await addDriverCancelSubmit(auth.userId, selectedHostUserId, selectedEventId, auth.userId, auth.accessToken)
 
       if(submitted){
-        setNewrequest(!newrequest)
+        setNewrequest(newrequest + 1)
       }
     }
   }
@@ -655,7 +676,7 @@ const {scrollToTime} = useMemo(
     if(submitted){
       
       setOpenDetailsModal(false)
-      setNewrequest(!newrequest)
+      setNewrequest(newrequest + 1)
       setWaitingSubmit(false);
 
       alert("Booking request has been cancelled")
@@ -667,7 +688,7 @@ const {scrollToTime} = useMemo(
     const submitted = await addDriverCancelSubmit(auth.userId, selectedHostUserId, selectedEventId, auth.userId, auth.accessToken)
 
     if(submitted){
-      setNewrequest(!newrequest)
+      setNewrequest(newrequest + 1)
     }
   }
 
@@ -686,6 +707,7 @@ const {scrollToTime} = useMemo(
       for(let i=0; i< auth?.credits?.length; i++){
         if(auth.credits[i].currency === selectedCurrency && auth.credits[i].amount > charge){
           checkedCredits = true;
+          setInsufficientFunds(false)
           break
         }
       }
@@ -695,6 +717,7 @@ const {scrollToTime} = useMemo(
       alert("Not enough funds, please fund your account")
       setWaitingSubmit(false)
       setOpenPaymentsModal(true)
+      setInsufficientFunds(true)
     }
       
 
@@ -711,7 +734,7 @@ const {scrollToTime} = useMemo(
       if(added && added?.status === 201){
         
         alert("Submitted booking request")
-        setNewrequest(!newrequest)
+        setNewrequest(newrequest + 1)
         setChanged(changed + 1)
         setOpenReserveModal(false);
         setWaitingSubmit(false)
@@ -966,7 +989,7 @@ const {scrollToTime} = useMemo(
       }
     }
 
-    if(hostUserId && currentDate && auth.userId){
+    if(hostUserId && currentDate && auth.userId && newrequest > 0){
       hostAppointments()
     }
 
@@ -1153,13 +1176,19 @@ const {scrollToTime} = useMemo(
   useEffect( () => {
 
     var currencies = []
+    var currencySet = false;
     if(auth.credits?.length){
         for(let i=0; i<auth.credits?.length; i++){
             currencies.push({currency: auth.credits[i].currency, currencySymbol: auth.credits[i].currencySymbol})
-            
+            if(auth.credits[i].currency === paymentCurrency){
+              setPaymentCurrency(auth.credits[i].currency.toLowerCase())
+              currencySet = true
+            }
         }
         setUserCurrencies(currencies)
-        setPaymentCurrency(currencies[0].currency.toLowerCase())
+        if(!currencySet && currencies?.length > 0){
+          setPaymentCurrency(currencies[0].currency.toLowerCase())
+        }
     }
 
   }, [auth])
@@ -1192,15 +1221,15 @@ const {scrollToTime} = useMemo(
 
         if(userdata){
 
-          for(let i=0; i<userdata.credits?.length; i++){
-            if(userdata.credits[i].currency.toLowerCase() === paymentCurrency){
-                setPaymentCurrencySymbol(userdata.credits[i].currencySymbol)
-                setAccountBalance(userdata.credits[i].amount)
+          for(let i=0; i<userdata.foundUser.credits?.length; i++){
+            if(userdata.foundUser.credits[i].currency.toLowerCase() === paymentCurrency){
+                setPaymentCurrencySymbol(userdata.foundUser.credits[i].currencySymbol)
+                setAccountBalance(userdata.foundUser.credits[i].amount)
             }
           }
-          for(let i=0; i<userdata.escrow?.length; i++){
-              if(userdata.escrow[i].currency.toLowerCase() === paymentCurrency){
-                  setEscrowBalance(userdata.escrow[i].amount)
+          for(let i=0; i<userdata.foundUser.escrow?.length; i++){
+              if(userdata.foundUser.escrow[i].currency.toLowerCase() === paymentCurrency){
+                  setEscrowBalance(userdata.foundUser.escrow[i].amount)
               }
           }
             
@@ -1978,7 +2007,8 @@ const {scrollToTime} = useMemo(
                       </div>
                       }
 
-                      Submit Request
+                      {insufficientFunds ? "Fund Account and Submit Request" : "Submit Request" }
+
                     </button>
 
                     <div className="flex flex-row justify-center items-center gap-x-2 pt-8">
@@ -2016,7 +2046,7 @@ const {scrollToTime} = useMemo(
                         <span className='bg-[#D1D5DB] h-[50px] w-[100px] flex justify-center items-center p-2'>Host Available</span>
                       </div>
 
-                      <p className='text-lg text-center pt-4 pb-2'>Location Schedule</p>
+                      <p className='text-lg text-center pt-4 pb-2'>Host Schedule</p>
 
                     <DnDCalendar
 

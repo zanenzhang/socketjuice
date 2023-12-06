@@ -63,7 +63,7 @@ const BookingsPage = () => {
   const [waiting, setWaiting] = useState(false);
   const [waitingSubmit, setWaitingSubmit] = useState(false);
   const [waitingCancel, setWaitingCancel] = useState(false);
-  const [refreshFlags, setRefreshFlags] = useState([])
+  const [refreshFlags, setRefreshFlags] = useState(0)
   
   const [openHelpModal, setOpenHelpModal] = useState(false);
   const [flagged, setFlagged] = useState(false);
@@ -86,8 +86,8 @@ const BookingsPage = () => {
   const [driverAppointments, setDriverAppointments] = useState([])
   const [newrequest, setNewrequest] = useState(0);
 
-  const [termscheckedDriver, setTermscheckedDriver] = useState(false);
-  const [termscheckedHost, setTermscheckedHost] = useState(false);
+  const [termscheckedDriver, setTermscheckedDriver] = useState(true);
+  const [termscheckedHost, setTermscheckedHost] = useState(true);
 
   const [hostEvents, setHostEvents] = useState([])
   const [driverEvents, setDriverEvents] = useState([])
@@ -336,6 +336,10 @@ const BookingsPage = () => {
       setCurrencySymbol("$")
       setChargeRate(3)
       setChargeRateFee(3.5)
+    } else {
+      setCurrencySymbol("$")
+      setChargeRate(3)
+      setChargeRateFee(3.5)
     }
   }, [currency])
 
@@ -468,22 +472,38 @@ useEffect( () => {
     setChargeRate(Number(e.target.value))
 
     if(currency === "cad"){
+
       setChargeRateFee(Number(e.target.value) + 0.50)
+
     } else if(currency === "usd"){
+
       setChargeRateFee(Number(e.target.value) + 0.50)
+
     } else if(currency === "eur"){
+
       setChargeRateFee(Number(e.target.value) + 0.50)
+
     } else if(currency === "gbp"){
+
       setChargeRateFee(Number(e.target.value) + 0.50)
+    
     } else if(currency === "inr"){
+
       setChargeRateFee(Number(e.target.value) + 50)
+
     } else if(currency === "jpy"){
+
       setChargeRateFee(Number(e.target.value) + 50)
+
     } else if(currency === "cny"){
+
       setChargeRateFee(Number(e.target.value) + 2)
+
     } else if(currency === "aud"){
       setChargeRateFee(Number(e.target.value) + 0.50)
+
     } else if(currency === "nzd"){
+
       setChargeRateFee(Number(e.target.value) + 0.50)
     }
 
@@ -504,7 +524,9 @@ useEffect( () => {
     }
 
     setNewIndividualChat({userId: selectedHostUserId, firstName: selectedHostFirstName});
-    navigate(`/messages`);
+    setTimeout( () => {
+      navigate(`/messages`);
+    }, 300)
   }
 
   const boxStyle = {
@@ -538,7 +560,9 @@ useEffect( () => {
     }
 
     setNewIndividualChat({userId: selectedDriverUserId, firstName: selectedDriverFirstName});
-    navigate(`/messages`);
+    setTimeout( () => {
+      navigate(`/messages`);
+    }, 300)
   }
 
   useEffect ( () => {
@@ -2716,6 +2740,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                   </div>
 
                   <div className='flex flex-col gap-y-1 pl-6'>
+                    <p>Booked with: {event.hostFirstName}</p>
                     <p>Address: {event.address.slice(0, (event.address.lastIndexOf(',', (event.address).lastIndexOf(',')-1))) }</p>
                     <p>Start: {event.start.toLocaleTimeString()}</p>
                     <p>End: {event.end.toLocaleTimeString()}</p>

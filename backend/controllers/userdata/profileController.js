@@ -751,7 +751,7 @@ const getUserData = async (req, res) => {
 
     try {
 
-        const foundUser = await User.findOne({_id: userId}).select("_id checkedMobile receivedIdApproval currency currencySymbol requestedPayout requestedPayoutCurrency credits")
+        const foundUser = await User.findOne({_id: userId}).select("_id checkedMobile receivedIdApproval currency currencySymbol requestedPayout requestedPayoutCurrency credits escrow")
         const foundHost = await HostProfile.findOne({_userId: userId}).select("_id verifiedHostCharging submittedChargingForReview deactivated currency currencySymbol")
 
         if(foundUser && foundHost){
@@ -1160,6 +1160,7 @@ const uploadUserPhotos = async (req, res) => {
                 const currency = foundUser.currency;
                 const currencySymbol = foundUser.currencySymbol;
                 const credits = foundUser.credits;
+                const escrow = foundUser.escrow;
                 const appointmentFlags = foundFlags.appointmentFlags
 
                 const lessMotion = foundUser.lessMotion;
@@ -1228,7 +1229,7 @@ const uploadUserPhotos = async (req, res) => {
 
                         res.status(200).json({ firstName, lastName, userId, roles, accessToken, phoneNumber, profilePicURL, 
                             currency, currencySymbol, lessMotion, pushNotifications, smsNotifications, emailNotifications, 
-                            userTheme, FXRates, credits, j1772ACChecked, ccs1DCChecked, mennekesACChecked, ccs2DCChecked, 
+                            userTheme, FXRates, credits, escrow, j1772ACChecked, ccs1DCChecked, mennekesACChecked, ccs2DCChecked, 
                             chademoDCChecked, gbtACChecked, gbtDCChecked, teslaChecked, requestedPayout, 
                             requestedPayoutCurrency, requestedPayoutOption, appointmentFlags})
                     }
@@ -1495,6 +1496,10 @@ const addHostProfile = async (req, res) => {
 
         chargeRate = Number(chargeRate)
         chargeRateFee = Number(chargeRateFee)
+
+        if(chargeRateFee < 2 * chargeRate){
+            return res.status(403).json({"message":"Wrong rate"})  
+        }
 
         var currencySymbol = "$"
 

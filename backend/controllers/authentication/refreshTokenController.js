@@ -23,6 +23,10 @@ const handleRefreshToken = async (req, res) => {
 
             async (err, decoded) => {
                 if (err ) return res.sendStatus(403);
+
+                if(decoded.userId.toString() !== foundUser._id.toString()){
+                    return res.sendStatus(403);
+                }
                 
                 const foundDriver = await DriverProfile.findOne({_userId: foundUser._id})
                 const foundFlags = await Flags.findOne({_userId: foundUser._id})
@@ -38,6 +42,7 @@ const handleRefreshToken = async (req, res) => {
                     const currency = foundUser?.currency;
                     const currencySymbol = foundUser?.currencySymbol;
                     const credits = foundUser?.credits;
+                    const escrow = foundUser?.escrow;
                     const phoneNumber = foundUser?.phonePrimary;
                     const appointmentFlags = foundFlags.appointmentFlags;
 
@@ -89,19 +94,19 @@ const handleRefreshToken = async (req, res) => {
         
                         if(accessToken){
                             
-                            res.status(200).json({ firstName, lastName, userId, roles, accessToken, profilePicURL, phoneNumber,
-                                currency, currencySymbol, pushNotifications, smsNotifications, emailNotifications, credits,
+                            return res.status(200).json({ firstName, lastName, userId, roles, accessToken, profilePicURL, phoneNumber,
+                                currency, currencySymbol, pushNotifications, smsNotifications, emailNotifications, credits, escrow,
                                 j1772ACChecked, ccs1DCChecked, mennekesACChecked, ccs2DCChecked, chademoDCChecked, gbtACChecked, 
                                 gbtDCChecked, teslaChecked, requestedPayout, requestedPayoutCurrency, requestedPayoutOption,
                                 appointmentFlags })
 
                         } else {
-                            res.status(401)
+                            return res.status(401)
                         }
                     }
                 
                 } else {
-                    res.status(402).json({"message": "Operation failed"})
+                    return res.status(402).json({"message": "Operation failed"})
                 }
             }
         );

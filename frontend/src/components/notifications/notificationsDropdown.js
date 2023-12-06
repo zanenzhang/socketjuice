@@ -33,11 +33,11 @@ export default function NotificationsDropdown() {
 
     async function getNotiData(){
 
+      console.log(auth)
+
       const notis = await getNotifications(auth.userId, notiPageNumber, auth.accessToken)
 
       if(notis){
-
-        console.log(notis)
 
         if(notis.status === 403){
 
@@ -101,18 +101,22 @@ export default function NotificationsDropdown() {
       } 
     }
 
-    if(auth?.userId){
+    if(auth.userId){
       getNotiData();
     }
     
-    if(auth?.accessToken){
+  }, [auth])
+
+  useEffect( () => {
+
+    if(!socket.connected && auth.accessToken){
       setSocket(socketIO.connect(ENDPOINT, {
         path:'/mysocket',
         query: `token=${auth.accessToken}`
       }))
     }
-    
-  }, [auth])
+
+  }, [socket.connected, auth])
 
 
   useEffect( ()=> {

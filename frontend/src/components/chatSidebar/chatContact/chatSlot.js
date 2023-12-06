@@ -4,7 +4,7 @@ import useAuth from "../../../hooks/useAuth";
 import ChatOptions from "../../options/chatOptions";
 
 const ChatSlot = ({chatItem, loggedUserId, loggedFirstName, 
-    chatsList, changedData, setChangedData, drawerState, setDrawerState }) => {
+    changedData, setChangedData, drawerState, setDrawerState }) => {
 
     const { selectedChat, setSelectedChat } = useAuth();    
 
@@ -42,7 +42,6 @@ const ChatSlot = ({chatItem, loggedUserId, loggedFirstName,
                     chatId={chatItem._id}
                     loggedUserId={loggedUserId}
                     loggedFirstName={loggedFirstName}
-                    chatsList={chatsList}
                     changedData={changedData} 
                     setChangedData={setChangedData} 
                     setSelectedChat={setSelectedChat}

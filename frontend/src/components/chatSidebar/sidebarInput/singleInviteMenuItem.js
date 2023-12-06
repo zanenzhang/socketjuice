@@ -23,7 +23,7 @@ export default function SingleInviteMenuItem({loggedUserId, loggedFirstName, fol
 
             setSelectedChat(currentChat)
             setDrawerState({ ...drawerState, ['left']: false });
-            setChangedData(!changedData)
+            setChangedData(changedData + 1)
             handleClosePopover()
         
         } else {
@@ -38,7 +38,7 @@ export default function SingleInviteMenuItem({loggedUserId, loggedFirstName, fol
             if(added?.savedNew){
                 setSelectedChat(added.savedNew._id)
                 setDrawerState({ ...drawerState, ['left']: false });
-                setChangedData(!changedData)
+                setChangedData(changedData + 1)
                 handleClosePopover()
             }    
         }

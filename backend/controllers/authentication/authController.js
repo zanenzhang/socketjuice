@@ -91,6 +91,7 @@ const handleLogin = async (req, res) => {
                         const currency = foundUser.currency;
                         const currencySymbol = foundUser.currencySymbol;
                         const credits = foundUser.credits;
+                        const escrow = foundUser.escrow;
                         const phoneNumber = foundUser.phonePrimary;
                         const appointmentFlags = foundFlags.appointmentFlags;
 
@@ -188,7 +189,7 @@ const handleLogin = async (req, res) => {
                 
                                     // Send authorization role and access token to user
                                     res.status(200).json({ firstName, lastName, userId, roles, accessToken, profilePicURL, phoneNumber,
-                                        currency, currencySymbol, pushNotifications, smsNotifications, emailNotifications, credits,
+                                        currency, currencySymbol, pushNotifications, smsNotifications, emailNotifications, credits, escrow,
                                         j1772ACChecked, ccs1DCChecked, mennekesACChecked, ccs2DCChecked, chademoDCChecked, gbtACChecked, 
                                         gbtDCChecked, teslaChecked, requestedPayout, requestedPayoutCurrency, requestedPayoutOption,
                                         appointmentFlags });

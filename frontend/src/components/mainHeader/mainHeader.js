@@ -25,7 +25,7 @@ import editNewMessagesFill from '../../helpers/Notifications/editNewMessagesFill
 import checkUser from '../../helpers/DriverData/checkUser';
 
 
-const MainHeader = ({loggedUserId} ) => {
+const MainHeader = () => {
     
     const navigate = useNavigate();
 
@@ -676,7 +676,7 @@ const MainHeader = ({loggedUserId} ) => {
 
         event.preventDefault();
 
-        const openedMsgs = await editNewMessagesFill(loggedUserId, auth.accessToken)
+        const openedMsgs = await editNewMessagesFill(auth.userId, auth.accessToken)
         if(openedMsgs){
             setNewMessages(false);
             setNewMessagesFill(false);

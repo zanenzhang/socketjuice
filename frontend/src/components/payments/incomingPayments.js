@@ -399,7 +399,7 @@ const PurchasesDisplay = (loggedUserId, loggedUsername, profilePicURL, roles) =>
                     if(ownedDone){
                         waiting = false;
                         setRatingsModal(false);
-                        setChangedData(!changedData)
+                        setChangedData(changedData + 1)
                     }
                 
                 } else {
@@ -409,7 +409,7 @@ const PurchasesDisplay = (loggedUserId, loggedUsername, profilePicURL, roles) =>
                     if(ownedDone){
                         waiting = false;
                         setRatingsModal(false);
-                        setChangedData(!changedData)
+                        setChangedData(changedData + 1)
                     }
                 }
             

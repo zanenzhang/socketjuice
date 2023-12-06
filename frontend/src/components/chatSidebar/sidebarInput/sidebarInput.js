@@ -196,7 +196,7 @@ async function handleNewGroupChat(){
 
       setSelectedChat(currentChatModal)
       setDrawerState({ ...drawerState, ['left']: false });
-      setChangedData(!changedData)
+      setChangedData(changedData + 1)
       setInvitedList([{_userId: loggedUserId, firstName: loggedFirstName}])
       setGroupDisplay([])
       handleCloseModal()
@@ -211,7 +211,7 @@ async function handleNewGroupChat(){
 
           setSelectedChat(added?.savedNew._id);
           setDrawerState({ ...drawerState, ['left']: false });
-          setChangedData(!changedData);
+          setChangedData(changedData + 1);
           setInvitedList([{_userId: loggedUserId, firstName: loggedFirstName}]);
           setGroupDisplay([])
           handleCloseModal();

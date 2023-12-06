@@ -38,7 +38,7 @@ exports.sendReverifyEmail = function({toUser, userId, hash, firstName}) {
       <p>Would it be possible to reupload photos for your profile? One or more of your ID photos was unclear. Apologies for the inconvenience.</p>
       <p><a target="_" href="${process.env.API}/activate/${userId}/${hash}">${process.env.MAIL_FROM_NAME}/activate </a></p>
       <p>Thanks,</p>
-      <p>The ${process.env.MAIL_FROM_NAME} team</p>
+      <p>The ${process.env.MAIL_FROM_NAME} Team</p>
     `,
     attachments: [{
       filename: 'SocketJuiceLogo.png',
@@ -88,7 +88,7 @@ exports.sendNotiEmail = function({firstName, toUser, notificationType}) {
       <p> ${message} </p>
       <p><a target="_" href="${process.env.API}/bookings">${process.env.MAIL_FROM_NAME}/bookings </a></p>
       <p>Thanks,</p>
-      <p>The ${process.env.MAIL_FROM_NAME} team</p>
+      <p>The ${process.env.MAIL_FROM_NAME} Team</p>
     `,
     attachments: [{
       filename: 'SocketJuiceLogo.png',
@@ -113,7 +113,7 @@ exports.sendConfirmationEmail = function({toUser, userId, hash, firstName}) {
       <p>Thank you for registering and welcome to ${process.env.MAIL_FROM_NAME}! Just a few more things remaining...</p>
       <p>To activate your account and confirm your phone number please follow this link: <a target="_" href="${process.env.API}/activate/${userId}/${hash}">${process.env.MAIL_FROM_NAME}/activate </a></p>
       <p>Cheers,</p>
-      <p>The ${process.env.MAIL_FROM_NAME} team</p>
+      <p>The ${process.env.MAIL_FROM_NAME} Team</p>
     `,
     attachments: [{
       filename: 'SocketJuiceLogo.png',
@@ -164,7 +164,7 @@ exports.sendVerifiedEmail = function({toUser, firstName}) {
         <h3> Hello ${firstName}! </h3>
         <p>Thanks for verifying your email! </p>
         <p>Cheers,</p>
-        <p>The ${process.env.MAIL_FROM_NAME} team</p>
+        <p>The ${process.env.MAIL_FROM_NAME} Team</p>
       `,
       attachments: [{
         filename: 'SocketJuiceLogo.png',
@@ -190,7 +190,7 @@ exports.sendVerifiedEmail = function({toUser, firstName}) {
         <p> This will be the only notification we send for the conversation.</p>
         <p> Please log into the application to see the message.</p>
         <p>Cheers,</p>
-        <p>The ${process.env.MAIL_FROM_NAME} team</p>
+        <p>The ${process.env.MAIL_FROM_NAME} Team</p>
       `,
       attachments: [{
         filename: 'SocketJuiceLogo.png',
@@ -241,7 +241,7 @@ exports.sendVerifiedEmail = function({toUser, firstName}) {
         <h3> Hello ${firstName}! </h3>
         <p>Your charging equipment looks great, you can now accept bookings from other EV drivers and earn money! </p>
         <p>Cheers,</p>
-        <p>The ${process.env.MAIL_FROM_NAME} team</p>
+        <p>The ${process.env.MAIL_FROM_NAME} Team</p>
       `,
       attachments: [{
         filename: 'SocketJuiceLogo.png',
@@ -267,7 +267,7 @@ exports.sendVerifiedEmail = function({toUser, firstName}) {
         <p> As a reminder, the photo of the plug connector is to allow us to see the connector type (head pattern). </p>
         <p><a target="_" href="${process.env.API}/bookings">${process.env.MAIL_FROM_NAME}/bookings </a></p>
         <p>Thanks very much,</p>
-        <p>The ${process.env.MAIL_FROM_NAME} team</p>
+        <p>The ${process.env.MAIL_FROM_NAME} Team</p>
       `,
       attachments: [{
         filename: 'SocketJuiceLogo.png',
@@ -329,7 +329,7 @@ exports.sendVerifiedEmail = function({toUser, firstName}) {
         <p>Thanks for verifying your email and phone number! </p>
         <p></p>
         <p>Cheers,</p>
-        <p>The ${process.env.MAIL_FROM_NAME} team</p>
+        <p>The ${process.env.MAIL_FROM_NAME} Team</p>
       `,
       attachments: [{
         filename: 'SocketJuiceLogo.png',
@@ -362,7 +362,7 @@ exports.sendVerifiedEmail = function({toUser, firstName}) {
         <p>Time: ${newdate} ${newtime} </p>
         <p></p>
         <p>Cheers,</p>
-        <p>The ${process.env.MAIL_FROM_NAME} team</p>
+        <p>The ${process.env.MAIL_FROM_NAME} Team</p>
       `,
       attachments: [{
         filename: 'SocketJuiceLogo.png',
@@ -395,7 +395,7 @@ exports.sendVerifiedEmail = function({toUser, firstName}) {
         <p>Time: ${newdate} ${newtime} </p>
         <p></p>
         <p>Cheers,</p>
-        <p>The ${process.env.MAIL_FROM_NAME} team</p>
+        <p>The ${process.env.MAIL_FROM_NAME} Team</p>
       `,
       attachments: [{
         filename: 'SocketJuiceLogo.png',
@@ -423,7 +423,7 @@ exports.sendVerifiedEmail = function({toUser, firstName}) {
         <h3> Hello! </h3>
         <p>Your friend, ${checkedName} has invited you to check out <a target="_" href="https://socketjuice.com/">SocketJuice! </a></p>
         <p>Cheers,</p>
-        <p>The ${process.env.MAIL_FROM_NAME} team</p>
+        <p>The ${process.env.MAIL_FROM_NAME} Team</p>
       `
     }
   
@@ -482,7 +482,7 @@ exports.sendResetPasswordEmail = ({toUser, firstName, userId, hash}) => {
       <h3>Hello ${firstName}!</h3>
       <p>To reset your password please follow this link: <a target="_" href="${process.env.CLIENT}/inputnewpassword?userId=${userId}&hash=${hash}">${process.env.MAIL_FROM_NAME}/inputnewpassword</a></p>
       <p>Cheers,</p>
-      <p>The ${process.env.MAIL_FROM_NAME} team</p>
+      <p>The ${process.env.MAIL_FROM_NAME} Team</p>
     `,
     attachments: [{
       filename: 'SocketJuiceLogo.png',
@@ -506,7 +506,7 @@ exports.sendPassResetConfirmation = ({toUser, firstName}) => {
           <h3>Hello ${firstName}!</h3>
           <p>This email is to notify that your password reset is complete. </p>
           <p>Cheers,</p>
-          <p>The ${process.env.MAIL_FROM_NAME} team</p>
+          <p>The ${process.env.MAIL_FROM_NAME} Team</p>
         `,
         attachments: [{
           filename: 'SocketJuiceLogo.png',

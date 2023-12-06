@@ -112,7 +112,7 @@ const ChatInput = ({loggedUserId, loggedFirstName, messages, setMessages}) => {
             placeholder="Type message"
             onKeyDown={(event)=>onEnterPress(event)}
             ref={messageRef}
-            disabled={waiting || disable || !selectedChat}
+            disabled={waiting || disable || !selectedChat || selectedChat === "cleared"}
           />
 
         <button 

@@ -402,7 +402,7 @@ const SalesDisplay = (loggedUserId, loggedUsername, profilePicURL, roles) => {
                     if(ownedDone){
                         waiting = false;
                         setRatingsModal(false);
-                        setChangedData(!changedData)
+                        setChangedData(changedData + 1)
                     }
                 
                 } else {
@@ -412,7 +412,7 @@ const SalesDisplay = (loggedUserId, loggedUsername, profilePicURL, roles) => {
                     if(ownedDone){
                         waiting = false;
                         setRatingsModal(false);
-                        setChangedData(!changedData)
+                        setChangedData(changedData + 1)
                     }
                 }
             

@@ -45,6 +45,7 @@ export const AuthProvider = ({ children }) => {
 
     const [socket, setSocket] = useState("");
     const [newMessages, setNewMessages] = useState("");
+    const [chatsList, setChatsList] = useState("");
     const [newRequests, setNewRequests] = useState("");
     const [selectedChat, setSelectedChat] = useState("");
     const [previousChat, setPreviousChat] = useState("");
@@ -58,7 +59,7 @@ export const AuthProvider = ({ children }) => {
     return (
         <AuthContext.Provider value={{ auth, setAuth, persist, setPersist, 
             socket, setSocket, newMessages, setNewMessages, newIndividualChat, 
-            setNewIndividualChat, refresh, setRefresh,
+            setNewIndividualChat, refresh, setRefresh, chatsList, setChatsList,
             newRequests, setNewRequests, selectedChat, setSelectedChat, 
             publicFX, setPublicFX, previousChat, setPreviousChat,
             publicRates, setPublicRates, 

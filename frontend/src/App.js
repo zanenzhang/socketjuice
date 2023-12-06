@@ -15,6 +15,7 @@ const ResetPass = lazy( () => import('./pages/Application/ResetPass'));
 const InputNewPassword = lazy( () => import('./pages/Application/InputNewPass'));
 const VerifyPage = lazy( () => import("./pages/Application/VerifyPage"));
 
+const PaymentsPage = lazy( () => import("./pages/Application/PaymentsPage"));
 const SettingsPage = lazy( () => import("./pages/Application/SettingsPage"));
 const TermsPage = lazy( () => import("./pages/Application/TermsPage"));
 const PrivacyPage = lazy( () => import("./pages/Application/PrivacyPage"));
@@ -128,6 +129,15 @@ function App() {
             >
               <Suspense fallback={<SkeletonFullPage />}>
               <SettingsPage />
+              </Suspense>
+          </ErrorBoundary>} />
+
+          <Route path="/payments" element={<ErrorBoundary
+              FallbackComponent={ErrorFallback}
+              onReset={() => navigate('/')}
+            >
+              <Suspense fallback={<SkeletonFullPage />}>
+              <PaymentsPage />
               </Suspense>
           </ErrorBoundary>} />
 

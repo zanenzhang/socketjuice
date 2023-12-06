@@ -21,7 +21,6 @@ import capturePaypalOrder from "../../helpers/Paypal/capturePaypalOrder";
 import getIncomingPayments from "../../helpers/Payments/getIncomingPayments";
 import getOutgoingPayments from "../../helpers/Payments/getOutgoingPayments";
 import getUserData from "../../helpers/Userdata/getUserData";
-// add payment/user flag
 
 
 export default function PaymentsPage() {
@@ -348,6 +347,7 @@ export default function PaymentsPage() {
                     return {
                         ...prev,
                         credits: userdata.foundUser?.credits,
+                        escrow: userdata.foundUser?.escrow,
                         requestedPayout: userdata.foundUser?.requestedPayout,
                         requestedPayoutCurrency: userdata.foundUser?.requestedPayoutCurrency,
                         requestedPayoutOption: userdata.foundUser?.requestedPayoutOption,
