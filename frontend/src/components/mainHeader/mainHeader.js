@@ -701,9 +701,9 @@ const MainHeader = () => {
             <div className="flex flex-row justify-evenly md:justify-between items-center max-w-full w-full h-full 
                 gap-y-1 gap-x-4 sm:gap-x-6 pt-1 overflow-x-hidden flex-shrink-0" >
 
-                <div className='flex flex-row w-1/2 justify-center'>
+                <div className='flex flex-row w-3/4 sm:w-1/2 justify-center'>
                     <Link reloadDocument to={ROUTES.MAP} >
-                        <img className='h-[7vh] flex-shrink-0' src={socketjuice_full_logo} />
+                        <img className='h-[7vh] flex-shrink-0 pl-2 md:pl-8' src={socketjuice_full_logo} />
                     </Link>
                 </div>
 

@@ -26,7 +26,7 @@ const handleResetPassword = async (req, res) => {
 
     if(bannedIP){
     
-        if(bannedIP.ipAddresses?.some(e=>e.userIP === geoData.IPv4)){
+        if(bannedIP?.ipAddresses?.some(e=>e.userIP === geoData.IPv4)){
             return res.status(403).json({ 'message': 'Operation failed' });
         }
 

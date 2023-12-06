@@ -27,6 +27,18 @@ export default function PaymentsPage() {
 
     const { auth, setAuth } = useAuth();
 
+    const currencyList = [
+        {currency: "usd", currencySymbol: "$"},
+        {currency: "cad", currencySymbol: "$"},
+        {currency: "eur", currencySymbol: "€"},
+        {currency: "gbp", currencySymbol: "£"},
+        {currency: "inr", currencySymbol: "₹"},
+        {currency: "jpy", currencySymbol: "¥"},
+        {currency: "cny", currencySymbol: "¥"},
+        {currency: "aud", currencySymbol: "$"},
+        {currency: "nzd", currencySymbol: "$"},
+    ]
+
     const incomingRef = useRef(null);
     const outgoingRef = useRef(null);
     const [changed, setChanged] = useState(0)
@@ -36,9 +48,10 @@ export default function PaymentsPage() {
 
     const [payoutCurrency, setPayoutCurrency] = useState("")
     const [paymentCurrency, setPaymentCurrency] = useState("")
-
     const [payoutCurrencySymbol, setPayoutCurrencySymbol] = useState("$")
     const [paymentCurrencySymbol, setPaymentCurrencySymbol] = useState("$")
+    const [payoutDisplay, setPayoutDisplay] = useState([20, 40, 50])
+    const [paymentDisplay, setPaymentDisplay] = useState([20, 40, 50])
 
       const [payoutMessage, setPayoutMessage] = useState(""); 
       const [selectedPayoutAmount, setSelectedPayoutAmount] = useState(20);
@@ -54,11 +67,11 @@ export default function PaymentsPage() {
         left: true
     })
 
-      const initialOptions = {
+    const [initialOptions, setInitialOptions] = useState({
         "client-id": process.env.REACT_APP_PAYPAL_PUBLIC_ID,
         "enable-funding": "venmo",
         "currency": "USD"
-      };
+      });
     
       const [paymentMessage, setPaymentMessage] = useState(""); 
       const [selectedPaymentAmount, setSelectedPaymentAmount] = useState(20);
@@ -184,31 +197,529 @@ export default function PaymentsPage() {
         updateOutgoing(pageNumber)        
       }
 
+    const handlePayCurrency = (e) => {
+
+        setPayoutCurrency(e.target.value.toLowerCase())
+        setPaymentCurrency(e.target.value.toLowerCase())
+
+        var currencySymbol = "$"
+
+        if(e.target.value === "usd"){
+            
+            currencySymbol = "$"
+            setPaymentDisplay([20, 40, 50])
+            setPayoutDisplay([20, 40, 50])
+
+        } else if(e.target.value === "cad"){
+
+            currencySymbol = "$"
+            setPaymentDisplay([20, 40, 50])
+            setPayoutDisplay([20, 40, 50])
+
+        } else if(e.target.value === "eur"){
+            
+            currencySymbol = "€"
+            setPaymentDisplay([20, 40, 50])
+            setPayoutDisplay([20, 40, 50])
+
+        } else if(e.target.value === "gbp"){
+            
+            currencySymbol = "£"
+            setPaymentDisplay([20, 40, 50])
+            setPayoutDisplay([20, 40, 50])
+
+        } else if(e.target.value === "inr"){
+            
+            currencySymbol = "₹"
+            setPaymentDisplay([200, 400, 500])
+            setPayoutDisplay([200, 400, 500])
+
+        } else if(e.target.value === "jpy"){
+            
+            currencySymbol = "¥"
+            setPaymentDisplay([3000, 5000, 6000])
+            setPayoutDisplay([3000, 5000, 6000])
+
+        } else if(e.target.value === "cny"){
+            
+            currencySymbol = "¥"
+            setPaymentDisplay([100, 200, 300])
+            setPayoutDisplay([100, 200, 300])
+
+        } else if(e.target.value === "aud"){
+            
+            currencySymbol = "$"
+            setPaymentDisplay([20, 40, 50])
+            setPayoutDisplay([20, 40, 50])
+
+        } else if(e.target.value === "nzd"){
+            
+            currencySymbol = "$"
+            setPaymentDisplay([20, 40, 50])
+            setPayoutDisplay([20, 40, 50])
+
+        } else {
+            
+            currencySymbol = "$"
+            setPaymentDisplay([20, 40, 50])
+            setPayoutDisplay([20, 40, 50])
+        }
+
+        setPayoutCurrencySymbol(currencySymbol)
+        setPaymentCurrencySymbol(currencySymbol)
+    }
+
+    const handleSelectPayoutAmount = (e, value) => {
+
+        e.preventDefault()
+
+        if(auth.requestedPayout){
+            return
+        }
+
+        if(value === "A"){
+
+            if(payoutCurrency === "usd"){
+
+                setSelectedPayoutOption("A")
+                setSelectedPayoutAmount(20.00)
+                setSelectedPayoutFee(1.00)
+                setSelectedTotalPayout(19.00)
+    
+            } else if(payoutCurrency === "cad"){
+    
+                setSelectedPayoutOption("A")
+                setSelectedPayoutAmount(20.00)
+                setSelectedPayoutFee(1.00)
+                setSelectedTotalPayout(19.00)
+    
+            } else if(payoutCurrency === "eur"){
+                
+                setSelectedPayoutOption("A")
+                setSelectedPayoutAmount(20.00)
+                setSelectedPayoutFee(1.00)
+                setSelectedTotalPayout(19.00)
+    
+            } else if(payoutCurrency === "gbp"){
+                
+                setSelectedPayoutOption("A")
+                setSelectedPayoutAmount(20.00)
+                setSelectedPayoutFee(1.00)
+                setSelectedTotalPayout(19.00)
+    
+            } else if(payoutCurrency === "inr"){
+                
+                setSelectedPayoutOption("A")
+                setSelectedPayoutAmount(200.00)
+                setSelectedPayoutFee(10.00)
+                setSelectedTotalPayout(190.00)
+    
+            } else if(payoutCurrency === "jpy"){
+                
+                setSelectedPayoutOption("A")
+                setSelectedPayoutAmount(3000.00)
+                setSelectedPayoutFee(200.00)
+                setSelectedTotalPayout(2800.00)
+    
+            } else if(payoutCurrency === "cny"){
+                
+                setSelectedPayoutOption("A")
+                setSelectedPayoutAmount(100.00)
+                setSelectedPayoutFee(5.00)
+                setSelectedTotalPayout(95.00)
+    
+            } else if(payoutCurrency === "aud"){
+                
+                setSelectedPayoutOption("A")
+                setSelectedPayoutAmount(20.00)
+                setSelectedPayoutFee(1.00)
+                setSelectedTotalPayout(19.00)
+    
+            } else if(payoutCurrency === "nzd"){
+                
+                setSelectedPayoutOption("A")
+                setSelectedPayoutAmount(20.00)
+                setSelectedPayoutFee(1.00)
+                setSelectedTotalPayout(19.00)
+    
+            } else {
+                
+                setSelectedPayoutOption("A")
+                setSelectedPayoutAmount(20.00)
+                setSelectedPayoutFee(1.00)
+                setSelectedTotalPayout(19.00)
+            }
+
+        } else if(value === "B"){
+
+            if(payoutCurrency === "usd"){
+
+                setSelectedPayoutOption("B")
+                setSelectedPayoutAmount(40.00)
+                setSelectedPayoutFee(1.00)
+                setSelectedTotalPayout(39.00)
+    
+            } else if(payoutCurrency === "cad"){
+    
+                setSelectedPayoutOption("B")
+                setSelectedPayoutAmount(40.00)
+                setSelectedPayoutFee(1.00)
+                setSelectedTotalPayout(39.00)
+    
+            } else if(payoutCurrency === "eur"){
+                
+                setSelectedPayoutOption("B")
+                setSelectedPayoutAmount(40.00)
+                setSelectedPayoutFee(1.00)
+                setSelectedTotalPayout(39.00)
+    
+            } else if(payoutCurrency === "gbp"){
+                
+                setSelectedPayoutOption("B")
+                setSelectedPayoutAmount(40.00)
+                setSelectedPayoutFee(1.00)
+                setSelectedTotalPayout(39.00)
+    
+            } else if(payoutCurrency === "inr"){
+                
+                setSelectedPayoutOption("B")
+                setSelectedPayoutAmount(400.00)
+                setSelectedPayoutFee(20.00)
+                setSelectedTotalPayout(380.00)
+    
+            } else if(payoutCurrency === "jpy"){
+                
+                setSelectedPayoutOption("B")
+                setSelectedPayoutAmount(6000.00)
+                setSelectedPayoutFee(400.00)
+                setSelectedTotalPayout(5600.00)
+    
+            } else if(payoutCurrency === "cny"){
+                
+                setSelectedPayoutOption("B")
+                setSelectedPayoutAmount(200.00)
+                setSelectedPayoutFee(10.00)
+                setSelectedTotalPayout(190.00)
+    
+            } else if(payoutCurrency === "aud"){
+                
+                setSelectedPayoutOption("B")
+                setSelectedPayoutAmount(40.00)
+                setSelectedPayoutFee(1.00)
+                setSelectedTotalPayout(39.00)
+    
+            } else if(payoutCurrency === "nzd"){
+                
+                setSelectedPayoutOption("B")
+                setSelectedPayoutAmount(40.00)
+                setSelectedPayoutFee(1.00)
+                setSelectedTotalPayout(39.00)
+    
+            } else {
+                
+                setSelectedPayoutOption("B")
+                setSelectedPayoutAmount(40.00)
+                setSelectedPayoutFee(1.00)
+                setSelectedTotalPayout(39.00)
+            }
+
+        } else if(value === "C"){
+            
+            if(payoutCurrency === "usd"){
+
+                setSelectedPayoutOption("C")
+                setSelectedPayoutAmount(50.00)
+                setSelectedPayoutFee(1.00)
+                setSelectedTotalPayout(49.00)
+    
+            } else if(payoutCurrency === "cad"){
+    
+                setSelectedPayoutOption("C")
+                setSelectedPayoutAmount(50.00)
+                setSelectedPayoutFee(1.00)
+                setSelectedTotalPayout(49.00)
+    
+            } else if(payoutCurrency === "eur"){
+                
+                setSelectedPayoutOption("C")
+                setSelectedPayoutAmount(50.00)
+                setSelectedPayoutFee(1.00)
+                setSelectedTotalPayout(49.00)
+    
+            } else if(payoutCurrency === "gbp"){
+                
+                setSelectedPayoutOption("C")
+                setSelectedPayoutAmount(50.00)
+                setSelectedPayoutFee(1.00)
+                setSelectedTotalPayout(49.00)
+    
+            } else if(payoutCurrency === "inr"){
+                
+                setSelectedPayoutOption("C")
+                setSelectedPayoutAmount(500.00)
+                setSelectedPayoutFee(25.00)
+                setSelectedTotalPayout(475.00)
+    
+            } else if(payoutCurrency === "jpy"){
+                
+                setSelectedPayoutOption("C")
+                setSelectedPayoutAmount(8000.00)
+                setSelectedPayoutFee(500.00)
+                setSelectedTotalPayout(7500.00)
+    
+            } else if(payoutCurrency === "cny"){
+                
+                setSelectedPayoutOption("C")
+                setSelectedPayoutAmount(300)
+                setSelectedPayoutFee(15.00)
+                setSelectedTotalPayout(285.00)
+    
+            } else if(payoutCurrency === "aud"){
+                
+                setSelectedPayoutOption("C")
+                setSelectedPayoutAmount(50.00)
+                setSelectedPayoutFee(1.00)
+                setSelectedTotalPayout(49.00)
+    
+            } else if(payoutCurrency === "nzd"){
+                
+                setSelectedPayoutOption("C")
+                setSelectedPayoutAmount(50.00)
+                setSelectedPayoutFee(1.00)
+                setSelectedTotalPayout(49.00)
+    
+            } else {
+                
+                setSelectedPayoutOption("C")
+                setSelectedPayoutAmount(50.00)
+                setSelectedPayoutFee(1.00)
+                setSelectedTotalPayout(49.00)
+            }
+        }
+      }
 
     const handleSelectPaymentAmount = (e, value) => {
 
         e.preventDefault()
 
         if(value === "A"){
-            
-            setSelectedPaymentOption("A")
-            setSelectedPaymentAmount(20)
-            setSelectedServiceFee(1.50)
-            setSelectedPaymentTotal(21.50)
+
+            if(paymentCurrency === "usd"){
+
+                setSelectedPaymentOption("A")
+                setSelectedPaymentAmount(20.00)
+                setSelectedServiceFee(1.50)
+                setSelectedPaymentTotal(21.50)
+    
+            } else if(paymentCurrency === "cad"){
+    
+                setSelectedPaymentOption("A")
+                setSelectedPaymentAmount(20.00)
+                setSelectedServiceFee(1.50)
+                setSelectedPaymentTotal(21.50)
+    
+            } else if(paymentCurrency === "eur"){
+                
+                setSelectedPaymentOption("A")
+                setSelectedPaymentAmount(20.00)
+                setSelectedServiceFee(1.50)
+                setSelectedPaymentTotal(21.50)
+    
+            } else if(paymentCurrency === "gbp"){
+                
+                setSelectedPaymentOption("A")
+                setSelectedPaymentAmount(20.00)
+                setSelectedServiceFee(1.50)
+                setSelectedPaymentTotal(21.50)
+    
+            } else if(paymentCurrency === "inr"){
+                
+                setSelectedPaymentOption("A")
+                setSelectedPaymentAmount(200.00)
+                setSelectedServiceFee(15.00)
+                setSelectedPaymentTotal(215.00)
+    
+            } else if(paymentCurrency === "jpy"){
+                
+                setSelectedPaymentOption("A")
+                setSelectedPaymentAmount(3000)
+                setSelectedServiceFee(200)
+                setSelectedPaymentTotal(3200)
+    
+            } else if(paymentCurrency === "cny"){
+                
+                setSelectedPaymentOption("A")
+                setSelectedPaymentAmount(100.00)
+                setSelectedServiceFee(5.00)
+                setSelectedPaymentTotal(105.00)
+    
+            } else if(paymentCurrency === "aud"){
+                
+                setSelectedPaymentOption("A")
+                setSelectedPaymentAmount(20.00)
+                setSelectedServiceFee(1.50)
+                setSelectedPaymentTotal(21.50)
+    
+            } else if(paymentCurrency === "nzd"){
+                
+                setSelectedPaymentOption("A")
+                setSelectedPaymentAmount(20.00)
+                setSelectedServiceFee(1.50)
+                setSelectedPaymentTotal(21.50)
+    
+            } else {
+                
+                setSelectedPayoutOption("A")
+                setSelectedPayoutAmount(20.00)
+                setSelectedPayoutFee(1.00)
+                setSelectedTotalPayout(19.00)
+            }
 
         } else if(value === "B"){
-            
-            setSelectedPaymentOption("B")
-            setSelectedPaymentAmount(40)
-            setSelectedServiceFee(2.00)
-            setSelectedPaymentTotal(42.00)
+
+            if(paymentCurrency === "usd"){
+
+                setSelectedPaymentOption("B")
+                setSelectedPaymentAmount(40.00)
+                setSelectedServiceFee(2.00)
+                setSelectedPaymentTotal(42.00)
+    
+            } else if(paymentCurrency === "cad"){
+    
+                setSelectedPaymentOption("B")
+                setSelectedPaymentAmount(40.00)
+                setSelectedServiceFee(2.00)
+                setSelectedPaymentTotal(42.00)
+    
+            } else if(paymentCurrency === "eur"){
+                
+                setSelectedPaymentOption("B")
+                setSelectedPaymentAmount(40.00)
+                setSelectedServiceFee(2.00)
+                setSelectedPaymentTotal(42.00)
+    
+            } else if(paymentCurrency === "gbp"){
+                
+                setSelectedPaymentOption("B")
+                setSelectedPaymentAmount(40.00)
+                setSelectedServiceFee(2.00)
+                setSelectedPaymentTotal(42.00)
+    
+            } else if(paymentCurrency === "inr"){
+                
+                setSelectedPaymentOption("B")
+                setSelectedPaymentAmount(400.00)
+                setSelectedServiceFee(20.00)
+                setSelectedPaymentTotal(420.00)
+    
+            } else if(paymentCurrency === "jpy"){
+                
+                setSelectedPaymentOption("B")
+                setSelectedPaymentAmount(6000.00)
+                setSelectedServiceFee(40.00)
+                setSelectedPaymentTotal(6400.00)
+    
+            } else if(paymentCurrency === "cny"){
+                
+                setSelectedPaymentOption("B")
+                setSelectedPaymentAmount(200.00)
+                setSelectedServiceFee(10.00)
+                setSelectedPaymentTotal(210.00)
+    
+            } else if(paymentCurrency === "aud"){
+                
+                setSelectedPaymentOption("B")
+                setSelectedPaymentAmount(40.00)
+                setSelectedServiceFee(2.00)
+                setSelectedPaymentTotal(42.00)
+    
+            } else if(paymentCurrency === "nzd"){
+                
+                setSelectedPaymentOption("B")
+                setSelectedPaymentAmount(40.00)
+                setSelectedServiceFee(2.00)
+                setSelectedPaymentTotal(42.00)
+    
+            } else {
+                
+                setSelectedPaymentOption("B")
+                setSelectedPaymentAmount(40.00)
+                setSelectedServiceFee(2.00)
+                setSelectedPaymentTotal(42.00)
+            }
 
         } else if(value === "C"){
             
-            setSelectedPaymentOption("C")
-            setSelectedPaymentAmount(50)
-            setSelectedServiceFee(2.50)
-            setSelectedPaymentTotal(52.50)
+            if(paymentCurrency === "usd"){
+
+                setSelectedPaymentOption("C")
+                setSelectedPaymentAmount(50)
+                setSelectedServiceFee(2.50)
+                setSelectedPaymentTotal(52.50)
+    
+            } else if(paymentCurrency === "cad"){
+    
+                setSelectedPaymentOption("C")
+                setSelectedPaymentAmount(50)
+                setSelectedServiceFee(2.50)
+                setSelectedPaymentTotal(52.50)
+    
+            } else if(paymentCurrency === "eur"){
+                
+                setSelectedPaymentOption("C")
+                setSelectedPaymentAmount(50)
+                setSelectedServiceFee(2.50)
+                setSelectedPaymentTotal(52.50)
+    
+            } else if(paymentCurrency === "gbp"){
+                
+                setSelectedPaymentOption("C")
+                setSelectedPaymentAmount(50.00)
+                setSelectedServiceFee(2.50)
+                setSelectedPaymentTotal(52.50)
+    
+            } else if(paymentCurrency === "inr"){
+                
+                setSelectedPaymentOption("C")
+                setSelectedPaymentAmount(500.00)
+                setSelectedServiceFee(25.00)
+                setSelectedPaymentTotal(525.00)
+    
+            } else if(paymentCurrency === "jpy"){
+                
+                setSelectedPaymentOption("C")
+                setSelectedPaymentAmount(8000.00)
+                setSelectedServiceFee(500.00)
+                setSelectedPaymentTotal(8500.00)
+    
+            } else if(paymentCurrency === "cny"){
+                
+                setSelectedPaymentOption("C")
+                setSelectedPaymentAmount(300.00)
+                setSelectedServiceFee(15.00)
+                setSelectedPaymentTotal(315.00)
+    
+            } else if(paymentCurrency === "aud"){
+                
+                setSelectedPaymentOption("C")
+                setSelectedPaymentAmount(50.00)
+                setSelectedServiceFee(2.50)
+                setSelectedPaymentTotal(52.50)
+    
+            } else if(paymentCurrency === "nzd"){
+                
+                setSelectedPaymentOption("C")
+                setSelectedPaymentAmount(50.00)
+                setSelectedServiceFee(2.50)
+                setSelectedPaymentTotal(52.50)
+    
+            } else {
+                
+                setSelectedPaymentOption("C")
+                setSelectedPaymentAmount(50.00)
+                setSelectedServiceFee(2.50)
+                setSelectedPaymentTotal(52.50)
+            }
         }
     }
       
@@ -295,6 +806,7 @@ export default function PaymentsPage() {
 
                 setOutgoingPayments([...outgoingPayments, ...outgoing?.foundPayments])
                 setWaitingOutgoing(false)
+
             } else if(outgoing) {
                 console.log(outgoing)
                 setScrollStopOutgoing(true)
@@ -317,16 +829,34 @@ export default function PaymentsPage() {
         }
 
         if(auth && tabValue !== undefined && (paymentCurrency || payoutCurrency)){
-            
-            console.log(tabValue)
 
             if(tabValue === "0"){
                 
                 getOutgoing()
 
+                setInitialOptions({
+                    "client-id": process.env.REACT_APP_PAYPAL_PUBLIC_ID,
+                    "enable-funding": "venmo",
+                    "currency": paymentCurrency.toUpperCase()
+                  })
+
             } else if(tabValue === "1"){
                 
                 getIncoming()
+
+                setInitialOptions({
+                    "client-id": process.env.REACT_APP_PAYPAL_PUBLIC_ID,
+                    "enable-funding": "venmo",
+                    "currency": paymentCurrency.toUpperCase()
+                  })
+            
+            } else if(tabValue === "3"){
+
+                setInitialOptions({
+                    "client-id": process.env.REACT_APP_PAYPAL_PUBLIC_ID,
+                    "enable-funding": "venmo",
+                    "currency": paymentCurrency.toUpperCase()
+                  })
             }
         }
 
@@ -365,51 +895,31 @@ export default function PaymentsPage() {
 
       useEffect( () => {
 
-        var currencies = []
-        if(auth.credits?.length){
-            for(let i=0; i<auth.credits?.length; i++){
-                currencies.push({currency: auth.credits[i].currency, currencySymbol: auth.credits[i].currencySymbol})
+        if(auth.userId && tabValue !== "3"){
+
+            var currencies = []
+            if(auth.credits?.length){
+                for(let i=0; i<auth.credits?.length; i++){
+                    currencies.push({currency: auth.credits[i].currency, currencySymbol: auth.credits[i].currencySymbol})
+                }
+                setUserCurrencies(currencies)
                 
+                setPayoutCurrency(currencies[0].currency.toLowerCase())
+                setPayoutCurrencySymbol(currencies[0].currencySymbol)
+
+                setPaymentCurrency(currencies[0].currency.toLowerCase())
+                setPaymentCurrencySymbol(currencies[0].currencySymbol)
+
+                setInitialOptions({
+                    "client-id": process.env.REACT_APP_PAYPAL_PUBLIC_ID,
+                    "enable-funding": "venmo",
+                    "currency": currencies[0].currency.toUpperCase()
+                })
             }
-            setUserCurrencies(currencies)
-            setPayoutCurrency(currencies[0].currency.toLowerCase())
-            setPaymentCurrency(currencies[0].currency.toLowerCase())
         }
 
-      }, [auth])
+      }, [auth, tabValue])
 
-
-
-      const handleSelectPayoutAmount = (e, value) => {
-
-        e.preventDefault()
-
-        if(auth.requestedPayout){
-            return
-        }
-
-        if(value === "A"){
-            
-            setSelectedPayoutOption("A")
-            setSelectedPayoutAmount(20)
-            setSelectedPayoutFee(1.00)
-            setSelectedTotalPayout(19.00)
-
-        } else if(value === "B"){
-            
-            setSelectedPayoutOption("B")
-            setSelectedPayoutAmount(40)
-            setSelectedPayoutFee(1.00)
-            setSelectedTotalPayout(39.00)
-
-        } else if(value === "C"){
-            
-            setSelectedPayoutOption("C")
-            setSelectedPayoutAmount(50)
-            setSelectedPayoutFee(1.00)
-            setSelectedTotalPayout(49.00)
-        }
-      }
 
 
     const handleRequestPayout = async (e) => {
@@ -624,13 +1134,14 @@ const list = (anchor) => (
 
                                     <label className="flex justify-center items-center pr-2 font-semibold">Currency:</label>
 
-                                    <select onChange={(event)=>setPaymentCurrency(event.target.value)}
+                                    <select onChange={(event)=>handlePayCurrency(event)}
                                     value={paymentCurrency}
                                     className={`pl-6 w-30 md:w-40 h-9 border border-gray-primary justify-center items-center`}>
 
                                         {userCurrencies?.length>0 && userCurrencies.map( (e) =>
-                                        
-                                            <option key={`${e.currency}_incoming`} value={`${e.currency.toLowerCase()}`}>{e.currencySymbol}{e.currency.toUpperCase()}</option>
+                                            
+                                            <option key={`${e.currency}_outgoing`} value={`${e.currency.toLowerCase()}`}>
+                                                {e.currencySymbol}{e.currency.toUpperCase()}</option>
                                         )}
 
                                     </select> 
@@ -761,13 +1272,14 @@ const list = (anchor) => (
 
                                     <label className="flex justify-center items-center pr-2 font-semibold">Currency:</label>
 
-                                    <select onChange={(event)=>setPayoutCurrency(event.target.value)}
-                                    value={payoutCurrency}
+                                    <select onChange={(event)=>handlePayCurrency(event)}
+                                    value={paymentCurrency}
                                     className={`pl-6 w-30 md:w-40 h-9 border border-gray-primary justify-center items-center`}>
 
                                         {userCurrencies?.length>0 && userCurrencies.map( (e) =>
-                                        
-                                            <option key={e.currency} value={`${e.currency.toLowerCase()}`}>{e.currencySymbol}{e.currency.toUpperCase()}</option>
+                                            
+                                            <option key={`${e.currency}_outgoing`} value={`${e.currency.toLowerCase()}`}>
+                                                {e.currencySymbol}{e.currency.toUpperCase()}</option>
                                         )}
 
                                     </select> 
@@ -906,91 +1418,112 @@ const list = (anchor) => (
                 
                                 <img className="w-[200px]" src={socketjuice_full_logo} />
 
-                                <p className="text-2xl">Withdrawal Amount:</p>
+                                
 
                                 <div className="flex flex-row justify-center items-center gap-x-2 py-4">
 
                                     <label className="flex justify-center items-center pr-2 font-semibold">Currency:</label>
 
-                                    <select onChange={(event)=>setPaymentCurrency(event.target.value)}
-                                    value={paymentCurrency}
+                                    <select onChange={(event)=>handlePayCurrency(event)}
+                                    value={payoutCurrency}
                                     className={`pl-6 w-30 md:w-40 h-9 border border-gray-primary justify-center items-center`}>
 
                                         {userCurrencies?.length>0 && userCurrencies.map( (e) =>
-                                        
-                                            <option key={`${e.currency}_outgoing`} value={`${e.currency.toLowerCase()}`}>{e.currencySymbol}{e.currency.toUpperCase()}</option>
+                                            
+                                            <option key={`${e.currency}_outgoing`} value={`${e.currency.toLowerCase()}`}>
+                                                {e.currencySymbol}{e.currency.toUpperCase()}</option>
                                         )}
 
                                     </select> 
 
                                 </div>
 
-                                {!submittedPayout && <div className="flex flex-row gap-x-4 py-3">
+                                <div className="pt-2 pb-6 flex flex-col justify-center items-center">
 
-                                    <button className={`px-4 py-2 rounded-xl text-lg ${selectedPayoutOption === "A" ? 'border-2 border-black bg-[#8BEDF3] ' 
-                                        : 'border border-gray-400 ' }  hover:bg-[#8BEDF3]`}
-                                        onClick={(e)=>handleSelectPayoutAmount(e, "A")} disabled={submittedPayout}>
-                                        $20
-                                    </button>
+                                    <p className="text-3xl">Account Balance </p>
 
-                                    <button className={`px-4 py-2 rounded-xl text-lg ${selectedPayoutOption === "B" ? 'border-2 border-black bg-[#8BEDF3] ' 
-                                        : 'border border-gray-400 ' }  hover:bg-[#8BEDF3]`}
-                                        onClick={(e)=>handleSelectPayoutAmount(e, "B")} disabled={submittedPayout}>
-                                        $40
-                                    </button>
-
-                                    <button className={`px-4 py-2 rounded-xl text-lg ${selectedPayoutOption === "C" ? 'border-2 border-black bg-[#8BEDF3] ' 
-                                        : 'border border-gray-400 ' }  hover:bg-[#8BEDF3]`}
-                                        onClick={(e)=>handleSelectPayoutAmount(e, "C")} disabled={submittedPayout}>
-                                        $50
-                                    </button>
-
-                                </div>}
-
-                                <div className="py-4 flex flex-col justify-center items-center">
-
-                                    <p className="text-3xl font-bold">{payoutCurrencySymbol}{selectedPayoutAmount.toFixed(2)}</p>
-                                    
-                                    <p className="text-lg font-bold"> -Service Fee: {payoutCurrencySymbol}{selectedPayoutFee.toFixed(2)} </p>
-
-                                    <p className="flex flex-col w-[375px] text-center text-sm">Note: Service fee includes all processing charges for PayPal, credit cards, and bank transfers. </p>
-
-                                    <p className="text-4xl font-bold pt-8 pb-4">Net Payout: {payoutCurrencySymbol}{selectedTotalPayout.toFixed(2)}</p>
-
+                                    <p className="text-lg">In Wallet: {paymentCurrency.toUpperCase()} {paymentCurrencySymbol}{accountBalance.toFixed(2)}</p>
+                                    <p className="text-lg">On Hold: {paymentCurrency.toUpperCase()} {paymentCurrencySymbol}{escrowBalance.toFixed(2)}</p>
                                 </div>
 
-                                {waitingPayout && <div className="flex flex-row gap-x-2">
+                                
+                                {accountBalance > 0 && 
 
-                                    <div aria-label="Loading..." role="status">
-                                        <svg className="h-6 w-6 animate-spin" viewBox="3 3 18 18">
-                                        <path
-                                            className="fill-gray-200"
-                                            d="M12 5C8.13401 5 5 8.13401 5 12C5 15.866 8.13401 19 12 19C15.866 19 19 15.866 19 12C19 8.13401 15.866 5 12 5ZM3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12Z"></path>
-                                        <path
-                                            className="fill-[#00D3E0]"
-                                            d="M16.9497 7.05015C14.2161 4.31648 9.78392 4.31648 7.05025 7.05015C6.65973 7.44067 6.02656 7.44067 5.63604 7.05015C5.24551 6.65962 5.24551 6.02646 5.63604 5.63593C9.15076 2.12121 14.8492 2.12121 18.364 5.63593C18.7545 6.02646 18.7545 6.65962 18.364 7.05015C17.9734 7.44067 17.3403 7.44067 16.9497 7.05015Z"></path>
-                                        </svg>
+                                    <div className="flex w-full flex-col">
+                                        
+                                        <p className="text-2xl">Withdrawal Amount:</p>
+
+                                        { (!submittedPayout) && 
+                                        <div className="flex flex-row gap-x-4 py-3">
+
+                                            <button className={`px-4 py-2 rounded-xl text-lg ${selectedPayoutOption === "A" ? 'border-2 border-black bg-[#8BEDF3] ' 
+                                                : 'border border-gray-400 ' }  hover:bg-[#8BEDF3]`}
+                                                onClick={(e)=>handleSelectPayoutAmount(e, "A")} disabled={submittedPayout}>
+                                                $20
+                                            </button>
+
+                                            <button className={`px-4 py-2 rounded-xl text-lg ${selectedPayoutOption === "B" ? 'border-2 border-black bg-[#8BEDF3] ' 
+                                                : 'border border-gray-400 ' }  hover:bg-[#8BEDF3]`}
+                                                onClick={(e)=>handleSelectPayoutAmount(e, "B")} disabled={submittedPayout}>
+                                                $40
+                                            </button>
+
+                                            <button className={`px-4 py-2 rounded-xl text-lg ${selectedPayoutOption === "C" ? 'border-2 border-black bg-[#8BEDF3] ' 
+                                                : 'border border-gray-400 ' }  hover:bg-[#8BEDF3]`}
+                                                onClick={(e)=>handleSelectPayoutAmount(e, "C")} disabled={submittedPayout}>
+                                                $50
+                                            </button>
+
+                                        </div>}
+
+                                        
+                                        <div className="py-4 flex flex-col justify-center items-center">
+
+                                            <p className="text-3xl font-bold">{payoutCurrencySymbol}{selectedPayoutAmount.toFixed(2)}</p>
+                                            
+                                            <p className="text-lg font-bold"> -Service Fee: {payoutCurrencySymbol}{selectedPayoutFee.toFixed(2)} </p>
+
+                                            <p className="flex flex-col w-[375px] text-center text-sm">Note: Service fee includes all processing charges for PayPal, credit cards, and bank transfers. </p>
+
+                                            <p className="text-4xl font-bold pt-8 pb-4">Net Payout: {payoutCurrencySymbol}{selectedTotalPayout.toFixed(2)}</p>
+
+                                        </div>
+
+                                        {waitingPayout && <div className="flex flex-row gap-x-2">
+
+                                            <div aria-label="Loading..." role="status">
+                                                <svg className="h-6 w-6 animate-spin" viewBox="3 3 18 18">
+                                                <path
+                                                    className="fill-gray-200"
+                                                    d="M12 5C8.13401 5 5 8.13401 5 12C5 15.866 8.13401 19 12 19C15.866 19 19 15.866 19 12C19 8.13401 15.866 5 12 5ZM3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12Z"></path>
+                                                <path
+                                                    className="fill-[#00D3E0]"
+                                                    d="M16.9497 7.05015C14.2161 4.31648 9.78392 4.31648 7.05025 7.05015C6.65973 7.44067 6.02656 7.44067 5.63604 7.05015C5.24551 6.65962 5.24551 6.02646 5.63604 5.63593C9.15076 2.12121 14.8492 2.12121 18.364 5.63593C18.7545 6.02646 18.7545 6.65962 18.364 7.05015C17.9734 7.44067 17.3403 7.44067 16.9497 7.05015Z"></path>
+                                                </svg>
+                                            </div>
+                                            <p className="text-lg">Loading...</p>
+
+                                        </div>}
+
+                                        {payoutMessage && <p>{payoutMessage}</p>}
+
+                                        {(auth.userId) ? 
+                                        
+                                        <div className="flex flex-col w-[375px] pt-4 gap-y-4">
+                                        
+                                            <button className="py-2 px-4 border border-gray-400 rounded-lg hover:bg-[#8BEDF3]" 
+                                                onClick={(e)=>handleRequestPayout(e)}>
+
+                                                Submit Withdrawal Request
+
+                                            </button>
+
+                                        </div>
+                                        
+                                        : null }
+
                                     </div>
-                                    <p className="text-lg">Loading...</p>
-
-                                </div>}
-
-                                {payoutMessage && <p>{payoutMessage}</p>}
-
-                                {(auth.userId) ? 
-                                
-                                <div className="flex flex-col w-[375px] pt-4 gap-y-4">
-                                
-                                    <button className="py-2 px-4 border border-gray-400 rounded-lg hover:bg-[#8BEDF3]" 
-                                        onClick={(e)=>handleRequestPayout(e)}>
-
-                                        Submit Withdrawal Request
-
-                                    </button>
-
-                                </div>
-                                
-                                : null }
+                                }
 
                             </div>}
 
@@ -1002,53 +1535,56 @@ const list = (anchor) => (
                 
                                 <img className="w-[200px]" src={socketjuice_full_logo} />
 
-                                <p className="text-2xl">Fund Amount:</p>
+                                
 
                                 <div className="flex flex-row justify-center items-center gap-x-2 py-4">
 
                                     <label className="flex justify-center items-center pr-2 font-semibold">Currency:</label>
 
-                                    <select onChange={(event)=>setPaymentCurrency(event.target.value)}
+                                    <select onChange={(event)=>handlePayCurrency(event)}
                                     value={paymentCurrency}
                                     className={`pl-6 w-30 md:w-40 h-9 border border-gray-primary justify-center items-center`}>
 
-                                        {userCurrencies?.length>0 && userCurrencies.map( (e) =>
+                                        {currencyList?.length>0 && currencyList.map( (e) =>
                                         
-                                            <option key={`${e.currency}_outgoing`} value={`${e.currency.toLowerCase()}`}>{e.currencySymbol}{e.currency.toUpperCase()}</option>
-                                        )}
+                                            <option key={`${e.currency}_outgoing`} value={`${e.currency.toLowerCase()}`}>
+                                                {e.currencySymbol}{e.currency.toUpperCase()}</option>
+                                            )}
 
                                     </select> 
 
                                 </div>
 
+                                <p className="text-2xl">Fund Amount:</p>
+
                                 {!paymentSubmitted && <div className="flex flex-row gap-x-4 py-3">
 
                                     <button className={`px-4 py-2 rounded-xl text-lg ${selectedPaymentOption === "A" ? 'border-2 border-black bg-[#8BEDF3] ' : 'border border-gray-400 ' }  hover:bg-[#8BEDF3]`}
                                         onClick={(e)=>handleSelectPaymentAmount(e, "A")} disabled={paymentSubmitted}>
-                                        $20
+                                        {paymentCurrencySymbol}{paymentDisplay[0]}
                                     </button>
 
                                     <button className={`px-4 py-2 rounded-xl text-lg ${selectedPaymentOption === "B" ? 'border-2 border-black bg-[#8BEDF3] ' : 'border border-gray-400 ' }  hover:bg-[#8BEDF3]`}
                                         onClick={(e)=>handleSelectPaymentAmount(e, "B")} disabled={paymentSubmitted}>
-                                        $40
+                                        {paymentCurrencySymbol}{paymentDisplay[1]}
                                     </button>
 
                                     <button className={`px-4 py-2 rounded-xl text-lg ${selectedPaymentOption === "C" ? 'border-2 border-black bg-[#8BEDF3] ' : 'border border-gray-400 ' }  hover:bg-[#8BEDF3]`}
                                         onClick={(e)=>handleSelectPaymentAmount(e, "C")} disabled={paymentSubmitted}>
-                                        $50
+                                        {paymentCurrencySymbol}{paymentDisplay[2]}
                                     </button>
 
                                 </div>}
 
                                 <div className="py-4 flex flex-col justify-center items-center">
 
-                                    <p className="text-3xl font-bold">{paymentCurrencySymbol}{selectedPaymentAmount.toFixed(2)}</p>
+                                    <p className="text-3xl font-bold">{paymentCurrency.toUpperCase()} {paymentCurrencySymbol}{selectedPaymentAmount.toFixed(2)}</p>
                                     
                                     <p className="text-lg font-bold"> +Service Fee: {paymentCurrencySymbol}{selectedServiceFee.toFixed(2)} </p>
 
                                     <p className="flex flex-col w-[350px] text-center text-sm">Note: Service fee includes all processing charges for PayPal, credit cards, and bank transfers. </p>
 
-                                    <p className="text-4xl font-bold pt-8 pb-4">Total: {paymentCurrencySymbol}{selectedPaymentTotal.toFixed(2)}</p>
+                                    <p className="text-4xl font-bold pt-8 pb-4">Total: {paymentCurrency.toUpperCase()} {paymentCurrencySymbol}{selectedPaymentTotal.toFixed(2)}</p>
 
                                 </div>
 
@@ -1086,6 +1622,8 @@ const list = (anchor) => (
                                     createOrder={async (data, actions) => {
                                         
                                         setWaitingPayment(true);
+
+                                        console.log(paymentCurrency, selectedPaymentOption)
 
                                         const orderData = await addPaypalOrder(paymentCurrency, selectedPaymentOption, auth?.userId, auth?.accessToken)
 

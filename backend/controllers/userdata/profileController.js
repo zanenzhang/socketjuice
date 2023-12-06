@@ -535,7 +535,7 @@ const editSettingsUserPass = async (req, res) => {
                                     return res.status(500).send({msg:err.message});
                                 } 
 
-                                sendPassResetConfirmation({toUser: foundUser.email})
+                                sendPassResetConfirmation({toUser: foundUser.email, firstName: foundUser.firstName})
 
                                 return res.status(200).send({msg:'Your password has been reset!'});
                             })

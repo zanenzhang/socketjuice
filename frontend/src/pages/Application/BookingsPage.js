@@ -2007,7 +2007,7 @@ const handleRegularHourChangeEnd = (event, day) => {
 
               <div className='flex flex-row w-full md:w-[45vw] px-4 md:px-0 pt-4'>
 
-                <label className='text-base font-semibold pl-2'>Any Special Directions or Comments:</label>
+                <label className='text-base font-semibold pl-2'>Any Special Directions or Comments for Drivers:</label>
                 <input 
                     aria-label="Directions or Comments: " 
                     type="text" 

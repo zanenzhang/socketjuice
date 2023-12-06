@@ -168,6 +168,7 @@ const MapPage = () => {
   const [userCurrencies, setUserCurrencies] = useState([])
   const [accountBalance, setAccountBalance] = useState(0)
   const [escrowBalance, setEscrowBalance] = useState(0)
+  const [paymentDisplay, setPaymentDisplay] = useState([20, 40, 50])
 
   const [selectedAmount, setSelectedAmount] = useState(20);
   const [selectedServiceFee, setSelectedServiceFee] = useState(1.50);
@@ -451,7 +452,50 @@ const handleSelectEvent = (e) => {
     if(auth.credits?.length > 0){
       for(let i=0; i< auth.credits?.length; i++){
         if(auth.credits[i].currency === e.currency?.toLowerCase()){
-          setPaymentCurrency(e.currency)
+          setPaymentCurrency(e.currency.toLowerCase())
+          setPaymentCurrencySymbol(e.currencySymbol)
+
+          if(e.currency.toLowerCase() === "usd"){
+            
+            setPaymentDisplay([20, 40, 50])
+
+          } else if(e.currency.toLowerCase() === "cad"){
+
+            setPaymentDisplay([20, 40, 50])
+
+          } else if(e.currency.toLowerCase() === "eur"){
+              
+            setPaymentDisplay([20, 40, 50])
+
+          } else if(e.currency.toLowerCase() === "gbp"){
+              
+            setPaymentDisplay([20, 40, 50])
+
+          } else if(e.currency.toLowerCase() === "inr"){
+              
+            setPaymentDisplay([200, 400, 500])
+
+          } else if(e.currency.toLowerCase() === "jpy"){
+              
+            setPaymentDisplay([3000, 5000, 6000])
+
+          } else if(e.currency.toLowerCase() === "cny"){
+              
+            setPaymentDisplay([100, 200, 300])
+
+          } else if(e.currency.toLowerCase() === "aud"){
+              
+            setPaymentDisplay([20, 40, 50])
+
+          } else if(e.currency.toLowerCase() === "nzd"){
+              
+            setPaymentDisplay([20, 40, 50])
+
+          } else {
+              
+            setPaymentDisplay([20, 40, 50])
+          }
+
           break
         }
       }
@@ -1014,7 +1058,50 @@ const {scrollToTime} = useMemo(
     if(auth.credits?.length > 0){
       for(let i=0; i< auth.credits?.length; i++){
         if(auth.credits[i].currency === host.currency.toLowerCase()){
-          setPaymentCurrency(host.currency)
+          setPaymentCurrency(host.currency.toLowerCase())
+          setPaymentCurrencySymbol(host.currencySymbol)
+
+          if(host.currency.toLowerCase() === "usd"){
+            
+            setPaymentDisplay([20, 40, 50])
+
+          } else if(host.currency.toLowerCase() === "cad"){
+
+            setPaymentDisplay([20, 40, 50])
+
+          } else if(host.currency.toLowerCase() === "eur"){
+              
+            setPaymentDisplay([20, 40, 50])
+
+          } else if(host.currency.toLowerCase() === "gbp"){
+              
+            setPaymentDisplay([20, 40, 50])
+
+          } else if(host.currency.toLowerCase() === "inr"){
+              
+            setPaymentDisplay([200, 400, 500])
+
+          } else if(host.currency.toLowerCase() === "jpy"){
+              
+            setPaymentDisplay([3000, 5000, 6000])
+
+          } else if(host.currency.toLowerCase() === "cny"){
+              
+            setPaymentDisplay([100, 200, 300])
+
+          } else if(host.currency.toLowerCase() === "aud"){
+              
+            setPaymentDisplay([20, 40, 50])
+
+          } else if(host.currency.toLowerCase() === "nzd"){
+              
+            setPaymentDisplay([20, 40, 50])
+
+          } else {
+              
+            setPaymentDisplay([20, 40, 50])
+          }
+
           break
         }
       }
@@ -1178,14 +1265,58 @@ const {scrollToTime} = useMemo(
     if(auth.credits?.length){
         for(let i=0; i<auth.credits?.length; i++){
             currencies.push({currency: auth.credits[i].currency, currencySymbol: auth.credits[i].currencySymbol})
-            if(auth.credits[i].currency === paymentCurrency){
+            if(auth.credits[i].currency.toLowerCase() === paymentCurrency){
               setPaymentCurrency(auth.credits[i].currency.toLowerCase())
+              setPaymentCurrencySymbol(auth.credits[i].currencySymbol)
+
+              if(paymentCurrency === "usd"){
+            
+                setPaymentDisplay([20, 40, 50])
+    
+              } else if(paymentCurrency === "cad"){
+    
+                setPaymentDisplay([20, 40, 50])
+    
+              } else if(paymentCurrency === "eur"){
+                  
+                setPaymentDisplay([20, 40, 50])
+    
+              } else if(paymentCurrency === "gbp"){
+                  
+                setPaymentDisplay([20, 40, 50])
+    
+              } else if(paymentCurrency === "inr"){
+                  
+                setPaymentDisplay([200, 400, 500])
+    
+              } else if(paymentCurrency === "jpy"){
+                  
+                setPaymentDisplay([3000, 5000, 6000])
+    
+              } else if(paymentCurrency === "cny"){
+                  
+                setPaymentDisplay([100, 200, 300])
+    
+              } else if(paymentCurrency === "aud"){
+                  
+                setPaymentDisplay([20, 40, 50])
+    
+              } else if(paymentCurrency === "nzd"){
+                  
+                setPaymentDisplay([20, 40, 50])
+    
+              } else {
+                  
+                setPaymentDisplay([20, 40, 50])
+              }
+
               currencySet = true
             }
         }
         setUserCurrencies(currencies)
         if(!currencySet && currencies?.length > 0){
           setPaymentCurrency(currencies[0].currency.toLowerCase())
+          setPaymentCurrencySymbol(currencies[0].currencySymbol)
         }
     }
 
@@ -1199,6 +1330,47 @@ const {scrollToTime} = useMemo(
           if(auth.credits[i].currency.toLowerCase() === paymentCurrency){
               setPaymentCurrencySymbol(auth.credits[i].currencySymbol)
               setAccountBalance(auth.credits[i].amount)
+
+              if(paymentCurrency === "usd"){
+            
+                setPaymentDisplay([20, 40, 50])
+    
+              } else if(paymentCurrency === "cad"){
+    
+                setPaymentDisplay([20, 40, 50])
+    
+              } else if(paymentCurrency === "eur"){
+                  
+                setPaymentDisplay([20, 40, 50])
+    
+              } else if(paymentCurrency === "gbp"){
+                  
+                setPaymentDisplay([20, 40, 50])
+    
+              } else if(paymentCurrency === "inr"){
+                  
+                setPaymentDisplay([200, 400, 500])
+    
+              } else if(paymentCurrency === "jpy"){
+                  
+                setPaymentDisplay([3000, 5000, 6000])
+    
+              } else if(paymentCurrency === "cny"){
+                  
+                setPaymentDisplay([100, 200, 300])
+    
+              } else if(paymentCurrency === "aud"){
+                  
+                setPaymentDisplay([20, 40, 50])
+    
+              } else if(paymentCurrency === "nzd"){
+                  
+                setPaymentDisplay([20, 40, 50])
+    
+              } else {
+                  
+                setPaymentDisplay([20, 40, 50])
+              }
           }
       }
       for(let i=0; i<auth.escrow?.length; i++){
@@ -2217,17 +2389,17 @@ const {scrollToTime} = useMemo(
 
                           <button className={`px-4 py-2 rounded-xl text-lg ${selectedOption === "A" ? 'border-2 border-black bg-[#8BEDF3] ' : 'border border-gray-400 ' }  hover:bg-[#8BEDF3]`}
                               onClick={(e)=>handleSelectAmount(e, "A")} disabled={paymentSubmitted}>
-                              $20
+                              {paymentCurrencySymbol}{paymentDisplay[0]}
                           </button>
 
                           <button className={`px-4 py-2 rounded-xl text-lg ${selectedOption === "B" ? 'border-2 border-black bg-[#8BEDF3] ' : 'border border-gray-400 ' }  hover:bg-[#8BEDF3]`}
                               onClick={(e)=>handleSelectAmount(e, "B")} disabled={paymentSubmitted}>
-                              $40
+                              {paymentCurrencySymbol}{paymentDisplay[1]}
                           </button>
 
                           <button className={`px-4 py-2 rounded-xl text-lg ${selectedOption === "C" ? 'border-2 border-black bg-[#8BEDF3] ' : 'border border-gray-400 ' }  hover:bg-[#8BEDF3]`}
                               onClick={(e)=>handleSelectAmount(e, "C")} disabled={paymentSubmitted}>
-                              $50
+                              {paymentCurrencySymbol}{paymentDisplay[2]}
                           </button>
 
                       </div>}

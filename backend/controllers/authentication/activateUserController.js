@@ -33,7 +33,7 @@ const handleUserActivation = async (req, res) => {
     // token is not found into database i.e. token may have expired 
     if (!token){
 
-      return res.status(400).send({msg:'Your verification link may have expired. Please click resend to get a new verification link!'});
+      return res.status(400).send({msg:'Your verification link may have expired or you have already submitted for verification. Please login and click resend to get a new verification link!'});
     
     } else {
 
