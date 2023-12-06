@@ -70,7 +70,6 @@ const s3 = new S3({
 
   const createOrder = async (cart, userId) => {
 
-    console.log("creating order", cart)
     var amount = "21.50"
     var currency = "USD"
 

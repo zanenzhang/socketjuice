@@ -15,7 +15,8 @@ const AdminPage = () => {
     const { auth, activeTab, setActiveTab  } = useAuth();
     const [userList, setUserList] = useState([])
     const [hostList, setHostList] = useState([])
-    const [changed, setChanged] = useState(false);
+    const [changed, setChanged] = useState(0);
+    const [waiting, setWaiting] = useState(false);
     
     const navigate = useNavigate();
     
@@ -51,7 +52,7 @@ const AdminPage = () => {
         }
 
         console.log(auth.userId, auth.accessToken)
-        if(auth.userId && auth.accessToken && changed > 0){
+        if(auth.userId && auth.accessToken){
             getHostsList()
         }
 
@@ -63,6 +64,11 @@ const AdminPage = () => {
     const handleApproveHost = (e, userId) => {
 
         e.preventDefault()
+        if(waiting){
+            return
+        }
+
+        setWaiting(true)
 
         async function approve(){
 
@@ -74,6 +80,9 @@ const AdminPage = () => {
                 // var userListCopy = userList.filter(e => e._id !== userId)
                 // setUserList(userListCopy)
                 setChanged(changed + 1)
+                setWaiting(false)
+            } else {
+                setWaiting(false)
             }
         }
 
@@ -84,6 +93,12 @@ const AdminPage = () => {
 
         e.preventDefault()
 
+        if(waiting){
+            return
+        }
+
+        setWaiting(true)
+
         async function reject(){
 
             const response = await rejectHost(userId, auth.userId, auth.accessToken)
@@ -93,6 +108,9 @@ const AdminPage = () => {
                 // var userListCopy = userList.filter(e => e._id !== userId)
                 // setUserList(userListCopy)
                 setChanged(changed + 1)
+                setWaiting(false)
+            } else {
+                setWaiting(false)
             }
         }
 

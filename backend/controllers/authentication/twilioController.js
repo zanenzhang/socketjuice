@@ -309,6 +309,50 @@ async function sendChatMessageSMS (receivingUserId, sendingUserFirstName) {
     } 
 }
 
+async function sendDirectionsSMS (receivingUserId, addressurl) {
+
+    if (!receivingUserId || !addressurl ) {
+        return ({result: "Operation failed"})
+    }
+
+    console.log("Sending maps direction url")
+
+    const foundReceiver = await User.findOne({_id: receivingUserId})
+
+    if(foundReceiver && foundReceiver.checkedMobile ){
+
+        try {
+
+            var message = `Directions link: ${addressurl}, `
+
+            const sent = await client.messages
+            .create({
+               body: `${message}`,
+               from: `${process.env.TWILIO_PHONE_NUM}`,
+               to: `${foundReceiver.phonePrimary}`
+             })
+
+            if(sent && sent.status === 'sent'){
+                
+                console.log("Success")
+                return ({result: sent.status})
+                
+            } else {
+                return ({result: "Not sent"})
+            }
+
+        } catch(err){
+
+            console.log(err)
+            return ({result: "Operation failed"})
+        }
+
+    } else {
+
+        return ({ result: "Operation failed", message: 'Mobile number was not verified' })
+    } 
+}
+
 
 async function sendFlagSMS (submitterName, submitterPhone, appointmentId, comment) {
 
@@ -345,4 +389,4 @@ async function sendFlagSMS (submitterName, submitterPhone, appointmentId, commen
 
 
 module.exports = { sendVerification, checkVerification, sendSmsNotification, 
-    sendChatMessageSMS, sendFlagSMS }
+    sendChatMessageSMS, sendFlagSMS, sendDirectionsSMS }

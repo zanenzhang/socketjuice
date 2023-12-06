@@ -442,6 +442,9 @@ useEffect( () => {
   const [videoThumbnails, setVideoThumbnails] = useState([]);
   const [oldMediaTrack, setOldMediaTrack] = useState([]);
 
+  const [specialComments, setSpecialComments] = useState("")
+  const [directionsURL, setDirectionsURL] = useState("")
+
   const [openDetailsModalDriver, setOpenDetailsModalDriver] = useState(false);
   const [openDetailsModalHost, setOpenDetailsModalHost] = useState(false);
   const [selectedEventId, setSelectedEventId] = useState("")
@@ -601,6 +604,7 @@ useEffect( () => {
 
     setSelectedEventId(hostevent.appointmentId)
     setSelectedAddress(hostevent.address)
+    setSpecialComments(hostevent.hostComments)
     setSelectedEventStart(hostevent.start.toLocaleTimeString())
     setSelectedEventEnd(hostevent.end.toLocaleTimeString())
     setSelectedPlateURL(hostevent.driverPlateMediaURL)
@@ -642,6 +646,7 @@ useEffect( () => {
 
     setSelectedEventId(driverevent.appointmentId)
     setSelectedAddress(driverevent.address)
+    setSpecialComments(driverevent.hostComments)
     setSelectedEventStart(driverevent.start.toLocaleTimeString())
     setSelectedEventEnd(driverevent.end.toLocaleTimeString())
     setSelectedPlateURL(driverevent.driverPlateMediaURL)
@@ -861,6 +866,19 @@ useEffect( () => {
     }
 }
 
+useEffect( () => {
+
+  if(selectedAddress){
+    var destinationString = encodeURIComponent(selectedAddress)
+    var finalAddressEncoding = `https://www.google.com/maps/dir/?api=1&destination=${destinationString}&travelmode=driving`
+    if(finalAddressEncoding?.length > 150){
+      finalAddressEncoding = finalAddressEncoding.slice(150)
+    }
+    setDirectionsURL(finalAddressEncoding)
+  }
+
+}, [selectedAddress])
+
 const handleSendHelp = (e) => {
 
   e.preventDefault()
@@ -1061,7 +1079,7 @@ const handleRegularHourChangeEnd = (event, day) => {
 
       } else if (selectedEventStatus === "Requested"){
 
-        const bookingApproved = await addAppointmentApproval(selectedDriverUserId, auth.userId, selectedEventId, auth.accessToken)
+        const bookingApproved = await addAppointmentApproval(selectedDriverUserId, directionsURL, auth.userId, selectedEventId, auth.accessToken)
 
         if(bookingApproved){
           alert("Booking approved")
@@ -1405,6 +1423,7 @@ const handleRegularHourChangeEnd = (event, day) => {
       setSelectedHostUserId(e.hostId)
       setSelectedEventId(e.appointmentId)
       setSelectedAddress(e.address)
+      setSpecialComments(e.hostComments)
       setSelectedEventStart(e.start.toLocaleTimeString())
       setSelectedEventEnd(e.end.toLocaleTimeString())
       setSelectedPlateURL(e.driverPlateMediaURL)
@@ -1434,6 +1453,7 @@ const handleRegularHourChangeEnd = (event, day) => {
       setSelectedHostUserId(e.hostId)
       setSelectedEventId(e.appointmentId)
       setSelectedAddress(e.address)
+      setSpecialComments(e.hostComments)
       setSelectedEventStart(e.start.toLocaleTimeString())
       setSelectedEventEnd(e.end.toLocaleTimeString())
       setSelectedPlateURL(e.driverPlateMediaURL)
@@ -1491,6 +1511,7 @@ const handleRegularHourChangeEnd = (event, day) => {
               hostresults.hostAppointments[i].chargeRatePerHalfHourFee = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.chargeRatePerHalfHourFee
               hostresults.hostAppointments[i].currency = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.currency
               hostresults.hostAppointments[i].currencySymbol = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.currencySymbol
+              hostresults.hostAppointments[i].hostComments = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.hostComments
             }
 
             if(hostuserdata[hostresults.hostAppointments[i]._hostUserId] !== undefined){
@@ -1537,6 +1558,7 @@ const handleRegularHourChangeEnd = (event, day) => {
               chargeRatePerHalfHourFee: hostresults.hostAppointments[i].chargeRatePerHalfHourFee,
               currency: hostresults.hostAppointments[i].currency,
               currencySymbol: hostresults.hostAppointments[i].currencySymbol,
+              hostComments: hostresults.hostAppointments[i].hostComments,
 
               isDraggable: true
             }
@@ -1567,11 +1589,7 @@ const handleRegularHourChangeEnd = (event, day) => {
         return
       } 
 
-      var destinationString = encodeURIComponent(selectedAddress)
-
-      var finalAddressEncoding = `https://www.google.com/maps/dir/?api=1&destination=${destinationString}&travelmode=driving`
-
-      window.open(finalAddressEncoding, "_blank", "noreferrer");
+      window.open(directionsURL, "_blank", "noreferrer");
     }
 
     const {scrollToTime} = useMemo(
@@ -1615,6 +1633,7 @@ const handleRegularHourChangeEnd = (event, day) => {
               driverresults.userAppointments[i].chargeRatePerHalfHourFee = hostprofiledata[driverresults.userAppointments[i]._hostUserId]?.chargeRatePerHalfHourFee
               driverresults.userAppointments[i].currency = hostprofiledata[driverresults.userAppointments[i]._hostUserId]?.currency
               driverresults.userAppointments[i].currencySymbol = hostprofiledata[driverresults.userAppointments[i]._hostUserId]?.currencySymbol
+              driverresults.userAppointments[i].hostComments = hostprofiledata[driverresults.userAppointments[i]._hostUserId]?.hostComments
             }
 
             if(hostuserdata[driverresults.userAppointments[i]._hostUserId]){
@@ -1661,6 +1680,7 @@ const handleRegularHourChangeEnd = (event, day) => {
               chargeRatePerHalfHourFee: driverresults.userAppointments[i].chargeRatePerHalfHourFee,
               currency: driverresults.userAppointments[i].currency,
               currencySymbol: driverresults.userAppointments[i].currencySymbol,
+              hostComments: driverresults.userAppointments[i].hostComments,
 
               isDraggable: true
             }
@@ -1737,6 +1757,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                     <p>Booked By: {event.driverFirstName}</p>
                     <p>Start: {event.start.toLocaleTimeString()}</p>
                     <p>End: {event.end.toLocaleTimeString()}</p>
+                    <p>Host Message: {event.hostComments}</p>
                     <p>Status: {event.status === "CancelSubmitted" ? "Asked to Cancel" : event.status}</p>
                   </div>
 
@@ -2744,6 +2765,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                     <p>Address: {event.address.slice(0, (event.address.lastIndexOf(',', (event.address).lastIndexOf(',')-1))) }</p>
                     <p>Start: {event.start.toLocaleTimeString()}</p>
                     <p>End: {event.end.toLocaleTimeString()}</p>
+                    <p>Host Message: {event.hostComments}</p>
                     <p>Status: {event.status === "CancelSubmitted" ? "Asked to Cancel" : event.status}</p>
                   </div>
 

@@ -46,7 +46,7 @@ export default function ChangeProfileMainHost({loggedUserId}) {
         track: {},
       })(Switch);
 
-  const { setAuth, auth } = useAuth();
+  const { auth } = useAuth();
   const logout = useLogout();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -795,7 +795,7 @@ useEffect( () => {
                     <select className="pl-6 w-30 md:w-40 h-9 border border-gray-primary justify-center items-center" 
                     value={chargeRate}
                     onChange={(event) => {
-                        handleChargeRate(event.target.value);
+                        handleChargeRate(event);
                     }}>
                     
                     {currency === "usd" && usdvalues.map((rate) => (

@@ -18,7 +18,7 @@ const PUBLIC_MEDIA_URL = '/s3/single-profilepic';
 
 
 
-export default function ChangeProfileMainUser({loggedUserId }) {
+export default function ChangeProfileMainUser({ }) {
 
   const CustomSwitch = withStyles({
     switchBase: {
@@ -100,8 +100,6 @@ export default function ChangeProfileMainUser({loggedUserId }) {
 
         if(response && response.userFound){
 
-            console.log(response)
-
             setSmsNotifications(response.userFound?.smsNotifications)
             setEmailNotifications(response.userFound?.emailNotifications)
             setPushNotifications(response.userFound?.pushNotifications)
@@ -148,7 +146,7 @@ export default function ChangeProfileMainUser({loggedUserId }) {
 
     setIsLoading(true);
 
-      if(croppedImage && croppedImage?.length > 0){
+      if(croppedImage){
 
         toast.info("Checking image, please wait...", {
           position: "bottom-center",
@@ -159,7 +157,9 @@ export default function ChangeProfileMainUser({loggedUserId }) {
           draggable: true,
           progress: undefined,
           theme: "colored",
-      });
+        });
+
+      console.log(croppedImage)
 
         const formData = new FormData();
         const file = new File([croppedImage], `${auth.userId}.jpeg`, { type: "image/jpeg" })
@@ -218,6 +218,16 @@ export default function ChangeProfileMainUser({loggedUserId }) {
                                 firstName: firstName,
                                 lastName: lastName,
                                 profilePicURL: profilePicURL,
+
+                                j1772ACChecked: j1772ACChecked,
+                                ccs1DCChecked: ccs1DCChecked,
+                                mennekesACChecked: mennekesACChecked,
+                                gbtACChecked: gbtACChecked,
+                                ccs2DCChecked: ccs2DCChecked,
+                                chademoDCChecked: chademoDCChecked,
+                                gbtDCChecked: gbtDCChecked,
+                                teslaChecked: teslaChecked,
+
                                 pushNotifications: pushNotifications,
                                 emailNotifications: emailNotifications,
                                 smsNotifications: smsNotifications,
@@ -287,6 +297,15 @@ export default function ChangeProfileMainUser({loggedUserId }) {
                   ...prev,
                   firstName: firstName,
                   lastName: lastName,
+
+                  j1772ACChecked: j1772ACChecked,
+                  ccs1DCChecked: ccs1DCChecked,
+                  mennekesACChecked: mennekesACChecked,
+                  gbtACChecked: gbtACChecked,
+                  ccs2DCChecked: ccs2DCChecked,
+                  chademoDCChecked: chademoDCChecked,
+                  gbtDCChecked: gbtDCChecked,
+                  teslaChecked: teslaChecked,
 
                   pushNotifications: pushNotifications,
                   emailNotifications: emailNotifications, 

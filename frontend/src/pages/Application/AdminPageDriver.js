@@ -20,7 +20,8 @@ const AdminPageDriver = () => {
     const { auth, activeTab, setActiveTab  } = useAuth();
     const [userList, setUserList] = useState([])
     const [hostList, setHostList] = useState([])
-    const [changed, setChanged] = useState(false);
+    const [changed, setChanged] = useState(0);
+    const [waiting, setWaiting] = useState(0);
     
     const navigate = useNavigate();
     
@@ -65,7 +66,7 @@ const AdminPageDriver = () => {
         }
 
         console.log(auth.userId, auth.accessToken)
-        if(auth.userId && auth.accessToken && changed > 0){
+        if(auth.userId && auth.accessToken){
             getUsersList()
         }
 
@@ -75,6 +76,11 @@ const AdminPageDriver = () => {
     const handleApproveUser = (e, userId) => {
 
         e.preventDefault()
+
+        if(waiting){
+            return
+        }
+        setWaiting(true)
 
         async function approve(){
 
@@ -86,6 +92,11 @@ const AdminPageDriver = () => {
                 // var userListCopy = userList.filter(e => e._id !== userId)
                 // setUserList(userListCopy)
                 setChanged(changed + 1)
+                setWaiting(false)
+            
+            } else {
+
+                setWaiting(false)
             }
         }
 
@@ -96,6 +107,11 @@ const AdminPageDriver = () => {
 
         e.preventDefault()
 
+        if(waiting){
+            return
+        }
+        setWaiting(true)
+
         async function reject(){
 
             const response = await rejectUser(userId, auth.userId, auth.accessToken)
@@ -105,6 +121,9 @@ const AdminPageDriver = () => {
                 // var userListCopy = userList.filter(e => e._id !== userId)
                 // setUserList(userListCopy)
                 setChanged(changed + 1)
+                setWaiting(false)
+            } else {
+                setWaiting(false)
             }
         }
 

@@ -908,6 +908,23 @@ const list = (anchor) => (
 
                                 <p className="text-2xl">Withdrawal Amount:</p>
 
+                                <div className="flex flex-row justify-center items-center gap-x-2 py-4">
+
+                                    <label className="flex justify-center items-center pr-2 font-semibold">Currency:</label>
+
+                                    <select onChange={(event)=>setPaymentCurrency(event.target.value)}
+                                    value={paymentCurrency}
+                                    className={`pl-6 w-30 md:w-40 h-9 border border-gray-primary justify-center items-center`}>
+
+                                        {userCurrencies?.length>0 && userCurrencies.map( (e) =>
+                                        
+                                            <option key={`${e.currency}_outgoing`} value={`${e.currency.toLowerCase()}`}>{e.currencySymbol}{e.currency.toUpperCase()}</option>
+                                        )}
+
+                                    </select> 
+
+                                </div>
+
                                 {!submittedPayout && <div className="flex flex-row gap-x-4 py-3">
 
                                     <button className={`px-4 py-2 rounded-xl text-lg ${selectedPayoutOption === "A" ? 'border-2 border-black bg-[#8BEDF3] ' 
@@ -985,6 +1002,8 @@ const list = (anchor) => (
                 
                                 <img className="w-[200px]" src={socketjuice_full_logo} />
 
+                                <p className="text-2xl">Fund Amount:</p>
+
                                 <div className="flex flex-row justify-center items-center gap-x-2 py-4">
 
                                     <label className="flex justify-center items-center pr-2 font-semibold">Currency:</label>
@@ -1001,8 +1020,6 @@ const list = (anchor) => (
                                     </select> 
 
                                 </div>
-
-                                <p className="text-2xl">Reload Amount:</p>
 
                                 {!paymentSubmitted && <div className="flex flex-row gap-x-4 py-3">
 

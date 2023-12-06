@@ -149,7 +149,7 @@ const loadVideo = file => new Promise((resolve, reject) => {
       PaperProps={{
         style: {
           top: '4%',
-          height: '520px',
+          height: '540px',
           width: '375px',
           display: 'flex',
           flexDirection: 'column'

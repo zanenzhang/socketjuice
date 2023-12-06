@@ -119,8 +119,6 @@ const VerifyPage = () => {
 
             if(response){
 
-                console.log(response)
-
                 if(response.currentStage){
                     var current = Number(response.currentStage)
                     setCurrentStage(current)
@@ -161,8 +159,6 @@ const VerifyPage = () => {
                 const requestedCode = await addCodeRequest(phonePrimary, userId, phoneCountryCode, hash)
 
                 if(requestedCode){
-
-                    console.log(requestedCode)
                     
                     if(requestedCode.status === 200 && requestedCode?.data?.result === 'pending'){
                         setSentCode(true)
@@ -202,9 +198,8 @@ const VerifyPage = () => {
     }
 
     const handlePhonePrimary = (event, data) => {
-        setPhonePrimary(event);
         
-        console.log(data)
+        setPhonePrimary(event);
         setPhonePrefix(data?.dialCode);
         setPhoneCountry(data?.name);
         setPhoneCountryCode(data?.countryCode);

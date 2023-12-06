@@ -380,7 +380,7 @@ const editSettingsUserProfile = async (req, res) => {
                     ccs2DCChecked ? foundDriver.ccs2DCChecked = ccs2DCChecked : foundDriver.ccs2DCChecked = false;
                     chademoDCChecked ? foundDriver.chademoDCChecked = chademoDCChecked : foundDriver.chademoDCChecked = false;
                     gbtACChecked ? foundDriver.gbtACChecked = gbtACChecked : foundDriver.gbtACChecked = false;
-                    gbtDCChecked ? foundDriver.gbtDChecked = gbtDChecked : foundDriver.gbtDCChecked = false;
+                    gbtDCChecked ? foundDriver.gbtDCChecked = gbtDCChecked : foundDriver.gbtDCChecked = false;
                     teslaChecked ? foundDriver.teslaChecked = teslaChecked : foundDriver.teslaChecked = false;
                 
                     const savedFoundUser = await foundUser.save()
@@ -1497,7 +1497,7 @@ const addHostProfile = async (req, res) => {
         chargeRate = Number(chargeRate)
         chargeRateFee = Number(chargeRateFee)
 
-        if(chargeRateFee < 2 * chargeRate){
+        if(chargeRateFee > (1.5 * chargeRate)){
             return res.status(403).json({"message":"Wrong rate"})  
         }
 
@@ -1651,7 +1651,7 @@ const addHostProfile = async (req, res) => {
             const sentEmail = await sendNewHostToAdmin({hostUserId: foundHost._id, hostPhone: foundUser.phonePrimary, hostFirstName: foundUser.firstName, 
                 hostLastName: foundUser.lastName, hostAddress: foundHost.address})
 
-            if(sendEmail){
+            if(sentEmail){
                 console.log("Saved new host profile")
                 return res.status(200).json({"message": "Operation success"})
             

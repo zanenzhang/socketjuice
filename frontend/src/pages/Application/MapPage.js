@@ -981,8 +981,6 @@ const {scrollToTime} = useMemo(
               }
         }
 
-        console.log(availabilities)
-
         setHostEvents([...newevents])
         setAvailableEvents([...availabilities])
         setEvents([...proposedEvents, ...availabilities, ...newevents])

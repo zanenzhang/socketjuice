@@ -392,7 +392,7 @@ const addMessageNoti = async (req, res) => {
 
             var receiverUserId = null
             for(let i=0; i<foundChat?.participants?.length; i++){
-                if(foundChat?.participants[i]._userId !== sendingUserId){
+                if(foundChat?.participants[i]._userId.toString() !== sendingUserId.toString()){
                     receiverUserId = foundChat?.participants[i]._userId
                 }
             }

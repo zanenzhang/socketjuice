@@ -23,6 +23,7 @@ const AdminPageControl = () => {
     const [firstNameDisplay, setFirstNameDisplay] = useState("")
     const [lastNameDisplay, setLastNameDisplay] = useState("")
     const [appointments, setAppointments] = useState([]);
+    const [waiting, setWaiting] = useState(false);
     
     const navigate = useNavigate();
 
@@ -74,7 +75,7 @@ const AdminPageControl = () => {
             }
         }
 
-        if( (firstName?.length > 1 || lastName?.length > 1) || changed > 0){
+        if( (firstName?.length > 1 || lastName?.length > 1)){
 
             searchUserList()
         }
@@ -122,6 +123,11 @@ const AdminPageControl = () => {
     const handleRemoveFlag = (e, appointmentId) => {
 
         e.preventDefault()
+        if(waiting){
+            return
+        }
+
+        setWaiting(true)
 
         async function removeFlag(){
 
@@ -129,6 +135,9 @@ const AdminPageControl = () => {
 
             if(removed){
                 alert("Removed appointment flag")
+                setWaiting(false)
+            } else {
+                setWaiting(false)
             }
         }
 
@@ -139,6 +148,11 @@ const AdminPageControl = () => {
     const handleAddBan = (e, userId) => {
 
         e.preventDefault()
+        if(waiting){
+            return
+        }
+
+        setWaiting(true)
 
         async function addBan(){
 
@@ -148,6 +162,9 @@ const AdminPageControl = () => {
                 console.log(response)
                 alert("Added ban")
                 setChanged(changed + 1)
+                setWaiting(false)
+            } else {
+                setWaiting(false)
             }
         }
 
@@ -157,6 +174,11 @@ const AdminPageControl = () => {
     const handleRemoveBan = (e, userId) => {
 
         e.preventDefault()
+        if(waiting){
+            return
+        }
+
+        setWaiting(true)
 
         async function reject(){
 
@@ -168,6 +190,9 @@ const AdminPageControl = () => {
                 // setUserList(userListCopy)
                 alert("Removed ban")
                 setChanged(changed + 1)
+                setWaiting(false)
+            } else {
+                setWaiting(false)
             }
         }
 
