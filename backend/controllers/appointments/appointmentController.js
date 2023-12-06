@@ -426,24 +426,6 @@ const addAppointmentRequest = async (req, res) => {
 
                     const newNoti = await Notification.create({_receivingUserId: hostUserId, _sendingUserId: userId, notificationType: "Requested", 
                         _relatedAppointment: newAppointment._id, start: requestStart, end: requestEnd, address: foundHostProfile.address })
-
-                    if(foundUser?.emailNotifications){
-                        const success = await sendNotiEmail({firstName: foundUser.firstName, toUser:foundUser.email, notificationType: "Requested"})
-                        if(success){
-                            doneEmail = true
-                        }
-                    } else {
-                        doneEmail = true
-                    }
-
-                    if(foundUser?.smsNotifications){
-                        const success = await sendSmsNotification(hostUserId, "Requested")
-                        if(success){
-                            doneSms = true
-                        }
-                    } else {
-                        doneSms = true
-                    }
     
                     foundHostProfile.numberOfHostAppointments = foundHostProfile.numberOfHostAppointments + 1
                 
@@ -499,9 +481,34 @@ const addAppointmentRequest = async (req, res) => {
                 const savedUser = await foundUser.save()
     
                 if(doneHostAppointments && doneDriverAppointments && doneOperation 
-                    && doneNoti && doneEmail && doneSms && savedUser ){
-                    
-                    return res.status(201).json({ message: 'Success' })
+                    && doneNoti && savedUser ){
+
+                    if(foundUser?.emailNotifications){
+                        const success = await sendNotiEmail({firstName: foundUser.firstName, toUser:foundUser.email, notificationType: "Requested"})
+                        if(success){
+                            doneEmail = true
+                        }
+                    } else {
+                        doneEmail = true
+                    }
+
+                    if(foundUser?.smsNotifications){
+                        const success = await sendSmsNotification(hostUserId, "Requested")
+                        if(success){
+                            doneSms = true
+                        }
+                    } else {
+                        doneSms = true
+                    }
+
+                    if(doneEmail && doneSms){
+                        
+                        return res.status(201).json({ message: 'Success' })
+
+                    } else {
+
+                        return res.status(401).json({ message: 'Operation failed' })
+                    }
                 
                 } else {
     
@@ -532,8 +539,6 @@ const addAppointmentApproval = async (req, res) => {
     const { userId, hostUserId, appointmentId } = req.body
 
     if (!userId || !hostUserId ) return res.status(400).json({ 'message': 'Missing required fields!' });
-
-    console.log(userId, hostUserId, appointmentId)
 
     try {
 

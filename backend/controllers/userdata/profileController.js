@@ -1645,12 +1645,20 @@ const addHostProfile = async (req, res) => {
         holidayHoursFinish ? foundHost.holidayHoursFinish = holidayHoursFinish : foundHost.holidayHoursFinish = "";
 
         const savedHost = await foundHost.save()
-        const sentEmail = await sendNewHostToAdmin({hostUserId: foundHost._id, hostPhone: foundUser.phonePrimary, hostFirstName: foundUser.firstName, 
-            hostLastName: foundUser.lastName, hostAddress: foundHost.address})
 
-        if(savedHost && sentEmail){
-            console.log("Saved new host profile")
-            return res.status(200).json({"message": "Operation success"})
+        if(savedHost){
+
+            const sentEmail = await sendNewHostToAdmin({hostUserId: foundHost._id, hostPhone: foundUser.phonePrimary, hostFirstName: foundUser.firstName, 
+                hostLastName: foundUser.lastName, hostAddress: foundHost.address})
+
+            if(sendEmail){
+                console.log("Saved new host profile")
+                return res.status(200).json({"message": "Operation success"})
+            
+            } else {
+
+                return res.status(200).json({"message": "Operation success"})
+            }
         }
     
     } else {

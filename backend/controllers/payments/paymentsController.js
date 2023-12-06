@@ -592,6 +592,8 @@ const addPayout = async (req, res) => {
 
                                                     if(sentOutReceipt){
                                                         return res.status(201).json({ message: 'Success' })
+                                                    } else {
+                                                        return res.status(201).json({ message: 'Success' })
                                                     }
                                                     
                                                 }
@@ -1379,8 +1381,7 @@ const capturePaypalOrder = async (req, res) => {
 
                                     const addedPayment = await Payment.create( {_sendingUserId: userId, _receivingUserId: userId, paypalOrderId: orderId,
                                         amount: payamount, currency: currency.toLowerCase(), currencySymbol: currencySymbol, paymentToken: newToken,
-                                        gross_amount: grossAmount, net_amount: netAmount, receiveable_amount: receivableAmount,
-                                        payin: true})
+                                        gross_amount: grossAmount, net_amount: netAmount, receiveable_amount: receivableAmount, payin: true})
 
                                     if(addedPayment){
 
@@ -1405,12 +1406,20 @@ const capturePaypalOrder = async (req, res) => {
 
                                         const updatedUser = await foundUser.save()
 
-                                        const sentReceipt = await sendReceiptIncoming({toUser: foundUser.email, firstName: foundUser.firstName, amount: payamount, 
-                                            currency: currency.toLowerCase(), currencySymbol: currencySymbol })
+                                        if(updatedProfile && updatedUser){
 
-                                        if(updatedProfile && updatedUser && sentReceipt){
-                                            console.log("Captured Paypal Order")
-                                            return res.status(response.status).json({orderData: orderData?.data?.purchase_units[0]?.payments?.captures[0].amount});
+                                            const sentReceipt = await sendReceiptIncoming({toUser: foundUser.email, firstName: foundUser.firstName, amount: payamount, 
+                                                currency: currency.toLowerCase(), currencySymbol: currencySymbol })
+
+                                            if(sentReceipt){
+                                                console.log("Captured Paypal Order")
+                                                return res.status(response.status).json({orderData: orderData?.data?.purchase_units[0]?.payments?.captures[0].amount});
+
+                                            } else {
+
+                                                return res.status(response.status).json({orderData: orderData?.data?.purchase_units[0]?.payments?.captures[0].amount});
+                                            }
+                                            
                                         } else {
                                             return res.status(401).json({"message": "Failed operation"})
                                         }
