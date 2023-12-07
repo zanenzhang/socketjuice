@@ -1497,7 +1497,7 @@ const addHostProfile = async (req, res) => {
         chargeRate = Number(chargeRate)
         chargeRateFee = Number(chargeRateFee)
 
-        if(chargeRateFee > (1.5 * chargeRate)){
+        if(chargeRateFee > (1.3 * chargeRate) || chargeRateFee < chargeRate){
             return res.status(403).json({"message":"Wrong rate"})  
         }
 

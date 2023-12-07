@@ -102,7 +102,7 @@ const BookingsPage = () => {
   const [currency, setCurrency] = useState("cad");
   const [currencySymbol, setCurrencySymbol] = useState("$");
   const [connectorType, setConnectorType] = useState("AC-J1772-Type1");
-  const [secondaryConnectorType, setSecondaryConnectorType] = useState("AC-J1772-Type1");
+  const [secondaryConnectorType, setSecondaryConnectorType] = useState("None");
   const [chargingLevel, setChargingLevel] = useState("Level 1")
 
   const [closedOnMonday, setClosedOnMonday] = useState(false);
@@ -474,42 +474,48 @@ useEffect( () => {
 
     setChargeRate(Number(e.target.value))
 
-    if(currency === "cad"){
+    if(Number(e.target.value) === 0){
 
-      setChargeRateFee(Number(e.target.value) + 0.50)
+      setChargeRateFee(Number(e.target.value))
 
-    } else if(currency === "usd"){
+    } else {
 
-      setChargeRateFee(Number(e.target.value) + 0.50)
+      if(currency === "cad"){
 
-    } else if(currency === "eur"){
-
-      setChargeRateFee(Number(e.target.value) + 0.50)
-
-    } else if(currency === "gbp"){
-
-      setChargeRateFee(Number(e.target.value) + 0.50)
-    
-    } else if(currency === "inr"){
-
-      setChargeRateFee(Number(e.target.value) + 50)
-
-    } else if(currency === "jpy"){
-
-      setChargeRateFee(Number(e.target.value) + 50)
-
-    } else if(currency === "cny"){
-
-      setChargeRateFee(Number(e.target.value) + 2)
-
-    } else if(currency === "aud"){
-      setChargeRateFee(Number(e.target.value) + 0.50)
-
-    } else if(currency === "nzd"){
-
-      setChargeRateFee(Number(e.target.value) + 0.50)
+        setChargeRateFee(Number(e.target.value) + 0.50)
+  
+      } else if(currency === "usd"){
+  
+        setChargeRateFee(Number(e.target.value) + 0.50)
+  
+      } else if(currency === "eur"){
+  
+        setChargeRateFee(Number(e.target.value) + 0.50)
+  
+      } else if(currency === "gbp"){
+  
+        setChargeRateFee(Number(e.target.value) + 0.50)
+      
+      } else if(currency === "inr"){
+  
+        setChargeRateFee(Number(e.target.value) + 50)
+  
+      } else if(currency === "jpy"){
+  
+        setChargeRateFee(Number(e.target.value) + 50)
+  
+      } else if(currency === "cny"){
+  
+        setChargeRateFee(Number(e.target.value) + 2)
+  
+      } else if(currency === "aud"){
+        setChargeRateFee(Number(e.target.value) + 0.50)
+  
+      } else if(currency === "nzd"){
+  
+        setChargeRateFee(Number(e.target.value) + 0.50)
+      }
     }
-
   }
 
   const toggleTermsDriver = () => {
@@ -620,6 +626,7 @@ useEffect( () => {
     setSelectedCurrencySymbol(hostevent.currencySymbol)
 
     var charge = ((hostevent.end - hostevent.start) / 1000 / 1800) * hostevent.chargeRatePerHalfHour
+    charge = (Math.round(charge * 100))/100
     setSelectedChargeRate(hostevent.chargeRate)
     setSelectedTotalCharge(charge)
 
@@ -1859,7 +1866,7 @@ const handleRegularHourChangeEnd = (event, day) => {
 
           <div className="w-full flex flex-col items-center justify-center">
 
-          <p className='text-base md:text-lg font-bold pb-2'>Attach your charging equipment photos: </p>
+          <p className='text-base md:text-lg font-bold pb-2'>Attach your charging equipment photos (max 5): </p>
             
             <CameraPlug croppedImage={croppedImage} setCroppedImage={setCroppedImage} croppedImageURL={croppedImageURL} setCroppedImageURL={setCroppedImageURL} 
               coverIndex={coverIndex} setCoverIndex={setCoverIndex} mediaTypes={mediaTypes} setMediaTypes={setMediaTypes} videoArray={videoArray} setVideoArray={setVideoArray} 
@@ -1972,6 +1979,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                       className={`text-sm w-30 md:w-40 h-10 text-black justify-center
                       border border-gray-primary rounded focus:outline-[#00D3E0] pl-6`}>
 
+                          <option value="None">None</option>
                           <option value="AC-J1772-Type1">AC-J1772-Type1</option>
                           <option value="AC-Mennekes-Type2">AC-Mennekes-Type2</option>
                           <option value="AC-GB/T">AC-GB/T</option>
@@ -2879,7 +2887,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                         <p>Start Time: {selectedEventStart}</p>
                         <p>End Time: {selectedEventEnd}</p>
                         <p>Status: {(driverRequestedCancel && selectedEventStatus !== "Cancelled") ? "You Asked To Cancel" : ( (hostRequestedCancel && selectedEventStatus !== "Cancelled" ) ? "You Asked to Cancel" : (selectedEventStatus === "Requested" ? "Booking Requested" : (selectedEventStatus === "Approved" ? "Approved" : (selectedEventStatus === "Cancelled" ? "Cancelled" : (selectedEventStatus === "Completed" ? "Completed" : "Waiting") )))) }</p>
-                        <p className='text-xl font-semibold'>Total: {selectedCurrency?.toUpperCase()}{selectedCurrencySymbol}{Number(selectedTotalCharge).toFixed(2)}</p>
+                        <p className='text-xl font-semibold'>Total Cost: {selectedCurrency?.toUpperCase()}{selectedCurrencySymbol}{Number(selectedTotalCharge).toFixed(2)}</p>
                       </div>
 
                     </div>

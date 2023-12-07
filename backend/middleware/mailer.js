@@ -56,7 +56,7 @@ exports.sendNotiEmail = function({firstName, toUser, notificationType}) {
 
   if(notificationType === "Approved"){
     
-    message = `Congratulations! Your booking request was approved. Please open the app to get directions. Happy charging!`
+    message = `Congratulations! Your booking request was approved. Please open the app to get directions. You can see more information under the bookings page (outgoing bookings). Happy charging!`
   
   } else if (notificationType === "Rejected"){
     
@@ -64,15 +64,15 @@ exports.sendNotiEmail = function({firstName, toUser, notificationType}) {
   
   } else if (notificationType === "Requested"){
 
-      message = `Awesome, a booking request was made for your charger! Please open the app to review and approve the request.`
+      message = `Awesome, a booking request was made for your charger! Please open the app to review and approve the request. You can see more information under the bookings page (incoming bookings).`
   
   } else if (notificationType === "CancelSubmitted"){
 
-      message = `Unfortunately, someone requested to cancel and refund their booking. Please open the app to approve or reject the cancellation and refund request.`
+      message = `Unfortunately, someone requested to cancel and refund their booking. Please open the app and go to the bookings page (incoming bookings) to approve or reject the cancellation and refund request.`
   
   } else if (notificationType === "Cancelled"){
 
-    message = `Sorry, your booking request was cancelled and refunded. Accounts with high volumes of cancellations will be reviewed.`
+    message = `Sorry, your booking request was cancelled and refunded. You can see more information under the bookings page (outgoing bookings) in the web application. Accounts with high volumes of cancellations will be reviewed.`
   }
 
   console.log("Sending noti email")
@@ -188,7 +188,7 @@ exports.sendVerifiedEmail = function({toUser, firstName}) {
         <h3> Hello ${firstName}! </h3>
         <p> You have received a chat message from ${fromUserFirstName}! </p>
         <p> This will be the only notification we send for the conversation.</p>
-        <p> Please log into the application to see the message.</p>
+        <p> Please log into the web application to see the message.</p>
         <p>Cheers,</p>
         <p>The ${process.env.MAIL_FROM_NAME} Team</p>
       `,

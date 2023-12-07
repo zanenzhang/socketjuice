@@ -70,8 +70,6 @@ const s3 = new S3({
 
   const createOrder = async (cart, userId) => {
 
-    console.log("Cart", cart)
-
     var amount = "21.50"
     var currency = "USD"
 
@@ -215,9 +213,6 @@ const s3 = new S3({
             shipping_preference: "NO_SHIPPING"
         }
     };
-
-    console.log(payload.purchase_units)
-    console.log(payload.purchase_units[0].amount)
 
     if(accessToken){
         const response = await axios.post(url, JSON.stringify(payload), 
@@ -925,10 +920,6 @@ const addPayout = async (req, res) => {
                                                 });
     
                                                 if(payoutDetails && payoutDetails.status === 200){
-
-                                                    console.log(payoutDetails.data.batch_header.amount)
-                                                    console.log(payoutDetails.data.batch_header.fees)
-                                                    console.log(payoutDetails.data.items)
 
                                                     const updatedPayment = await Payment.updateOne({_id: newPayment._id},{$set:{fee: payoutDetails?.data?.batch_header?.fees?.value}})
                                                     

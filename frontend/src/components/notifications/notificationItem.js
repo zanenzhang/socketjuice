@@ -25,11 +25,11 @@ function NotificationItem({notiLine}) {
 
         } else if (notiLine?.notificationType === "Cancelled"){
 
-            setMessage(`Your booking at ${new Date(notiLine.start).toLocaleTimeString()} was cancelled and refunded. `)
+            setMessage(`The booking at ${new Date(notiLine.start).toLocaleTimeString()} was cancelled and refunded. `)
 
         } else if (notiLine?.notificationType === "Completed"){
 
-            setMessage(`Your booking that started at ${new Date(notiLine.start).toLocaleTimeString()} has ended. `)
+            setMessage(`The booking that started at ${new Date(notiLine.start).toLocaleTimeString()} has ended and you have received payment. `)
         
         } 
 

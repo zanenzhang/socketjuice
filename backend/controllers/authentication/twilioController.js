@@ -217,15 +217,15 @@ async function sendSmsNotification (receivingUserId, notificationType) {
 
             if(notificationType === "Approved"){
             
-                message = `Hi ${foundReceiver.firstName}, your request was approved. You can review the booking and get map directions at www.socketjuice.com/bookings`
+                message = `Hi ${foundReceiver.firstName}, your booking request was approved. You can review the booking and get map directions at www.socketjuice.com/bookings`
             
             } else if (notificationType === "Rejected"){
 
-                message = `Hi ${foundReceiver.firstName}, your request was rejected. Please open the app to make a new booking at www.socketjuice.com`
+                message = `Hi ${foundReceiver.firstName}, your booking request was rejected. Please open the app to make a new booking at www.socketjuice.com`
             
             } else if (notificationType === "Requested"){
             
-                message = `Hi ${foundReceiver.firstName}, a request was made. Please open the app to review the request, and approve or reject at www.socketjuice.com/bookings`
+                message = `Hi ${foundReceiver.firstName}, a booking request was made. Please open the app to approve or reject the request, at www.socketjuice.com/bookings`
             
             } else if (notificationType === "CancelSubmitted"){
             
@@ -233,7 +233,7 @@ async function sendSmsNotification (receivingUserId, notificationType) {
             
             } else if (notificationType === "Cancelled"){
             
-                message = `Hi ${foundReceiver.firstName}, sorry, a request was cancelled prior to approval and refunded. Accounts tied to high volumes of cancellations will be reviewed. `
+                message = `Hi ${foundReceiver.firstName}, sorry, a booking was cancelled prior to approval and refunded. Accounts tied to high volumes of cancellations will be reviewed. `
             }
 
             const sent = await client.messages

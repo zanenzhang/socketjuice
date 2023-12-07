@@ -401,48 +401,54 @@ useEffect( () => {
       const handleChargeRate = (e) => {
 
         setChargeRate(Number(e.target.value))
-    
-        if(currency === "cad"){
 
-          setChargeRateFee(Number(e.target.value) + 0.50)
+        if(Number(e.target.value) === 0){
 
-        } else if(currency === "usd"){
-
-          setChargeRateFee(Number(e.target.value) + 0.50)
-
-        } else if(currency === "eur"){
-
-          setChargeRateFee(Number(e.target.value) + 0.50)
-
-        } else if(currency === "gbp"){
-
-          setChargeRateFee(Number(e.target.value) + 0.50)
-
-        } else if(currency === "inr"){
-
-          setChargeRateFee(Number(e.target.value) + 50)
-
-        } else if(currency === "jpy"){
-
-          setChargeRateFee(Number(e.target.value) + 50)
-
-        } else if(currency === "cny"){
-
-          setChargeRateFee(Number(e.target.value) + 2)
-
-        } else if(currency === "aud"){
-
-          setChargeRateFee(Number(e.target.value) + 0.50)
-
-        } else if(currency === "nzd"){
-
-          setChargeRateFee(Number(e.target.value) + 0.50)
+            setChargeRateFee(Number(e.target.value))
 
         } else {
 
-            setChargeRateFee(Number(e.target.value) + 0.50)
-        }
+            if(currency === "cad"){
+
+                setChargeRateFee(Number(e.target.value) + 0.50)
     
+            } else if(currency === "usd"){
+    
+                setChargeRateFee(Number(e.target.value) + 0.50)
+    
+            } else if(currency === "eur"){
+    
+                setChargeRateFee(Number(e.target.value) + 0.50)
+    
+            } else if(currency === "gbp"){
+    
+                setChargeRateFee(Number(e.target.value) + 0.50)
+    
+            } else if(currency === "inr"){
+    
+                setChargeRateFee(Number(e.target.value) + 50)
+    
+            } else if(currency === "jpy"){
+    
+                setChargeRateFee(Number(e.target.value) + 50)
+    
+            } else if(currency === "cny"){
+    
+                setChargeRateFee(Number(e.target.value) + 2)
+    
+            } else if(currency === "aud"){
+    
+                setChargeRateFee(Number(e.target.value) + 0.50)
+    
+            } else if(currency === "nzd"){
+    
+                setChargeRateFee(Number(e.target.value) + 0.50)
+    
+            } else {
+    
+                setChargeRateFee(Number(e.target.value) + 0.50)
+            }
+        }
     }
 
     const handleOfferingCharging = (e) => {

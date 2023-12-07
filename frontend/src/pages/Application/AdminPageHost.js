@@ -139,16 +139,19 @@ const AdminPage = () => {
 
                         <div key={host._id} className='flex flex-col py-10 justify-center items-center'>
 
-                            <p>{host._id}</p>
-                            <p>{host.firstName} {host.lastName}</p>
+                            <p>UserId: {host.host._userId}</p>
+                            <p>Name: {host.firstName} {host.lastName}</p>
                             <p>Address: {host.host.address}</p>
                             <p>Phone: {host.phonePrimary}</p>
                             <p>Connection: {host.host.connectionType}</p>
                             <p>Adapter: {host.host.secondaryConnectionType}</p>
                             <p>Level: {host.host.chargingLevel}</p>
+                            <p>Currency: {host.host.currency}</p>
+                            <p>Charge Rate: {host.host.currencySymbol}{host.host.chargeRatePerHalfHour.toFixed(2)}</p>
+                            <p>Charge Rate Fee: {host.host.currencySymbol}{host.host.chargeRatePerHalfHourFee.toFixed(2)}</p>
                             <p>{host.host.city}, {host.host.region}</p>
 
-                            <p>Profile Pic:</p>
+                            <p>Host Pictures:</p>
                             <img className='w-[250px] border border-gray-400 m-1' src={host.profilePicURL} />
 
                             <div className='flex flex-wrap gap-1'>

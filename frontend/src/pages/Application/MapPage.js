@@ -333,7 +333,7 @@ useEffect( ()=> {
     setBookingEnd(dayjs(endOfThirty))
   }
 
-}, [currentDuration])
+}, [currentDuration, newrequest])
 
 
 useEffect( () => {
@@ -350,6 +350,7 @@ useEffect( () => {
 
       if(selectedChargeRate){
         var charge = ((bookingEnd - bookingStart) / 1000 / 1800) * selectedChargeRate
+        charge = (Math.round(charge * 100))/100
         setTotalCharge(charge)
 
         if (auth.credits?.length > 0 && selectedCurrency){
@@ -357,7 +358,7 @@ useEffect( () => {
           var checkedFunds = false
           for(let i=0; i< auth?.credits?.length; i++){
             if(auth.credits[i].currency.toLowerCase() === selectedCurrency 
-            && auth.credits[i].amount > charge){
+            && auth.credits[i].amount >= charge){
               setInsufficientFunds(false)
               checkedFunds = true
               break
@@ -1045,13 +1046,15 @@ const {scrollToTime} = useMemo(
               }
         }
 
+        console.log(availabilities)
+
         setHostEvents([...newevents])
         setAvailableEvents([...availabilities])
         setEvents([...proposedEvents, ...availabilities, ...newevents])
       }
     }
 
-    if(hostUserId && currentDate && auth.userId && newrequest > 0){
+    if(hostUserId && currentDate && auth.userId){
       hostAppointments()
     }
 
@@ -1861,7 +1864,7 @@ const {scrollToTime} = useMemo(
                     
                     <div className='flex flex-row w-full justify-between items-center'>
                       
-                      <div className='flex flex-col w-full gap-y-1'>
+                      <div className='flex flex-col w-full gap-y-1 justify-center h-[69px]'>
                         <p className='text-base'>Distance: {host.distanceText} / {host.durationText}</p>
                         <p className='text-base'>30 Min Rate: {host.currencySymbol}{Number(host.chargeRatePerHalfHourFee).toFixed(2)}</p>
                       </div>
@@ -2048,7 +2051,7 @@ const {scrollToTime} = useMemo(
                     
                     <div className='flex flex-row w-full justify-between items-center'>
                       
-                      <div className='flex flex-col w-full gap-y-1'>
+                      <div className='flex flex-col w-full gap-y-1 h-[69px]'>
                         <p className='text-base'>Distance: {host.distanceText} / {host.durationText}</p>
                         <p className='text-base'>30 Min Rate: {host.currencySymbol}{Number(host.chargeRatePerHalfHourFee).toFixed(2)}</p>
                       </div>
@@ -2179,7 +2182,7 @@ const {scrollToTime} = useMemo(
                         </label>
                     </div>
 
-                    <button className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] 
+                    <button className={`border border-gray-300 px-3 py-3 rounded-xl bg-[#c1f2f5] 
                      flex flex-row gap-x-2 justify-center items-center ${!termschecked ? "cursor-not-allowed hover:bg-gray-400" : "cursor-pointer hover:bg-[#00D3E0]"}`}
                       onClick={(e)=>handleAddAppointment(e)}
                       disabled={!termschecked || waitingSubmit}>

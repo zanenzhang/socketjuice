@@ -345,7 +345,7 @@ const addAppointmentRequest = async (req, res) => {
                         { start : { $lte: requestStart }, end : { $gt: requestStart } },
                         { start : { $lt: requestEnd }, end : { $gte: requestEnd } },
                         { start : { $gte: requestStart }, end : { $lte: requestEnd } }]}, 
-                    {$or: [{status: "Approved" }, {status: "Requested" }]}
+                    {$or: [{status: "Approved" }, {status: "Requested" }, {status: "CancelSubmitted"}]}
                 ]})
 
             if(!checkAppointments){
@@ -619,15 +619,15 @@ const addAppointmentApproval = async (req, res) => {
 
                 if(savedUser && savedHost && updatedAppointment && newPayment){
 
-                    const conflictingAppointments = await Appointment.find(
-                        {$and:[
-                            {$or: [{_requestUserId: userId}, {_hostUserId: hostUserId}]}, 
-                            {$or: [ 
-                                { start : { $lt: requestStart }, end : { $gt: requestStart } },
-                                { start : { $lt: requestEnd }, end : { $gt: requestEnd } },
-                                { start : { $gt: requestStart }, end : { $lt: requestEnd } }]}, 
-                            {$or: [{status: {$ne: "Approved" }}]}
-                        ]})
+                    // const conflictingAppointments = await Appointment.find(
+                    //     {$and:[
+                    //         {$or: [{_requestUserId: userId}, {_hostUserId: hostUserId}]}, 
+                    //         {$or: [ 
+                    //             { start : { $lte: requestStart }, end : { $gt: requestStart } },
+                    //             { start : { $lt: requestEnd }, end : { $gte: requestEnd } },
+                    //             { start : { $gte: requestStart }, end : { $lte: requestEnd } }]}, 
+                    //         {$or: [{status: {$ne: "Approved" }}]}
+                    //     ]})
     
                     const newNoti = await Notification.create({_receivingUserId: userId, _sendingUserId: hostUserId, notificationType: "Approved", 
                             _relatedAppointment: foundAppointment._id, start: foundAppointment.start, end: foundAppointment.end, address: foundAppointment.address })
@@ -676,52 +676,58 @@ const addAppointmentApproval = async (req, res) => {
                         } else {
                             doneMap = true
                         }
+
+                        if(doneSms && doneMap && doneEmail){
     
-                        if(conflictingAppointments && conflictingAppointments?.length > 0){
-                            
-                            var count = 0;
-                            for(let i=0; i<conflictingAppointments?.length; i++){
-                                
-                                const newNoti = await Notification.create(
-                                    {_receivingUserId: conflictingAppointments[i]._requestUserId, 
-                                    _sendingUserId: conflictingAppointments[i]._hostUserId, 
-                                    notificationType: "Cancelled", _relatedAppointment: conflictingAppointments[i]._id,
-                                    start: conflictingAppointments[i].start, end: conflictingAppointments[i].end, 
-                                    address: conflictingAppointments[i].address})
-    
-                                if(newNoti){
-                                    count += 1
-                                }
-                            }
-    
-                            if(count === conflictingAppointments?.length){
-    
-                                const pullappointments = await Appointment.updateMany(
-                                    {$and:[
-                                        {$or: [{_requestUserId: userId}, {_hostUserId: hostUserId}]}, 
-                                        {$or: [ 
-                                            { start : { $lt: requestStart }, end : { $gt: requestStart } },
-                                            { start : { $lt: requestEnd }, end : { $gt: requestEnd } },
-                                            { start : { $gt: requestStart }, end : { $lt: requestEnd } }]}, 
-                                        {status: {$ne: "Approved"}}
-                                    ]}, {$set: {status: "Cancelled"}})
-            
-                                if(pullappointments && doneSms && doneMap && doneEmail){
-                                    return res.status(201).json({ message: 'Success' })
-                                }
-                            }
-    
+                            return res.status(201).json({ message: 'Success' })
+                        
                         } else {
-    
-                            if(doneSms && doneMap && doneEmail){
-    
-                                return res.status(201).json({ message: 'Success' })
-                            
-                            } else {
-                    
-                                return res.status(400).json({ message:'Operation Failed' });
-                            }
+                
+                            return res.status(400).json({ message:'Operation Failed' });
                         }
+    
+                        // if(conflictingAppointments && conflictingAppointments?.length > 0){
+
+                        //     console.log("Conflicting appointments", conflictingAppointments)
+                            
+                        //     var count = 0;
+                        //     for(let i=0; i<conflictingAppointments?.length; i++){
+                                
+                        //         const newNoti = await Notification.create(
+                        //             {_receivingUserId: conflictingAppointments[i]._hostUserId, 
+                        //             _sendingUserId: conflictingAppointments[i]._requestUserId, 
+                        //             notificationType: "Cancelled", _relatedAppointment: conflictingAppointments[i]._id,
+                        //             start: conflictingAppointments[i].start, end: conflictingAppointments[i].end, 
+                        //             address: conflictingAppointments[i].address})
+
+                        //         const newSMS = await sendSmsNotification(hostUserId, "Cancelled")
+    
+                        //         if(newNoti && newSMS){
+                        //             count += 1
+                        //         }
+                        //     }
+    
+                        //     if(count === conflictingAppointments?.length){
+    
+                        //         const pullappointments = await Appointment.updateMany(
+                        //             {$and:[
+                        //                 {$or: [{_requestUserId: userId}, {_hostUserId: hostUserId}]}, 
+                        //                 {$or: [ 
+                        //                     { start : { $lt: requestStart }, end : { $gt: requestStart } },
+                        //                     { start : { $lt: requestEnd }, end : { $gt: requestEnd } },
+                        //                     { start : { $gt: requestStart }, end : { $lt: requestEnd } }]}, 
+                        //                 {status: {$ne: "Approved"}}
+                        //             ]}, {$set: {status: "Cancelled"}})
+            
+                        //         if(pullappointments && doneSms && doneMap && doneEmail){
+                        //             return res.status(201).json({ message: 'Success' })
+                        //         }
+                        //     }
+    
+                        // } else {
+    
+                            
+                        // }
     
                     } else {
                         return res.status(401).json({ message: 'Operation failed' })

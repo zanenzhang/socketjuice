@@ -54,6 +54,7 @@ var hostProfileSchema = new Schema({
     },
     secondaryConnectionType: {
         type: String,
+        default: "None"
     },
     hoursMondayStart: {
         type: String,
