@@ -104,8 +104,12 @@ export default function PaymentsPage() {
       async function updateIncoming(pageNumber){
 
         var number = 0
-        if(pageNumber){
-            number = pageNumberIncoming + 100
+
+        if(pageNumber === 0){
+            number = 0
+            setPageNumberIncoming(100)
+        } else {
+            number = pageNumberIncoming
             setPageNumberIncoming(pageNumberIncoming + 100)
         }
             
@@ -127,11 +131,19 @@ export default function PaymentsPage() {
                 }
             }
             
-            setIncomingPayments([...incomingPayments, ...incoming?.foundPayments])
+            if(pageNumber === 0){
+                setIncomingPayments([...incoming?.foundPayments])
+            } else {
+                setIncomingPayments([...incomingPayments, ...incoming?.foundPayments])
+            }
+            
             setWaitingIncoming(false)
 
-        } else if(incoming) {
+        } else {
             console.log(incoming)
+            if(pageNumber === 0){
+                setIncomingPayments([])
+            }
             setScrollStopIncoming(true)
             setWaitingIncoming(false)
         }
@@ -140,8 +152,12 @@ export default function PaymentsPage() {
     async function updateOutgoing(pageNumber){
 
         var number = 0
-        if(pageNumber){
-            number = pageNumberOutgoing + 100
+
+        if(pageNumber === 0){
+            number = 0
+            setPageNumberOutgoing(100)
+        } else {
+            number = pageNumberOutgoing
             setPageNumberOutgoing(pageNumberOutgoing + 100)
         }
             
@@ -163,11 +179,19 @@ export default function PaymentsPage() {
                 }
             }
 
-            setOutgoingPayments([...outgoingPayments, ...outgoing?.foundPayments])
+            if(pageNumber === 0){
+                setOutgoingPayments([...outgoing?.foundPayments])
+            } else {
+                setOutgoingPayments([...outgoingPayments, ...outgoing?.foundPayments])
+            }
+            
             setWaitingOutgoing(false)
 
-        } else if(outgoing) {
+        } else {
             console.log(outgoing)
+            if(pageNumber === 0){
+                setOutgoingPayments([])
+            }
             setScrollStopOutgoing(true)
             setWaitingOutgoing(false)
         }
@@ -177,7 +201,7 @@ export default function PaymentsPage() {
 
         e.preventDefault()
 
-        if(waitingIncoming){
+        if(waitingIncoming || (pageNumber > 0 && scrollStopIncoming)){
             return
         }
 
@@ -189,7 +213,7 @@ export default function PaymentsPage() {
 
         e.preventDefault()
 
-        if(waitingOutgoing){
+        if(waitingOutgoing || (pageNumber > 0 && scrollStopOutgoing)){
             return
         }
 
@@ -824,7 +848,7 @@ export default function PaymentsPage() {
 
         async function getIncoming(){
 
-            if(waitingIncoming){
+            if(waitingIncoming || scrollStopIncoming){
                 return
             }
 
@@ -848,10 +872,11 @@ export default function PaymentsPage() {
                     }
                 }
 
-                setIncomingPayments([...incomingPayments, ...incoming.paymentsFound])
+                setIncomingPayments([...incoming?.foundPayments])
                 setWaitingIncoming(false)
 
-            } else if (incoming) {
+            } else {
+
                 setScrollStopIncoming(true)
                 setWaitingIncoming(false)
             }
@@ -873,7 +898,7 @@ export default function PaymentsPage() {
 
         async function getOutgoing(){
 
-            if(waitingOutgoing){
+            if(waitingOutgoing || scrollStopOutgoing){
                 return
             }
 
@@ -901,10 +926,10 @@ export default function PaymentsPage() {
                 
                 console.log(outgoing?.foundPayments)
 
-                setOutgoingPayments([...outgoingPayments, ...outgoing?.foundPayments])
+                setOutgoingPayments([...outgoing?.foundPayments])
                 setWaitingOutgoing(false)
 
-            } else if(outgoing) {
+            } else {
                 console.log(outgoing)
                 setScrollStopOutgoing(true)
                 setWaitingOutgoing(false)
@@ -958,6 +983,16 @@ export default function PaymentsPage() {
         }
 
       }, [auth, tabValue, paymentCurrency, payoutCurrency])
+
+
+      useEffect( () => {
+
+        var today = new Date();
+        const oneWeekAgo = new Date(today.getFullYear(), today.getMonth(), today.getDate()-7);
+        setPickerDateIncomingStart(oneWeekAgo)
+        setPickerDateIncomingEnd(new Date()) 
+
+      }, [])
 
 
       useEffect( ()=> {
@@ -1275,7 +1310,7 @@ const list = (anchor) => (
                                                 },
                                             }}
                                             value={dayjs(pickerDateIncomingStart)}
-                                            onChange={(date) => setPickerDateIncomingStart(dayjs(new Date(date)))}
+                                            onChange={(date) => setPickerDateIncomingStart(new Date(date))}
                                             />
 
                                         </LocalizationProvider>
@@ -1300,7 +1335,7 @@ const list = (anchor) => (
                                                 },
                                             }}
                                             value={dayjs(pickerDateIncomingEnd)}
-                                            onChange={(date) => setPickerDateIncomingEnd(dayjs(new Date(date)))}
+                                            onChange={(date) => setPickerDateIncomingEnd(new Date(date))}
                                             />
 
                                         </LocalizationProvider>
@@ -1413,7 +1448,7 @@ const list = (anchor) => (
                                                 },
                                             }}
                                             value={dayjs(pickerDateOutgoingStart)}
-                                            onChange={(date) => setPickerDateOutgoingStart(dayjs(new Date(date)))}
+                                            onChange={(date) => setPickerDateOutgoingStart(new Date(date))}
                                             />
 
                                         </LocalizationProvider>
@@ -1438,7 +1473,7 @@ const list = (anchor) => (
                                                 },
                                             }}
                                             value={dayjs(pickerDateOutgoingEnd)}
-                                            onChange={(date) => setPickerDateOutgoingEnd(dayjs(new Date(date)))}
+                                            onChange={(date) => setPickerDateOutgoingEnd(new Date(date))}
                                             />
 
                                         </LocalizationProvider>
@@ -1546,7 +1581,7 @@ const list = (anchor) => (
                                 
                                 {accountBalance > 0 && 
 
-                                    <div className="flex w-full flex-col">
+                                    <div className="flex w-full flex-col justify-center items-center">
                                         
                                         <p className="text-2xl">Withdrawal Amount:</p>
 

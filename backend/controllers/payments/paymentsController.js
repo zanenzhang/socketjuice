@@ -269,9 +269,11 @@ const getHostIncomingPayments = async (req, res) => {
 
         var { userId, pageNumber, dateStart, dateEnd } = req.query
 
-        if (!userId ) {
+        if (!userId || !dateStart || !dateEnd ) {
             return res.status(400).json({ message: 'Missing required information' })
         }
+
+        console.log(userId, pageNumber, dateStart, dateEnd)
 
         if(!pageNumber){
             pageNumber = 0
@@ -404,6 +406,10 @@ const getDriverOutgoingPayments = async (req, res) => {
             return res.status(400).json({ message: 'Missing required information' })
         }
 
+        console.log(pageNumber)
+        console.log(dateStart)
+        console.log(dateEnd)
+
         if(!pageNumber){
             pageNumber = 0
         } else {
@@ -414,6 +420,9 @@ const getDriverOutgoingPayments = async (req, res) => {
             dateStart = new Date(dateStart)
             dateEnd = new Date(dateEnd)
         }
+
+        console.log(dateStart)
+        console.log(dateEnd)
 
         const foundDriverProfile = await DriverProfile.findOne({_userId: userId})
 
@@ -1808,7 +1817,7 @@ const capturePaypalOrder = async (req, res) => {
 
                                     if(addedPayment){
 
-                                        const updatedProfile = await DriverProfile.updateOne({_userId: userId},{$push: {outgoingPayments: 
+                                        const updatedProfile = await HostProfile.updateOne({_userId: userId},{$push: {incomingPayments: 
                                                 {_paymentId: addedPayment._id, amount: payamount, currency: currency, paypalOrderId: orderId, payin: true }}})
 
                                         var addedCredits = false

@@ -145,7 +145,7 @@ const MapPage = () => {
 
   const boxStyle = {
     position: 'absolute',
-    top: '50%',
+    top: '48%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
     width: 350,
@@ -692,12 +692,19 @@ const {scrollToTime} = useMemo(
       return
     }
 
+    if(waitingSubmit){
+      return
+    }
+
+    setWaitingSubmit(true)
+
     if(hostRequestedCancel){
 
       const approved = await addDriverCancelApprove(auth.userId, selectedHostUserId, selectedEventId, auth.userId, auth.accessToken)
 
       if(approved){
         setNewrequest(newrequest + 1)
+        setWaitingSubmit(false)
       }
     
     } else {
@@ -706,6 +713,7 @@ const {scrollToTime} = useMemo(
 
       if(submitted){
         setNewrequest(newrequest + 1)
+        setWaitingSubmit(false)
       }
     }
   }
@@ -714,6 +722,11 @@ const {scrollToTime} = useMemo(
   const handleEventRejectDriver = async (e) => {
 
     e.preventDefault()
+
+    if(waitingSubmit){
+      return
+    }
+
     setWaitingSubmit(true);
 
     const submitted = await addDriverReject(auth.userId, selectedHostUserId, selectedEventId, auth.userId, auth.accessToken)
@@ -741,6 +754,10 @@ const {scrollToTime} = useMemo(
   async function handleAddAppointment(e) {
 
     e.preventDefault()
+    if(waitingSubmit){
+      return
+    }
+
     setWaitingSubmit(true)
 
     var checkedCredits = false
@@ -762,7 +779,7 @@ const {scrollToTime} = useMemo(
     } else {
 
       alert("Not enough funds, please fund your account")
-      setWaitingSubmit(false)
+
       setOpenPaymentsModal(true)
       setInsufficientFunds(true)
     }

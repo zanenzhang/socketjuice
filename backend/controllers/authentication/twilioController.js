@@ -217,7 +217,7 @@ async function sendSmsNotification (receivingUserId, notificationType) {
 
             if(notificationType === "Approved"){
             
-                message = `Hi ${foundReceiver.firstName}, your request was approved. You can review the booking at www.socketjuice.com/bookings and get map directions`
+                message = `Hi ${foundReceiver.firstName}, your request was approved. You can review the booking and get map directions at www.socketjuice.com/bookings`
             
             } else if (notificationType === "Rejected"){
 
@@ -323,7 +323,7 @@ async function sendDirectionsSMS (receivingUserId, addressurl) {
 
         try {
 
-            var message = `Directions link: ${addressurl}, `
+            var message = `Directions link: ${addressurl} `
 
             const sent = await client.messages
             .create({

@@ -633,49 +633,49 @@ const addAppointmentApproval = async (req, res) => {
                             _relatedAppointment: foundAppointment._id, start: foundAppointment.start, end: foundAppointment.end, address: foundAppointment.address })
 
                     const updatedNotiSettings = await NotificationSettings.updateOne({_userId: userId},{$set: {newAlerts: true}})
-    
-                    if(foundUser.emailNotifications){
-                        const success = await sendNotiEmail({firstName: foundUser.firstName, toUser:foundUser.email, notificationType: "Approved"})
-                        if(success){
-                            doneEmail = true
-                        }
-                    } else {
-                        doneEmail = true
-                    }
-    
-                    if(foundUser.smsNotifications){
-                        const success = await sendSmsNotification(userId, "Approved")
-                        if(success){
-                            doneSms = true
-                        }
-                    } else {
-                        doneSms = true
-                    }
 
-                    if(foundUser.smsNotifications){
-                        if(directionsUrl.length < 140){
-                            const directions = await sendDirectionsSMS(userId, directionsURL)
-                            if(directions){
-                                doneMap = true
+                    const driverPayment = await DriverProfile.updateOne({_userId: userId}, {$push: {outgoingPayments: {
+                        _paymentId: newPayment._id, amount: foundAppointment.chargeAmount, amountFee: foundAppointment.chargeAmountFee, 
+                        currency: foundAppointment.currency.toLowerCase(), currencySymbol: foundAppointment.currencySymbol
+                    }}})
+    
+                    const hostPayment = await HostProfile.updateOne({_userId: hostUserId}, {$push: {incomingPayments: {
+                        _paymentId: newPayment._id, amount: foundAppointment.chargeAmount, amountFee: foundAppointment.chargeAmountFee, 
+                        currency: foundAppointment.currency.toLowerCase(), currencySymbol: foundAppointment.currencySymbol
+                    }}})
+    
+                    if(newNoti && updatedNotiSettings && driverPayment && hostPayment){
+                        
+                        if(foundUser.emailNotifications){
+                            const success = await sendNotiEmail({firstName: foundUser.firstName, toUser:foundUser.email, notificationType: "Approved"})
+                            if(success){
+                                doneEmail = true
                             }
                         } else {
-                            doneMap = true    
+                            doneEmail = true
                         }
-                    } else {
-                        doneMap = true
-                    }
+
+                        if(foundUser.smsNotifications){
+                            const success = await sendSmsNotification(userId, "Approved")
+                            if(success){
+                                doneSms = true
+                            }
+                        } else {
+                            doneSms = true
+                        }
     
-                    if(newNoti && updatedNotiSettings && doneEmail && doneSms && doneMap){
-    
-                        const driverPayment = await DriverProfile.updateOne({_userId: userId}, {$push: {outgoingPayments: {
-                            _paymentId: newPayment._id, amount: foundAppointment.chargeAmount, amountFee: foundAppointment.chargeAmountFee, 
-                            currency: foundAppointment.currency.toLowerCase(), currencySymbol: foundAppointment.currencySymbol
-                        }}})
-        
-                        const hostPayment = await HostProfile.updateOne({_userId: hostUserId}, {$push: {incomingPayments: {
-                            _paymentId: newPayment._id, amount: foundAppointment.chargeAmount, amountFee: foundAppointment.chargeAmountFee, 
-                            currency: foundAppointment.currency.toLowerCase(), currencySymbol: foundAppointment.currencySymbol
-                        }}})
+                        if(foundUser.smsNotifications){
+                            if(directionsURL.length < 140){
+                                const directions = await sendDirectionsSMS(userId, directionsURL)
+                                if(directions){
+                                    doneMap = true
+                                }
+                            } else {
+                                doneMap = true    
+                            }
+                        } else {
+                            doneMap = true
+                        }
     
                         if(conflictingAppointments && conflictingAppointments?.length > 0){
                             
@@ -706,14 +706,14 @@ const addAppointmentApproval = async (req, res) => {
                                         {status: {$ne: "Approved"}}
                                     ]}, {$set: {status: "Cancelled"}})
             
-                                if(pullappointments && driverPayment && hostPayment){
+                                if(pullappointments && doneSms && doneMap && doneEmail){
                                     return res.status(201).json({ message: 'Success' })
                                 }
                             }
     
                         } else {
     
-                            if(driverPayment && hostPayment){
+                            if(doneSms && doneMap && doneEmail){
     
                                 return res.status(201).json({ message: 'Success' })
                             
