@@ -375,6 +375,39 @@ exports.sendVerifiedEmail = function({toUser, firstName}) {
   }
 
 
+  exports.sendPayoutRejection = function({toUser, firstName}) {
+
+    var today = new Date()
+    var newdate = today.toLocaleDateString()
+    var newtime = today.toLocaleTimeString()
+
+    const message = {
+      from: process.env.EMAIL_SUPPORT,
+      // to: toUser.email // in production uncomment this
+      to: toUser,
+      subject: 'SocketJuice Payout Request',
+      html: `
+        <img src = "cid:myImg" style="width:200px;"/>
+        <h3> Hello ${firstName}, </h3>
+        <p>Your payout request unfortunately was not processed due to discrepancies in your account. Your account has been placed under review. We will follow up with you directly to clear up any issues.</p>
+        <p>Details: Payout request was not processed. </p>
+        <p>Time: ${newdate} ${newtime} </p>
+        <p></p>
+        <p>Regards,</p>
+        <p>The ${process.env.MAIL_FROM_NAME} Team</p>
+      `,
+      attachments: [{
+        filename: 'SocketJuiceLogo.png',
+        path: __dirname + '/SocketJuice.png',
+        cid: 'myImg'
+      }]    
+    }
+  
+    return sendEmail(message);
+  }
+
+
+
   exports.sendReceiptIncoming = function({toUser, firstName, amount, currency, currencySymbol}) {
 
     var today = new Date()

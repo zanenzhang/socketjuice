@@ -1,7 +1,7 @@
 import axios from "../../api/axios";
-const SUBMIT_URL = '/payments/newpayout'
+const SUBMIT_URL = '/payments/reject'
 
-async function addNewPayout (userId, authUserId, accessToken) {
+async function rejectPayout (userId, authUserId, accessToken) {
 
     try {
         
@@ -23,4 +23,4 @@ async function addNewPayout (userId, authUserId, accessToken) {
 
 }
 
-export default addNewPayout
+export default rejectPayout

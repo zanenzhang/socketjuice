@@ -77,7 +77,7 @@ const PayoutsPage = () => {
 
         e.preventDefault()
 
-        const submitted = await addNewPayout(auth?.userId, auth?.accessToken)
+        const submitted = await addNewPayout(userId, auth?.userId, auth?.accessToken)
 
         if(submitted){
             console.log(submitted)

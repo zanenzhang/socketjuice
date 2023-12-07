@@ -557,6 +557,7 @@ const MainHeader = () => {
                 setEmailRegister('');
                 setPwdRegister('');
                 setWaiting(false);
+                setSubmitted(false);
                 setOpenModalLogin(false);
 
             } else if(response && response.status === 202) {

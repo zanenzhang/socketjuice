@@ -60,7 +60,6 @@ export default function PaymentsPage() {
       const [selectedPayoutOption, setSelectedPayoutOption] = useState("A");
       const [waitingPayout, setWaitingPayout] = useState(false)
       const [submittedPayout, setSubmittedPayout] = useState(false)
-      const [payoutSuccess, setPayoutSuccess] = useState(false)
 
       const [tabValue, setTabValue] = useState("0");
     const [drawerState, setDrawerState] = useState({
@@ -240,6 +239,11 @@ export default function PaymentsPage() {
             setSelectedPaymentAmount(20.00)
             setSelectedServiceFee(1.50)
             setSelectedPaymentTotal(21.50)
+
+            setSelectedPayoutOption("A")
+            setSelectedPayoutAmount(20.00)
+            setSelectedPayoutFee(1.00)
+            setSelectedTotalPayout(19.00)
 
         } else if(e.target.value === "cad"){
 
@@ -1058,11 +1062,20 @@ export default function PaymentsPage() {
 
         e.preventDefault()
 
+        if(waitingPayout || auth.requestedPayout){
+            return
+        }
+
+        setWaitingPayout(true)
+
         const requested = await addPayoutRequest(auth.userId, payoutCurrency, selectedPayoutOption, auth.accessToken)
 
         if(requested){
-            console.log(requested)
+            setWaitingPayout(false)
+            setSubmittedPayout(true)
             setChanged(changed + 1)
+        } else {
+            setWaitingPayout(false)
         }
     }
 
@@ -1591,19 +1604,19 @@ const list = (anchor) => (
                                             <button className={`px-4 py-2 rounded-xl text-lg ${selectedPayoutOption === "A" ? 'border-2 border-black bg-[#8BEDF3] ' 
                                                 : 'border border-gray-400 ' }  hover:bg-[#8BEDF3]`}
                                                 onClick={(e)=>handleSelectPayoutAmount(e, "A")} disabled={submittedPayout}>
-                                                $20
+                                                {payoutCurrencySymbol}{payoutDisplay[0]}
                                             </button>
 
                                             <button className={`px-4 py-2 rounded-xl text-lg ${selectedPayoutOption === "B" ? 'border-2 border-black bg-[#8BEDF3] ' 
                                                 : 'border border-gray-400 ' }  hover:bg-[#8BEDF3]`}
                                                 onClick={(e)=>handleSelectPayoutAmount(e, "B")} disabled={submittedPayout}>
-                                                $40
+                                                {payoutCurrencySymbol}{payoutDisplay[1]}
                                             </button>
 
                                             <button className={`px-4 py-2 rounded-xl text-lg ${selectedPayoutOption === "C" ? 'border-2 border-black bg-[#8BEDF3] ' 
                                                 : 'border border-gray-400 ' }  hover:bg-[#8BEDF3]`}
                                                 onClick={(e)=>handleSelectPayoutAmount(e, "C")} disabled={submittedPayout}>
-                                                $50
+                                                {payoutCurrencySymbol}{payoutDisplay[2]}
                                             </button>
 
                                         </div>}
@@ -1641,9 +1654,10 @@ const list = (anchor) => (
 
                                         {(auth.userId) ? 
                                         
-                                        <div className="flex flex-col w-[375px] pt-4 gap-y-4">
+                                        <div className="flex flex-col w-[375px] pt-4 pb-6">
                                         
                                             <button className="py-2 px-4 border border-gray-400 rounded-lg hover:bg-[#8BEDF3]" 
+                                                disabled={auth.requestedPayout || waitingPayout}
                                                 onClick={(e)=>handleRequestPayout(e)}>
 
                                                 Submit Withdrawal Request
@@ -1745,7 +1759,7 @@ const list = (anchor) => (
 
                                 <PayPalButtons
                                     forceReRender={[paymentCurrency, selectedPaymentOption, paymentSuccess]}
-                                    disabled={paymentSuccess}
+                                    disabled={paymentSuccess || waitingPayment}
                                     style={{
                                         shape: "rect",
                                         //color:'blue' change the default color of the buttons
@@ -1777,11 +1791,14 @@ const list = (anchor) => (
                                                     ? `${errorDetail.issue} ${errorDetail.description} (${orderData.debug_id})`
                                                     : JSON.stringify(orderData);
 
+                                                    setWaitingPayment(false)
+
                                                     throw new Error(errorMessage);
                                                 }
 
                                             } catch (error) {
                                                 console.error(error);
+                                                setWaitingPayment(false)
                                                 setPaymentMessage(`Could not initiate PayPal Checkout...${error}`);
                                             }
                                         } else {
@@ -1794,6 +1811,8 @@ const list = (anchor) => (
                                     onApprove={async (data, actions) => {
                                         
                                         try {
+
+                                            setWaitingPayment(true)
                                             
                                             const captureData = await capturePaypalOrder(data.orderID, auth.userId, auth.accessToken)
 
@@ -1819,6 +1838,7 @@ const list = (anchor) => (
                                                     // (3) Successful transaction -> Show confirmation or thank you message
                                                     // Or go to another URL:  actions.redirect('thank_you.html');
                                                     setPaymentSuccess(true)
+                                                    setWaitingPayment(false)
                                                     alert(`Success, your payment of ${captureData?.data?.orderData?.currency_code} ${captureData?.data?.orderData?.value} has been received!`)
                                                     setChanged(changed + 1)
                                                 }

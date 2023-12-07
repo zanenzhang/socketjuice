@@ -47,6 +47,9 @@ var paymentSchema = new Schema({
     paypalOrderId: {
         type: String
     },
+    paypalBatchId: {
+        type: String
+    },
     gross_amount: {
         currency_code: {
             type: String

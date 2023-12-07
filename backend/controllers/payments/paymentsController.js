@@ -17,7 +17,7 @@ const S3 = require("aws-sdk/clients/s3");
 const fns = require('date-fns');
 var _= require('lodash');
 const copyFile = require('../media/s3Controller');
-const {sendReceiptIncoming, sendReceiptOutgoing} = require("../../middleware/mailer");
+const {sendReceiptIncoming, sendReceiptOutgoing, sendPayoutRejection} = require("../../middleware/mailer");
 
 const base = "https://api-m.sandbox.paypal.com";
 var paypal = require('paypal-rest-sdk');
@@ -273,8 +273,6 @@ const getHostIncomingPayments = async (req, res) => {
             return res.status(400).json({ message: 'Missing required information' })
         }
 
-        console.log(userId, pageNumber, dateStart, dateEnd)
-
         if(!pageNumber){
             pageNumber = 0
         } else {
@@ -319,6 +317,56 @@ const getHostIncomingPayments = async (req, res) => {
         } else {
 
             return res.status(201).json({ stop: 1})    
+        }
+    })
+}   
+
+
+const getPayoutRequests = async (req, res) => {
+
+    const cookies = req.cookies;
+
+    if (!cookies?.socketjuicejwt) return res.sendStatus(401);
+    const refreshToken = cookies.socketjuicejwt;
+
+    User.findOne({ refreshToken }, async function(err, foundUser){
+
+        if (err || !foundUser) return res.sendStatus(403); 
+    
+        jwt.verify(
+            refreshToken,
+            process.env.REFRESH_TOKEN_SECRET,
+            (err, decoded) => {
+
+                if (err || !foundUser._id.toString() === ((decoded.userId)) ) return res.sendStatus(403);
+            }
+        )   
+
+        var { userId } = req.query
+
+        if (!userId ) {
+            return res.status(400).json({ message: 'Missing required information' })
+        }
+
+        const foundUsers = await User.find({requestedPayout: true, deactivated: false}).select("_id profilePicURL requestedPayout requestedPayoutCurrency requestedPayoutOption flagged")
+
+        if(foundUsers){
+
+            const incomingPayments = await Payment.find({_receivingUserId: {$in: foundUsers.map(e =>e._id)}}).select("_sendingUserId _receivingUserId amount currency currencySymbol")
+            const outgoingPayments = await Payment.find({_sendingUserId: {$in: foundUsers.map(e =>e._id)}}).select("_sendingUserId _receivingUserId amount currency currencySymbol")
+
+            if(incomingPayments && outgoingPayments){
+                    
+                return res.status(200).json({foundUsers, incomingPayments, outgoingPayments})
+
+            } else {
+
+                return res.status(401).json({ "message": "failed operation"})    
+            }
+
+        } else {
+
+            return res.status(401).json({ "message": "failed operation"})
         }
     })
 }   
@@ -406,10 +454,6 @@ const getDriverOutgoingPayments = async (req, res) => {
             return res.status(400).json({ message: 'Missing required information' })
         }
 
-        console.log(pageNumber)
-        console.log(dateStart)
-        console.log(dateEnd)
-
         if(!pageNumber){
             pageNumber = 0
         } else {
@@ -420,9 +464,6 @@ const getDriverOutgoingPayments = async (req, res) => {
             dateStart = new Date(dateStart)
             dateEnd = new Date(dateEnd)
         }
-
-        console.log(dateStart)
-        console.log(dateEnd)
 
         const foundDriverProfile = await DriverProfile.findOne({_userId: userId})
 
@@ -535,7 +576,11 @@ const addPayout = async (req, res) => {
             process.env.REFRESH_TOKEN_SECRET,
             (err, decoded) => {
 
-                if (err  || !foundUser._id.toString() === ((decoded.userId)) || !(Object.values(foundUser.roles).includes(5150)) ) return res.sendStatus(403);
+                if (err  || !foundUser._id.toString() === ((decoded.userId)) 
+                || !(Object.values(foundUser.roles).includes(5150)) || 
+                foundUser.email !== "zan@purchies.com" ) { //can add more security here
+                        return res.sendStatus(403);
+                }
             }
         )        
 
@@ -558,157 +603,210 @@ const addPayout = async (req, res) => {
                 if(foundDriverProfile){
 
                     var paymentAmount = 0
+                    var netAmount = 0
                     var currency = checkUser?.requestedPayoutCurrency.toLowerCase()
+                    var currencySymbol = "$"
 
                     if(currency === 'cad'){
+
+                        currencySymbol = "$"
                 
                         if(checkUser.requestedPayoutOption === "A"){
 
                             paymentAmount = 20.00
+                            netAmount = 19.00
 
                         } else if(checkUser.requestedPayoutOption === "B"){
 
                             paymentAmount = 40.00
+                            netAmount = 39.00
 
                         } else if(checkUser.requestedPayoutOption === "C"){
 
                             paymentAmount = 50.00
+                            netAmount = 49.00
                         }
                     
-                    } else if(checkUser.requestedPayoutOption === 'usd'){
+                    } else if(currency === 'usd'){
+
+                        currencySymbol = "$"
                         
                         if(option === "A"){
 
                             paymentAmount = 20.00
+                            netAmount = 19.00
 
                         } else if(option === "B"){
 
                             paymentAmount = 40.00
+                            netAmount = 39.00
 
                         } else if(option === "C"){
 
                             paymentAmount = 50.00
+                            netAmount = 49.00
                         }
                     
-                    } else if(checkUser.requestedPayoutOption === 'eur'){
+                    } else if(currency === 'eur'){
+
+                        currencySymbol = "€"
                         
                         if(option === "A"){
 
                             paymentAmount = 20.00
+                            netAmount = 19.00
 
                         } else if(option === "B"){
 
                             paymentAmount = 40.00
+                            netAmount = 39.00
 
                         } else if(option === "C"){
 
                             paymentAmount = 50.00
+                            netAmount = 49.00
                         }
                     
-                    } else if(checkUser.requestedPayoutOption === 'gbp'){
+                    } else if(currency === 'gbp'){
+                        
+                        currencySymbol = "£"
                         
                         if(option === "A"){
 
                             paymentAmount = 20.00
+                            netAmount = 19.00
 
                         } else if(option === "B"){
 
                             paymentAmount = 40.00
+                            netAmount = 39.00
 
                         } else if(option === "C"){
 
                             paymentAmount = 50.00
+                            netAmount = 49.00
                         }
                     
-                    } else if(checkUser.requestedPayoutOption === 'inr'){
+                    } else if(currency === 'inr'){
+
+                        currencySymbol = "₹"
                         
                         if(option === "A"){
 
                             paymentAmount = 200.00
+                            netAmount = 190.00
 
                         } else if(option === "B"){
 
                             paymentAmount = 400.00
+                            netAmount = 380.00
 
                         } else if(option === "C"){
 
                             paymentAmount = 500.00
+                            netAmount = 475.00
                         }
                     
-                    } else if(checkUser.requestedPayoutOption === 'jpy'){
+                    } else if(currency === 'jpy'){
+
+                        currencySymbol = "¥"
                         
                         if(option === "A"){
 
                             paymentAmount = 3000.00
+                            netAmount = 2800.00
 
                         } else if(option === "B"){
 
                             paymentAmount = 6000.00
+                            netAmount = 5600.00
 
                         } else if(option === "C"){
 
                             paymentAmount = 8000.00
+                            netAmount = 7500.00
                         }
                     
-                    } else if(checkUser.requestedPayoutOption === 'cny'){
+                    } else if(currency === 'cny'){
+
+                        currencySymbol = "¥"
                         
                         if(option === "A"){
 
                             paymentAmount = 100.00
+                            netAmount = 95.00
 
                         } else if(option === "B"){
 
                             paymentAmount = 200.00
+                            netAmount = 190.00
 
                         } else if(option === "C"){
 
                             paymentAmount = 300.00
+                            netAmount = 285.00
                         }
                     
-                    } else if(checkUser.requestedPayoutOption === 'aud'){
+                    } else if(currency === 'aud'){
+
+                        currencySymbol = "$"
                         
                         if(option === "A"){
 
                             paymentAmount = 20.00
+                            netAmount = 19.00
 
                         } else if(option === "B"){
 
                             paymentAmount = 40.00
+                            netAmount = 39.00
 
                         } else if(option === "C"){
 
                             paymentAmount = 50.00
+                            netAmount = 49.00
                         }
                     
-                    } else if(checkUser.requestedPayoutOption === 'nzd'){
+                    } else if(currency === 'nzd'){
+
+                        currencySymbol = "$"
                         
                         if(option === "A"){
 
                             paymentAmount = 20.00
+                            netAmount = 19.00
 
                         } else if(option === "B"){
 
                             paymentAmount = 40.00
+                            netAmount = 39.00
 
                         } else if(option === "C"){
 
                             paymentAmount = 50.00
+                            netAmount = 49.00
                         }
                     
-                    } else if(checkUser.requestedPayoutOption === 'mxn'){
+                    } else if(currency === 'mxn'){
+
+                        currencySymbol = "$"
                         
                         if(option === "A"){
 
                             paymentAmount = 200.00
+                            netAmount = 190.00
 
                         } else if(option === "B"){
 
                             paymentAmount = 400.00
+                            netAmount = 390.00
 
                         } else if(option === "C"){
 
                             paymentAmount = 500.00
+                            netAmount = 490.00
                         }
+
                     } else {
                         return res.status(400).json({ message: 'Missing required information' })
                     }
@@ -728,21 +826,27 @@ const addPayout = async (req, res) => {
 
                         if(!checkAmount){
 
-                            const updatedUser = await User.updateOne({_id: userId},{$set: {requestedPayout: false, requestedPayoutOption: "None"}})
+                            const updatedUser = await User.updateOne({_id: userId},{$set: {requestedPayout: false, requestedPayoutOption: "", requestedPayoutCurrency: ""}})
 
                             if(updatedUser){
                                 return res.status(400).json({ 'message': 'Failed operation!' });
                             }
+
                         } else {
 
+                            var sender_batch_id = Math.random().toString(36).substring(9);
+
+                            checkUser.requestedPayout = false
+                            checkUser.requestedPayoutOption = ""
+                            checkUser.requestedPayoutCurrency = ""
+
                             const newPayment = await Payment.create({ _sendingUserId: userId, _receivingUserId: userId, 
-                                amount: paymentAmount, currency: currency.toLowerCase(), payout: true})
+                                amount: paymentAmount, currency: currency.toLowerCase(), payout: true, 
+                                paypalBatchId: sender_batch_id})
 
                             const saveUser = await checkUser.save()
     
-                            if(newPayment && saveUser){
-
-                                var sender_batch_id = Math.random().toString(36).substring(9);
+                            if(saveUser && newPayment){
 
                                 var create_payout_json = {
                                     "sender_batch_header": {
@@ -753,7 +857,7 @@ const addPayout = async (req, res) => {
                                         {
                                             "recipient_type": "EMAIL",
                                             "amount": {
-                                                "value": paymentAmount,
+                                                "value": netAmount,
                                                 "currency": currency.toUpperCase()
                                             },
                                             "receiver": checkUser.email,
@@ -800,17 +904,22 @@ const addPayout = async (req, res) => {
                                                     },
                                                 });
     
-                                                if(payoutDetails){
-                                                    
-                                                    const sentOutReceipt = await sendReceiptOutgoing({toUser: userId, firstName: checkUser.firstName, amount: paymentAmount,
-                                                       currency: currency.toLowerCase(), currencySymbol: currencySymbol, })
+                                                if(payoutDetails && payoutDetails.status === 200){
 
-                                                    if(sentOutReceipt){
+                                                    console.log(payoutDetails.data.batch_header.amount)
+                                                    console.log(payoutDetails.data.batch_header.fees)
+                                                    console.log(payoutDetails.data.items)
+
+                                                    const updatedPayment = await Payment.updateOne({_id: newPayment._id},{$set:{fee: payoutDetails?.data?.batch_header?.fees?.value}})
+                                                    
+                                                    const sentOutReceipt = await sendReceiptOutgoing({toUser: checkUser.email, firstName: checkUser.firstName, 
+                                                        amount: paymentAmount, currency: currency.toLowerCase(), currencySymbol: currencySymbol, })
+
+                                                    if(sentOutReceipt && updatedPayment){
                                                         return res.status(201).json({ message: 'Success' })
                                                     } else {
                                                         return res.status(201).json({ message: 'Success' })
                                                     }
-                                                    
                                                 }
                                             }
 
@@ -1331,6 +1440,8 @@ const addBraintreeSale = async (req, res) => {
         } else if(currency.toLowerCase() === "aud"){
             currencySymbol = "$"
         } else if(currency.toLowerCase() === "nzd"){
+            currencySymbol = "$"
+        } else if(currency.toLowerCase() === "mxn"){
             currencySymbol = "$"
         }
 
@@ -1884,6 +1995,49 @@ const capturePaypalOrder = async (req, res) => {
 }
 
 
+const rejectPayout = async (req, res) => {
+
+    const cookies = req.cookies;
+
+    if (!cookies?.socketjuicejwt) return res.sendStatus(401);
+    const refreshToken = cookies.socketjuicejwt;
+
+    User.findOne({ refreshToken }, async function(err, foundUser){
+
+        if (err || !foundUser) return res.sendStatus(403); 
+    
+        jwt.verify(
+            refreshToken,
+            process.env.REFRESH_TOKEN_SECRET,
+            (err, decoded) => {
+
+                if (err  || !foundUser._id.toString() === ((decoded.userId))  ) return res.sendStatus(403);
+            }
+        )        
+
+        var { userId } = req.body
+
+        if (!userId ){
+            return res.status(400).json({ 'message': 'Missing required fields!' });
+        } 
+
+        const updated = await User.findOneAndUpdate({_id: userId},{$set:{requestedPayout: false, requestedPayoutCurrency: "", requestedPayoutOption: ""}}, {new: true})
+
+        if(updated){
+
+            const sentrejection = await sendPayoutRejection({toUser: updated.email, firstName: updated.firstName})
+
+            if(sentrejection){
+                return res.status(200).json({ 'message': 'Rejected payout' });
+            } else {
+                return res.status(400).json({ 'message': 'failed operation' });
+            }
+        } else {
+            return res.status(400).json({ 'message': 'failed operation' });
+        }
+    })
+}
+
 const requestPayout = async (req, res) => {
 
     const cookies = req.cookies;
@@ -2113,5 +2267,5 @@ const requestPayout = async (req, res) => {
 
 
 module.exports = { getHostIncomingPayments, getDriverOutgoingPayments, 
-    addPayment, addRefund, addPayout, getBraintreeToken, addBraintreeSale,
-    addPaypalOrder, capturePaypalOrder, requestPayout }
+    addPayment, addRefund, addPayout, rejectPayout, getBraintreeToken, addBraintreeSale,
+    addPaypalOrder, capturePaypalOrder, requestPayout, getPayoutRequests }

@@ -26,6 +26,7 @@ const ErrorFallback = lazy( () => import('./components/errorHandler/ErrorFallbac
 const AdminPageDriver = lazy( () => import("./pages/Application/AdminPageDriver"));
 const AdminPageHost = lazy( () => import("./pages/Application/AdminPageHost"));
 const AdminPageControl = lazy( () => import('./pages/Application/AdminPageControl'));
+const AdminPagePayouts = lazy( () => import('./pages/Application/AdminPagePayouts'));
 
 const ROLES = {
   'User': 2001,
@@ -169,6 +170,15 @@ function App() {
               >
                 <Suspense fallback={<SkeletonFullPage />}>
                   <AdminPageControl />
+                </Suspense>
+            </ErrorBoundary>} />
+
+            <Route path="/adminpayouts" element={<ErrorBoundary
+                FallbackComponent={ErrorFallback}
+                onReset={() => navigate('/')}
+              >
+                <Suspense fallback={<SkeletonFullPage />}>
+                  <AdminPagePayouts />
                 </Suspense>
             </ErrorBoundary>} />
 
