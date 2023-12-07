@@ -356,7 +356,8 @@ useEffect( () => {
 
           var checkedFunds = false
           for(let i=0; i< auth?.credits?.length; i++){
-            if(auth.credits[i].currency === selectedCurrency && auth.credits[i].amount > charge){
+            if(auth.credits[i].currency.toLowerCase() === selectedCurrency 
+            && auth.credits[i].amount > charge){
               setInsufficientFunds(false)
               checkedFunds = true
               break
@@ -746,10 +747,12 @@ const {scrollToTime} = useMemo(
     var charge = ((bookingEnd - bookingStart) / 1000 / 1800) * selectedChargeRate
     setTotalCharge(charge)
     
-    if (auth.credits?.length > 0){
+    if (auth.credits?.length > 0 && selectedCurrency){
 
       for(let i=0; i< auth?.credits?.length; i++){
-        if(auth.credits[i].currency === selectedCurrency && auth.credits[i].amount > charge){
+        if(auth.credits[i].currency.toLowerCase() === selectedCurrency 
+        && auth.credits[i].amount > charge){
+
           checkedCredits = true;
           setInsufficientFunds(false)
           break

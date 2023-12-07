@@ -2900,7 +2900,9 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                     {(selectedEventStatus !== "Requested" && selectedEventStatus !== "Approved") &&
                     
-                    <button disabled={selectedEventStatus === "Completed" || selectedEventStatus === "Cancelled" || driverRequestedCancel || !termscheckedDriver} 
+                    <button 
+                    disabled={selectedEventStatus === "Completed" || selectedEventStatus === "Cancelled" || driverRequestedCancel 
+                    || !termscheckedDriver || waitingSubmit || waitingCancel} 
                       className={`border border-gray-300 px-3 py-2 rounded-xl gap-x-2 flex flex-row justify-center items-center
                       ${ (selectedEventStatus === "Completed" || selectedEventStatus === "Cancelled" || driverRequestedCancel || !termscheckedDriver) ? "bg-[#c1f2f5] cursor-not-allowed" : "bg-[#c1f2f5] hover:bg-[#00D3E0] " } `}
                       onClick={(e)=>handleEventActionDriver(e)}>
@@ -2927,7 +2929,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                       <button 
                       className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] ${!termscheckedDriver ? "hover:bg-gray-300 cursor-not-allowed" : "hover:bg-[#00D3E0] cursor-pointer" } 
                         gap-x-2 flex flex-row justify-center items-center`}
-                        disabled={!termscheckedDriver || waitingCancel}
+                        disabled={!termscheckedDriver || waitingSubmit || waitingCancel}
                       onClick={(e)=>handleEventRejectDriver(e)}>
 
                       {waitingCancel && 
@@ -2948,7 +2950,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                     {(selectedEventStatus === "Approved" && !driverRequestedCancel) && 
                       <button className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0] 
                         gap-x-2 flex flex-row justify-center items-center`}
-                        disabled={!termscheckedDriver}
+                        disabled={!termscheckedDriver || waitingSubmit || waitingCancel}
                       onClick={(e)=>handleEventCancelDriver(e)}>
 
                       {waitingCancel && 
@@ -2990,7 +2992,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                     
                     <button className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] ${flagged ? " bg-gray-400 " : " hover:bg-[#00D3E0] "} 
                       gap-x-2 flex flex-row justify-center items-center`}
-
+                      disabled={flagged}
                       onClick={(e)=>handleHelpOpen(e)}>
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
                         strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
@@ -3052,7 +3054,7 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                     <button   
                       disabled={( selectedEventStatus === "Completed" || selectedEventStatus === "Cancelled" 
-                      || hostRequestedCancel || !termscheckedHost || waitingSubmit )} 
+                      || hostRequestedCancel || !termscheckedHost || waitingSubmit || waitingCancel )} 
                       
                       className={`border border-gray-300 px-3 py-2 rounded-xl 
                       ${(selectedEventStatus === "Completed" || selectedEventStatus === "Cancelled" 
@@ -3076,7 +3078,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                         {(selectedEventStatus === "Requested" && !driverRequestedCancel && !hostRequestedCancel) && <p>Booking Requested - Approve</p> }
                         {(selectedEventStatus === "CancelSubmitted" && driverRequestedCancel) && <p>Driver Asked To Cancel - Refund and Approve Cancellation</p> }
                         {(selectedEventStatus === "CancelSubmitted" && hostRequestedCancel) && <p>Host Asked To Cancel</p> }
-                        {(selectedEventStatus === "Cancelled") && <p>Cancelled</p> }
+                        {(selectedEventStatus === "Cancelled") && <p>Booking Cancelled</p> }
                         {(selectedEventStatus === "Approved") && <p>Approved - Mark as Completed</p> }
                         {(selectedEventStatus === "Completed") && <p>Booking Completed</p> }
 
@@ -3089,7 +3091,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                       ${(!termscheckedHost ) ? "bg-[#c1f2f5] cursor-not-allowed" : "cursor-pointer bg-[#c1f2f5] hover:bg-[#00D3E0] " } 
                         gap-x-2 flex flex-row justify-center items-center`}
                     
-                        disabled={(selectedEventStatus === "Cancelled" || !termscheckedHost )} 
+                        disabled={(selectedEventStatus === "Cancelled" || !termscheckedHost || waitingSubmit || waitingCancel )} 
                       onClick={(e)=>handleEventRejectHost(e)}>
 
                     {waitingCancel && 
@@ -3112,7 +3114,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                     className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] 
                     ${(!termscheckedHost ) ? "bg-[#c1f2f5] cursor-not-allowed" : "cursor-pointer bg-[#c1f2f5] hover:bg-[#00D3E0] " } 
                       gap-x-2 flex flex-row justify-center items-center`}
-                    disabled={!termscheckedHost || waitingCancel}
+                    disabled={!termscheckedHost || waitingSubmit || waitingCancel}
                     onClick={(e)=>handleEventCancelHost(e)}>
 
                     {waitingCancel && 
