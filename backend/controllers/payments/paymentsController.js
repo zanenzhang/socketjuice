@@ -70,10 +70,14 @@ const s3 = new S3({
 
   const createOrder = async (cart, userId) => {
 
+    console.log("Cart", cart)
+
     var amount = "21.50"
     var currency = "USD"
 
     if(cart[0].currency && cart[0].currency.toLowerCase() === "usd"){
+
+        currency = "USD"
 
         if(cart[0].option === "A"){
             amount = "21.50"
@@ -179,6 +183,18 @@ const s3 = new S3({
             amount = "52.50"
         }
     
+    }  else if(cart[0].currency && cart[0].currency.toLowerCase() === "mxn"){
+
+        currency = "NZD"
+
+        if(cart[0].option === "A"){
+            amount = "215.00"
+        } else if (cart[0].option === "B"){
+            amount = "420.00"
+        } else if (cart[0].option === "C"){
+            amount = "525.00"
+        }
+    
     }  
   
     const accessToken = await generateAccessTokenCAD();
@@ -200,6 +216,9 @@ const s3 = new S3({
         }
     };
 
+    console.log(payload.purchase_units)
+    console.log(payload.purchase_units[0].amount)
+
     if(accessToken){
         const response = await axios.post(url, JSON.stringify(payload), 
             {
@@ -215,6 +234,7 @@ const s3 = new S3({
             });   
         
         if(response){
+            console.log(response)
             return response
         }
         };

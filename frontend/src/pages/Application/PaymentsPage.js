@@ -392,6 +392,7 @@ export default function PaymentsPage() {
 
         setPayoutCurrencySymbol(currencySymbol)
         setPaymentCurrencySymbol(currencySymbol)
+
     }
 
     const handleSelectPayoutAmount = (e, value) => {
@@ -1045,12 +1046,6 @@ export default function PaymentsPage() {
 
                 setPaymentCurrency(currencies[0].currency.toLowerCase())
                 setPaymentCurrencySymbol(currencies[0].currencySymbol)
-
-                setInitialOptions({
-                    "client-id": process.env.REACT_APP_PAYPAL_PUBLIC_ID,
-                    "enable-funding": "venmo",
-                    "currency": currencies[0].currency.toUpperCase()
-                })
             }
         }
 
@@ -1769,11 +1764,13 @@ const list = (anchor) => (
                                         
                                         setWaitingPayment(true);
 
-                                        console.log(paymentCurrency, selectedPaymentOption)
+                                        console.log(paymentCurrency, selectedPaymentOption, initialOptions)
 
                                         const orderData = await addPaypalOrder(paymentCurrency, selectedPaymentOption, auth?.userId, auth?.accessToken)
 
                                         if(orderData){
+
+                                            console.log(orderData)
 
                                             try{
 
