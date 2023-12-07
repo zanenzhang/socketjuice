@@ -6,7 +6,7 @@ async function addAppointmentFlag (loggedUserId, appointmentId, comment, accessT
     try {
         
         const response = await axios.post(FLAG_URL, 
-            JSON.stringify({loggedUserId, appointmentId, comment,}),
+            JSON.stringify({loggedUserId, appointmentId, comment}),
             {
                 headers: { "Authorization": `Bearer ${accessToken} ${loggedUserId}`, 
                     'Content-Type': 'application/json'},

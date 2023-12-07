@@ -122,6 +122,32 @@ const handleNewHost = async (req, res) => {
                                 "roles": {User: 2001, Manager: 3780},
                                 "privacySetting": 1,
                                 "primaryGeoData": geoData,
+                                
+                                "credits": [
+                                    {currency: "usd", currencySymbol: "$", amount: 0},
+                                    {currency: "cad", currencySymbol: "$", amount: 0},
+                                    {currency: "eur", currencySymbol: "€", amount: 0},
+                                    {currency: "gbp", currencySymbol: "£", amount: 0},
+                                    {currency: "inr", currencySymbol: "₹", amount: 0},
+                                    {currency: "jpy", currencySymbol: "¥", amount: 0},
+                                    {currency: "cny", currencySymbol: "¥", amount: 0},
+                                    {currency: "aud", currencySymbol: "$", amount: 0},
+                                    {currency: "nzd", currencySymbol: "$", amount: 0},
+                                    {currency: "mxn", currencySymbol: "$", amount: 0},
+                                ],
+
+                                "escrow": [
+                                    {currency: "usd", currencySymbol: "$", amount: 0},
+                                    {currency: "cad", currencySymbol: "$", amount: 0},
+                                    {currency: "eur", currencySymbol: "€", amount: 0},
+                                    {currency: "gbp", currencySymbol: "£", amount: 0},
+                                    {currency: "inr", currencySymbol: "₹", amount: 0},
+                                    {currency: "jpy", currencySymbol: "¥", amount: 0},
+                                    {currency: "cny", currencySymbol: "¥", amount: 0},
+                                    {currency: "aud", currencySymbol: "$", amount: 0},
+                                    {currency: "nzd", currencySymbol: "$", amount: 0},
+                                    {currency: "mxn", currencySymbol: "$", amount: 0},
+                                ]
                             });
         
                             newUser.save( async function(err, savedUser){

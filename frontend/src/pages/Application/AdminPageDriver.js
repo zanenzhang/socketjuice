@@ -21,7 +21,7 @@ const AdminPageDriver = () => {
     const [userList, setUserList] = useState([])
     const [hostList, setHostList] = useState([])
     const [changed, setChanged] = useState(0);
-    const [waiting, setWaiting] = useState(0);
+    const [waiting, setWaiting] = useState(false);
     
     const navigate = useNavigate();
     

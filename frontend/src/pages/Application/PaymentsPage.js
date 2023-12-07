@@ -199,6 +199,8 @@ export default function PaymentsPage() {
 
     const handlePayCurrency = (e) => {
 
+        console.log(e.target.value)
+
         setPayoutCurrency(e.target.value.toLowerCase())
         setPaymentCurrency(e.target.value.toLowerCase())
 
@@ -209,6 +211,11 @@ export default function PaymentsPage() {
             currencySymbol = "$"
             setPaymentDisplay([20, 40, 50])
             setPayoutDisplay([20, 40, 50])
+            
+            setSelectedPaymentOption("A")
+            setSelectedPaymentAmount(20.00)
+            setSelectedServiceFee(1.50)
+            setSelectedPaymentTotal(21.50)
 
         } else if(e.target.value === "cad"){
 
@@ -216,11 +223,31 @@ export default function PaymentsPage() {
             setPaymentDisplay([20, 40, 50])
             setPayoutDisplay([20, 40, 50])
 
+            setSelectedPaymentOption("A")
+            setSelectedPaymentAmount(20.00)
+            setSelectedServiceFee(1.50)
+            setSelectedPaymentTotal(21.50)
+
+            setSelectedPayoutOption("A")
+            setSelectedPayoutAmount(20.00)
+            setSelectedPayoutFee(1.00)
+            setSelectedTotalPayout(19.00)
+
         } else if(e.target.value === "eur"){
             
             currencySymbol = "€"
             setPaymentDisplay([20, 40, 50])
             setPayoutDisplay([20, 40, 50])
+
+            setSelectedPaymentOption("A")
+            setSelectedPaymentAmount(20.00)
+            setSelectedServiceFee(1.50)
+            setSelectedPaymentTotal(21.50)
+
+            setSelectedPayoutOption("A")
+            setSelectedPayoutAmount(20.00)
+            setSelectedPayoutFee(1.00)
+            setSelectedTotalPayout(19.00)
 
         } else if(e.target.value === "gbp"){
             
@@ -228,11 +255,31 @@ export default function PaymentsPage() {
             setPaymentDisplay([20, 40, 50])
             setPayoutDisplay([20, 40, 50])
 
+            setSelectedPaymentOption("A")
+            setSelectedPaymentAmount(20.00)
+            setSelectedServiceFee(1.50)
+            setSelectedPaymentTotal(21.50)
+
+            setSelectedPayoutOption("A")
+            setSelectedPayoutAmount(20.00)
+            setSelectedPayoutFee(1.00)
+            setSelectedTotalPayout(19.00)
+
         } else if(e.target.value === "inr"){
             
             currencySymbol = "₹"
             setPaymentDisplay([200, 400, 500])
             setPayoutDisplay([200, 400, 500])
+
+            setSelectedPaymentOption("A")
+            setSelectedPaymentAmount(200.00)
+            setSelectedServiceFee(15.00)
+            setSelectedPaymentTotal(215.00)
+
+            setSelectedPayoutOption("A")
+            setSelectedPayoutAmount(200.00)
+            setSelectedPayoutFee(10.00)
+            setSelectedTotalPayout(190.00)
 
         } else if(e.target.value === "jpy"){
             
@@ -240,11 +287,31 @@ export default function PaymentsPage() {
             setPaymentDisplay([3000, 5000, 6000])
             setPayoutDisplay([3000, 5000, 6000])
 
+            setSelectedPaymentOption("A")
+            setSelectedPaymentAmount(3000)
+            setSelectedServiceFee(200)
+            setSelectedPaymentTotal(3200)
+
+            setSelectedPayoutOption("A")
+            setSelectedPayoutAmount(3000.00)
+            setSelectedPayoutFee(200.00)
+            setSelectedTotalPayout(2800.00)
+
         } else if(e.target.value === "cny"){
             
             currencySymbol = "¥"
             setPaymentDisplay([100, 200, 300])
             setPayoutDisplay([100, 200, 300])
+
+            setSelectedPaymentOption("A")
+            setSelectedPaymentAmount(100.00)
+            setSelectedServiceFee(5.00)
+            setSelectedPaymentTotal(105.00)
+
+            setSelectedPayoutOption("A")
+            setSelectedPayoutAmount(100.00)
+            setSelectedPayoutFee(5.00)
+            setSelectedTotalPayout(95.00)
 
         } else if(e.target.value === "aud"){
             
@@ -252,17 +319,47 @@ export default function PaymentsPage() {
             setPaymentDisplay([20, 40, 50])
             setPayoutDisplay([20, 40, 50])
 
+            setSelectedPaymentOption("A")
+            setSelectedPaymentAmount(20.00)
+            setSelectedServiceFee(1.50)
+            setSelectedPaymentTotal(21.50)
+
+            setSelectedPayoutOption("A")
+            setSelectedPayoutAmount(20.00)
+            setSelectedPayoutFee(1.00)
+            setSelectedTotalPayout(19.00)
+
         } else if(e.target.value === "nzd"){
             
             currencySymbol = "$"
             setPaymentDisplay([20, 40, 50])
             setPayoutDisplay([20, 40, 50])
 
+            setSelectedPaymentOption("A")
+            setSelectedPaymentAmount(20.00)
+            setSelectedServiceFee(1.50)
+            setSelectedPaymentTotal(21.50)
+
+            setSelectedPayoutOption("A")
+            setSelectedPayoutAmount(20.00)
+            setSelectedPayoutFee(1.00)
+            setSelectedTotalPayout(19.00)
+
         } else {
             
             currencySymbol = "$"
             setPaymentDisplay([20, 40, 50])
             setPayoutDisplay([20, 40, 50])
+
+            setSelectedPaymentOption("A")
+            setSelectedPaymentAmount(20.00)
+            setSelectedServiceFee(1.50)
+            setSelectedPaymentTotal(21.50)
+
+            setSelectedPayoutOption("A")
+            setSelectedPayoutAmount(20.00)
+            setSelectedPayoutFee(1.00)
+            setSelectedTotalPayout(19.00)
         }
 
         setPayoutCurrencySymbol(currencySymbol)

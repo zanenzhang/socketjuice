@@ -94,7 +94,92 @@ const s3 = new S3({
         } else if (cart[0].option === "C"){
             amount = "52.50"
         }
-    } 
+    
+    } else if(cart[0].currency && cart[0].currency.toLowerCase() === "eur"){
+
+        currency = "EUR"
+
+        if(cart[0].option === "A"){
+            amount = "21.50"
+        } else if (cart[0].option === "B"){
+            amount = "42.00"
+        } else if (cart[0].option === "C"){
+            amount = "52.50"
+        }
+    
+    } else if(cart[0].currency && cart[0].currency.toLowerCase() === "gbp"){
+
+        currency = "GBP"
+
+        if(cart[0].option === "A"){
+            amount = "21.50"
+        } else if (cart[0].option === "B"){
+            amount = "42.00"
+        } else if (cart[0].option === "C"){
+            amount = "52.50"
+        }
+    
+    }  else if(cart[0].currency && cart[0].currency.toLowerCase() === "inr"){
+
+        currency = "INR"
+
+        if(cart[0].option === "A"){
+            amount = "215.00"
+        } else if (cart[0].option === "B"){
+            amount = "420.00"
+        } else if (cart[0].option === "C"){
+            amount = "525.00"
+        }
+    
+    }  else if(cart[0].currency && cart[0].currency.toLowerCase() === "jpy"){
+
+        currency = "JPY"
+
+        if(cart[0].option === "A"){
+            amount = "3200.00"
+        } else if (cart[0].option === "B"){
+            amount = "6400.00"
+        } else if (cart[0].option === "C"){
+            amount = "8500.00"
+        }
+    
+    }  else if(cart[0].currency && cart[0].currency.toLowerCase() === "cny"){
+
+        currency = "CNY"
+
+        if(cart[0].option === "A"){
+            amount = "105.00"
+        } else if (cart[0].option === "B"){
+            amount = "210.00"
+        } else if (cart[0].option === "C"){
+            amount = "315.00"
+        }
+    
+    }  else if(cart[0].currency && cart[0].currency.toLowerCase() === "aud"){
+
+        currency = "AUD"
+
+        if(cart[0].option === "A"){
+            amount = "21.50"
+        } else if (cart[0].option === "B"){
+            amount = "42.00"
+        } else if (cart[0].option === "C"){
+            amount = "52.50"
+        }
+    
+    }  else if(cart[0].currency && cart[0].currency.toLowerCase() === "nzd"){
+
+        currency = "NZD"
+
+        if(cart[0].option === "A"){
+            amount = "21.50"
+        } else if (cart[0].option === "B"){
+            amount = "42.00"
+        } else if (cart[0].option === "C"){
+            amount = "52.50"
+        }
+    
+    }  
   
     const accessToken = await generateAccessTokenCAD();
     const url = `${base}/v2/checkout/orders`;
@@ -467,34 +552,156 @@ const addPayout = async (req, res) => {
                     var currency = checkUser?.requestedPayoutCurrency.toLowerCase()
 
                     if(currency === 'cad'){
-                        
+                
                         if(checkUser.requestedPayoutOption === "A"){
 
-                            paymentAmount = 20
-    
+                            paymentAmount = 20.00
+
                         } else if(checkUser.requestedPayoutOption === "B"){
-    
-                            paymentAmount = 40
-    
+
+                            paymentAmount = 40.00
+
                         } else if(checkUser.requestedPayoutOption === "C"){
-    
-                            paymentAmount = 50
+
+                            paymentAmount = 50.00
                         }
                     
-                    } else if(currency === 'usd'){
+                    } else if(checkUser.requestedPayoutOption === 'usd'){
                         
-                        if(checkUser.requestedPayoutOption === "A"){
+                        if(option === "A"){
 
-                            paymentAmount = 20
-    
-                        } else if(checkUser.requestedPayoutOption === "B"){
-    
-                            paymentAmount = 40
-    
-                        } else if(checkUser.requestedPayoutOption === "C"){
-    
-                            paymentAmount = 50
+                            paymentAmount = 20.00
+
+                        } else if(option === "B"){
+
+                            paymentAmount = 40.00
+
+                        } else if(option === "C"){
+
+                            paymentAmount = 50.00
                         }
+                    
+                    } else if(checkUser.requestedPayoutOption === 'eur'){
+                        
+                        if(option === "A"){
+
+                            paymentAmount = 20.00
+
+                        } else if(option === "B"){
+
+                            paymentAmount = 40.00
+
+                        } else if(option === "C"){
+
+                            paymentAmount = 50.00
+                        }
+                    
+                    } else if(checkUser.requestedPayoutOption === 'gbp'){
+                        
+                        if(option === "A"){
+
+                            paymentAmount = 20.00
+
+                        } else if(option === "B"){
+
+                            paymentAmount = 40.00
+
+                        } else if(option === "C"){
+
+                            paymentAmount = 50.00
+                        }
+                    
+                    } else if(checkUser.requestedPayoutOption === 'inr'){
+                        
+                        if(option === "A"){
+
+                            paymentAmount = 200.00
+
+                        } else if(option === "B"){
+
+                            paymentAmount = 400.00
+
+                        } else if(option === "C"){
+
+                            paymentAmount = 500.00
+                        }
+                    
+                    } else if(checkUser.requestedPayoutOption === 'jpy'){
+                        
+                        if(option === "A"){
+
+                            paymentAmount = 3000.00
+
+                        } else if(option === "B"){
+
+                            paymentAmount = 6000.00
+
+                        } else if(option === "C"){
+
+                            paymentAmount = 8000.00
+                        }
+                    
+                    } else if(checkUser.requestedPayoutOption === 'cny'){
+                        
+                        if(option === "A"){
+
+                            paymentAmount = 100.00
+
+                        } else if(option === "B"){
+
+                            paymentAmount = 200.00
+
+                        } else if(option === "C"){
+
+                            paymentAmount = 300.00
+                        }
+                    
+                    } else if(checkUser.requestedPayoutOption === 'aud'){
+                        
+                        if(option === "A"){
+
+                            paymentAmount = 20.00
+
+                        } else if(option === "B"){
+
+                            paymentAmount = 40.00
+
+                        } else if(option === "C"){
+
+                            paymentAmount = 50.00
+                        }
+                    
+                    } else if(checkUser.requestedPayoutOption === 'nzd'){
+                        
+                        if(option === "A"){
+
+                            paymentAmount = 20.00
+
+                        } else if(option === "B"){
+
+                            paymentAmount = 40.00
+
+                        } else if(option === "C"){
+
+                            paymentAmount = 50.00
+                        }
+                    
+                    } else if(checkUser.requestedPayoutOption === 'mxn'){
+                        
+                        if(option === "A"){
+
+                            paymentAmount = 200.00
+
+                        } else if(option === "B"){
+
+                            paymentAmount = 400.00
+
+                        } else if(option === "C"){
+
+                            paymentAmount = 500.00
+                        }
+                    } else {
+                        return res.status(400).json({ message: 'Missing required information' })
                     }
 
                     var checkAmount = false;
@@ -1326,7 +1533,7 @@ const capturePaypalOrder = async (req, res) => {
                                         if(Number(netAmount?.value) > 20){
 
                                             checkedAmount = true
-                                            payamount = 20
+                                            payamount = 20.00
                                         }
 
                                     } else if(option === "B"){
@@ -1334,7 +1541,7 @@ const capturePaypalOrder = async (req, res) => {
                                         if(Number(netAmount?.value) > 40){
 
                                             checkedAmount = true
-                                            payamount = 40
+                                            payamount = 40.00
                                         }
 
                                     } else if (option === "C"){
@@ -1342,7 +1549,7 @@ const capturePaypalOrder = async (req, res) => {
                                         if(Number(netAmount?.value) > 50){
 
                                             checkedAmount = true
-                                            payamount = 50
+                                            payamount = 50.00
                                         }
                                     }
 
@@ -1353,7 +1560,7 @@ const capturePaypalOrder = async (req, res) => {
                                         if(Number(netAmount?.value) > 20){
 
                                             checkedAmount = true
-                                            payamount = 20
+                                            payamount = 20.00
                                         }
 
                                     } else if(option === "B"){
@@ -1361,7 +1568,7 @@ const capturePaypalOrder = async (req, res) => {
                                         if(Number(netAmount?.value) > 40){
 
                                             checkedAmount = true
-                                            payamount = 40
+                                            payamount = 40.00
                                         }
 
                                     } else if (option === "C"){
@@ -1369,10 +1576,227 @@ const capturePaypalOrder = async (req, res) => {
                                         if(Number(netAmount?.value) > 50){
 
                                             checkedAmount = true
-                                            payamount = 50
+                                            payamount = 50.00
                                         }
                                     }
+                                
+                                } else if(currency === "eur"){
+                                    
+                                    if(option === "A"){
+
+                                        if(Number(netAmount?.value) > 20){
+
+                                            checkedAmount = true
+                                            payamount = 20.00
+                                        }
+
+                                    } else if(option === "B"){
+
+                                        if(Number(netAmount?.value) > 40){
+
+                                            checkedAmount = true
+                                            payamount = 40.00
+                                        }
+
+                                    } else if (option === "C"){
+
+                                        if(Number(netAmount?.value) > 50){
+
+                                            checkedAmount = true
+                                            payamount = 50.00
+                                        }
+                                    }
+                                
+                                } else if(currency === "gbp"){
+                                    
+                                    if(option === "A"){
+
+                                        if(Number(netAmount?.value) > 20){
+
+                                            checkedAmount = true
+                                            payamount = 20.00
+                                        }
+
+                                    } else if(option === "B"){
+
+                                        if(Number(netAmount?.value) > 40){
+
+                                            checkedAmount = true
+                                            payamount = 40.00
+                                        }
+
+                                    } else if (option === "C"){
+
+                                        if(Number(netAmount?.value) > 50){
+
+                                            checkedAmount = true
+                                            payamount = 50.00
+                                        }
+                                    }
+                                
+                                } else if(currency === "inr"){
+                                    
+                                    if(option === "A"){
+
+                                        if(Number(netAmount?.value) > 200){
+
+                                            checkedAmount = true
+                                            payamount = 200.00
+                                        }
+
+                                    } else if(option === "B"){
+
+                                        if(Number(netAmount?.value) > 400){
+
+                                            checkedAmount = true
+                                            payamount = 400.00
+                                        }
+
+                                    } else if (option === "C"){
+
+                                        if(Number(netAmount?.value) > 500){
+
+                                            checkedAmount = true
+                                            payamount = 500.00
+                                        }
+                                    }
+                                
+                                } else if(currency === "jpy"){
+                                    
+                                    if(option === "A"){
+
+                                        if(Number(netAmount?.value) > 3000){
+
+                                            checkedAmount = true
+                                            payamount = 3000.00
+                                        }
+
+                                    } else if(option === "B"){
+
+                                        if(Number(netAmount?.value) > 6000){
+
+                                            checkedAmount = true
+                                            payamount = 6000.00
+                                        }
+
+                                    } else if (option === "C"){
+
+                                        if(Number(netAmount?.value) > 8000){
+
+                                            checkedAmount = true
+                                            payamount = 8000.00
+                                        }
+                                    }
+                                
+                                } else if(currency === "cny"){
+                                    
+                                    if(option === "A"){
+
+                                        if(Number(netAmount?.value) > 100){
+
+                                            checkedAmount = true
+                                            payamount = 100.00
+                                        }
+
+                                    } else if(option === "B"){
+
+                                        if(Number(netAmount?.value) > 200){
+
+                                            checkedAmount = true
+                                            payamount = 200.00
+                                        }
+
+                                    } else if (option === "C"){
+
+                                        if(Number(netAmount?.value) > 300){
+
+                                            checkedAmount = true
+                                            payamount = 300.00
+                                        }
+                                    }
+                                
+                                } else if(currency === "aud"){
+                                    
+                                    if(option === "A"){
+
+                                        if(Number(netAmount?.value) > 20){
+
+                                            checkedAmount = true
+                                            payamount = 20.00
+                                        }
+
+                                    } else if(option === "B"){
+
+                                        if(Number(netAmount?.value) > 40){
+
+                                            checkedAmount = true
+                                            payamount = 40.00
+                                        }
+
+                                    } else if (option === "C"){
+
+                                        if(Number(netAmount?.value) > 50){
+
+                                            checkedAmount = true
+                                            payamount = 50.00
+                                        }
+                                    }
+                                
+                                } else if(currency === "nzd"){
+                                    
+                                    if(option === "A"){
+
+                                        if(Number(netAmount?.value) > 20){
+
+                                            checkedAmount = true
+                                            payamount = 20.00
+                                        }
+
+                                    } else if(option === "B"){
+
+                                        if(Number(netAmount?.value) > 40){
+
+                                            checkedAmount = true
+                                            payamount = 40.00
+                                        }
+
+                                    } else if (option === "C"){
+
+                                        if(Number(netAmount?.value) > 50){
+
+                                            checkedAmount = true
+                                            payamount = 50.00
+                                        }
+                                    }
+                                
+                                } else if(currency === "mxn"){
+                                    
+                                    if(option === "A"){
+
+                                        if(Number(netAmount?.value) > 200){
+
+                                            checkedAmount = true
+                                            payamount = 200.00
+                                        }
+
+                                    } else if(option === "B"){
+
+                                        if(Number(netAmount?.value) > 400){
+
+                                            checkedAmount = true
+                                            payamount = 400.00
+                                        }
+
+                                    } else if (option === "C"){
+
+                                        if(Number(netAmount?.value) > 500){
+
+                                            checkedAmount = true
+                                            payamount = 500.00
+                                        }
+                                    }                                
                                 } 
+
 
                                 if(checkedAmount){
 
@@ -1425,6 +1849,8 @@ const capturePaypalOrder = async (req, res) => {
                                     } else {
                                         return res.status(401).json({"message": "Failed operation"})
                                     }
+                                } else {
+                                    return res.status(401).json({"message": "Failed operation"})
                                 }
                             
                             } else {
@@ -1485,31 +1911,155 @@ const requestPayout = async (req, res) => {
                 
                 if(option === "A"){
 
-                    paymentAmount = 20
+                    paymentAmount = 20.00
 
                 } else if(option === "B"){
 
-                    paymentAmount = 40
+                    paymentAmount = 40.00
 
                 } else if(option === "C"){
 
-                    paymentAmount = 50
+                    paymentAmount = 50.00
                 }
             
             } else if(currency === 'usd'){
                 
                 if(option === "A"){
 
-                    paymentAmount = 20
+                    paymentAmount = 20.00
 
                 } else if(option === "B"){
 
-                    paymentAmount = 40
+                    paymentAmount = 40.00
 
                 } else if(option === "C"){
 
-                    paymentAmount = 50
+                    paymentAmount = 50.00
                 }
+            
+            } else if(currency === 'eur'){
+                
+                if(option === "A"){
+
+                    paymentAmount = 20.00
+
+                } else if(option === "B"){
+
+                    paymentAmount = 40.00
+
+                } else if(option === "C"){
+
+                    paymentAmount = 50.00
+                }
+            
+            } else if(currency === 'gbp'){
+                
+                if(option === "A"){
+
+                    paymentAmount = 20.00
+
+                } else if(option === "B"){
+
+                    paymentAmount = 40.00
+
+                } else if(option === "C"){
+
+                    paymentAmount = 50.00
+                }
+            
+            } else if(currency === 'inr'){
+                
+                if(option === "A"){
+
+                    paymentAmount = 200.00
+
+                } else if(option === "B"){
+
+                    paymentAmount = 400.00
+
+                } else if(option === "C"){
+
+                    paymentAmount = 500.00
+                }
+            
+            } else if(currency === 'jpy'){
+                
+                if(option === "A"){
+
+                    paymentAmount = 3000.00
+
+                } else if(option === "B"){
+
+                    paymentAmount = 6000.00
+
+                } else if(option === "C"){
+
+                    paymentAmount = 8000.00
+                }
+            
+            } else if(currency === 'cny'){
+                
+                if(option === "A"){
+
+                    paymentAmount = 100.00
+
+                } else if(option === "B"){
+
+                    paymentAmount = 200.00
+
+                } else if(option === "C"){
+
+                    paymentAmount = 300.00
+                }
+            
+            } else if(currency === 'aud'){
+                
+                if(option === "A"){
+
+                    paymentAmount = 20.00
+
+                } else if(option === "B"){
+
+                    paymentAmount = 40.00
+
+                } else if(option === "C"){
+
+                    paymentAmount = 50.00
+                }
+            
+            } else if(currency === 'nzd'){
+                
+                if(option === "A"){
+
+                    paymentAmount = 20.00
+
+                } else if(option === "B"){
+
+                    paymentAmount = 40.00
+
+                } else if(option === "C"){
+
+                    paymentAmount = 50.00
+                }
+            
+            } else if(currency === 'mxn'){
+                
+                if(option === "A"){
+
+                    paymentAmount = 200.00
+
+                } else if(option === "B"){
+
+                    paymentAmount = 400.00
+
+                } else if(option === "C"){
+
+                    paymentAmount = 500.00
+                }
+            
+            } else {
+
+                return res.status(400).json({ message: 'Missing required information' })
             }
 
             var checkAmount = false;
@@ -1526,7 +2076,7 @@ const requestPayout = async (req, res) => {
 
                 if(!checkAmount){
 
-                    res.status(400).json({ message: 'Missing required information' })
+                    return res.status(400).json({ message: 'Missing required information' })
 
                 } else {
 
@@ -1535,7 +2085,7 @@ const requestPayout = async (req, res) => {
 
                     if(updateUser){
 
-                        res.status(201).json({ message: 'Success, requested payout for user' })
+                        return res.status(201).json({ message: 'Success, requested payout for user' })
                     }
                 }
 
