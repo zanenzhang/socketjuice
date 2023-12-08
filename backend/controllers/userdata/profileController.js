@@ -9,7 +9,7 @@ const Flags = require('../../model/Flags');
 const BannedUser = require('../../model/BannedUser');
 const ForexRate = require('../../model/ForexRate');
 
-const { sendPassResetConfirmation, sendNewHostToAdmin } = require('../../middleware/mailer');
+const { sendPassResetConfirmation, sendNewHostToAdmin, sendVerifiedAccount, sendVerifiedToAdmin } = require('../../middleware/mailer');
 const bcrypt = require('bcrypt');
 const ObjectId  = require('mongodb').ObjectId;
 
@@ -1217,6 +1217,11 @@ const uploadUserPhotos = async (req, res) => {
 
                     const savedUser = await foundUser.save()
                     const removedToken = await ActivateToken.deleteMany({_userId: foundUser._id})
+
+                    sendVerifiedAccount({ toUser: foundUser.email, firstName: foundUser.firstName })
+                    
+                    sendVerifiedToAdmin({verifiedUserId: foundUser._id, verifiedPhone: foundUser.phonePrimary,
+                        verifiedFirstName: foundUser.firstName, verifiedLastName: foundUser.lastName})
 
                     if(savedUser && removedToken){
                     

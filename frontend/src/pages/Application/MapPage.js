@@ -264,6 +264,8 @@ const [proposedEvents, setProposedEvents] = useState([])
 
 const {isLoaded} = useJsApiLoader({
   googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+  //Can add language here, language: "en"
+  //Can add region here, region: "en"
   libraries
 })
 

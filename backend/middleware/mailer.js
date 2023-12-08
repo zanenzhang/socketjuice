@@ -326,7 +326,10 @@ exports.sendVerifiedEmail = function({toUser, firstName}) {
       html: `
         <img src = "cid:myImg" style="width:200px;"/>
         <h3> Hello ${firstName}! </h3>
-        <p>Thanks for verifying your email and phone number! </p>
+        <p>Thanks for verifying your email and phone number, and another thanks for submitting your profile! </p>
+        <p>We will review your profile and if something is unclear, we will check back with you.</p>
+        <p></p>
+        <p>Welcome again to SocketJuice!</p>
         <p></p>
         <p>Cheers,</p>
         <p>The ${process.env.MAIL_FROM_NAME} Team</p>

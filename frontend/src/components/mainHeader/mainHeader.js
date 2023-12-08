@@ -848,8 +848,8 @@ const MainHeader = () => {
                     rounded-xl md:rounded-none shadow-inner md:shadow-none'>
 
                     <div className='flex flex-col items-center justify-center px-2 sm:px-4 md:px-6 lg:px-10 pb-6 flex-shrink-0'>
-                        <img className='w-[250px]' src={socketjuice_full_logo} />
-                        <p className='text-base text-center'>Share your electric vehicle charger to earn extra income or for free!</p>
+                        <img className='w-[300px]' src={socketjuice_full_logo} />
+                        <p className='text-lg text-center'>Share your EV charger to earn extra income or share for free!</p>
                     </div>
 
                     <div className='py-4 flex flex-col justify-center items-center'>
@@ -1030,7 +1030,7 @@ const MainHeader = () => {
                     rounded-xl md:rounded-none shadow-inner md:shadow-none'>
         
             <div className='flex items-center justify-center px-10 pb-6'>
-                <img className='w-[250px]' src={socketjuice_full_logo} />
+                <img className='w-[300px]' src={socketjuice_full_logo} />
             </div>
 
             <div className='py-4 flex flex-col justify-center items-center'>

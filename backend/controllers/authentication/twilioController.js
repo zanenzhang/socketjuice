@@ -171,11 +171,6 @@ async function checkVerification (req, res) {
                     const updatedDriver = await DriverProfile.updateOne({_userId: userId},
                         {$set: searchObj})
     
-                    sendVerifiedAccount({ toUser: foundUser.email, firstName: foundUser.firstName })
-                    
-                    sendVerifiedToAdmin({verifiedUserId: userId, verifiedPhone: number,
-                        verifiedFirstName: foundUser.firstName, verifiedLastName: foundUser.lastName})
-    
                     if(updatedUser && updatedDriver){
                         console.log("Success")
                         res.status(200).send({result: verification.status})

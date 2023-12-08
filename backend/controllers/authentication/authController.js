@@ -45,8 +45,8 @@ const handleLogin = async (req, res) => {
                     return res.status(403).json({'message': 'Please check your inbox.' });
                 }
 
-                if(foundUser?.checkedMobile === false){
-                    return res.status(202).json({'message': "Please check your email to activate and verify your phone number"})
+                if(foundUser?.checkedMobile === false || foundUser?.currentStage < 3){
+                    return res.status(202).json({'message': "Please check your email to verify your phone number and submit a profile. "})
                 }
         
                 if(geoData?.IPv4 !== ""){
