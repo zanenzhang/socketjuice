@@ -708,7 +708,7 @@ const MainHeader = () => {
                     </Link>
                 </div>
 
-                <div className='flex flex-row w-full justify-center gap-x-6 pr-2'>
+                <div className='flex flex-row w-full justify-center gap-x-3 sm:gap-x-4 md:gap-x-6 pr-2'>
 
                     <Link reloadDocument to={ROUTES.MAP} aria-label="StoreDashboard"
                         className={`flex justify-center flex-row items-center hover:bg-[#FFE142]
@@ -783,7 +783,7 @@ const MainHeader = () => {
                     
                     {auth?.userId ? 
                     
-                        <div className='flex flex-row items-center justify-center'>
+                        <div className='flex flex-row items-center justify-center gap-x-1 md:gap-x-2'>
                             <NotificationsDropdown />
                             <SettingsDropdown /> 
                         </div>

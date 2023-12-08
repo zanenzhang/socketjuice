@@ -138,9 +138,8 @@ const MapPage = () => {
   }
 
   const [initialOptions, setInitialOptions] = useState({
-    "client-id": process.env.REACT_APP_PAYPAL_PUBLIC_ID,
-    "enable-funding": "venmo",
-    "currency": "USD"
+    "client-id": (auth?.currency === "usd" ? process.env.REACT_APP_PAYPAL_PUBLIC_ID_USD : process.env.REACT_APP_PAYPAL_PUBLIC_ID_CAD),
+    "currency": auth?.currency?.toUpperCase()
   });
 
   const boxStyle = {
@@ -448,6 +447,11 @@ const handleSelectEvent = (e) => {
     setSelectedLat(e.location[0])
     setSelectedLng(e.location[1])
 
+    setInitialOptions({
+      "client-id": (e.currency.toLowerCase() === "usd" ? process.env.REACT_APP_PAYPAL_PUBLIC_ID_USD : process.env.REACT_APP_PAYPAL_PUBLIC_ID_CAD),
+      "currency": e.currency.toUpperCase()
+    })
+
     setDriverRequestedCancel(e.driverRequestedCancel)
     setHostRequestedCancel(e.hostRequestedCancel)
 
@@ -505,12 +509,6 @@ const handleSelectEvent = (e) => {
         }
       }
     }
-
-    setInitialOptions({
-      "client-id": process.env.REACT_APP_PAYPAL_PUBLIC_ID,
-      "enable-funding": "venmo",
-      "currency": e.currency.toUpperCase()
-    })
     setSelectedCurrencySymbol(e.currencySymbol)
 
     setSelectedDistance(e.distanceText)
@@ -1078,6 +1076,11 @@ const {scrollToTime} = useMemo(
     setMediaURLs(host.mediaCarouselURLs)
     setHostComments(host.hostComments)
     setHostUserId(host._userId)
+
+    setInitialOptions({
+      "client-id": (host.currency.toLowerCase() === "usd" ? process.env.REACT_APP_PAYPAL_PUBLIC_ID_USD : process.env.REACT_APP_PAYPAL_PUBLIC_ID_CAD),
+      "currency": host.currency.toUpperCase()
+    })
     
     setSelectedHostProfile(host)
     setSelectedConnection(host.connectionType)
@@ -1137,12 +1140,6 @@ const {scrollToTime} = useMemo(
         }
       }
     }
-
-    setInitialOptions({
-      "client-id": process.env.REACT_APP_PAYPAL_PUBLIC_ID,
-      "enable-funding": "venmo",
-      "currency": host.currency.toUpperCase()
-    })
 
     setSelectedCurrencySymbol(host.currencySymbol)
 
@@ -2441,7 +2438,7 @@ const {scrollToTime} = useMemo(
                           
                           <p className="text-lg font-bold"> +Service Fee: {selectedCurrencySymbol}{selectedServiceFee.toFixed(2)} </p>
 
-                          <p className="flex flex-col w-[325px] text-center text-sm">Note: Service fee includes all processing charges for PayPal, credit cards, and bank transfers. </p>
+                          <p className="flex flex-col w-[325px] text-center text-sm">Note: Service fee includes taxes and all processing charges for PayPal, credit cards, and bank transfers. </p>
 
                           <p className="text-4xl font-bold pt-8 pb-4">Total: {selectedCurrency.toUpperCase()} {selectedCurrencySymbol}{selectedTotal.toFixed(2)}</p>
 
@@ -2465,7 +2462,7 @@ const {scrollToTime} = useMemo(
 
                       {paymentMessage && <p>{paymentMessage}</p>}
 
-                      {(auth.userId) ? 
+                      {(auth.userId && selectedCurrency) ? 
                       
                       <div className="flex flex-col w-[325px] max-w-[350px] pt-4">
                       <PayPalScriptProvider options={initialOptions}>

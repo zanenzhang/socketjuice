@@ -359,7 +359,7 @@ exports.sendVerifiedEmail = function({toUser, firstName}) {
       html: `
         <img src = "cid:myImg" style="width:200px;"/>
         <h3> Hello ${firstName}! </h3>
-        <p>This is a receipt for your outgoing payment </p>
+        <p>This is a receipt for your outgoing payment. This payment has been deducted from your account balance. </p>
         <p>Details: </p>
         <p>Amount: ${currency.toUpperCase()} ${currencySymbol} ${amount.toFixed(2)} </p>
         <p>Time: ${newdate} ${newtime} </p>
@@ -426,6 +426,7 @@ exports.sendVerifiedEmail = function({toUser, firstName}) {
         <img src = "cid:myImg" style="width:200px;"/>
         <h3> Hello ${firstName}! </h3>
         <p>Nice! You have received a new payment in your account! </p>
+        <p>This payment has been added to your account balance. </p>
         <p>Details: </p>
         <p>Amount: ${currency.toUpperCase()} ${currencySymbol} ${amount.toFixed(2)} </p>
         <p>Time: ${newdate} ${newtime} </p>

@@ -73,171 +73,177 @@ const s3 = new S3({
     var amount = "21.50"
     var currency = "USD"
 
-    if(cart[0].currency && cart[0].currency.toLowerCase() === "usd"){
+    try{
 
-        currency = "USD"
+        if(cart[0].currency && cart[0].currency.toLowerCase() === "usd"){
 
-        if(cart[0].option === "A"){
-            amount = "21.50"
-        } else if (cart[0].option === "B"){
-            amount = "42.00"
-        } else if (cart[0].option === "C"){
-            amount = "52.50"
-        }
+            currency = "USD"
 
-    } else if(cart[0].currency && cart[0].currency.toLowerCase() === "cad"){
+            if(cart[0].option === "A"){
+                amount = "21.50"
+            } else if (cart[0].option === "B"){
+                amount = "42.00"
+            } else if (cart[0].option === "C"){
+                amount = "52.50"
+            }
 
-        currency = "CAD"
+        } else if(cart[0].currency && cart[0].currency.toLowerCase() === "cad"){
 
-        if(cart[0].option === "A"){
-            amount = "21.50"
-        } else if (cart[0].option === "B"){
-            amount = "42.00"
-        } else if (cart[0].option === "C"){
-            amount = "52.50"
-        }
-    
-    } else if(cart[0].currency && cart[0].currency.toLowerCase() === "eur"){
+            currency = "CAD"
 
-        currency = "EUR"
-
-        if(cart[0].option === "A"){
-            amount = "21.50"
-        } else if (cart[0].option === "B"){
-            amount = "42.00"
-        } else if (cart[0].option === "C"){
-            amount = "52.50"
-        }
-    
-    } else if(cart[0].currency && cart[0].currency.toLowerCase() === "gbp"){
-
-        currency = "GBP"
-
-        if(cart[0].option === "A"){
-            amount = "21.50"
-        } else if (cart[0].option === "B"){
-            amount = "42.00"
-        } else if (cart[0].option === "C"){
-            amount = "52.50"
-        }
-    
-    }  else if(cart[0].currency && cart[0].currency.toLowerCase() === "inr"){
-
-        currency = "INR"
-
-        if(cart[0].option === "A"){
-            amount = "215.00"
-        } else if (cart[0].option === "B"){
-            amount = "420.00"
-        } else if (cart[0].option === "C"){
-            amount = "525.00"
-        }
-    
-    }  else if(cart[0].currency && cart[0].currency.toLowerCase() === "jpy"){
-
-        currency = "JPY"
-
-        if(cart[0].option === "A"){
-            amount = "3200.00"
-        } else if (cart[0].option === "B"){
-            amount = "6400.00"
-        } else if (cart[0].option === "C"){
-            amount = "8500.00"
-        }
-    
-    }  else if(cart[0].currency && cart[0].currency.toLowerCase() === "cny"){
-
-        currency = "CNY"
-
-        if(cart[0].option === "A"){
-            amount = "105.00"
-        } else if (cart[0].option === "B"){
-            amount = "210.00"
-        } else if (cart[0].option === "C"){
-            amount = "315.00"
-        }
-    
-    }  else if(cart[0].currency && cart[0].currency.toLowerCase() === "aud"){
-
-        currency = "AUD"
-
-        if(cart[0].option === "A"){
-            amount = "21.50"
-        } else if (cart[0].option === "B"){
-            amount = "42.00"
-        } else if (cart[0].option === "C"){
-            amount = "52.50"
-        }
-    
-    }  else if(cart[0].currency && cart[0].currency.toLowerCase() === "nzd"){
-
-        currency = "NZD"
-
-        if(cart[0].option === "A"){
-            amount = "21.50"
-        } else if (cart[0].option === "B"){
-            amount = "42.00"
-        } else if (cart[0].option === "C"){
-            amount = "52.50"
-        }
-    
-    }  else if(cart[0].currency && cart[0].currency.toLowerCase() === "mxn"){
-
-        currency = "NZD"
-
-        if(cart[0].option === "A"){
-            amount = "215.00"
-        } else if (cart[0].option === "B"){
-            amount = "420.00"
-        } else if (cart[0].option === "C"){
-            amount = "525.00"
-        }
-    
-    }  
-
-    //Check currency and route to appropriate token creation
-
-    var accessToken = ""
-  
-    accessToken = await generateAccessTokenCAD();
-    const url = `${base}/v2/checkout/orders`;
-    const payload = {
-      intent: "CAPTURE",
-      purchase_units: [
-        {
-          amount: {
-            currency_code: currency,
-            value: amount,
-          },
-          custom_id: userId,
-          reference_id: cart[0].option
-        },
-      ],
-      application_context: {
-            shipping_preference: "NO_SHIPPING"
-        }
-    };
-
-    if(accessToken){
-        const response = await axios.post(url, JSON.stringify(payload), 
-            {
-                headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${accessToken}`,
-                // Uncomment one of these to force an error for negative testing (in sandbox mode only). Documentation:
-                // https://developer.paypal.com/tools/sandbox/negative-testing/request-headers/
-                // "PayPal-Mock-Response": '{"mock_application_codes": "MISSING_REQUIRED_PARAMETER"}'
-                // "PayPal-Mock-Response": '{"mock_application_codes": "PERMISSION_DENIED"}'
-                // "PayPal-Mock-Response": '{"mock_application_codes": "INTERNAL_SERVER_ERROR"}'
-                },
-            });   
+            if(cart[0].option === "A"){
+                amount = "21.50"
+            } else if (cart[0].option === "B"){
+                amount = "42.00"
+            } else if (cart[0].option === "C"){
+                amount = "52.50"
+            }
         
-        if(response){
-            console.log(response)
-            return response
-        }
+        } else if(cart[0].currency && cart[0].currency.toLowerCase() === "eur"){
+
+            currency = "EUR"
+
+            if(cart[0].option === "A"){
+                amount = "21.50"
+            } else if (cart[0].option === "B"){
+                amount = "42.00"
+            } else if (cart[0].option === "C"){
+                amount = "52.50"
+            }
+        
+        } else if(cart[0].currency && cart[0].currency.toLowerCase() === "gbp"){
+
+            currency = "GBP"
+
+            if(cart[0].option === "A"){
+                amount = "21.50"
+            } else if (cart[0].option === "B"){
+                amount = "42.00"
+            } else if (cart[0].option === "C"){
+                amount = "52.50"
+            }
+        
+        }  else if(cart[0].currency && cart[0].currency.toLowerCase() === "inr"){
+
+            currency = "INR"
+
+            if(cart[0].option === "A"){
+                amount = "2150.00"
+            } else if (cart[0].option === "B"){
+                amount = "4200.00"
+            } else if (cart[0].option === "C"){
+                amount = "5250.00"
+            }
+        
+        }  else if(cart[0].currency && cart[0].currency.toLowerCase() === "jpy"){
+
+            currency = "JPY"
+
+            if(cart[0].option === "A"){
+                amount = "3200.00"
+            } else if (cart[0].option === "B"){
+                amount = "6400.00"
+            } else if (cart[0].option === "C"){
+                amount = "8500.00"
+            }
+        
+        }  else if(cart[0].currency && cart[0].currency.toLowerCase() === "cny"){
+
+            currency = "CNY"
+
+            if(cart[0].option === "A"){
+                amount = "105.00"
+            } else if (cart[0].option === "B"){
+                amount = "210.00"
+            } else if (cart[0].option === "C"){
+                amount = "315.00"
+            }
+        
+        }  else if(cart[0].currency && cart[0].currency.toLowerCase() === "aud"){
+
+            currency = "AUD"
+
+            if(cart[0].option === "A"){
+                amount = "21.50"
+            } else if (cart[0].option === "B"){
+                amount = "42.00"
+            } else if (cart[0].option === "C"){
+                amount = "52.50"
+            }
+        
+        }  else if(cart[0].currency && cart[0].currency.toLowerCase() === "nzd"){
+
+            currency = "NZD"
+
+            if(cart[0].option === "A"){
+                amount = "21.50"
+            } else if (cart[0].option === "B"){
+                amount = "42.00"
+            } else if (cart[0].option === "C"){
+                amount = "52.50"
+            }
+        
+        }  else if(cart[0].currency && cart[0].currency.toLowerCase() === "mxn"){
+
+            currency = "NZD"
+
+            if(cart[0].option === "A"){
+                amount = "215.00"
+            } else if (cart[0].option === "B"){
+                amount = "420.00"
+            } else if (cart[0].option === "C"){
+                amount = "525.00"
+            }
+        
+        }  
+
+        //Check currency and route to appropriate token creation
+
+        var accessToken = ""
+    
+        accessToken = await generateAccessTokenCAD();
+        const url = `${base}/v2/checkout/orders`;
+        const payload = {
+        intent: "CAPTURE",
+        purchase_units: [
+            {
+            amount: {
+                currency_code: currency,
+                value: amount,
+            },
+            custom_id: userId,
+            reference_id: cart[0].option
+            },
+        ],
+        application_context: {
+                shipping_preference: "NO_SHIPPING"
+            }
         };
+
+        if(accessToken){
+            const response = await axios.post(url, JSON.stringify(payload), 
+                {
+                    headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${accessToken}`,
+                    // Uncomment one of these to force an error for negative testing (in sandbox mode only). Documentation:
+                    // https://developer.paypal.com/tools/sandbox/negative-testing/request-headers/
+                    // "PayPal-Mock-Response": '{"mock_application_codes": "MISSING_REQUIRED_PARAMETER"}'
+                    // "PayPal-Mock-Response": '{"mock_application_codes": "PERMISSION_DENIED"}'
+                    // "PayPal-Mock-Response": '{"mock_application_codes": "INTERNAL_SERVER_ERROR"}'
+                    },
+                });   
+            
+            if(response){
+                return response
+            }
+        }
+    } catch(err){
+
+        console.log(err)
+        return res.status(400).json({"message": "Error"})
     }
+}
 
 
     const captureOrder = async (orderID) => {
@@ -245,18 +251,18 @@ const s3 = new S3({
         const accessToken = await generateAccessTokenCAD();
 
         const url = `${base}/v2/checkout/orders/${orderID}/capture`;
-      
+    
         if(accessToken){
 
             const response = await axios.post(url, null, {
                 headers: {
                 "Authorization": `Bearer ${accessToken}`,
-                  "Content-Type": "application/json",
-                  // Uncomment one of these to force an error for negative testing (in sandbox mode only). Documentation:
-                  // https://developer.paypal.com/tools/sandbox/negative-testing/request-headers/
+                "Content-Type": "application/json",
+                // Uncomment one of these to force an error for negative testing (in sandbox mode only). Documentation:
+                // https://developer.paypal.com/tools/sandbox/negative-testing/request-headers/
                 //   "PayPal-Mock-Response": '{"mock_application_codes": "INSTRUMENT_DECLINED"}'
-                  // "PayPal-Mock-Response": '{"mock_application_codes": "TRANSACTION_REFUSED"}'
-                  // "PayPal-Mock-Response": '{"mock_application_codes": "INTERNAL_SERVER_ERROR"}'
+                // "PayPal-Mock-Response": '{"mock_application_codes": "TRANSACTION_REFUSED"}'
+                // "PayPal-Mock-Response": '{"mock_application_codes": "INTERNAL_SERVER_ERROR"}'
                 },
             });
     
@@ -264,7 +270,7 @@ const s3 = new S3({
                 return response
             }
         }
-      };
+    };
 
 const getHostIncomingPayments = async (req, res) => {
 
@@ -632,123 +638,23 @@ const addPayoutAPI = async (req, res) => {
                 
                         if(checkUser.requestedPayoutOption === "A"){
 
-                            paymentAmount = 20.00
-                            netAmount = 19.00
+                            paymentAmount = 100.00
+                            netAmount = 95.00
 
                         } else if(checkUser.requestedPayoutOption === "B"){
 
-                            paymentAmount = 40.00
-                            netAmount = 39.00
+                            paymentAmount = 200.00
+                            netAmount = 190.00
 
                         } else if(checkUser.requestedPayoutOption === "C"){
 
-                            paymentAmount = 50.00
-                            netAmount = 49.00
+                            paymentAmount = 300.00
+                            netAmount = 290.00
                         }
                     
                     } else if(currency === 'usd'){
 
                         currencySymbol = "$"
-                        
-                        if(option === "A"){
-
-                            paymentAmount = 20.00
-                            netAmount = 19.00
-
-                        } else if(option === "B"){
-
-                            paymentAmount = 40.00
-                            netAmount = 39.00
-
-                        } else if(option === "C"){
-
-                            paymentAmount = 50.00
-                            netAmount = 49.00
-                        }
-                    
-                    } else if(currency === 'eur'){
-
-                        currencySymbol = "€"
-                        
-                        if(option === "A"){
-
-                            paymentAmount = 20.00
-                            netAmount = 19.00
-
-                        } else if(option === "B"){
-
-                            paymentAmount = 40.00
-                            netAmount = 39.00
-
-                        } else if(option === "C"){
-
-                            paymentAmount = 50.00
-                            netAmount = 49.00
-                        }
-                    
-                    } else if(currency === 'gbp'){
-                        
-                        currencySymbol = "£"
-                        
-                        if(option === "A"){
-
-                            paymentAmount = 20.00
-                            netAmount = 19.00
-
-                        } else if(option === "B"){
-
-                            paymentAmount = 40.00
-                            netAmount = 39.00
-
-                        } else if(option === "C"){
-
-                            paymentAmount = 50.00
-                            netAmount = 49.00
-                        }
-                    
-                    } else if(currency === 'inr'){
-
-                        currencySymbol = "₹"
-                        
-                        if(option === "A"){
-
-                            paymentAmount = 200.00
-                            netAmount = 190.00
-
-                        } else if(option === "B"){
-
-                            paymentAmount = 400.00
-                            netAmount = 380.00
-
-                        } else if(option === "C"){
-
-                            paymentAmount = 500.00
-                            netAmount = 475.00
-                        }
-                    
-                    } else if(currency === 'jpy'){
-
-                        currencySymbol = "¥"
-                        
-                        if(option === "A"){
-
-                            paymentAmount = 3000.00
-                            netAmount = 2800.00
-
-                        } else if(option === "B"){
-
-                            paymentAmount = 6000.00
-                            netAmount = 5600.00
-
-                        } else if(option === "C"){
-
-                            paymentAmount = 8000.00
-                            netAmount = 7500.00
-                        }
-                    
-                    } else if(currency === 'cny'){
-
-                        currencySymbol = "¥"
                         
                         if(option === "A"){
 
@@ -763,7 +669,107 @@ const addPayoutAPI = async (req, res) => {
                         } else if(option === "C"){
 
                             paymentAmount = 300.00
+                            netAmount = 290.00
+                        }
+                    
+                    } else if(currency === 'eur'){
+
+                        currencySymbol = "€"
+                        
+                        if(option === "A"){
+
+                            paymentAmount = 100.00
+                            netAmount = 95.00
+
+                        } else if(option === "B"){
+
+                            paymentAmount = 200.00
+                            netAmount = 190.00
+
+                        } else if(option === "C"){
+
+                            paymentAmount = 300.00
+                            netAmount = 290.00
+                        }
+                    
+                    } else if(currency === 'gbp'){
+                        
+                        currencySymbol = "£"
+                        
+                        if(option === "A"){
+
+                            paymentAmount = 100.00
+                            netAmount = 95.00
+
+                        } else if(option === "B"){
+
+                            paymentAmount = 200.00
+                            netAmount = 190.00
+
+                        } else if(option === "C"){
+
+                            paymentAmount = 300.00
+                            netAmount = 290.00
+                        }
+                    
+                    } else if(currency === 'inr'){
+
+                        currencySymbol = "₹"
+                        
+                        if(option === "A"){
+
+                            paymentAmount = 10000.00
+                            netAmount = 9500.00
+
+                        } else if(option === "B"){
+
+                            paymentAmount = 20000.00
+                            netAmount = 19000.00
+
+                        } else if(option === "C"){
+
+                            paymentAmount = 30000.00
+                            netAmount = 28500.00
+                        }
+                    
+                    } else if(currency === 'jpy'){
+
+                        currencySymbol = "¥"
+                        
+                        if(option === "A"){
+
+                            paymentAmount = 15000.00
+                            netAmount = 14000.00
+
+                        } else if(option === "B"){
+
+                            paymentAmount = 30000.00
+                            netAmount = 28500.00
+
+                        } else if(option === "C"){
+
+                            paymentAmount = 40000.00
+                            netAmount = 38000.00
+                        }
+                    
+                    } else if(currency === 'cny'){
+
+                        currencySymbol = "¥"
+                        
+                        if(option === "A"){
+
+                            paymentAmount = 300.00
                             netAmount = 285.00
+
+                        } else if(option === "B"){
+
+                            paymentAmount = 600.00
+                            netAmount = 570.00
+
+                        } else if(option === "C"){
+
+                            paymentAmount = 900.00
+                            netAmount = 870.00
                         }
                     
                     } else if(currency === 'aud'){
@@ -772,18 +778,18 @@ const addPayoutAPI = async (req, res) => {
                         
                         if(option === "A"){
 
-                            paymentAmount = 20.00
-                            netAmount = 19.00
+                            paymentAmount = 100.00
+                            netAmount = 95.00
 
                         } else if(option === "B"){
 
-                            paymentAmount = 40.00
-                            netAmount = 39.00
+                            paymentAmount = 200.00
+                            netAmount = 190.00
 
                         } else if(option === "C"){
 
-                            paymentAmount = 50.00
-                            netAmount = 49.00
+                            paymentAmount = 300.00
+                            netAmount = 290.00
                         }
                     
                     } else if(currency === 'nzd'){
@@ -792,18 +798,18 @@ const addPayoutAPI = async (req, res) => {
                         
                         if(option === "A"){
 
-                            paymentAmount = 20.00
-                            netAmount = 19.00
+                            paymentAmount = 100.00
+                            netAmount = 95.00
 
                         } else if(option === "B"){
 
-                            paymentAmount = 40.00
-                            netAmount = 39.00
+                            paymentAmount = 200.00
+                            netAmount = 190.00
 
                         } else if(option === "C"){
 
-                            paymentAmount = 50.00
-                            netAmount = 49.00
+                            paymentAmount = 300.00
+                            netAmount = 290.00
                         }
                     
                     } else if(currency === 'mxn'){
@@ -812,18 +818,18 @@ const addPayoutAPI = async (req, res) => {
                         
                         if(option === "A"){
 
-                            paymentAmount = 200.00
-                            netAmount = 190.00
+                            paymentAmount = 500.00
+                            netAmount = 475.00
 
                         } else if(option === "B"){
 
-                            paymentAmount = 400.00
-                            netAmount = 390.00
+                            paymentAmount = 1000.00
+                            netAmount = 950.00
 
                         } else if(option === "C"){
 
-                            paymentAmount = 500.00
-                            netAmount = 490.00
+                            paymentAmount = 1500.00
+                            netAmount = 1450.00
                         }
 
                     } else {
@@ -1095,7 +1101,7 @@ const addPayoutManual = async (req, res) => {
                         if(option === "A"){
 
                             paymentAmount = 10000.00
-                            netAmount = 950.00
+                            netAmount = 9500.00
 
                         } else if(option === "B"){
 
@@ -1264,7 +1270,7 @@ const addPayoutManual = async (req, res) => {
                                     const sentOutReceipt = await sendReceiptOutgoing({toUser: checkUser.email, firstName: checkUser.firstName, 
                                         amount: paymentAmount, currency: currency.toLowerCase(), currencySymbol: currencySymbol, })
 
-                                    if(sentOutReceipt && updatedPayment){
+                                    if(sentOutReceipt){
                                         return res.status(201).json({ message: 'Success' })
                                     } else {
                                         return res.status(201).json({ message: 'Success' })

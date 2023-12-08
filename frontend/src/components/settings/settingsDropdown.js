@@ -43,8 +43,8 @@ export default function SettingsDropdown({loggedUserId, profilePicURL}) {
             
             ? 
             
-            <img src={auth.profilePicURL} className="rounded-full border border-gray-700 mx-1 
-              h-7 md:h-8 sm:mx-2 text-black-light 
+            <img src={auth.profilePicURL} className="rounded-full border border-gray-700 
+              mx-1 h-7 md:h-8 text-black-light
                 cursor-pointer transform transition duration-300 hover:scale-125"/>
             
               :

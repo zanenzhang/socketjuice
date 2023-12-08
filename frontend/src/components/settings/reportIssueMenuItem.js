@@ -19,7 +19,7 @@ const ReportIssueMenuItem = ({setOpenMenu}) => {
   const MESSAGE_REGEX = /^.{1,2000}$/;
 
   const [message, setMessage] = useState('');
-  const [sentInvite, setSentInvite] = useState(false);
+  const [sentMessage, setSentMessage] = useState(false);
 
   const [validMessage, setValidMessage] = useState(false);
   const [messageFocus, setMessageFocus] = useState(false);
@@ -71,7 +71,7 @@ const ReportIssueMenuItem = ({setOpenMenu}) => {
   
     if(submitted){
     
-      toast.success("Invite sent!", {
+      toast.success("Message sent!", {
         position: "bottom-center",
         autoClose: 1500,
         hideProgressBar: false,
@@ -82,7 +82,7 @@ const ReportIssueMenuItem = ({setOpenMenu}) => {
         theme: "colored",
         });
 
-      setSentInvite(true);
+      setSentMessage(true);
       waiting = false;;
 
       setOpenModal(false);
@@ -90,7 +90,7 @@ const ReportIssueMenuItem = ({setOpenMenu}) => {
 
     } else {
 
-      toast.error("Sorry, invite was not sent, please try again", {
+      toast.error("Sorry, message was not sent, please try again", {
         position: "bottom-center",
         autoClose: 1500,
         hideProgressBar: false,
@@ -173,11 +173,11 @@ const ReportIssueMenuItem = ({setOpenMenu}) => {
                 <div className='flex flex-row gap-x-8 py-4'>
                   
               <button 
-                  className={`${ (!validMessage  || sentInvite || waiting)
+                  className={`${ (!validMessage  || sentMessage || waiting)
                       ? "bg-gray-100 text-gray-400 " : "bg-[#8BEDF3] text-black"}  
                       hover:bg-[#FFE142] w-full rounded-xl py-3 font-bold border-solid border-2 flex justify-center 
                       items-center gap-x-3`}
-                  disabled={ (!validMessage  || sentInvite || waiting ) 
+                  disabled={ (!validMessage  || sentMessage || waiting ) 
                       ? true : false}
                   onClick={(event)=>handleEmailReport(event)}
                   onKeyDown={(event)=>{
