@@ -179,7 +179,7 @@ const handleNewHost = async (req, res) => {
                                 })
         
                                 var updatedWall = null
-                                if(!foundWall){
+                                if(!foundWall && geoData?.IPv4){
                                     var newWall = await ExternalWall.create({
                                         "userIP": geoData?.IPv4,
                                         "Total_Registrations": 1
