@@ -16,7 +16,7 @@ const SignOutMenuItem = () => {
         const response = await logout();
 
         if(response){
-            alert("Thanks for using SocketJuice and being part of the community!")
+            console.log("Thanks for using SocketJuice and being part of the community!")
         }
     }
 
