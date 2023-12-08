@@ -901,6 +901,9 @@ export default function PaymentsPage() {
         if(auth && tabValue !== undefined && (paymentCurrency || payoutCurrency)){
 
             setPaymentSuccess(false);
+            setSelectedPaymentOption("")
+            setLockedCurrency(false)
+            setPaymentSubmitted(false)
 
             if(tabValue === "0"){
                 
@@ -920,6 +923,24 @@ export default function PaymentsPage() {
                     "currency": paymentCurrency.toUpperCase()
                   })
             
+            }
+        }
+
+        if(auth && tabValue !== undefined && (!paymentCurrency && !payoutCurrency)){
+
+            setPaymentSuccess(false);
+
+            if(tabValue === "3"){
+
+                if(auth?.currency){
+
+                    setPaymentCurrency(auth?.currency.toLowerCase())
+
+                    setInitialOptions({
+                        "client-id": (auth?.currency.toLowerCase() === "usd" ? process.env.REACT_APP_PAYPAL_PUBLIC_ID_USD : process.env.REACT_APP_PAYPAL_PUBLIC_ID_CAD),
+                        "currency": auth?.currency.toUpperCase()
+                      })
+                }
             } 
         }
 

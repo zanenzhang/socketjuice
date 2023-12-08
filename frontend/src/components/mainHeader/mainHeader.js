@@ -704,7 +704,7 @@ const MainHeader = () => {
 
                 <div className='flex flex-row w-3/4 sm:w-1/2 justify-center'>
                     <Link reloadDocument to={ROUTES.MAP} >
-                        <img className='h-[7vh] flex-shrink-0 pl-2 md:pl-8' src={socketjuice_full_logo} />
+                        <img className='h-[6vh] md:h-[7vh] flex-shrink-0 pl-2 md:pl-8' src={socketjuice_full_logo} />
                     </Link>
                 </div>
 
@@ -845,7 +845,7 @@ const MainHeader = () => {
                 <div className='flex flex-col items-center justify-center p-2'>
 
                 <div className='w-full max-w-[350px] py-10
-                    rounded-xl md:rounded-none shadow-inner md:shadow-none'>
+                    rounded-xl md:rounded-none'>
 
                     <div className='flex flex-col items-center justify-center px-2 sm:px-4 md:px-6 lg:px-10 pb-6 flex-shrink-0'>
                         <img className='w-[300px]' src={socketjuice_full_logo} />
@@ -1026,8 +1026,7 @@ const MainHeader = () => {
     
         <div className='flex flex-col items-center justify-center p-2'>
 
-        <div className='w-full max-w-[350px] py-10
-                    rounded-xl md:rounded-none shadow-inner md:shadow-none'>
+        <div className='w-full max-w-[350px] py-10 rounded-xl md:rounded-none '>
         
             <div className='flex items-center justify-center px-10 pb-6'>
                 <img className='w-[300px]' src={socketjuice_full_logo} />

@@ -265,6 +265,7 @@ const VerifyPage = () => {
 
             } else {
                 alert("Sorry, it appears this number is already in use, please try another number!")
+                setWaitingRequest(false);
             }
         }
 
