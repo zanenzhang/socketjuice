@@ -931,7 +931,7 @@ const VerifyPage = () => {
 
                         <div className='flex flex-col justify-center items-center pt-6'>
                             <p className='text-base md:text-lg font-medium text-center'>
-                                b) Upload a photo of your license plate for verification </p>
+                                b) Upload a photo of your electric vehicle's license plate for verification </p>
                             
                         </div>
                         

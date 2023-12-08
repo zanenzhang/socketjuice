@@ -420,7 +420,9 @@ export default function ChangeProfileMainUser({ }) {
               </div>
               <div className='flex justify-start pl-2'>
                   <FormControlLabel control={
-                      <CustomSwitch checked={emailNotifications} onChange={handleEmailNotifications} 
+                      <CustomSwitch checked={emailNotifications} 
+                      disabled={true}
+                      onChange={handleEmailNotifications} 
                       sx={{
                         "&.MuiSwitch-root .MuiSwitch-switchBase": {
                           color: "#8BEDF3"

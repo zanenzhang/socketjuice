@@ -1,7 +1,6 @@
 const User = require('../../model/User');
 const Appointment = require('../../model/Appointment');
 const DriverProfile = require("../../model/DriverProfile");
-const { sendVerifiedAccount, sendVerifiedToAdmin } = require("../../middleware/mailer");
 
 const client = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 const phoneUtil = require('google-libphonenumber').PhoneNumberUtil.getInstance();

@@ -1695,7 +1695,16 @@ const MainHeader = () => {
             {success && <p className='font-medium text-base md:text-lg text-center text-green-600 mt-8'>Please check your email to activate!</p>}
         </div>
 
-        <div className='py-8 flex flex-col gap-y-4 w-full'>
+        <div className='py-3 flex flex-col gap-y-4 w-full'>
+
+            <div className={`${!validEmailRegister || !validPwdRegister || !validMatch || isInvalidRegister || !acceptTerms 
+                    || !acceptPrivacy ? 'hidden' : 'flex justify-center' }`}>
+                <ReCAPTCHA
+                    sitekey={process.env.REACT_APP_RECAPTCHA_SITE_KEY} 
+                    ref={captchaRef}
+                    onChange={handleRecaptcha}
+                />
+            </div>
 
             <button className={`active:scale-[.98] active:duration-75 transition-all hover:scale-[1.01]  
                 ease-in-out transform py-4 px-8 sm:px-12 bg-[#00D3E0] rounded-3xl text-white 
@@ -1735,15 +1744,6 @@ const MainHeader = () => {
 
                 Register
             </button>
-
-            <div className={`${!validEmailRegister || !validPwdRegister || !validMatch || isInvalidRegister || !acceptTerms 
-                    || !acceptPrivacy ? 'hidden' : 'flex justify-center' }`}>
-                <ReCAPTCHA
-                    sitekey={process.env.REACT_APP_RECAPTCHA_SITE_KEY} 
-                    ref={captchaRef}
-                    onChange={handleRecaptcha}
-                />
-            </div>
             
             <button 
                 className='flex items-center justify-center gap-2 active:scale-[.98] active:duration-75 transition-all hover:scale-[1.01]
