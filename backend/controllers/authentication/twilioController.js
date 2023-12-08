@@ -30,17 +30,25 @@ async function sendVerification (req, res) {
 
         if(savedUser && phoneUtil.isValidNumber(checkedNumber)){
 
-            client.verify.v2.services(process.env.TWILIO_SOCKETJUICE_SID)
-            .verifications
-            .create({to: `${number}`, channel: 'sms'})
-            .then( verification => {
-                console.log(verification.status)
-                res.status(200).send({result: verification.status})
-            })
-            .catch(e => {
-                console.log(e)
-                res.status(500).send(e);
-            })
+            const checkNumber = await User.findOne({phonePrimary: number})
+
+            if(!checkNumber){
+
+                client.verify.v2.services(process.env.TWILIO_SOCKETJUICE_SID)
+                .verifications
+                .create({to: `${number}`, channel: 'sms'})
+                .then( verification => {
+                    console.log(verification.status)
+                    res.status(200).send({result: verification.status})
+                })
+                .catch(e => {
+                    console.log(e)
+                    res.status(500).send(e);
+                })
+            } else {
+
+                return res.status(403).json({ message: 'Number already in use!' })
+            }
         }
 
     } else {
@@ -88,7 +96,6 @@ async function checkVerification (req, res) {
                     var searchObj = {}
                     var currency = "cad"
                     var currencySymbol = "$"
-    
     
                     if(phoneCountryCode == "ca"){
                         

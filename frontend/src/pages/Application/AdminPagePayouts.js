@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react';
 import MainHeader from '../../components/mainHeader/mainHeader';
 import 'react-toastify/dist/ReactToastify.css';
 
-import addNewPayout from '../../helpers/Paypal/addNewPayout';
+import addNewPayoutManual from '../../helpers/Paypal/addNewPayoutManual';
 import rejectPayout from "../../helpers/Paypal/rejectPayout";
 import getPayoutRequests from '../../helpers/Paypal/getPayoutRequests';
 
@@ -26,7 +26,7 @@ const AdminPageControl = () => {
         }
         setWaiting(true)
 
-        const submitted = await addNewPayout(userId, auth?.userId, auth?.accessToken)
+        const submitted = await addNewPayoutManual(userId, auth?.userId, auth?.accessToken)
 
         if(submitted){
             console.log(submitted)

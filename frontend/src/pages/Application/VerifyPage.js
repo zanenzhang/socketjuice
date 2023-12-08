@@ -236,6 +236,8 @@ const VerifyPage = () => {
 
             if(requestedCode){
 
+                console.log(requestedCode)
+
                 if(requestedCode.status === 200 && requestedCode.data.result === 'pending'){
                     
                     setSentCode(true)
@@ -254,9 +256,15 @@ const VerifyPage = () => {
                     });
 
                     setWaitingRequest(false)
+                
+                } else if(requestedCode.status === 403) {
+
+                    alert("Sorry, it appears this number is already in use, please try another number!")
+                    setWaitingRequest(false)
                 }
+
             } else {
-                alert("Please try again, the verification process did not work for your provided number")
+                alert("Sorry, it appears this number is already in use, please try another number!")
             }
         }
 

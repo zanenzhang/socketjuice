@@ -30,13 +30,13 @@ export default function PaymentsPage() {
     const currencyList = [
         {currency: "usd", currencySymbol: "$"},
         {currency: "cad", currencySymbol: "$"},
-        {currency: "eur", currencySymbol: "€"},
-        {currency: "gbp", currencySymbol: "£"},
-        {currency: "inr", currencySymbol: "₹"},
-        {currency: "jpy", currencySymbol: "¥"},
-        {currency: "cny", currencySymbol: "¥"},
-        {currency: "aud", currencySymbol: "$"},
-        {currency: "nzd", currencySymbol: "$"},
+        // {currency: "eur", currencySymbol: "€"},
+        // {currency: "gbp", currencySymbol: "£"},
+        // {currency: "inr", currencySymbol: "₹"},
+        // {currency: "jpy", currencySymbol: "¥"},
+        // {currency: "cny", currencySymbol: "¥"},
+        // {currency: "aud", currencySymbol: "$"},
+        // {currency: "nzd", currencySymbol: "$"},
     ]
 
     const incomingRef = useRef(null);
@@ -408,72 +408,72 @@ export default function PaymentsPage() {
             if(payoutCurrency === "usd"){
 
                 setSelectedPayoutOption("A")
-                setSelectedPayoutAmount(20.00)
-                setSelectedPayoutFee(1.00)
-                setSelectedTotalPayout(19.00)
+                setSelectedPayoutAmount(100.00)
+                setSelectedPayoutFee(5.00)
+                setSelectedTotalPayout(95.00)
     
             } else if(payoutCurrency === "cad"){
     
                 setSelectedPayoutOption("A")
-                setSelectedPayoutAmount(20.00)
-                setSelectedPayoutFee(1.00)
-                setSelectedTotalPayout(19.00)
+                setSelectedPayoutAmount(100.00)
+                setSelectedPayoutFee(5.00)
+                setSelectedTotalPayout(95.00)
     
             } else if(payoutCurrency === "eur"){
-                
-                setSelectedPayoutOption("A")
-                setSelectedPayoutAmount(20.00)
-                setSelectedPayoutFee(1.00)
-                setSelectedTotalPayout(19.00)
-    
-            } else if(payoutCurrency === "gbp"){
-                
-                setSelectedPayoutOption("A")
-                setSelectedPayoutAmount(20.00)
-                setSelectedPayoutFee(1.00)
-                setSelectedTotalPayout(19.00)
-    
-            } else if(payoutCurrency === "inr"){
-                
-                setSelectedPayoutOption("A")
-                setSelectedPayoutAmount(200.00)
-                setSelectedPayoutFee(10.00)
-                setSelectedTotalPayout(190.00)
-    
-            } else if(payoutCurrency === "jpy"){
-                
-                setSelectedPayoutOption("A")
-                setSelectedPayoutAmount(3000.00)
-                setSelectedPayoutFee(200.00)
-                setSelectedTotalPayout(2800.00)
-    
-            } else if(payoutCurrency === "cny"){
                 
                 setSelectedPayoutOption("A")
                 setSelectedPayoutAmount(100.00)
                 setSelectedPayoutFee(5.00)
                 setSelectedTotalPayout(95.00)
     
+            } else if(payoutCurrency === "gbp"){
+                
+                setSelectedPayoutOption("A")
+                setSelectedPayoutAmount(100.00)
+                setSelectedPayoutFee(5.00)
+                setSelectedTotalPayout(95.00)
+    
+            } else if(payoutCurrency === "inr"){
+                
+                setSelectedPayoutOption("A")
+                setSelectedPayoutAmount(10000.00)
+                setSelectedPayoutFee(500.00)
+                setSelectedTotalPayout(9500.00)
+    
+            } else if(payoutCurrency === "jpy"){
+                
+                setSelectedPayoutOption("A")
+                setSelectedPayoutAmount(15000.00)
+                setSelectedPayoutFee(1000.00)
+                setSelectedTotalPayout(14000.00)
+    
+            } else if(payoutCurrency === "cny"){
+                
+                setSelectedPayoutOption("A")
+                setSelectedPayoutAmount(300.00)
+                setSelectedPayoutFee(15.00)
+                setSelectedTotalPayout(285.00)
+    
             } else if(payoutCurrency === "aud"){
                 
                 setSelectedPayoutOption("A")
-                setSelectedPayoutAmount(20.00)
-                setSelectedPayoutFee(1.00)
-                setSelectedTotalPayout(19.00)
+                setSelectedPayoutAmount(100.00)
+                setSelectedPayoutFee(5.00)
+                setSelectedTotalPayout(95.00)
     
             } else if(payoutCurrency === "nzd"){
                 
                 setSelectedPayoutOption("A")
-                setSelectedPayoutAmount(20.00)
-                setSelectedPayoutFee(1.00)
-                setSelectedTotalPayout(19.00)
+                setSelectedPayoutAmount(100.00)
+                setSelectedPayoutFee(5.00)
+                setSelectedTotalPayout(95.00)
     
             } else {
                 
                 setSelectedPayoutOption("A")
-                setSelectedPayoutAmount(20.00)
-                setSelectedPayoutFee(1.00)
-                setSelectedTotalPayout(19.00)
+                setSelectedPayoutAmount(100.00)
+                setSelectedPayoutFee(5.00)
+                setSelectedTotalPayout(95.00)
             }
 
         } else if(value === "B"){
@@ -481,72 +481,72 @@ export default function PaymentsPage() {
             if(payoutCurrency === "usd"){
 
                 setSelectedPayoutOption("B")
-                setSelectedPayoutAmount(40.00)
-                setSelectedPayoutFee(1.00)
-                setSelectedTotalPayout(39.00)
+                setSelectedPayoutAmount(200.00)
+                setSelectedPayoutFee(10.00)
+                setSelectedTotalPayout(190.00)
     
             } else if(payoutCurrency === "cad"){
     
                 setSelectedPayoutOption("B")
-                setSelectedPayoutAmount(40.00)
-                setSelectedPayoutFee(1.00)
-                setSelectedTotalPayout(39.00)
+                setSelectedPayoutAmount(200.00)
+                setSelectedPayoutFee(10.00)
+                setSelectedTotalPayout(190.00)
     
             } else if(payoutCurrency === "eur"){
-                
-                setSelectedPayoutOption("B")
-                setSelectedPayoutAmount(40.00)
-                setSelectedPayoutFee(1.00)
-                setSelectedTotalPayout(39.00)
-    
-            } else if(payoutCurrency === "gbp"){
-                
-                setSelectedPayoutOption("B")
-                setSelectedPayoutAmount(40.00)
-                setSelectedPayoutFee(1.00)
-                setSelectedTotalPayout(39.00)
-    
-            } else if(payoutCurrency === "inr"){
-                
-                setSelectedPayoutOption("B")
-                setSelectedPayoutAmount(400.00)
-                setSelectedPayoutFee(20.00)
-                setSelectedTotalPayout(380.00)
-    
-            } else if(payoutCurrency === "jpy"){
-                
-                setSelectedPayoutOption("B")
-                setSelectedPayoutAmount(6000.00)
-                setSelectedPayoutFee(400.00)
-                setSelectedTotalPayout(5600.00)
-    
-            } else if(payoutCurrency === "cny"){
                 
                 setSelectedPayoutOption("B")
                 setSelectedPayoutAmount(200.00)
                 setSelectedPayoutFee(10.00)
                 setSelectedTotalPayout(190.00)
     
+            } else if(payoutCurrency === "gbp"){
+                
+                setSelectedPayoutOption("B")
+                setSelectedPayoutAmount(200.00)
+                setSelectedPayoutFee(10.00)
+                setSelectedTotalPayout(190.00)
+    
+            } else if(payoutCurrency === "inr"){
+                
+                setSelectedPayoutOption("B")
+                setSelectedPayoutAmount(20000.00)
+                setSelectedPayoutFee(1000.00)
+                setSelectedTotalPayout(19000.00)
+    
+            } else if(payoutCurrency === "jpy"){
+                
+                setSelectedPayoutOption("B")
+                setSelectedPayoutAmount(30000.00)
+                setSelectedPayoutFee(1500.00)
+                setSelectedTotalPayout(28500.00)
+    
+            } else if(payoutCurrency === "cny"){
+                
+                setSelectedPayoutOption("B")
+                setSelectedPayoutAmount(600.00)
+                setSelectedPayoutFee(30.00)
+                setSelectedTotalPayout(570.00)
+    
             } else if(payoutCurrency === "aud"){
                 
                 setSelectedPayoutOption("B")
-                setSelectedPayoutAmount(40.00)
-                setSelectedPayoutFee(1.00)
-                setSelectedTotalPayout(39.00)
+                setSelectedPayoutAmount(200.00)
+                setSelectedPayoutFee(10.00)
+                setSelectedTotalPayout(190.00)
     
             } else if(payoutCurrency === "nzd"){
                 
                 setSelectedPayoutOption("B")
-                setSelectedPayoutAmount(40.00)
-                setSelectedPayoutFee(1.00)
-                setSelectedTotalPayout(39.00)
+                setSelectedPayoutAmount(200.00)
+                setSelectedPayoutFee(10.00)
+                setSelectedTotalPayout(190.00)
     
             } else {
                 
                 setSelectedPayoutOption("B")
-                setSelectedPayoutAmount(40.00)
-                setSelectedPayoutFee(1.00)
-                setSelectedTotalPayout(39.00)
+                setSelectedPayoutAmount(200.00)
+                setSelectedPayoutFee(10.00)
+                setSelectedTotalPayout(190.00)
             }
 
         } else if(value === "C"){
@@ -554,72 +554,72 @@ export default function PaymentsPage() {
             if(payoutCurrency === "usd"){
 
                 setSelectedPayoutOption("C")
-                setSelectedPayoutAmount(50.00)
-                setSelectedPayoutFee(1.00)
-                setSelectedTotalPayout(49.00)
+                setSelectedPayoutAmount(300.00)
+                setSelectedPayoutFee(10.00)
+                setSelectedTotalPayout(290.00)
     
             } else if(payoutCurrency === "cad"){
     
                 setSelectedPayoutOption("C")
-                setSelectedPayoutAmount(50.00)
-                setSelectedPayoutFee(1.00)
-                setSelectedTotalPayout(49.00)
+                setSelectedPayoutAmount(300.00)
+                setSelectedPayoutFee(10.00)
+                setSelectedTotalPayout(290.00)
     
             } else if(payoutCurrency === "eur"){
                 
                 setSelectedPayoutOption("C")
-                setSelectedPayoutAmount(50.00)
-                setSelectedPayoutFee(1.00)
-                setSelectedTotalPayout(49.00)
+                setSelectedPayoutAmount(300.00)
+                setSelectedPayoutFee(10.00)
+                setSelectedTotalPayout(290.00)
     
             } else if(payoutCurrency === "gbp"){
                 
                 setSelectedPayoutOption("C")
-                setSelectedPayoutAmount(50.00)
-                setSelectedPayoutFee(1.00)
-                setSelectedTotalPayout(49.00)
+                setSelectedPayoutAmount(300.00)
+                setSelectedPayoutFee(10.00)
+                setSelectedTotalPayout(290.00)
     
             } else if(payoutCurrency === "inr"){
                 
                 setSelectedPayoutOption("C")
-                setSelectedPayoutAmount(500.00)
-                setSelectedPayoutFee(25.00)
-                setSelectedTotalPayout(475.00)
+                setSelectedPayoutAmount(30000.00)
+                setSelectedPayoutFee(1500.00)
+                setSelectedTotalPayout(28500.00)
     
             } else if(payoutCurrency === "jpy"){
                 
                 setSelectedPayoutOption("C")
-                setSelectedPayoutAmount(8000.00)
-                setSelectedPayoutFee(500.00)
-                setSelectedTotalPayout(7500.00)
+                setSelectedPayoutAmount(40000.00)
+                setSelectedPayoutFee(2000.00)
+                setSelectedTotalPayout(38000.00)
     
             } else if(payoutCurrency === "cny"){
                 
                 setSelectedPayoutOption("C")
-                setSelectedPayoutAmount(300)
-                setSelectedPayoutFee(15.00)
-                setSelectedTotalPayout(285.00)
+                setSelectedPayoutAmount(900)
+                setSelectedPayoutFee(30.00)
+                setSelectedTotalPayout(870.00)
     
             } else if(payoutCurrency === "aud"){
                 
                 setSelectedPayoutOption("C")
-                setSelectedPayoutAmount(50.00)
-                setSelectedPayoutFee(1.00)
-                setSelectedTotalPayout(49.00)
+                setSelectedPayoutAmount(300.00)
+                setSelectedPayoutFee(10.00)
+                setSelectedTotalPayout(290.00)
     
             } else if(payoutCurrency === "nzd"){
                 
                 setSelectedPayoutOption("C")
-                setSelectedPayoutAmount(50.00)
-                setSelectedPayoutFee(1.00)
-                setSelectedTotalPayout(49.00)
+                setSelectedPayoutAmount(300.00)
+                setSelectedPayoutFee(10.00)
+                setSelectedTotalPayout(290.00)
     
             } else {
                 
                 setSelectedPayoutOption("C")
-                setSelectedPayoutAmount(50.00)
-                setSelectedPayoutFee(1.00)
-                setSelectedTotalPayout(49.00)
+                setSelectedPayoutAmount(300.00)
+                setSelectedPayoutFee(10.00)
+                setSelectedTotalPayout(290.00)
             }
         }
       }
@@ -1037,7 +1037,9 @@ export default function PaymentsPage() {
             var currencies = []
             if(auth.credits?.length){
                 for(let i=0; i<auth.credits?.length; i++){
-                    currencies.push({currency: auth.credits[i].currency, currencySymbol: auth.credits[i].currencySymbol})
+                    if(auth.credits[i].currency.toLowerCase() === "usd" || auth.credits[i].currency.toLowerCase() === "cad"){
+                        currencies.push({currency: auth.credits[i].currency, currencySymbol: auth.credits[i].currencySymbol})
+                    }
                 }
                 setUserCurrencies(currencies)
                 
@@ -1675,8 +1677,6 @@ const list = (anchor) => (
                             <div className="flex flex-col justify-center items-center w-full">
                 
                                 <img className="w-[200px]" src={socketjuice_full_logo} />
-
-                                
 
                                 <div className="flex flex-row justify-center items-center gap-x-2 py-4">
 

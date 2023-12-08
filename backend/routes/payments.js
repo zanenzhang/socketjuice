@@ -9,7 +9,8 @@ router.get('/incoming', paymentsController.getHostIncomingPayments);
 router.get('/outgoing', paymentsController.getDriverOutgoingPayments);
 router.get('/requests', paymentsController.getPayoutRequests);
 
-router.post('/newpayout', paymentsController.addPayout);
+router.post('/newpayoutapi', paymentsController.addPayoutAPI);
+router.post('/newpayoutmanual', paymentsController.addPayoutManual);
 router.post('/request', paymentsController.requestPayout);
 router.post('/reject', paymentsController.rejectPayout);
 

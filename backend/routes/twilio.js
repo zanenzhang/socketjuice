@@ -9,6 +9,7 @@ router.use(verifyJWT)
 router.post('/send', twilioController.sendVerification);
 router.post('/check', twilioController.checkVerification);
 router.post('/noti', twilioController.sendSmsNotification);
+// router.post('/receivesms', twilioController.receiveSMS);
 
 
 module.exports = router;
