@@ -808,7 +808,7 @@ const {scrollToTime} = useMemo(
         setWaitingSubmit(false)
 
       } else if (added && added?.status === 402) {
-        alert("Sorry, your profile is incomplete! Please check your email!")
+        alert("Sorry, your profile is incomplete! Please check your email or contact us at support@socketjuice.com!")
         setChanged(changed + 1)
         setWaitingSubmit(false);
       
