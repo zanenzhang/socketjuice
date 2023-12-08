@@ -807,6 +807,11 @@ const {scrollToTime} = useMemo(
         setOpenReserveModal(false);
         setWaitingSubmit(false)
 
+      } else if (added && added?.status === 402) {
+        alert("Sorry, your profile is incomplete! Please check your email!")
+        setChanged(changed + 1)
+        setWaitingSubmit(false);
+      
       } else if (added && added?.status === 403) {
         alert("Please try again, conflicting appointment")
         setChanged(changed + 1)
