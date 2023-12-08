@@ -19,7 +19,7 @@ var _= require('lodash');
 const copyFile = require('../media/s3Controller');
 const {sendReceiptIncoming, sendReceiptOutgoing, sendPayoutRejection} = require("../../middleware/mailer");
 
-const base = "https://api-m.sandbox.paypal.com";
+const base = process.env.PAYPAL_BASE_URL;
 var paypal = require('paypal-rest-sdk');
 
 const wasabiPrivateBucketUSA = process.env.WASABI_PRIVATE_BUCKET_NAME_USA;
