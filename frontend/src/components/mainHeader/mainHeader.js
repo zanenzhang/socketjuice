@@ -704,7 +704,7 @@ const MainHeader = () => {
 
                 <div className='flex flex-row w-3/4 sm:w-1/2 justify-center'>
                     <Link reloadDocument to={ROUTES.MAP} >
-                        <img className='h-[6vh] md:h-[7vh] flex-shrink-0 pl-2 md:pl-8' src={socketjuice_full_logo} />
+                        <img className='h-[5vh] sm:h-[6vh] md:h-[7vh] flex-shrink-0 pl-2 md:pl-8' src={socketjuice_full_logo} />
                     </Link>
                 </div>
 

@@ -5,8 +5,8 @@ import ReCAPTCHA from "react-google-recaptcha";
 import socketjuice_full_logo from "../../images/SocketJuice.png";
 
 const EMAIL_REGEX = /\S+@\S+\.\S+/;
-const RESET_PASSWORD_URL = 'http://localhost:5500/api/resetpassword';
-const RESEND_VERIFICATION_URL = 'http://localhost:5500/api/resendemailverification';
+const RESET_PASSWORD_URL = process.env.RESET_PASSWORD_URL;
+const RESEND_VERIFICATION_URL = process.env.RESEND_VERIFICATION_URL;
 
 
 const ResetPass = () => {
