@@ -15,7 +15,7 @@ const handleResetPassword = async (req, res) => {
 
     var { email, recapToken, geoData } = req.body;
 
-    if (!email || !recapToken || !geoData ) return res.status(400).json({ 'message': 'Missing required information!' });
+    if (!email || !recapToken ) return res.status(400).json({ 'message': 'Missing required information!' });
     if (email?.length > 48  ) return res.status(400).json({ 'message': 'Content does not meet requirements' });
     
     const bannedIP = await BannedUser.findOne({admin: "admin"})
@@ -25,18 +25,24 @@ const handleResetPassword = async (req, res) => {
     // }
 
     if(bannedIP){
-    
-        if(bannedIP?.ipAddresses?.some(e=>e.userIP === geoData.IPv4)){
-            return res.status(403).json({ 'message': 'Operation failed' });
-        }
 
+        foundWall = ""
+
+        if(geoData?.IPv4){
+
+            if(bannedIP?.ipAddresses?.some(e=>e.userIP === geoData.IPv4)){
+                return res.status(403).json({ 'message': 'Operation failed' });
+            }
+
+            foundWall = await ExternalWall.findOne({userIP:geoData.IPv4})
+        
+        } 
+    
         const checkHuman = await axios.post(
             `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.GOOGLE_RECAPTCHA_SECRET_KEY}&response=${recapToken}`
             );
 
-        const foundWall = await ExternalWall.findOne({userIP:geoData.IPv4})
-
-        if(checkHuman?.status !== 200){
+        if(checkHuman?.status !== 200 && geoData?.IPv4){
 
             if(foundWall){
 
@@ -49,7 +55,7 @@ const handleResetPassword = async (req, res) => {
                     }
                 }
 
-            } else {
+            } else if (geoData?.IPv4) {
                 const newWall = await ExternalWall.create({userIP: geoData.IPv4, Total_GoogleRecaptcha: 1, 
                     Total_LoginAttempts: 1, Total_LockedLoginAttempts:0})
 
@@ -76,7 +82,7 @@ const handleResetPassword = async (req, res) => {
                         updatedWall = true;   
                     }
                 }
-            } else {
+            } else if(geoData.IPv4) {
                 var newWall = await ExternalWall.create({
                     "userIP": geoData.IPv4,
                     "Total_PassResets": 1
@@ -84,6 +90,8 @@ const handleResetPassword = async (req, res) => {
                 if(newWall){
                     updatedWall = true;
                 }
+            } else {
+                updatedWall = true;
             }
 
             if(updatedWall){

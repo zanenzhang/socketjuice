@@ -5,8 +5,6 @@ import ReCAPTCHA from "react-google-recaptcha";
 import socketjuice_full_logo from "../../images/SocketJuice.png";
 
 const EMAIL_REGEX = /\S+@\S+\.\S+/;
-const RESET_PASSWORD_URL = process.env.RESET_PASSWORD_URL;
-const RESEND_VERIFICATION_URL = process.env.RESEND_VERIFICATION_URL;
 
 
 const ResetPass = () => {
@@ -53,7 +51,7 @@ const ResetPass = () => {
         resendCount += 1
 
         try {
-            const response = await axios.post(RESEND_VERIFICATION_URL,
+            const response = await axios.post(process.env.REACT_APP_RESEND_VERIFICATION_URL,
                 JSON.stringify({ email:email.toLowerCase(), geoData }),
                 {
                     headers: { 'Content-Type': 'application/json' },
@@ -92,7 +90,7 @@ const ResetPass = () => {
         setWaiting(true);
 
         try {
-            const response = await axios.post(RESET_PASSWORD_URL,
+            const response = await axios.post(process.env.REACT_APP_RESET_PASSWORD_URL,
                 JSON.stringify({ email:email.toLowerCase(), recapToken, geoData }),
                 {
                     headers: { 'Content-Type': 'application/json' },

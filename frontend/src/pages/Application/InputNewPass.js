@@ -17,7 +17,7 @@ const InputNewPassword = () => {
     const userId = new URLSearchParams(search).get("userId");
     const hash = new URLSearchParams(search).get("hash");
 
-    const INPUT_NEW_PASS = process.env.INPUT_NEW_PASS;
+    const INPUT_NEW_PASS = process.env.REACT_APP_INPUT_NEW_PASS;
 
     const [geoData, setGeoData] = useState(false);
     const [pwd, setPwd] = useState('');

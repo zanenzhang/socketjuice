@@ -21,7 +21,7 @@ const handleInputNewPassword = async (req, res) => {
 
     if (hash && userId && pwd) {
 
-        if(geoData){
+        if(geoData?.IPv4){
 
             const foundWall = await ExternalWall.findOne({userIP:geoData.IPv4})
             if(foundWall){
@@ -56,7 +56,7 @@ const handleInputNewPassword = async (req, res) => {
 
     checkBan = false;
     
-    if(updatedWall && geoData){
+    if(updatedWall && geoData?.IPv4){
         
         const bannedIP = await BannedUser.findOne({admin: "admin", "ipAddresses.userIP": geoData.IPv4})
 
