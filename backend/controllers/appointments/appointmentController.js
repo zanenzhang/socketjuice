@@ -291,7 +291,7 @@ const addAppointmentRequest = async (req, res) => {
 
         if (foundDriverProfile && foundHostProfile && foundLimits && foundUser){
 
-            if(foundUser && !foundUser.receivedIdApproval){
+            if(!foundUser.receivedIdApproval || foundUser.deactivated){
                 return res.status(402).json({"Message": "Incomplete profile, please check your email!"})
             }
 
