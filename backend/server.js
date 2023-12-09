@@ -83,7 +83,7 @@ app.use(mongoSanitize());
 //serve static files
 app.use(express.static(path.join(__dirname,'client','build'))); 
 app.use('/', cors(), express.static(path.join(__dirname, '/public')));
-app.use('/.well-known/apple-developer-merchantid-domain-association', cors(), express.static(path.join(__dirname, '/public/domain-association-file-live')));
+app.use('/.well-known/apple-developer-merchantid-domain-association', cors(), express.static(path.join(__dirname, '/domain-association-file-live')));
 
 // routes
 app.use('/api', cors(), require('./routes/root'));
