@@ -71,6 +71,7 @@ export default function ChangeProfileMainHost({loggedUserId}) {
   const [allDaySunday, setAllDaySunday] = useState(false);
   const [allDayHolidays, setAllDayHolidays] = useState(false);
 
+  const [hostAddress, setHostAddress] = useState("");
   const [hostComments, setHostComments] = useState("");
   const [validHostComments, setValidHostComments] = useState(false);
   const [hostCommentsFocus, setHostCommentsFocus] = useState(false);
@@ -381,6 +382,7 @@ useEffect( () => {
             setAllDaySunday(response.foundHostProfile.allDaySunday)
             setAllDayHolidays(response.foundHostProfile.allDayHolidays)
 
+            setHostAddress(response.foundHostProfile.address)
             setHostComments(response.foundHostProfile.hostComments)
             setCurrency(response.foundHostProfile.currency)
             setCurrencySymbol(response.foundHostProfile.currencySymbol)
@@ -792,9 +794,19 @@ useEffect( () => {
               </div>
           </div>
 
+          <div className="flex flex-row justify-center items-center gap-x-2 pt-2">
+
+                <div className='flex flex-col p-2'>
+                    <p className="flex font-semibold">Address of EV Charger:</p>
+                </div>
+
+                <p>{hostAddress}</p>
+
+            </div>
+
                 <div className="flex flex-row justify-center items-center gap-x-2 pb-4">
 
-                    <div className='flex flex-col p-2'>
+                    <div className='flex flex-col px-2'>
                         <p className="flex font-semibold">Charge Rate Per 30 Min:</p>
                     </div>
                     

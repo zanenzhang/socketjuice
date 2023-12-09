@@ -2,8 +2,6 @@ import axios from "../../api/axios";
 
 async function getDriverAppointments (userId, currentDate, accessToken, authUserId) {
 
-    console.log(userId, currentDate)
-
     try {
         const response = await axios.get('/appointment/driver/', 
         {

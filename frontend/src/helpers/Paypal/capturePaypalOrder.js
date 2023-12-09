@@ -3,8 +3,6 @@ const ORDER_URL = '/payments/capture'
 
 async function capturePaypalOrder (orderID, userId, accessToken) {
 
-    console.log(orderID, userId, accessToken)
-
     try {
         
         const response = await axios.post(ORDER_URL, 

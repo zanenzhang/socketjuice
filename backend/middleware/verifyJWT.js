@@ -22,12 +22,8 @@ const verifyJWT = async (req, res, next) => {
                 const userId = splitArr[2];
 
                 console.log("Checking hash")
-                console.log(typeof(hash))
 
                 if(userId?.length > 0 && userId !== 'null' && hash?.length > 0 && hash !== 'null'){
-
-                    console.log(userId)
-                    console.log(hash)
 
                     const foundToken = await ActivateToken.findOne({_userId: userId})
                     const foundUser = await User.findOne({_id: userId, deactivated:false })

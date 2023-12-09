@@ -2,8 +2,6 @@ import axios from "../../api/axios";
 
 async function getOutgoingPayments (userId, pageNumber, dateStart, dateEnd, accessToken, authUserId) {
 
-    console.log(userId, pageNumber, dateStart, dateEnd,)
-
     try {
         const response = await axios.get('/payments/outgoing/', 
         {

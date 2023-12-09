@@ -33,8 +33,6 @@ export default function NotificationsDropdown() {
 
     async function getNotiData(){
 
-      console.log(auth)
-
       const notis = await getNotifications(auth.userId, notiPageNumber, auth.accessToken)
 
       if(notis){

@@ -257,7 +257,7 @@ const getHostProfilesCoord = async (req, res) => {
                         item.availableNow = true;
                     }
     
-                    if(item.mediaCarouselURLs?.length === 0 && item.mediaCarouselObjectIds?.length > 0){
+                    if(item.mediaCarouselObjectIds?.length > 0){
         
                         var finalMediaURLs = []
         
@@ -302,78 +302,7 @@ const getHostProfilesCoord = async (req, res) => {
                         item.markModified('mediaCarouselURLs')
                         item.markModified('videoCarouselURLs')
                         item.markModified('previewMediaURL')
-        
-                    } else if(item.mediaCarouselObjectIds?.length > 0) {
-        
-                        for(let i=0; i<item.mediaCarouselURLs?.length; i++){
-                            
-                            var signedUrl = item.mediaCarouselURLs[i];
-        
-                            const params = new URLSearchParams(signedUrl)
-                            const expiry = Number(params.get("Expires")) * 1000
-                            // const creationDate = fns.parseISO(params['X-Amz-Date']);
-                            // const expiresInSecs = Number(params['X-Amz-Expires']);
-                            
-                            // const expiryDate = fns.addSeconds(creationDate, expiresInSecs);
-                            // const expiry = Number(params['Expires']);
-                            const expiryTime = new Date(expiry)
-                            const isExpired = expiryTime < new Date();
-                
-                            if (isExpired){
-                
-                                var signParams = {
-                                    Bucket: wasabiPrivateBucketUSA, 
-                                    Key: item.mediaCarouselObjectIds[i],
-                                    Expires: 7200
-                                  };
-                    
-                                var url = s3.getSignedUrl('getObject', signParams);
-                    
-                                item.mediaCarouselURLs[i] = url
-                            }
-        
-                            if(item.coverIndex === i){
-                                item.previewMediaURL = item.mediaCarouselURLs[i]
-                            }
-                        }
-        
-                        for(let i=0; i<item.videoCarouselURLs?.length; i++){
-        
-                            if(item.videoCarouselURLs[i] !== 'image'){
-        
-                                var signedUrl = item.videoCarouselURLs[i];
-        
-                                const params = new URLSearchParams(signedUrl)
-                                const expiry = Number(params.get("Expires")) * 1000
-                                // const creationDate = fns.parseISO(params['X-Amz-Date']);
-                                // const expiresInSecs = Number(params['X-Amz-Expires']);
-                                
-                                // const expiryDate = fns.addSeconds(creationDate, expiresInSecs);
-                                // const expiry = Number(params['Expires']);
-                                const expiryTime = new Date(expiry)
-                                const isExpired = expiryTime < new Date();
-                    
-                                if (isExpired){
-                    
-                                    var signParams = {
-                                        Bucket: wasabiPrivateBucketUSA, 
-                                        Key: item.videoCarouselObjectIds[i],
-                                        Expires: 7200
-                                    };
-                        
-                                    var url = s3.getSignedUrl('getObject', signParams);
-                        
-                                    item.videoCarouselURLs[i] = url
-                                }
-        
-                            }
-                        }
-        
-                        item.markModified('mediaCarouselURLs')
-                        item.markModified('videoCarouselURLs')
-                        item.markModified('previewMediaURL')
-                    
-                    }  
+                    } 
         
                     item.update()
                 })

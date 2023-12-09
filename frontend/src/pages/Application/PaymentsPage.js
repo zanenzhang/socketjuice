@@ -115,7 +115,6 @@ export default function PaymentsPage() {
         const incoming = await getIncomingPayments(auth.userId, number, pickerDateIncomingStart, pickerDateIncomingEnd, auth.accessToken, auth.userId)
 
         if(incoming && !incoming.stop){
-            console.log(incoming)
             
             var userHash = {}
             for(let i=0; i<incoming?.userData?.length; i++){
@@ -139,7 +138,7 @@ export default function PaymentsPage() {
             setWaitingIncoming(false)
 
         } else {
-            console.log(incoming)
+
             if(pageNumber === 0){
                 setIncomingPayments([])
             }
@@ -163,7 +162,6 @@ export default function PaymentsPage() {
         const outgoing = await getOutgoingPayments(auth.userId, number, pickerDateOutgoingStart, pickerDateOutgoingEnd, auth.accessToken, auth.userId)
 
         if(outgoing && !outgoing.stop){
-            console.log(outgoing)
 
             var userHash = {}
             for(let i=0; i<outgoing?.userData?.length; i++){
@@ -187,7 +185,7 @@ export default function PaymentsPage() {
             setWaitingOutgoing(false)
 
         } else {
-            console.log(outgoing)
+
             if(pageNumber === 0){
                 setOutgoingPayments([])
             }
@@ -221,8 +219,6 @@ export default function PaymentsPage() {
       }
 
     const handlePayCurrency = (e) => {
-
-        console.log(e.target.value)
 
         setSelectedPaymentOption("")
 
@@ -805,7 +801,6 @@ export default function PaymentsPage() {
             const incoming = await getIncomingPayments(auth.userId, pageNumberIncoming, pickerDateOutgoingStart, pickerDateOutgoingEnd, auth.accessToken, auth.userId)
 
             if(incoming && !incoming.stop){
-                console.log(incoming)
 
                 var userHash = {}
                 for(let i=0; i<incoming?.userData?.length; i++){
@@ -855,7 +850,6 @@ export default function PaymentsPage() {
             const outgoing = await getOutgoingPayments(auth.userId, pageNumberOutgoing, pickerDateOutgoingStart, pickerDateOutgoingEnd, auth.accessToken, auth.userId)
 
             if(outgoing && !outgoing.stop){
-                console.log(outgoing)
 
                 var userHash = {}
                 for(let i=0; i<outgoing?.userData?.length; i++){
@@ -864,21 +858,17 @@ export default function PaymentsPage() {
                     }
                 }
 
-                console.log(userHash)
-
                 for(let i=0; i<outgoing?.foundPayments?.length; i++){
                     if(userHash[outgoing?.foundPayments[i]._receivingUserId] !== undefined ){
                         outgoing.foundPayments[i].userData = userHash[outgoing?.foundPayments[i]._receivingUserId]
                     }
                 }
-                
-                console.log(outgoing?.foundPayments)
 
                 setOutgoingPayments([...outgoing?.foundPayments])
                 setWaitingOutgoing(false)
 
             } else {
-                console.log(outgoing)
+
                 setScrollStopOutgoing(true)
                 setWaitingOutgoing(false)
             }
@@ -964,7 +954,6 @@ export default function PaymentsPage() {
             const userdata = await getUserData(auth.accessToken, auth.userId)
 
             if(userdata){
-                console.log(userdata)
                 
                 setAuth(prev => {
             
@@ -1742,13 +1731,9 @@ const list = (anchor) => (
                                         
                                         setWaitingPayment(true);
 
-                                        console.log(paymentCurrency, selectedPaymentOption, initialOptions)
-
                                         const orderData = await addPaypalOrder(paymentCurrency, selectedPaymentOption, auth?.userId, auth?.accessToken)
 
                                         if(orderData){
-
-                                            console.log(orderData)
 
                                             try{
 

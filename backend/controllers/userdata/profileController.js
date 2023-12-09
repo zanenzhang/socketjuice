@@ -1147,9 +1147,9 @@ const uploadUserPhotos = async (req, res) => {
                     Expires: 7200
                 };
     
-                var signedURLBackPhoto = s3.getSignedUrl('getObject', signParamsPlate);
+                var signedURLPlate = s3.getSignedUrl('getObject', signParamsPlate);
 
-                foundUser.plateMediaURL = signedURLBackPhoto
+                foundUser.plateMediaURL = signedURLPlate
                 foundUser.currentStage = 3
 
                 const userId = foundUser._id;

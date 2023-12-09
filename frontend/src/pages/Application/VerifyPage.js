@@ -236,8 +236,6 @@ const VerifyPage = () => {
 
             if(requestedCode){
 
-                console.log(requestedCode)
-
                 if(requestedCode.status === 200 && requestedCode.data.result === 'pending'){
                     
                     setSentCode(true)

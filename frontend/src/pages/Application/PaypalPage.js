@@ -176,8 +176,6 @@ const PaymentsPage = () => {
 
                     if(captureData){
 
-                        console.log(captureData)
-
                         const errorDetail = captureData?.details?.[0];
 
                         // Three cases to handle:

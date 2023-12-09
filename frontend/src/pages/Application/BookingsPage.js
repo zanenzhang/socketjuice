@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import MainHeader from '../../components/mainHeader/mainHeader';
@@ -14,6 +14,10 @@ import CameraPlug from '../CameraPlug';
 import axios from "../../api/axios";
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import "./slider.css";
 
 import evconnectors from "../../images/evconnectors.jpeg";
 import evcharger from "../../images/ev_charger.jpeg";
@@ -58,6 +62,10 @@ const BookingsPage = () => {
 
   const navigate = useNavigate();
 
+  const sliderRefPre = useRef(null);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [nextSlide, setNextSlide] = useState(1);
+
   const [isLoaded, setIsLoaded] = useState(false)
   const [value, setValue] = useState("0");
   const [waiting, setWaiting] = useState(false);
@@ -71,9 +79,27 @@ const BookingsPage = () => {
   const [helpMessage, setHelpMessage] = useState("");
   const [validHelpMessage, setValidHelpMessage] = useState(false);
   
+  const [selectedMediaURLs, setSelectedMediaURLs] = useState("");
+
   const [errorMessage, setErrorMessage] = useState("");
   const IMAGE_UPLOAD_URL = '/s3/singleimage';
   const MESSAGE_REGEX = /^.{4,100}$/;
+
+  const settings = {
+    dots: true,
+    infinite: true,
+    speed: 450,
+    initialSlide: 0,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    swipeToSlide: true,
+    lazyLoad: true,
+    slide: true,
+    arrows: false,
+    afterChange: (index) => {
+        setCurrentSlide(index)
+    }
+  };
 
   const [scheduleCheck, setScheduleCheck] = useState(false)
 
@@ -464,7 +490,6 @@ useEffect( () => {
   
   const [selectedCurrency, setSelectedCurrency] = useState("")
   const [selectedCurrencySymbol, setSelectedCurrencySymbol] = useState("")
-  const [selectedChargeRate, setSelectedChargeRate] = useState(0)
   const [selectedTotalCharge, setSelectedTotalCharge] = useState(0)
 
   const [selectedLat, setSelectedLat] = useState("")
@@ -624,11 +649,7 @@ useEffect( () => {
 
     setSelectedCurrency(hostevent.currency)
     setSelectedCurrencySymbol(hostevent.currencySymbol)
-
-    var charge = ((hostevent.end - hostevent.start) / 1000 / 1800) * hostevent.chargeRatePerHalfHour
-    charge = (Math.round(charge * 100))/100
-    setSelectedChargeRate(hostevent.chargeRate)
-    setSelectedTotalCharge(charge)
+    setSelectedTotalCharge(hostevent.chargeAmount)
 
     if(auth.appointmentFlags?.length > 0){
       if(auth.appointmentFlags.some(flag => flag._appointmentId.toString() === hostevent?.appointmentId?.toString())){
@@ -654,6 +675,7 @@ useEffect( () => {
     setSelectedEventId(driverevent.appointmentId)
     setSelectedAddress(driverevent.address)
     setSpecialComments(driverevent.hostComments)
+    setSelectedMediaURLs(driverevent.mediaCarouselURLs)
     setSelectedEventStart(driverevent.start.toLocaleTimeString())
     setSelectedEventEnd(driverevent.end.toLocaleTimeString())
     setSelectedPlateURL(driverevent.driverPlateMediaURL)
@@ -667,10 +689,7 @@ useEffect( () => {
 
     setSelectedCurrency(driverevent.currency)
     setSelectedCurrencySymbol(driverevent.currencySymbol)
-
-    var charge = ((driverevent.end - driverevent.start) / 1000 / 1800) * driverevent.chargeRatePerHalfHourFee
-    setSelectedChargeRate(driverevent.chargeRate)
-    setSelectedTotalCharge(charge)
+    setSelectedTotalCharge(driverevent.chargeAmountFee)
 
     if(auth.appointmentFlags?.length > 0){
       if(auth.appointmentFlags.some(flag => flag._appointmentId.toString() === driverevent?.appointmentId?.toString())){
@@ -1007,6 +1026,10 @@ const handleRegularHourChangeEnd = (event, day) => {
 
     const handleEventRejectHost = async (e) => {
 
+      if(waitingCancel){
+        return
+      }
+
       setWaitingCancel(true)
 
       const submitted = await addHostReject(selectedDriverUserId, auth.userId, selectedEventId, auth.userId, auth.accessToken)
@@ -1021,6 +1044,9 @@ const handleRegularHourChangeEnd = (event, day) => {
 
     const handleEventCancelHost = async (e) => {
 
+      if(waitingCancel){
+        return
+      }
       setWaitingCancel(true)
 
       const submitted = await addHostCancelSubmit(selectedDriverUserId, auth.userId, selectedEventId, auth.userId, auth.accessToken)
@@ -1036,6 +1062,9 @@ const handleRegularHourChangeEnd = (event, day) => {
 
     const handleEventRejectDriver = async (e) => {
 
+      if(waitingCancel){
+        return
+      }
       setWaitingCancel(true)
 
       const submitted = await addDriverReject(auth.userId, selectedHostUserId, selectedEventId, auth.userId, auth.accessToken)
@@ -1050,6 +1079,9 @@ const handleRegularHourChangeEnd = (event, day) => {
 
     const handleEventCancelDriver = async (e) => {
 
+      if(waitingCancel){
+        return
+      }
       setWaitingCancel(true)
 
       const submitted = await addDriverCancelSubmit(auth.userId, selectedHostUserId, selectedEventId, auth.userId, auth.accessToken)
@@ -1065,7 +1097,6 @@ const handleRegularHourChangeEnd = (event, day) => {
     const handleEventActionHost = async (e) => {
 
       e.preventDefault()
-      console.log(e)
 
       if(hostRequestedCancel){
         return
@@ -1114,8 +1145,6 @@ const handleRegularHourChangeEnd = (event, day) => {
 
       e.preventDefault()
 
-      console.log(e)
-
       if(driverRequestedCancel){
         return
       }
@@ -1150,14 +1179,12 @@ const handleRegularHourChangeEnd = (event, day) => {
     };
 
     const handleNavigateHost = (e) => {
-      console.log(e)
       
       setCurrentDateHost(new Date().toISOString().slice(0,10))
       setPickerDateHost(dayjs(new Date(e)))
     }
 
     const handleNavigateDriver = (e) => {
-      console.log(e)
       
       setCurrentDateDriver(new Date().toISOString().slice(0,10))
       setPickerDateDriver(dayjs(new Date(e)))
@@ -1461,6 +1488,8 @@ const handleRegularHourChangeEnd = (event, day) => {
       setSelectedEventId(e.appointmentId)
       setSelectedAddress(e.address)
       setSpecialComments(e.hostComments)
+      setSelectedMediaURLs(e.mediaCarouselURLs)
+
       setSelectedEventStart(e.start.toLocaleTimeString())
       setSelectedEventEnd(e.end.toLocaleTimeString())
       setSelectedPlateURL(e.driverPlateMediaURL)
@@ -1514,8 +1543,6 @@ const handleRegularHourChangeEnd = (event, day) => {
               hostresults.hostAppointments[i].address = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.address
               hostresults.hostAppointments[i].locationlat = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.location?.coordinates[1]
               hostresults.hostAppointments[i].locationlng = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.location?.coordinates[0]
-              hostresults.hostAppointments[i].chargeRatePerHalfHour = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.chargeRatePerHalfHour
-              hostresults.hostAppointments[i].chargeRatePerHalfHourFee = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.chargeRatePerHalfHourFee
               hostresults.hostAppointments[i].currency = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.currency
               hostresults.hostAppointments[i].currencySymbol = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.currencySymbol
               hostresults.hostAppointments[i].hostComments = hostprofiledata[hostresults.hostAppointments[i]._hostUserId]?.hostComments
@@ -1561,8 +1588,8 @@ const handleRegularHourChangeEnd = (event, day) => {
               driverFirstName: hostresults.hostAppointments[i].driverFirstName,
               driverLastName: hostresults.hostAppointments[i].driverLastName,
 
-              chargeRatePerHalfHour: hostresults.hostAppointments[i].chargeRatePerHalfHour,
-              chargeRatePerHalfHourFee: hostresults.hostAppointments[i].chargeRatePerHalfHourFee,
+              chargeAmount: hostresults.hostAppointments[i].chargeAmount,
+              chargeAmountFee: hostresults.hostAppointments[i].chargeAmountFee,
               currency: hostresults.hostAppointments[i].currency,
               currencySymbol: hostresults.hostAppointments[i].currencySymbol,
               hostComments: hostresults.hostAppointments[i].hostComments,
@@ -1574,8 +1601,9 @@ const handleRegularHourChangeEnd = (event, day) => {
           }
   
           newevents.sort(function(a,b){
-            return new Date(b.date) - new Date(a.date);
+            return new Date(b.start) - new Date(a.start);
           })
+
           setHostAppointments([...hostresults.hostAppointments])
           setHostEvents(newevents)
         }
@@ -1636,11 +1664,10 @@ const handleRegularHourChangeEnd = (event, day) => {
               driverresults.userAppointments[i].address = hostprofiledata[driverresults.userAppointments[i]._hostUserId]?.address
               driverresults.userAppointments[i].locationlat = hostprofiledata[driverresults.userAppointments[i]._hostUserId]?.location?.coordinates[1]
               driverresults.userAppointments[i].locationlng = hostprofiledata[driverresults.userAppointments[i]._hostUserId]?.location?.coordinates[0]
-              driverresults.userAppointments[i].chargeRatePerHalfHour = hostprofiledata[driverresults.userAppointments[i]._hostUserId]?.chargeRatePerHalfHour
-              driverresults.userAppointments[i].chargeRatePerHalfHourFee = hostprofiledata[driverresults.userAppointments[i]._hostUserId]?.chargeRatePerHalfHourFee
               driverresults.userAppointments[i].currency = hostprofiledata[driverresults.userAppointments[i]._hostUserId]?.currency
               driverresults.userAppointments[i].currencySymbol = hostprofiledata[driverresults.userAppointments[i]._hostUserId]?.currencySymbol
               driverresults.userAppointments[i].hostComments = hostprofiledata[driverresults.userAppointments[i]._hostUserId]?.hostComments
+              driverresults.userAppointments[i].mediaCarouselURLs = hostprofiledata[driverresults.userAppointments[i]._hostUserId]?.mediaCarouselURLs
             }
 
             if(hostuserdata[driverresults.userAppointments[i]._hostUserId]){
@@ -1683,18 +1710,23 @@ const handleRegularHourChangeEnd = (event, day) => {
               driverFirstName: driverresults.userAppointments[i].driverFirstName,
               driverLastName: driverresults.userAppointments[i].driverLastName,
 
-              chargeRatePerHalfHour: driverresults.userAppointments[i].chargeRatePerHalfHour,
-              chargeRatePerHalfHourFee: driverresults.userAppointments[i].chargeRatePerHalfHourFee,
+              chargeAmount: driverresults.userAppointments[i].chargeAmount,
+              chargeAmountFee: driverresults.userAppointments[i].chargeAmountFee,
               currency: driverresults.userAppointments[i].currency,
               currencySymbol: driverresults.userAppointments[i].currencySymbol,
               hostComments: driverresults.userAppointments[i].hostComments,
+              mediaCarouselURLs: driverresults.userAppointments[i].mediaCarouselURLs,
 
               isDraggable: true
             }
 
             newevents.push(instance)
           }
-  
+
+          newevents.sort(function(a,b){
+            return new Date(b.start) - new Date(a.start);
+          })
+
           setDriverAppointments(driverresults.userAppointments)
           setDriverEvents([...newevents])
         }
@@ -1744,8 +1776,8 @@ const handleRegularHourChangeEnd = (event, day) => {
 
           <div className='pt-1 pb-4 flex flex-col gap-y-3 w-full justify-center items-center'>
 
-          <p>Received Bookings From Other EV Drivers</p>
-          {deactivated && <p>Please note: You are currently not offering charging in your host settings</p>}
+          <p>Recent Bookings From Other EV Drivers</p>
+          {deactivated && <p className='py-2'>Please note: You are currently not offering charging in your host settings</p>}
 
             <div className='flex flex-col w-[350px] max-h-[400px] overflow-y-auto mx-2 my-2 
               hover:cursor-pointer border-y border-gray-500'>
@@ -1757,11 +1789,13 @@ const handleRegularHourChangeEnd = (event, day) => {
                   onClick={(e)=>{handleHostEventListClick(e, event)}}>
 
                   <div className='flex flex-col flex-shrink-0'>
-                    <img className='w-[70px] rounded-full border border-gray-400' src={event.driverProfilePicURL} />
+                    <img className='w-[70px] rounded-full border border-gray-400' 
+                    src={event.driverProfilePicURL} />
                   </div>
 
                   <div className='flex flex-col gap-y-1 pl-6'>
                     <p>Booked By: {event.driverFirstName}</p>
+                    <p>Date: {event.start.toLocaleDateString(undefined, {weekday: 'long', year: 'numeric', month: 'short', day: 'numeric'})}</p>
                     <p>Start: {event.start.toLocaleTimeString()}</p>
                     <p>End: {event.end.toLocaleTimeString()}</p>
                     <p>Host Message: {event.hostComments}</p>
@@ -1950,7 +1984,8 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                   <p className='text-base md:text-lg font-bold pt-4'>Step 3) Select the connector type for your main plug and if you have an adapter. (We will check against your photos but please match carefully!) </p>
 
-                      <img className='border-2 border-[#00D3E0] mx-4 px-4 min-w-[375px] w-[600px] py-4' src={evconnectors} />
+                      <img className='border-2 border-[#00D3E0] mx-4 px-4 min-w-[375px] w-[600px] py-4' 
+                      src={evconnectors} />
 
                       <div className='flex flex-row justify-center items-center'>
                       <label className="font-semibold pr-2">Connector Type:</label>
@@ -2769,7 +2804,8 @@ const handleRegularHourChangeEnd = (event, day) => {
                   </div>
 
                   <div className='flex flex-col gap-y-1 pl-6'>
-                    <p>Booked with: {event.hostFirstName}</p>
+                    <p>Booked With: {event.hostFirstName}</p>
+                    <p>Date: {event.start.toLocaleDateString(undefined, {weekday: 'long', year: 'numeric', month: 'short', day: 'numeric'})}</p>
                     <p>Address: {event.address.slice(0, (event.address.lastIndexOf(',', (event.address).lastIndexOf(',')-1))) }</p>
                     <p>Start: {event.start.toLocaleTimeString()}</p>
                     <p>End: {event.end.toLocaleTimeString()}</p>
@@ -2880,7 +2916,50 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                       <img className='w-[350px] h-[350px] rounded-lg' src={`https://maps.googleapis.com/maps/api/staticmap?center=${selectedAddress}&zoom=14&size=300x300&markers=color:yellow%7C${selectedLat},${selectedLng}&maptype=roadmap&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`} />
 
-                      <img className='w-[350px] h-[350px] rounded-lg' src={selectedPlateURL} />
+                      <div className='flex flex-col w-full' key={"slidercontainer"}>
+
+                      <Slider {...settings} ref={sliderRefPre}>
+            
+                      {selectedMediaURLs?.length > 0 && 
+                        
+                        selectedMediaURLs.map((image, index) => (
+
+                            <div key={`hostmediapre_${index}`}> 
+                                
+                                <div>
+                                    
+                                    <div className='flex justify-center'>
+                                    <Box
+                                    style={{
+                                        display:'flex',
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        flexDirection: "column",
+                                        height: 'auto',
+                                        width: 360,
+                                        maxHeight: { xs: 360, sm:400, md: 450 },
+                                        maxWidth: { xs: 360, sm:400, md: 450 }
+                                        }}
+                                    >
+                                    
+                                    <div className='flex flex-col justify-center items-center'>
+
+                                        <img 
+                                            className={`w-[300px] rounded-t-lg border border-gray-200 z-0`}
+                                            src={selectedMediaURLs[index]} 
+                                        />
+                                    
+                                    </div>
+
+                                    </Box>
+                                    </div>
+                              </div>         
+                          </div>
+                        ))}
+
+                      </Slider>
+
+                      </div>
                       
                       <div className='w-full py-3 gap-y-2 flex flex-col justify-center items-center'>
                         <p>Booking With: {selectedHostFirstName}</p>
@@ -2912,7 +2991,8 @@ const handleRegularHourChangeEnd = (event, day) => {
                     disabled={selectedEventStatus === "Completed" || selectedEventStatus === "Cancelled" || driverRequestedCancel 
                     || !termscheckedDriver || waitingSubmit || waitingCancel} 
                       className={`border border-gray-300 px-3 py-2 rounded-xl gap-x-2 flex flex-row justify-center items-center
-                      ${ (selectedEventStatus === "Completed" || selectedEventStatus === "Cancelled" || driverRequestedCancel || !termscheckedDriver) ? "bg-[#c1f2f5] cursor-not-allowed" : "bg-[#c1f2f5] hover:bg-[#00D3E0] " } `}
+                      ${ (selectedEventStatus === "Completed" || selectedEventStatus === "Cancelled" || driverRequestedCancel || !termscheckedDriver || waitingSubmit || waitingCancel) 
+                      ? "bg-[#c1f2f5] cursor-not-allowed" : "bg-[#c1f2f5] hover:bg-[#00D3E0] " } `}
                       onClick={(e)=>handleEventActionDriver(e)}>
 
                     {waitingSubmit && 
@@ -2935,7 +3015,9 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                     {selectedEventStatus === "Requested" && 
                       <button 
-                      className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] ${!termscheckedDriver ? "hover:bg-gray-300 cursor-not-allowed" : "hover:bg-[#00D3E0] cursor-pointer" } 
+                      className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] 
+                      ${(!termscheckedDriver || waitingSubmit || waitingCancel) ? "hover:bg-gray-300 cursor-not-allowed" 
+                      : "hover:bg-[#00D3E0] cursor-pointer" } 
                         gap-x-2 flex flex-row justify-center items-center`}
                         disabled={!termscheckedDriver || waitingSubmit || waitingCancel}
                       onClick={(e)=>handleEventRejectDriver(e)}>
@@ -2956,7 +3038,8 @@ const handleRegularHourChangeEnd = (event, day) => {
                       </button>}
 
                     {(selectedEventStatus === "Approved" && !driverRequestedCancel) && 
-                      <button className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] hover:bg-[#00D3E0] 
+                      <button className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] 
+                      ${!termscheckedDriver || waitingSubmit || waitingCancel ? " cursor-not-allowed hover:bg-gray-400" : " hover:bg-[#00D3E0] "} 
                         gap-x-2 flex flex-row justify-center items-center`}
                         disabled={!termscheckedDriver || waitingSubmit || waitingCancel}
                       onClick={(e)=>handleEventCancelDriver(e)}>
@@ -3037,7 +3120,7 @@ const handleRegularHourChangeEnd = (event, day) => {
 
                       <img className='w-[350px] h-[350px] rounded-xl' src={`https://maps.googleapis.com/maps/api/staticmap?center=${selectedAddress}&zoom=14&size=300x300&markers=color:yellow%7C${selectedLat},${selectedLng}&maptype=roadmap&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`} />
 
-                      <img className='w-[350px] h-[350px] rounded-xl' src={selectedPlateURL}/>
+                      <img className='w-[350px] h-[350px] rounded-xl' src={selectedPlateURL} />
                       
                       <p>Booked By: {selectedDriverFirstName}</p>
                       <p>Start Time: {selectedEventStart}</p>
@@ -3096,10 +3179,11 @@ const handleRegularHourChangeEnd = (event, day) => {
                     <button 
 
                     className={`border border-gray-300 px-3 py-2 rounded-xl 
-                      ${(!termscheckedHost ) ? "bg-[#c1f2f5] cursor-not-allowed" : "cursor-pointer bg-[#c1f2f5] hover:bg-[#00D3E0] " } 
+                      ${( selectedEventStatus === "Cancelled" || !termscheckedHost || waitingSubmit || waitingCancel ) 
+                      ? "bg-[#c1f2f5] cursor-not-allowed" : "cursor-pointer bg-[#c1f2f5] hover:bg-[#00D3E0] " } 
                         gap-x-2 flex flex-row justify-center items-center`}
                     
-                        disabled={(selectedEventStatus === "Cancelled" || !termscheckedHost || waitingSubmit || waitingCancel )} 
+                      disabled={(selectedEventStatus === "Cancelled" || !termscheckedHost || waitingSubmit || waitingCancel )} 
                       onClick={(e)=>handleEventRejectHost(e)}>
 
                     {waitingCancel && 
@@ -3120,7 +3204,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                     {(selectedEventStatus === "Approved" && !driverRequestedCancel && !hostRequestedCancel) && 
                     <button 
                     className={`border border-gray-300 px-3 py-2 rounded-xl bg-[#c1f2f5] 
-                    ${(!termscheckedHost ) ? "bg-[#c1f2f5] cursor-not-allowed" : "cursor-pointer bg-[#c1f2f5] hover:bg-[#00D3E0] " } 
+                    ${(!termscheckedHost || waitingSubmit || waitingCancel) ? "bg-[#c1f2f5] cursor-not-allowed" : "cursor-pointer bg-[#c1f2f5] hover:bg-[#00D3E0] " } 
                       gap-x-2 flex flex-row justify-center items-center`}
                     disabled={!termscheckedHost || waitingSubmit || waitingCancel}
                     onClick={(e)=>handleEventCancelHost(e)}>
@@ -3138,15 +3222,15 @@ const handleRegularHourChangeEnd = (event, day) => {
                       </div>
                       }
 
-                      Approved - Cancel and Refund
+                      Cancel and Issue Refund
                     </button> }
 
                     {(selectedEventStatus !== "Requested" && selectedEventStatus !== "Cancelled" && selectedEventStatus !== "Completed" ) && 
                     <p className='text-xl font-semibold pt-3 text-center w-full'>
                       Communications</p>}
 
-                    {(selectedEventStatus !== "Requested" && selectedEventStatus !== "Cancelled" && selectedEventStatus !== "Completed" ) 
-                      && 
+                    {(selectedEventStatus !== "Requested" && selectedEventStatus !== "Cancelled" 
+                      && selectedEventStatus !== "Completed" ) && 
                     <button className='border border-gray-300 px-3 py-2 rounded-xl gap-x-2
                     bg-[#c1f2f5] hover:bg-[#00D3E0] flex flex-row justify-center items-center'
                     onClick={(e)=>handleMessageHost(e)}>

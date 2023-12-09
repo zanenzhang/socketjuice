@@ -159,8 +159,6 @@ export default function ChangeProfileMainUser({ }) {
           theme: "colored",
         });
 
-      console.log(croppedImage)
-
         const formData = new FormData();
         const file = new File([croppedImage], `${auth.userId}.jpeg`, { type: "image/jpeg" })
         formData.append("image", file);

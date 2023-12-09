@@ -18,14 +18,9 @@ const Chatsbar = ({changedData, setChangedData, drawerState, setDrawerState }) =
           let newChatUserId = newIndividualChat.userId
           let newChatFirstName = newIndividualChat.firstName
 
-          console.log(chatsList)
-          console.log(newChatUserId)
-
             for (let i=0; i < chatsList?.userChats?.length; i++){
 
                 var item = chatsList.userChats[i];
-
-                console.log(item.participants.some(e => e._userId.toString() === newChatUserId.toString()))
 
                 if(item.participants.some(e => e._userId.toString() === newChatUserId.toString())){
                     setAlreadyChatting(true)

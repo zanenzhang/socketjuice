@@ -79,8 +79,7 @@ const getHostAppointments = async (req, res) => {
 
         if(hostAppointments && hostAppointments?.length > 0){
 
-            foundHostProfiles = await HostProfile.find({$or:[{_userId: {$in: hostAppointments.map(e=>e._hostUserId)}}, 
-                {_userId: {$in: hostAppointments.map(e=>e._requestUserId)}}]})
+            foundHostProfiles = await HostProfile.find({_userId: {$in: hostAppointments.map(e=>e._requestUserId)}})
 
             if(foundHostProfiles && foundHostProfiles?.length > 0){
 
@@ -102,9 +101,10 @@ const getHostAppointments = async (req, res) => {
                         
                             item.plateMediaURL = plateUrl
             
-                            item.update()
-            
+                            item.markModified('plateMediaURL')
                         }  
+
+                        item.update()
                     })
                 
                     doneData = true;
@@ -190,40 +190,66 @@ const getDriverAppointments = async (req, res) => {
 
         if(userAppointments && userAppointments?.length > 0){
 
-            foundHostProfiles = await HostProfile.find({$or:[{_userId: {$in: userAppointments.map(e=>e._hostUserId)}}, 
-                {_userId: {$in: userAppointments.map(e=>e._requestUserId)}}]})
+            foundHostProfiles = await HostProfile.find({$or:[{_userId: {$in: userAppointments.map(e=>e._hostUserId)}} ]})
 
             if(foundHostProfiles && foundHostProfiles?.length > 0){
 
                 userData = await User.find({_id: {$in: foundHostProfiles.map(e=>e._userId)}}).select("_id profilePicURL plateObjectId plateMediaURL phonePrimary firstName lastName")
 
-                if(userData?.length > 0){
+                foundHostProfiles?.forEach(function(item, index){
 
-                    userData?.forEach(function(item, index){
-
-                        if(item.plateObjectId){
+                    if(item.mediaCarouselObjectIds?.length > 0){
             
-                            var signParamsPlate = {
+                        var finalMediaURLs = []
+        
+                        for(let i=0; i<item.mediaCarouselObjectIds?.length; i++){
+                        
+                            var signParams = {
                                 Bucket: wasabiPrivateBucketUSA, 
-                                Key: item.plateObjectId,
+                                Key: item.mediaCarouselObjectIds[i],
                                 Expires: 7200
                             };
                 
-                            var plateUrl = s3.getSignedUrl('getObject', signParamsPlate);
-                        
-                            item.plateMediaURL = plateUrl
-            
-                            item.update()
-            
-                        }  
-                    })
+                            var url = s3.getSignedUrl('getObject', signParams);
                 
-                    doneData = true;
-                
-                } else {
+                            finalMediaURLs.push(url)
+                        }
+        
+                        var finalVideoURLs = []
+        
+                        for(let i=0; i<item.videoCarouselObjectIds?.length; i++){
+        
+                            if(item.videoCarouselObjectIds[i] !== 'image'){
+        
+                                var signParams = {
+                                    Bucket: wasabiPrivateBucketUSA, 
+                                    Key: item.videoCarouselObjectIds[i],
+                                    Expires: 7200
+                                };
+                    
+                                var url = s3.getSignedUrl('getObject', signParams);
+                    
+                                finalVideoURLs.push(url)
+        
+                            } else {
+        
+                                finalVideoURLs.push("image")
+                            }
+                        }
+        
+                        item.mediaCarouselURLs = finalMediaURLs
+                        item.videoCarouselURLs = finalVideoURLs
+                        item.previewMediaURL = finalMediaURLs[item.coverIndex]
+                        item.markModified('mediaCarouselURLs')
+                        item.markModified('videoCarouselURLs')
+                        item.markModified('previewMediaURL')
+        
+                    } 
 
-                    return res.status(401).json({ message: 'Operation failed' })
-                }
+                    item.update()
+                })
+
+                doneData= true;
 
             } else {
             
@@ -303,7 +329,7 @@ const addAppointmentRequest = async (req, res) => {
 
                         if(foundLimits.numberOfAppointments[i].date === todaysDate){
     
-                            if(foundLimits.numberOfAppointments[i].appointmentsNumber >= 25){
+                            if(foundLimits.numberOfAppointments[i].appointmentsNumber >= 6){
                                 //Set found limits to 5 for production
                                 
                                 return res.status(401).json({ message: 'Reached appointment limit for today' })
@@ -356,8 +382,8 @@ const addAppointmentRequest = async (req, res) => {
 
                 // In milliseconds
                 const timediff = (requestEnd - requestStart) / 1000 / 1800
-                const chargeAmount = Math.round(foundHostProfile.chargeRatePerHalfHour * timediff * 100) / 100
-                const chargeAmountFee = Math.round(foundHostProfile.chargeRatePerHalfHourFee * timediff * 100) / 100
+                var chargeAmount = Math.round(foundHostProfile.chargeRatePerHalfHour * timediff * 100) / 100
+                var chargeAmountFee = Math.round(foundHostProfile.chargeRatePerHalfHourFee * timediff * 100) / 100
 
                 if(chargeAmount && foundUser?.credits?.length > 0){
 
@@ -973,7 +999,7 @@ const addDriverReject = async (req, res) =>{
                     if(foundUser.escrow[i].amount >= foundAppointment.chargeAmountFee && 
                         foundUser.escrow[i].currency.toLowerCase() === foundAppointment?.currency.toLowerCase() ){
                         
-                        foundUser.escrow[i].amount = Math.max(foundUser.escrow[i].amount - foundAppointment.chargeAmountFee)
+                        foundUser.escrow[i].amount = Math.max(foundUser.escrow[i].amount - foundAppointment.chargeAmountFee, 0)
                         escrow = true;
                         break
                     }
