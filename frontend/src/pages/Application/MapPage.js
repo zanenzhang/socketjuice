@@ -603,7 +603,7 @@ const {scrollToTime} = useMemo(
         fillOpacity: 1,
         strokeWeight: 1,
         rotation: 0,
-        scale: 0.9,
+        scale: 0.6,
         anchor: new google.maps.Point(30,30),
       }
 
