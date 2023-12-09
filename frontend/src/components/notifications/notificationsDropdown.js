@@ -284,7 +284,7 @@ export default function NotificationsDropdown() {
           id="account-menu"
           open={openMenu}
           onClose={()=>handleClose()}
-          style={{zIndex: 10000}}
+          style={{zIndex: 10000, width: "350px"}}
           PaperProps={{
             style: {  
               width: 350,  

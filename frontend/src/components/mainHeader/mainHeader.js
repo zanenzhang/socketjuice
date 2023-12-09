@@ -20,6 +20,7 @@ import TabContext from "@material-ui/lab/TabContext";
 import TabList from "@material-ui/lab/TabList";
 import TabPanel from "@material-ui/lab/TabPanel";
 
+import socketjuice_small_logo from "../../images/Socketjuice_logo_small.png";
 import socketjuice_full_logo from "../../images/SocketJuice.png";
 import editNewMessagesFill from '../../helpers/Notifications/editNewMessagesFill';
 import checkUser from '../../helpers/DriverData/checkUser';
@@ -702,13 +703,21 @@ const MainHeader = () => {
             <div className="flex flex-row justify-evenly md:justify-between items-center max-w-full w-full h-full 
                 gap-y-1 gap-x-4 sm:gap-x-6 pt-1 overflow-x-hidden flex-shrink-0" >
 
-                <div className='flex flex-row w-3/4 sm:w-1/2 justify-center'>
+                <div className='sm:flex sm:flex-row hidden sm:w-3/4 sm:justify-center'>
                     <Link reloadDocument to={ROUTES.MAP} >
-                        <img className='h-[5vh] sm:h-[6vh] md:h-[7vh] flex-shrink-0 pl-2 md:pl-8' src={socketjuice_full_logo} />
+                        <img className='h-[5vh] sm:h-[6vh] md:h-[7vh] flex-shrink-0 pl-2 md:pl-8' 
+                        src={socketjuice_full_logo} />
                     </Link>
                 </div>
 
                 <div className='flex flex-row w-full justify-center gap-x-3 sm:gap-x-4 md:gap-x-6 pr-2'>
+
+                    <div className='sm:hidden flex flex-row justify-center pr-4'>
+                        <Link reloadDocument to={ROUTES.MAP} >
+                            <img className='h-[5vh] sm:h-[6vh] md:h-[7vh] flex-shrink-0 pl-2 md:pl-8' 
+                            src={socketjuice_small_logo} />
+                        </Link>
+                    </div>
 
                     <Link reloadDocument to={ROUTES.MAP} aria-label="StoreDashboard"
                         className={`flex justify-center flex-row items-center hover:bg-[#FFE142]
@@ -849,7 +858,7 @@ const MainHeader = () => {
 
                     <div className='flex flex-col items-center justify-center px-2 sm:px-4 md:px-6 lg:px-10 pb-6 flex-shrink-0'>
                         <img className='w-[300px]' src={socketjuice_full_logo} />
-                        <p className='text-lg text-center'>Share your EV charger to earn extra income or share for free!</p>
+                        <p className='pt-3 text-lg text-center'>Share your EV charger to earn extra income or share for free!</p>
                     </div>
 
                     <div className='py-4 flex flex-col justify-center items-center'>

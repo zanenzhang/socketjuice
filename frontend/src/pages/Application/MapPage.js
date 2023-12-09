@@ -1601,20 +1601,20 @@ const {scrollToTime} = useMemo(
       </div>
 
       {auth.userId && <div className="p-2 rounded-xl m-2 bg-white shadow-sm z-10 
-      flex flex-row border items-center justify-center gap-x-2">
+      flex flex-row border items-center justify-center gap-x-1">
 
         <div className='flex flex-row items-center'> 
 
             <svg xmlns="http://www.w3.org/2000/svg" 
             fill="none" viewBox="0 0 24 24" 
-            className="absolute pl-2 pt-1 h-7 pointer-events-none z-20"
+            className="absolute pl-2 h-6 pointer-events-none z-20"
             strokeWidth="2" stroke="#00D3E0">
               <path strokeLinecap="round" strokeLinejoin="round" 
               d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
             </svg>
 
               <GooglePlacesAutocomplete
-
+                  className="text-sm sm:text-base"
                   apiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}
                   debounce={400}
                   // autocompletionRequest={{
@@ -1629,7 +1629,7 @@ const {scrollToTime} = useMemo(
                       styles: {
                           control: (provided, state) => ({
                               ...provided,
-                              width: "175px",
+                              width: "170px",
                               height: "50px",
                               boxShadow: "#00D3E0",
                               paddingTop: "8px",
@@ -1650,7 +1650,9 @@ const {scrollToTime} = useMemo(
                               },
                               borderColor: "#00d3e080",
                               outlineColor: "#00D3E0",
-                              "--tw-ring-color": "#00D3E0"
+                              "--tw-ring-color": "#00D3E0",
+                              fontSize: "0.875rem",
+                              lineHeight: "1.25rem",
                           }),
                           menu: (provided) => ({
                               ...provided,
@@ -1663,12 +1665,10 @@ const {scrollToTime} = useMemo(
               />
         </div>
 
-        <p>or</p>
-
         <div className='flex flex-row'>
 
             <button className='rounded-md px-1 py-3 border border-[#00D3E0] text-gray-500 
-            w-[175px] h-[50px] flex flex-row items-center' 
+            w-[170px] h-[50px] flex flex-row items-center' 
               onClick={(e)=> handlePanLocation(e)}>
                 
                 {waitingCurrent ?
@@ -1697,7 +1697,7 @@ const {scrollToTime} = useMemo(
                 </div>
                 }
 
-              <p className='pl-2'>Current Location</p>
+              <p className='pl-2 pt-1 text-sm'>Current Location</p>
             </button>
 
         </div>
@@ -1712,7 +1712,7 @@ const {scrollToTime} = useMemo(
               bg-gray-50 border-2 border-[#00D3E0] z-10 items-center px-2'>
 
                 <div className='flex flex-row overflow-x-scroll w-full
-                pl-4 border-b border-gray-500 py-1'>
+                pl-4 border-b border-[#00D3E0] py-1'>
 
                     <div className='flex flex-row items-center justify-start gap-x-3'>
                     <label className='text-right pr-1 text-xs sm:text-sm'>J1772 AC</label>
@@ -1896,13 +1896,14 @@ const {scrollToTime} = useMemo(
        <div className='flex flex-grow justify-end items-end'>
             
             <div className='flex flex-col w-[350px] h-[200px] rounded-xl bg-gray-50 
-              border-2 border-[#00D3E0] z-10 items-center overflow-y-scroll'>
+              border border-[#00D3E0] z-10 items-center overflow-y-scroll'>
 
               <div className='flex flex-row overflow-x-scroll w-full
-                pl-4 border-b border-gray-500 py-4'>
+                pl-4 border-b border-[#00D3E0] py-1'>
 
                     <div className='flex flex-row items-center justify-start gap-x-3'>
-                    <label className='text-right pr-1 text-xs sm:text-sm'>J1772 AC</label>
+                      
+                    <p className='text-right pr-1 text-xs sm:text-sm'>J1772 AC</p>
                     <FormControlLabel
                         label=""
                         control={
@@ -1910,7 +1911,7 @@ const {scrollToTime} = useMemo(
                                 onChange={()=>setj1772ACChecked(!j1772ACChecked)}
                                 style ={{
                                 color: "#00D3E0",
-                                transform: "scale(1.4)",
+                                transform: "scale(1.3)",
                             }}
                             />
                         }
@@ -1918,7 +1919,7 @@ const {scrollToTime} = useMemo(
                     </div>
 
                     <div className='flex flex-row items-center justify-start gap-x-3'>
-                    <label className='text-right pr-1 text-xs sm:text-sm'>CCS1 DC</label>
+                    <p className='text-right pr-1 text-xs sm:text-sm'>CCS1 DC</p>
                     <FormControlLabel
                         label=""
                         control={
@@ -1926,7 +1927,7 @@ const {scrollToTime} = useMemo(
                               onChange={()=>setccs1DCChecked(!ccs1DCChecked)}
                               style ={{
                               color: "#00D3E0",
-                              transform: "scale(1.4)",
+                              transform: "scale(1.3)",
                           }}
                           />
                         }
@@ -1934,7 +1935,7 @@ const {scrollToTime} = useMemo(
                     </div>
 
                     <div className='flex flex-row items-center justify-start gap-x-3'>
-                    <label className='text-right pr-1 text-xs sm:text-sm'>Mennekes AC</label>
+                    <p className='text-right pr-1 text-xs sm:text-sm'>Mennekes AC</p>
                     <FormControlLabel
                         label=""
                         control={
@@ -1942,7 +1943,7 @@ const {scrollToTime} = useMemo(
                               onChange={()=>setmennekesACChecked(!mennekesACChecked)}
                               style ={{
                               color: "#00D3E0",
-                              transform: "scale(1.4)",
+                              transform: "scale(1.3)",
                           }}
                         />
                         }
@@ -1950,7 +1951,7 @@ const {scrollToTime} = useMemo(
                     </div>
 
                     <div className='flex flex-row items-center justify-start gap-x-3'>
-                    <label className='text-right pr-1 text-xs sm:text-sm'>CCS2 DC</label>
+                    <p className='text-right pr-1 text-xs sm:text-sm'>CCS2 DC</p>
                     <FormControlLabel
                         label=""
                         control={
@@ -1958,7 +1959,7 @@ const {scrollToTime} = useMemo(
                               onChange={()=>setccs2DCChecked(!ccs2DCChecked)}
                               style ={{
                               color: "#00D3E0",
-                              transform: "scale(1.4)",
+                              transform: "scale(1.3)",
                           }}
                           />
                         }
@@ -1974,7 +1975,7 @@ const {scrollToTime} = useMemo(
                             onChange={()=>setchademoDCChecked(!chademoDCChecked)}
                             style ={{
                             color: "#00D3E0",
-                            transform: "scale(1.4)",
+                            transform: "scale(1.3)",
                         }}
                         />
                       }
@@ -1990,7 +1991,7 @@ const {scrollToTime} = useMemo(
                               onChange={()=>setgbtACChecked(!gbtACChecked)}
                               style ={{
                               color: "#00D3E0",
-                              transform: "scale(1.4)",
+                              transform: "scale(1.3)",
                           }}
                           />
                         }
@@ -2006,7 +2007,7 @@ const {scrollToTime} = useMemo(
                                 onChange={()=>setgbtDCChecked(!gbtDCChecked)}
                                 style ={{
                                 color: "#00D3E0",
-                                transform: "scale(1.4)",
+                                transform: "scale(1.3)",
                             }}
                             />
                         }
@@ -2022,7 +2023,7 @@ const {scrollToTime} = useMemo(
                                 onChange={()=>setTeslaChecked(!teslaChecked)}
                                 style ={{
                                 color: "#00D3E0",
-                                transform: "scale(1.4)",
+                                transform: "scale(1.3)",
                             }}
                             />
                         }
