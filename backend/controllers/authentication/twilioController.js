@@ -60,7 +60,6 @@ async function sendVerification (req, res) {
                     client.verify.v2.services(process.env.TWILIO_SOCKETJUICE_SID)
                     .verifications
                     .create({
-                        customFriendlyName: 'SocketJuice',
                         to: `${number}`, 
                         channel: 'sms',
                     })
