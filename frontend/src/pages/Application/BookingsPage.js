@@ -1777,7 +1777,7 @@ const handleRegularHourChangeEnd = (event, day) => {
           <div className='pt-1 pb-4 flex flex-col gap-y-3 w-full justify-center items-center'>
 
           <p>Recent Bookings From Other EV Drivers</p>
-          {deactivated && <p className='py-2'>Please note: You are currently not offering charging in your host settings</p>}
+          {deactivated && <p className='py-2 font-semibold font-lg'>Please note: Your host location is currently turned off. To turn back on, please go to the settings panel.</p>}
 
             <div className='flex flex-col w-[350px] max-h-[400px] overflow-y-auto mx-2 my-2 
               hover:cursor-pointer border-y border-gray-500'>

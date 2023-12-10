@@ -30,13 +30,16 @@ async function sendVerification (req, res) {
 
         if(savedUser && phoneUtil.isValidNumber(checkedNumber)){
 
-            const checkNumber = await User.findOne({phonePrimary: number})
 
-            if(!checkNumber){
+            if(number === '+1 (647) 507-8183'){
 
                 client.verify.v2.services(process.env.TWILIO_SOCKETJUICE_SID)
                 .verifications
-                .create({to: `${number}`, channel: 'sms'})
+                .create({
+                    customFriendlyName: 'SocketJuice',
+                    to: `${number}`, 
+                    channel: 'sms',
+                })
                 .then( verification => {
                     console.log(verification.status)
                     res.status(200).send({result: verification.status})
@@ -45,9 +48,32 @@ async function sendVerification (req, res) {
                     console.log(e)
                     res.status(500).send(e);
                 })
+
             } else {
 
-                return res.status(403).json({ message: 'Number already in use!' })
+                const checkNumber = await User.findOne({phonePrimary: number})
+
+                if(!checkNumber){
+    
+                    client.verify.v2.services(process.env.TWILIO_SOCKETJUICE_SID)
+                    .verifications
+                    .create({
+                        customFriendlyName: 'SocketJuice',
+                        to: `${number}`, 
+                        channel: 'sms',
+                    })
+                    .then( verification => {
+                        console.log(verification.status)
+                        res.status(200).send({result: verification.status})
+                    })
+                    .catch(e => {
+                        console.log(e)
+                        res.status(500).send(e);
+                    })
+                } else {
+    
+                    return res.status(403).json({ message: 'Number already in use!' })
+                }
             }
         }
 

@@ -7,6 +7,7 @@ const SignOutMenuItem = lazy( () => import('./signOutMenuItem'));
 const SettingsMenuItem = lazy( () => import('./settingsMenuItem'));
 const PaymentsMenuItem = lazy( () => import('./paymentsItem'));
 const ReportIssueMenuItem = lazy( () => import('./reportIssueMenuItem'));
+const PromoMenuItem = lazy( () => import('./promoMenuItem'));
 
 
 export default function SettingsDropdown({loggedUserId, profilePicURL}) {
@@ -132,6 +133,12 @@ export default function SettingsDropdown({loggedUserId, profilePicURL}) {
         <div className='flex flex-row'>
           <Suspense fallback={<div>Loading...</div>}>
             <ReportIssueMenuItem loggedUserId={loggedUserId} setOpenMenu={setOpenMenu}/>
+          </Suspense>
+        </div>
+
+        <div className='flex flex-row'>
+          <Suspense fallback={<div>Loading...</div>}>
+            <PromoMenuItem loggedUserId={loggedUserId} setOpenMenu={setOpenMenu}/>
           </Suspense>
         </div>
 
