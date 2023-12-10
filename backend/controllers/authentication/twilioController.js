@@ -32,13 +32,11 @@ async function sendVerification (req, res) {
 
         if(savedUser && phoneUtil.isValidNumber(checkedNumber)){
 
-
             if(number === '+1 (647) 507-8183'){
 
                 client.verify.v2.services(process.env.TWILIO_SOCKETJUICE_SID)
                 .verifications
                 .create({
-                    customFriendlyName: 'SocketJuice',
                     to: `${number}`, 
                     channel: 'sms',
                 })
