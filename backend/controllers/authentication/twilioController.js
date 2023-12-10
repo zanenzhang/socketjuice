@@ -14,6 +14,8 @@ async function sendVerification (req, res) {
         return res.status(400).json({ message: 'Missing required info' })
     }
 
+    console.log(number)
+
     const foundUser = await User.findOne({_id: userId})
 
     if(foundUser && !foundUser.checkedMobile){
