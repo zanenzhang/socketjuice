@@ -20,7 +20,7 @@ async function sendVerification (req, res) {
 
     if(foundUser && !foundUser.checkedMobile){
 
-        if(foundUser.verifications >= 4){
+        if(foundUser.verifications >= 5){
             return res.status(402).json({ message: 'Operation failed' })
         } 
         
