@@ -17,6 +17,7 @@ router.get('/searchusers', profileController.searchUsers);
 router.post('/host', profileController.addHostProfile);
 router.post('/userphotos', profileController.uploadUserPhotos);
 router.post('/driver', profileController.updateDriverProfile);
+router.post('/promo', profileController.addPromoCode);
 
 router.patch('/usersettings', profileController.editSettingsUserProfile);
 router.patch('/userpass', profileController.editSettingsUserPass);

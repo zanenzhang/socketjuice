@@ -105,6 +105,11 @@ const userSchema = new Schema({
             ref: 'User' 
         }
     }],
+    usedPromos: [{
+        promo: { 
+            type: String,
+        }
+    }],
     flagsCount: {
         type: Number,
         default: 0

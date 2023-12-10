@@ -18,6 +18,10 @@ var usageLimitSchema = new Schema({
         type: Number,
         default: 0
     },
+    promotionRedemptionRequests: {
+        type: Number,
+        default: 0
+    },
     numberOfMessages: [{
         date: { 
             type: String, 

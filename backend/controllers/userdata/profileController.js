@@ -1721,8 +1721,6 @@ const searchUsers = async (req, res) => {
 
     try {
 
-        console.log(searchObj)
-
         const foundUsers = await User.find(searchObj).select("_id profilePicURL firstName lastName flagged deactivated")
 
         if(foundUsers){
@@ -1740,8 +1738,83 @@ const searchUsers = async (req, res) => {
 }
 
 
+const addPromoCode = async (req, res) => {
+
+    var { loggedUserId, promoCode } = req.body
+
+    console.log("Checking promo code")
+
+    if (!loggedUserId ) {
+        return res.status(400).json({ message: 'User ID Required' })
+    }
+
+    const foundLimits = await UsageLimit.findOne({_userId: loggedUserId})
+
+    if(foundLimits){
+        
+        if(foundLimits.promotionRedemptionRequests >= 10){
+        
+            return res.status(400).json({ message: 'Too many redemption attempts' })
+        
+        } else {
+
+            foundLimits.promotionRedemptionRequests = foundLimits.promotionRedemptionRequests + 1
+
+            const foundUser = await User.findOne({_id: loggedUserId})
+            const savedLimits = await foundLimits.save()
+
+            if(foundUser && !foundUser.deactivated && savedLimits){
+
+                if(promoCode !== "2023free10can" && promoCode !== "2023free10usa"){
+                    return res.status(401).json({ message: 'Wrong promo code' })
+                }
+
+                if(foundUser.usedPromos?.length > 1){
+                    
+                    return res.status(201).json({ message: 'Already used the sign-up promo code!' })
+                }
+
+                if(foundUser.usedPromos.some(e => e.promo.slice(0,9) === promoCode.slice(0,9))){
+                    
+                    return res.status(201).json({ message: 'Already used this promo code!' })
+
+                } else {
+                    
+                    foundUser.usedPromos.push({promo: promoCode})
+
+                    var currencyCode = ""
+                    if(promoCode === "2023free10can"){
+                        currencyCode = "cad"
+                    } else if(promoCode === "2023free10usa"){
+                        currencyCode = "usd"
+                    }
+
+                    var credited = false
+
+                    for(let i=0; i< foundUser.credits?.length; i++){
+                        if(foundUser.credits[i].currency.toLowerCase() === currencyCode){
+                            foundUser.credits[i].amount = foundUser.credits[i].amount + 10
+                            credited = true
+                            break
+                        }
+                    }
+
+                    if(credited){
+                        const savedUser = await foundUser.save()
+                        if(savedUser){
+                            return res.status(200).json({ message: 'Successfully credited!' })
+                        }
+                    } else {
+                        return res.status(401).json({ message: 'Wrong promo code' })
+                    }
+                }  
+            }
+        }
+    }
+}
+
 module.exports = { getDriverProfile, editSettingsUserProfile, editSettingsUserPass, editSettingsUserGeneral, 
     editProfilePic, getUserIdByUsername, getProfilePicByUserId, checkUser, getProfileData, 
     deleteOldProfilePic, addUserBan, removeUserBan, makePrivate, makePublic, checkStage, getUserData,
     editUserReceivePayments, uploadUserPhotos, updateDriverProfile, 
-    addHostProfile, searchUsers }
+    addHostProfile, searchUsers, addPromoCode }
