@@ -1783,9 +1783,9 @@ const addPromoCode = async (req, res) => {
                     foundUser.usedPromos.push({promo: promoCode})
 
                     var currencyCode = ""
-                    if(promoCode === "2023free10can"){
+                    if(promoCode === "2023free20can"){
                         currencyCode = "cad"
-                    } else if(promoCode === "2023free10usa"){
+                    } else if(promoCode === "2023free20usa"){
                         currencyCode = "usd"
                     }
 
@@ -1793,7 +1793,7 @@ const addPromoCode = async (req, res) => {
 
                     for(let i=0; i< foundUser.credits?.length; i++){
                         if(foundUser.credits[i].currency.toLowerCase() === currencyCode){
-                            foundUser.credits[i].amount = foundUser.credits[i].amount + 10
+                            foundUser.credits[i].amount = foundUser.credits[i].amount + 20
                             credited = true
                             break
                         }
