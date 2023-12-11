@@ -5,6 +5,7 @@ import Modal from '@mui/material/Modal';
 import useAuth from '../../hooks/useAuth';
 
 import addPromoCode from '../../helpers/Userdata/addPromoCode';
+import getUserData from "../../helpers/Userdata/getUserData";
 
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -12,7 +13,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const PromoMenuItem = ({setOpenMenu}) => {
 
-  const { auth } = useAuth();
+  const { auth, setAuth } = useAuth();
   const [openModal, setOpenModal] = useState(false);
 
   const MESSAGE_REGEX = /^.{6,40}$/;
@@ -75,24 +76,41 @@ const PromoMenuItem = ({setOpenMenu}) => {
 
       console.log(submitted)
 
-      setReplyMessage("Congrats! Promo redeemed!")
+      const userdata = await getUserData(auth.accessToken, auth.userId)
+
+      if(userdata){
+          
+          setAuth(prev => {
+      
+              return {
+                  ...prev,
+                  credits: userdata.foundUser?.credits,
+                  escrow: userdata.foundUser?.escrow,
+                  requestedPayout: userdata.foundUser?.requestedPayout,
+                  requestedPayoutCurrency: userdata.foundUser?.requestedPayoutCurrency,
+                  requestedPayoutOption: userdata.foundUser?.requestedPayoutOption,
+              }
+          });
+
+          setReplyMessage("Congrats! Promo redeemed!")
     
-      toast.success("Congrats! Redeemed $10 in credits!", {
-        position: "bottom-center",
-        autoClose: 1500,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-        });
+          toast.success("Congrats! Redeemed $20 in credits!", {
+            position: "bottom-center",
+            autoClose: 1500,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+            });
 
-      setSentPromoCode(true);
-      setWaiting(false);
+          setSentPromoCode(true);
+          setWaiting(false);
 
-      setOpenModal(false);
-      setOpenMenu(false);
+          setOpenModal(false);
+          setOpenMenu(false);
+      }
 
     } else if(submitted && submitted?.status === 201){
 
