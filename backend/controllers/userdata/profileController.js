@@ -1765,7 +1765,7 @@ const addPromoCode = async (req, res) => {
 
             if(foundUser && !foundUser.deactivated && savedLimits){
 
-                if(promoCode !== "2023free10can" && promoCode !== "2023free10usa"){
+                if(promoCode !== "2023free20can" && promoCode !== "2023free20usa"){
                     return res.status(401).json({ message: 'Wrong promo code' })
                 }
 

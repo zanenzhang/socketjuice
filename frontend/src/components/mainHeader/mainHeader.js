@@ -37,8 +37,8 @@ const MainHeader = () => {
     const [waiting, setWaiting] = useState(false);
     
     const [value, setValue] = useState("0");
-    const [registerTab, setRegisterTab] = useState(true);
-    const [loginTab, setLoginTab] = useState(false);
+    const [registerTab, setRegisterTab] = useState(false);
+    const [loginTab, setLoginTab] = useState(true);
     const [inputType, setInputType] = useState("password");
 
     const [lat, setLat] = useState(0);
