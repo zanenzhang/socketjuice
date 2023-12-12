@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-
+import { useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import useAuth from '../../hooks/useAuth';
@@ -27,6 +27,8 @@ const PromoMenuItem = ({setOpenMenu}) => {
   const [promoCodeFocus, setPromoCodeFocus] = useState(false);
 
   const [waiting, setWaiting] = useState(false)
+
+  const navigate = useNavigate()
   
   useEffect(() => {
     setValidPromoCode(MESSAGE_REGEX.test(promoCode));
@@ -79,6 +81,8 @@ const PromoMenuItem = ({setOpenMenu}) => {
       const userdata = await getUserData(auth.accessToken, auth.userId)
 
       if(userdata){
+
+        console.log(userdata)
           
           setAuth(prev => {
       
@@ -94,22 +98,17 @@ const PromoMenuItem = ({setOpenMenu}) => {
 
           setReplyMessage("Congrats! Promo redeemed!")
     
-          toast.success("Congrats! Redeemed $20 in credits!", {
-            position: "bottom-center",
-            autoClose: 1500,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "colored",
-            });
+          alert("Congrats! Redeemed $20 in credits!");
 
           setSentPromoCode(true);
           setWaiting(false);
 
           setOpenModal(false);
           setOpenMenu(false);
+
+          setTimeout( () => {
+            navigate(0);
+          }, 300)
       }
 
     } else if(submitted && submitted?.status === 201){

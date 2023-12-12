@@ -989,6 +989,11 @@ export default function PaymentsPage() {
                 }
                 setUserCurrencies(currencies)
             }
+
+            if(auth?.currency){
+                setPaymentCurrency(auth?.currency)
+                setPayoutCurrency(auth?.currency)
+            }
         }
 
       }, [auth, tabValue])

@@ -1765,7 +1765,7 @@ const addPromoCode = async (req, res) => {
 
             if(foundUser && !foundUser.deactivated && savedLimits){
 
-                if(promoCode !== "2023free20can" && promoCode !== "2023free20usa"){
+                if(promoCode !== "2023FREE20CAN" && promoCode !== "2023FREE20USA"){
                     return res.status(401).json({ message: 'Wrong promo code' })
                 }
 
@@ -1783,9 +1783,9 @@ const addPromoCode = async (req, res) => {
                     foundUser.usedPromos.push({promo: promoCode})
 
                     var currencyCode = ""
-                    if(promoCode === "2023free20can"){
+                    if(promoCode === "2023FREE20CAN"){
                         currencyCode = "cad"
-                    } else if(promoCode === "2023free20usa"){
+                    } else if(promoCode === "2023FREE20USA"){
                         currencyCode = "usd"
                     }
 
