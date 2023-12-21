@@ -742,6 +742,8 @@ const VerifyPage = () => {
                         });
 
                         setSubmittedPhotos(true)
+                        setCroppedImageURLId([])
+                        setCroppedImageId([])
                         
                         setTimeout( ()=> {
 
