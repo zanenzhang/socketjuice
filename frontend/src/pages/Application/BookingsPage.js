@@ -138,7 +138,7 @@ const BookingsPage = () => {
   const [closedOnFriday, setClosedOnFriday] = useState(false);
   const [closedOnSaturday, setClosedOnSaturday] = useState(false);
   const [closedOnSunday, setClosedOnSunday] = useState(false);
-  const [closedOnHolidays, setClosedOnHolidays] = useState(false);
+  const [closedOnHolidays, setClosedOnHolidays] = useState(true);
 
   const [hoursMondayStart, setHoursMondayStart] = useState('09:00');
   const [validhoursMondayStart, setValidhoursMondayStart] = useState(false);
@@ -2806,10 +2806,10 @@ const handleRegularHourChangeEnd = (event, day) => {
                   <div className='flex flex-col gap-y-1 pl-6'>
                     <p>Booked With: {event.hostFirstName}</p>
                     <p>Date: {event.start.toLocaleDateString(undefined, {weekday: 'long', year: 'numeric', month: 'short', day: 'numeric'})}</p>
-                    <p>Address: {event.address.slice(0, (event.address.lastIndexOf(',', (event.address).lastIndexOf(',')-1))) }</p>
+                    {event.status === "Approved" && <p>Address: {event.address.slice(0, (event.address.lastIndexOf(',', (event.address).lastIndexOf(',')-1))) }</p>}
                     <p>Start: {event.start.toLocaleTimeString()}</p>
                     <p>End: {event.end.toLocaleTimeString()}</p>
-                    <p>Host Message: {event.hostComments}</p>
+                    {event.status === "Approved" && <p>Host Message: {event.hostComments}</p>}
                     <p>Status: {event.status === "CancelSubmitted" ? "Asked to Cancel" : event.status}</p>
                   </div>
 

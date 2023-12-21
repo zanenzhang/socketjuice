@@ -1847,28 +1847,24 @@ const {scrollToTime} = useMemo(
                   
                   <div key={`${host._id}_leftsquare`} onClick={(e)=>handleAddressClick(e, host)}
                     className={`w-full flex flex-col px-2 bg-[#c1f2f5]
-                    py-2 ${currentMarker === host._id ? 'border-4 border-[#FFE142] '   
+                    py-1 ${currentMarker === host._id ? 'border-4 border-[#FFE142] '   
                     : 'border border-gray-300  '} rounded-lg`}
                     ref={scrollRefs[host._id]}>
                     
-                    <div className='flex flex-row'>
-                      
-                      <svg version="1.2" baseProfile="tiny" 
+                    
+                    <div className='flex flex-row w-full items-center'>
+
+                    <svg version="1.2" baseProfile="tiny" 
+                    className='mr-3'
                       xmlns="http://www.w3.org/2000/svg" 
-                      width="25" height="25" viewBox="0 0 50 50" 
+                      width="30" height="30" viewBox="0 0 50 50" 
                       fill={colorsList[index]}
                       overflow="inherit">
                         <path d="M25 0c-8.284 0-15 6.656-15 14.866 0 8.211 15 35.135 15 35.135s15-26.924 15-35.135c0-8.21-6.716-14.866-15-14.866zm-.049 19.312c-2.557 0-4.629-2.055-4.629-4.588 0-2.535 2.072-4.589 4.629-4.589 2.559 0 4.631 2.054 4.631 4.589 0 2.533-2.072 4.588-4.631 4.588z"/>
                       </svg>
-
-                      <p className='text-base pl-1'>{host?.addressArray.slice(0, -2).join(", ")}</p>
-                    
-                    </div>
-                    
-                    <div className='flex flex-row w-full justify-between items-center'>
                       
                       <div className='flex flex-col w-full gap-y-1 justify-center h-[69px]'>
-                        <p className='text-base'>Distance: {host.distanceText} / {host.durationText}</p>
+                      <p className='text-base'>Distance: {host.distanceText} / {host.durationText}</p>
                         <p className='text-base'>30 Min Rate: {host.currencySymbol}{Number(host.chargeRatePerHalfHourFee).toFixed(2)}</p>
                       </div>
                     
@@ -2034,28 +2030,24 @@ const {scrollToTime} = useMemo(
                 {hostLocations.map((host, index) => (
                   
                   <div key={`${host._id}_leftsquare`} onClick={(e)=>handleAddressClick(e, host)}
-                    className={`w-full flex flex-col px-3 bg-[#c1f2f5] my-1
-                    py-2 ${currentMarker === host._id ? 'border-4 border-[#FFE142] '   
+                    className={`w-full flex flex-col px-2 bg-[#c1f2f5] my-1 
+                    py-1 ${currentMarker === host._id ? 'border-4 border-[#FFE142] '   
                     : 'border border-gray-300  '} rounded-lg`}
                     ref={scrollRefs[host._id]}>
+                  
                     
-                    <div className='flex flex-row m-1'>
-                      
-                      <svg version="1.2" baseProfile="tiny" 
+                    <div className='flex flex-row w-full items-center'>
+
+                    <svg version="1.2" baseProfile="tiny" 
                       xmlns="http://www.w3.org/2000/svg" 
-                      width="25" height="25" viewBox="0 0 50 50" 
+                      className='mr-3'
+                      width="30" height="30" viewBox="0 0 50 50" 
                       fill={colorsList[index]}
                       overflow="inherit">
                         <path d="M25 0c-8.284 0-15 6.656-15 14.866 0 8.211 15 35.135 15 35.135s15-26.924 15-35.135c0-8.21-6.716-14.866-15-14.866zm-.049 19.312c-2.557 0-4.629-2.055-4.629-4.588 0-2.535 2.072-4.589 4.629-4.589 2.559 0 4.631 2.054 4.631 4.589 0 2.533-2.072 4.588-4.631 4.588z"/>
                       </svg>
-
-                      <p className='text-base pl-1'>{host?.addressArray.slice(0, -2).join(", ")}</p>
-                    
-                    </div>
-                    
-                    <div className='flex flex-row w-full justify-between items-center'>
                       
-                      <div className='flex flex-col w-full gap-y-1 h-[69px]'>
+                      <div className='flex flex-col w-full gap-y-1 justify-center h-[69px]'>
                         <p className='text-base'>Distance: {host.distanceText} / {host.durationText}</p>
                         <p className='text-base'>30 Min Rate: {host.currencySymbol}{Number(host.chargeRatePerHalfHourFee).toFixed(2)}</p>
                       </div>
