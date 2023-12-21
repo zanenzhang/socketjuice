@@ -1238,6 +1238,8 @@ const handleRegularHourChangeEnd = (event, day) => {
 
         mediaLength = croppedImage?.length
 
+        console.log(croppedImage)
+
         while (mediaLength > 0 && currentIndex < mediaLength){
 
             if(croppedImageURL?.length > 0 && croppedImage[currentIndex] !== undefined){
