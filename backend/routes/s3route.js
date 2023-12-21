@@ -39,14 +39,12 @@ router.post("/singleimage", upload.single("image"), async (req, res) => {
     
     console.log("SINGLE PRINT")
 
-    console.log(req)
     console.log(req.file)
-    console.log(req.files)
 
   // uploading to AWS S3
     try {
 
-        const uploaded = await uploadFilePic(req.file, res, function(err){
+        const uploaded = await uploadFilePic(req.file, res, async function(err){
 
             if(req.fileValidationError){
                 return res.end(req.fileValidationError)
