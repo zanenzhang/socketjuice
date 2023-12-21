@@ -22,8 +22,6 @@ const s3 = new S3({
 // UPLOAD FILE TO S3
 async function uploadFilePic(file) {
 
-  console.log(file)
-
   const fileStream = fs.createReadStream(file?.path);
   const randomName = Crypto.randomUUID()
   const objectKey = `${randomName}-${file.originalname}`
