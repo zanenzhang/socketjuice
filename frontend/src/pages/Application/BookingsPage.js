@@ -1911,7 +1911,7 @@ const handleRegularHourChangeEnd = (event, day) => {
             <CameraPlug croppedImage={croppedImage} setCroppedImage={setCroppedImage} croppedImageURL={croppedImageURL} setCroppedImageURL={setCroppedImageURL} 
               coverIndex={coverIndex} setCoverIndex={setCoverIndex} mediaTypes={mediaTypes} setMediaTypes={setMediaTypes} videoArray={videoArray} setVideoArray={setVideoArray} 
               videoURLArray={videoURLArray} setVideoURLArray={setVideoURLArray}  videoThumbnails={videoThumbnails} setVideoThumbnails={setVideoThumbnails} 
-              oldMediaTrack={oldMediaTrack} setOldMediaTrack={setOldMediaTrack} limit={5} />
+              oldMediaTrack={oldMediaTrack} setOldMediaTrack={setOldMediaTrack} />
             
           </div>
 

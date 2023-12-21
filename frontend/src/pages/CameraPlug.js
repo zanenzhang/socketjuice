@@ -38,7 +38,7 @@ const colorScheme = [
 
 export default function CameraPlug({croppedImage, setCroppedImage, croppedImageURL, setCroppedImageURL, 
   coverIndex, setCoverIndex, mediaTypes, setMediaTypes, videoArray, setVideoArray, videoURLArray, 
-  setVideoURLArray, videoThumbnails, setVideoThumbnails, oldMediaTrack, setOldMediaTrack, limit}) {
+  setVideoURLArray, videoThumbnails, setVideoThumbnails, oldMediaTrack, setOldMediaTrack}) {
 
   const [isUseCamera, setUseCamera] = useState(false);
   const [photo, setPhoto] = useState(null);
@@ -842,7 +842,7 @@ const handleSelfieCamera = () => {
 
                     }
 
-                {(croppedImage?.length > 0 && croppedImage?.length < limit ) && 
+                {(croppedImage?.length > 0 && croppedImage?.length < 5 ) && 
 
                 <div className="py-2">
 

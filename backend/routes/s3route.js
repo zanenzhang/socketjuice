@@ -41,6 +41,7 @@ router.post("/singleimage", upload.single("image"), async (req, res) => {
 
     console.log(req)
     console.log(req.file)
+    console.log(req.files)
 
   // uploading to AWS S3
     try {
