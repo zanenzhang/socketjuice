@@ -1238,8 +1238,6 @@ const handleRegularHourChangeEnd = (event, day) => {
 
         mediaLength = croppedImage?.length
 
-        console.log(croppedImage)
-
         while (mediaLength > 0 && currentIndex < mediaLength){
 
             if(croppedImageURL?.length > 0 && croppedImage[currentIndex] !== undefined){
@@ -1247,6 +1245,7 @@ const handleRegularHourChangeEnd = (event, day) => {
                 const formData = new FormData();
                 const file = new File([croppedImage[currentIndex]], `${auth.userId}.jpeg`, { type: "image/jpeg" })
                 formData.append("image", file);
+                console.log("FORM1", formData)
                 
                 const nsfwResults = await axios.post("/nsfw/check", 
                     formData,
@@ -1273,6 +1272,8 @@ const handleRegularHourChangeEnd = (event, day) => {
                 }            
 
                 if(check1 && check2){
+
+                  console.log("FORM1", formData)
 
                     try {
                         const response = await axios.post(IMAGE_UPLOAD_URL, 
