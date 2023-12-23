@@ -41,7 +41,7 @@ router.post("/singleimage", upload.single("image"), async (req, res) => {
 
     console.log(req.file)
 
-  // uploading to AWS S3
+    // uploading to AWS S3
     try {
 
         const uploaded = await uploadFilePic(req.file, res, async function(err){
@@ -54,7 +54,6 @@ router.post("/singleimage", upload.single("image"), async (req, res) => {
                 console.log(err)
                 return res.status(400).json({ message: 'Failed' })
             }
-
         });
     
         if(uploaded){
@@ -66,7 +65,6 @@ router.post("/singleimage", upload.single("image"), async (req, res) => {
             console.log("S3 response", uploaded);
             
             return res.status(200).json( uploaded );
-        
         }
 
     } catch (err) {
