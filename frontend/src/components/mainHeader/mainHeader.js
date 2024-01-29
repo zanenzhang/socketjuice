@@ -160,7 +160,7 @@ const MainHeader = () => {
             
             if(e.value?.place_id){
 
-                const latlong = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?place_id=${e.value.place_id}&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`)
+                const latlong = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?place_id=${e.value.place_id}&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY_UNRESTRICTED}`)
 
                 if(latlong.data.results[0]){
                     console.log(latlong.data.results[0])
