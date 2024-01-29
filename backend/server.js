@@ -93,7 +93,7 @@ app.use('/api/refresh', cors(corsOptions), require('./routes/refresh'));
 app.use('/api/logout', cors(corsOptions), require('./routes/logout'));
 app.use('/api/activate', cors(), require('./routes/activate'));
 app.use('/api/resendverification', cors(corsOptions), require('./routes/resendverification'));
-app.use('/api/resetpassword', cors(corsOptions), require('./routes/resetpassword'));
+app.use('/api/resetpassword', cors(), require('./routes/resetpassword'));
 app.use('/api/inputnewpassword', cors(), require('./routes/inputnewpassword'));
 app.use('/api/userdata', cors(), require('./routes/userdata'));
 

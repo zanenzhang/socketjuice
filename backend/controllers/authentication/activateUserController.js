@@ -29,7 +29,7 @@ const handleUserActivation = async (req, res) => {
       return res.status(401).json({message: 'The user cannot be validated!'})
     }
 
-    const token = await ActivateToken.findOne({ token: hash })
+    const token = await ActivateToken.findOne({where: { token: hash }})
     // token is not found into database i.e. token may have expired 
     if (!token){
 
